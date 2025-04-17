@@ -1,0 +1,11 @@
+flask==2.3.0
+flask-sqlalchemy==3.0.5
+flask-login==0.6.2
+flask-wtf==1.2.1
+requests==2.31.0
+python-dotenv==1.0.0
+geopy==2.4.0
+gunicorn==21.2.0
+pyproj==3.6.0
+firebase-admin==6.5.0
+pyrebase4==4.7.1

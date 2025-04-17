@@ -1,0 +1,88 @@
+/* 精靈公車主要樣式表 */
+
+/* 全局樣式 */
+body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+/* 導航欄品牌樣式 */
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+/* 卡片樣式增強 */
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+}
+
+/* 登入和註冊表單樣式 */
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* 按鈕樣式 */
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+/* 頁腳樣式 */
+footer {
+    margin-top: 3rem;
+    padding: 1rem 0;
+}
+
+/* 精靈元素類型的色彩 */
+.type-fire {
+    color: #ff4422;
+}
+
+.type-water {
+    color: #3399ff;
+}
+
+.type-earth {
+    color: #78c850;
+}
+
+.type-air {
+    color: #a890f0;
+}
+
+.type-electric {
+    color: #f8d030;
+}
+
+.type-normal {
+    color: #a8a878;
+}
+
+/* 響應式調整 */
+@media (max-width: 768px) {
+    .jumbotron {
+        padding: 2rem 1rem;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+}

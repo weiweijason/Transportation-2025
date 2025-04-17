@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}個人資料 - 精靈公車{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4>玩家資料</h4>
+            </div>
+            <div class="card-body text-center">
+                <img src="{{ url_for('static', filename='img/avatar-default.png') }}" alt="玩家頭像" class="rounded-circle mb-3" style="width: 150px; height: 150px;">
+                <h5 class="card-title">{{ session['user']['username'] }}</h5>
+                <p class="card-text">等級：<span id="user-level">1</span></p>
+                <p class="card-text">經驗值：<span id="user-exp">0</span> / 100</p>
+                <div class="progress mb-3">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: 0%" id="exp-progress"></div>
+                </div>
+                <button class="btn btn-outline-primary">修改資料</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4>我的精靈</h4>
+            </div>
+            <div class="card-body">
+                <div class="row" id="creature-list">
+                    <div class="col-12 text-center">
+                        <p class="text-muted">你還沒有捕捉到任何精靈。</p>
+                        <a href="{{ url_for('game.catch_creatures') }}" class="btn btn-primary">開始捕捉精靈</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4>我的擂台</h4>
+            </div>
+            <div class="card-body">
+                <div class="row" id="arena-list">
+                    <div class="col-12 text-center">
+                        <p class="text-muted">你還沒有擁有的擂台。</p>
+                        <a href="{{ url_for('game.arena_list') }}" class="btn btn-primary">前往挑戰擂台</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 從Firebase獲取用戶數據
+    document.addEventListener('DOMContentLoaded', function() {
+        // 模擬用戶數據 (實際使用時替換為從Firebase獲取的數據)
+        const userData = {
+            username: "{{ session['user']['username'] }}",
+            level: 3,
+            experience: 250,
+            next_level_exp: 300
+        };
+        
+        // 更新用戶數據顯示
+        document.getElementById('user-level').textContent = userData.level;
+        document.getElementById('user-exp').textContent = userData.experience;
+        
+        // 計算並更新經驗值進度條
+        const expPercentage = (userData.experience / userData.next_level_exp) * 100;
+        document.getElementById('exp-progress').style.width = expPercentage + '%';
+    });
+</script>
+{% endblock %}
