@@ -104,3 +104,38 @@ class BusPosition(db.Model):
     
     def __repr__(self):
         return f'<BusPosition {self.plate_numb} ({self.route.name if self.route else "Unknown"})>'
+
+
+class BusRouteShape(db.Model):
+    """公車路線形狀模型"""
+    __tablename__ = 'bus_route_shapes'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    route_uid = db.Column(db.String(50), nullable=False)  # TDX API 路線UID
+    sub_route_uid = db.Column(db.String(50), nullable=False)  # TDX API 子路線UID
+    route_id = db.Column(db.Integer, db.ForeignKey('bus_routes.id'))
+    direction = db.Column(db.Integer, nullable=False)  # 去程/返程 (0:去程, 1:返程)
+    geometry = db.Column(db.Text)  # GeoJSON 格式的路線幾何資訊
+    encoded_polyline = db.Column(db.Text)  # Google編碼折線格式
+    version_id = db.Column(db.Integer)  # 資料版本號
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow)  # 資料更新時間
+    
+    # 關聯
+    route = db.relationship('BusRoute', backref='route_shapes')
+    
+    def to_dict(self):
+        """將路線形狀資料轉換為字典（用於API）"""
+        return {
+            'id': self.id,
+            'route_uid': self.route_uid,
+            'sub_route_uid': self.sub_route_uid,
+            'route_id': self.route_id,
+            'direction': self.direction,
+            'geometry': self.geometry,
+            'encoded_polyline': self.encoded_polyline,
+            'version_id': self.version_id,
+            'updated_at': self.updated_at.isoformat()
+        }
+    
+    def __repr__(self):
+        return f'<BusRouteShape {self.route_uid} (direction: {self.direction})>'

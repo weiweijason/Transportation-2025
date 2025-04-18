@@ -53,6 +53,19 @@
         width: 50px;
         height: 50px;
     }
+    .bus-routes-legend {
+        padding: 10px;
+        background: white;
+        border-radius: 5px;
+        box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+    }
+    .route-line {
+        display: inline-block;
+        width: 30px;
+        height: 3px;
+        margin-right: 8px;
+        vertical-align: middle;
+    }
 </style>
 {% endblock %}
 
@@ -73,7 +86,8 @@
 <!-- 地圖區域 -->
 <div class="card mb-4">
     <div class="card-body">
-        <h5 class="card-title mb-3">探索地圖</h5>
+        <h5 class="card-title mb-3">貓空右線探索地圖</h5>
+        
         <div id="map"></div>
         
         <div class="location-info">
@@ -110,15 +124,9 @@
 {% block extra_js %}
 <!-- Leaflet JS (OpenStreetMap) -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<!-- 引入公車路線地圖 JS -->
+<script src="{{ url_for('static', filename='js/bus-route-map.js') }}"></script>
 <script>
-    // 地圖和位置變數
-    let map;
-    let userMarker;
-    let userCircle;
-    let userLatLng;
-    let stopsLayer = L.layerGroup();
-    let creaturesLayer = L.layerGroup();
-    
     // 精靈相關變數
     const creatureTypes = [
         { name: '火焰雄獅', type: '火', rarity: '稀有', power: 75, img: 'https://placehold.co/300x200/ff5733/ffffff?text=火焰雄獅' },
@@ -129,326 +137,96 @@
     ];
     
     document.addEventListener('DOMContentLoaded', function() {
-        initMap();
+        // 初始化地圖（bus-route-map.js 中已實現）
+        initMap('map');
+        
+        // 直接加載貓空右線，無需用戶選擇
+        loadCatRightRoute();
         
         // 重新定位按鈕事件
         document.getElementById('refreshLocationBtn').addEventListener('click', function() {
-            showLoading();
-            getUserLocation();
+            updateUserLocation();
         });
+        
+        // 其他頁面初始化代碼...
+        // 根據用戶位置生成附近精靈
+        generateNearbyCreatures();
     });
     
-    // 初始化地圖
-    function initMap() {
-        // 創建地圖實例，設定預設視圖為台北市
-        map = L.map('map').setView([25.0330, 121.5654], 15);
+    // 根據用戶位置生成附近的精靈
+    function generateNearbyCreatures() {
+        // 模擬獲取附近的精靈
+        // 在實際應用中，這裡可以根據用戶位置和公車路線進行更複雜的計算
         
-        // 添加 OpenStreetMap 圖層
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+        const creatureList = document.getElementById('creatureList');
+        creatureList.innerHTML = ''; // 清空現有內容
         
-        // 添加圖層到地圖
-        stopsLayer.addTo(map);
-        creaturesLayer.addTo(map);
+        // 隨機選擇2-4個精靈
+        const creatureCount = Math.floor(Math.random() * 3) + 2;
         
-        // 獲取用戶位置
-        getUserLocation();
-    }
-    
-    // 獲取用戶地理位置
-    function getUserLocation() {
-        showLoading();
-        
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                // 成功回調
-                function(position) {
-                    const latitude = position.coords.latitude;
-                    const longitude = position.coords.longitude;
-                    userLatLng = [latitude, longitude];
-                    
-                    updateUserLocationOnMap(latitude, longitude);
-                    searchNearbyBusStops(latitude, longitude);
-                    generateNearbyCreatures(latitude, longitude);
-                    hideLoading();
-                    
-                    // 更新位置信息
-                    document.getElementById('currentLocation').textContent = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
-                },
-                // 錯誤回調
-                function(error) {
-                    console.error("獲取位置出錯：", error);
-                    hideLoading();
-                    
-                    let errorMsg = '';
-                    switch(error.code) {
-                        case error.PERMISSION_DENIED:
-                            errorMsg = "用戶拒絕了位置請求。";
-                            break;
-                        case error.POSITION_UNAVAILABLE:
-                            errorMsg = "位置信息不可用。";
-                            break;
-                        case error.TIMEOUT:
-                            errorMsg = "獲取位置請求超時。";
-                            break;
-                        case error.UNKNOWN_ERROR:
-                            errorMsg = "發生未知錯誤。";
-                            break;
-                    }
-                    
-                    alert("無法獲取您的位置：" + errorMsg);
-                    document.getElementById('currentLocation').textContent = "無法獲取位置";
-                },
-                // 選項
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
-                }
-            );
-        } else {
-            alert("您的瀏覽器不支持地理定位功能。");
-            hideLoading();
-            document.getElementById('currentLocation').textContent = "不支援定位";
-        }
-    }
-    
-    // 更新用戶位置在地圖上
-    function updateUserLocationOnMap(latitude, longitude) {
-        // 清除之前的用戶標記
-        if (userMarker) map.removeLayer(userMarker);
-        if (userCircle) map.removeLayer(userCircle);
-        
-        // 創建用戶位置圖標
-        const userIcon = L.icon({
-            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34]
-        });
-        
-        // 添加用戶位置標記
-        userMarker = L.marker([latitude, longitude], {icon: userIcon})
-            .addTo(map)
-            .bindPopup("您的當前位置")
-            .openPopup();
-        
-        // 添加範圍圓圈 (500 米半徑)
-        userCircle = L.circle([latitude, longitude], {
-            color: 'blue',
-            fillColor: '#30f',
-            fillOpacity: 0.1,
-            radius: 500
-        }).addTo(map);
-        
-        // 將地圖視圖中心設為用戶位置
-        map.setView([latitude, longitude], 15);
-    }
-    
-    // 搜尋附近公車站
-    function searchNearbyBusStops(latitude, longitude) {
-        // 清除之前的站點
-        stopsLayer.clearLayers();
-        
-        // 這裡僅作示範，實際情況需調用 TDX API 獲取真實公車站點
-        // 模擬附近站點
-        const mockStops = [
-            { name: "政大站", lat: latitude + 0.002, lon: longitude + 0.001 },
-            { name: "木柵站", lat: latitude - 0.001, lon: longitude + 0.002 },
-            { name: "萬芳社區站", lat: latitude + 0.0015, lon: longitude - 0.001 }
-        ];
-        
-        document.getElementById('nearbyStops').textContent = mockStops.map(stop => stop.name).join(', ');
-        
-        // 添加公車站標記
-        mockStops.forEach(stop => {
-            const busIcon = L.icon({
-                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -34]
-            });
+        for (let i = 0; i < creatureCount; i++) {
+            // 隨機選擇一個精靈類型
+            const creatureIndex = Math.floor(Math.random() * creatureTypes.length);
+            const creature = creatureTypes[creatureIndex];
             
-            L.marker([stop.lat, stop.lon], {icon: busIcon})
-                .bindPopup(`<b>${stop.name}</b>`)
-                .addTo(stopsLayer);
-        });
-    }
-    
-    // 生成附近的精靈
-    function generateNearbyCreatures(latitude, longitude) {
-        // 清除現有精靈
-        creaturesLayer.clearLayers();
-        const creatureListElement = document.getElementById('creatureList');
-        creatureListElement.innerHTML = '';
-        
-        // 隨機生成 1-3 個精靈
-        const numCreatures = Math.floor(Math.random() * 3) + 1;
-        const creatures = [];
-        
-        for (let i = 0; i < numCreatures; i++) {
-            // 隨機選擇精靈類型
-            const creatureType = creatureTypes[Math.floor(Math.random() * creatureTypes.length)];
-            
-            // 在用戶 500m 範圍內隨機位置
-            const creatureLat = latitude + (Math.random() - 0.5) * 0.009;
-            const creatureLon = longitude + (Math.random() - 0.5) * 0.009;
-            
-            // 添加特定精靈的其他屬性
-            const creature = {
-                ...creatureType,
-                id: 'creature-' + Date.now() + '-' + i,
-                latitude: creatureLat,
-                longitude: creatureLon,
-                distance: calculateDistance(latitude, longitude, creatureLat, creatureLon)
-            };
-            
-            creatures.push(creature);
-            
-            // 添加精靈標記到地圖
-            const creatureIcon = L.icon({
-                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -34]
-            });
-            
-            L.marker([creatureLat, creatureLon], {icon: creatureIcon})
-                .bindPopup(`<b>${creature.name}</b><br>類型: ${creature.type}<br>稀有度: ${creature.rarity}`)
-                .addTo(creaturesLayer);
-        }
-        
-        // 顯示精靈卡片
-        displayCreatureCards(creatures);
-    }
-    
-    // 顯示精靈卡片
-    function displayCreatureCards(creatures) {
-        const creatureListElement = document.getElementById('creatureList');
-        
-        if (creatures.length === 0) {
-            creatureListElement.innerHTML = `
-                <div class="col-12 text-center py-4">
-                    <p class="mb-0">目前附近沒有發現精靈，請移動到公車站點附近或稍後再試。</p>
-                </div>
-            `;
-            return;
-        }
-        
-        // 清空並添加新的精靈卡片
-        creatureListElement.innerHTML = '';
-        
-        creatures.forEach(creature => {
-            const distanceText = creature.distance < 1 ? 
-                `${Math.round(creature.distance * 1000)} 公尺` : 
-                `${creature.distance.toFixed(2)} 公里`;
-                
-            const typeColorClass = getTypeColorClass(creature.type);
-            const rarityBadgeClass = creature.rarity === '稀有' ? 'bg-danger' : 'bg-secondary';
-            
+            // 創建精靈卡片
             const creatureCard = document.createElement('div');
-            creatureCard.className = 'col-md-4 mb-4';
+            creatureCard.className = 'col-md-4 col-sm-6';
             creatureCard.innerHTML = `
-                <div class="card creature-card h-100">
-                    <div class="card-header ${typeColorClass} text-white">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">${creature.name}</h5>
-                            <span class="badge ${rarityBadgeClass}">${creature.rarity}</span>
-                        </div>
-                    </div>
+                <div class="card creature-card">
                     <img src="${creature.img}" class="card-img-top" alt="${creature.name}">
                     <div class="card-body">
+                        <h5 class="card-title">${creature.name}</h5>
                         <p class="card-text">
-                            <strong>類型:</strong> ${creature.type}<br>
-                            <strong>力量:</strong> ${creature.power}<br>
-                            <strong>距離:</strong> ${distanceText}
+                            類型: <span class="badge bg-${getTypeBadgeColor(creature.type)}">${creature.type}</span><br>
+                            稀有度: ${creature.rarity}<br>
+                            力量: ${creature.power}
                         </p>
-                        <button class="btn btn-success catch-btn" onclick="catchCreature('${creature.id}')">
-                            捕捉精靈
-                        </button>
+                        <button class="btn btn-success catch-btn" data-creature-id="${creatureIndex}">捕捉</button>
                     </div>
                 </div>
             `;
             
-            creatureListElement.appendChild(creatureCard);
+            creatureList.appendChild(creatureCard);
+        }
+        
+        // 為所有捕捉按鈕添加事件
+        document.querySelectorAll('.catch-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const creatureId = this.getAttribute('data-creature-id');
+                catchCreature(creatureId);
+            });
         });
     }
     
-    // 捕捉精靈
-    function catchCreature(creatureId) {
-        showLoading();
-        
-        // 模擬捕捉過程
-        setTimeout(() => {
-            const successRate = Math.random();
-            
-            if (successRate > 0.3) {
-                // 捕捉成功
-                alert("恭喜！您成功捕捉到了精靈！");
-                
-                // 在實際應用中，這裡應該調用 API 將精靈添加到用戶收藏中
-                // 並從地圖和列表中移除被捕捉的精靈
-                document.querySelectorAll('.creature-card').forEach(card => {
-                    if (card.querySelector('button').getAttribute('onclick').includes(creatureId)) {
-                        card.parentElement.remove();
-                    }
-                });
-                
-                // 如果沒有精靈了，顯示提示
-                if (document.querySelectorAll('.creature-card').length === 0) {
-                    document.getElementById('creatureList').innerHTML = `
-                        <div class="col-12 text-center py-4">
-                            <p class="mb-0">附近的精靈都被捕捉了，請移動到其他地點探索。</p>
-                        </div>
-                    `;
-                }
-            } else {
-                // 捕捉失敗
-                alert("糟糕！精靈逃走了，請再試一次！");
-            }
-            
-            hideLoading();
-        }, 1500);
-    }
-    
-    // 根據精靈類型獲取顏色類別
-    function getTypeColorClass(type) {
+    // 根據精靈類型獲取適合的 Bootstrap 徽章顏色
+    function getTypeBadgeColor(type) {
         switch (type) {
-            case '火': return 'bg-danger';
-            case '水': return 'bg-primary';
-            case '草': return 'bg-success';
-            case '電': return 'bg-warning';
-            default: return 'bg-secondary';
+            case '火': return 'danger';
+            case '水': return 'primary';
+            case '草': return 'success';
+            case '電': return 'warning';
+            default: return 'secondary';
         }
     }
     
-    // 計算兩點間的距離（公里）
-    function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371; // 地球半徑，單位為公里
-        const dLat = deg2rad(lat2 - lat1);
-        const dLon = deg2rad(lon2 - lon1);
-        const a = 
-            Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
-            Math.sin(dLon/2) * Math.sin(dLon/2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        return R * c; // 距離，單位為公里
-    }
-    
-    // 角度轉弧度
-    function deg2rad(deg) {
-        return deg * (Math.PI/180);
-    }
-    
-    // 顯示載入中遮罩
-    function showLoading() {
-        document.getElementById('loadingOverlay').style.visibility = 'visible';
-    }
-    
-    // 隱藏載入中遮罩
-    function hideLoading() {
-        document.getElementById('loadingOverlay').style.visibility = 'hidden';
+    // 處理精靈捕捉
+    function catchCreature(creatureId) {
+        const creature = creatureTypes[creatureId];
+        
+        // 模擬捕捉成功率 (在實際應用中，這可能與玩家等級、道具等有關)
+        const successRate = creature.rarity === '稀有' ? 0.6 : 0.8;
+        const isSuccess = Math.random() < successRate;
+        
+        if (isSuccess) {
+            alert(`恭喜！你成功捕捉了 ${creature.name}！`);
+            // 在實際應用中，這裡可以調用 API 將精靈添加到玩家的收藏中
+        } else {
+            alert(`可惜！${creature.name} 逃走了！再試一次吧！`);
+        }
+        
+        // 重新生成精靈
+        generateNearbyCreatures();
     }
 </script>
 {% endblock %}
