@@ -77,16 +77,16 @@
 </div>
 
 <h1 class="mb-4">精靈探索</h1>
-<p class="lead">探索周圍環境，發現並捕捉特殊的公車精靈！</p>
+<p class="lead">探索公車路線，發現並捕捉特殊的公車精靈！</p>
 
 <div class="alert alert-info">
-    <i class="bi bi-info-circle-fill"></i> 提示：移動到不同的公車站點附近會增加發現稀有精靈的機會。
+    <i class="bi bi-info-circle-fill"></i> 提示：不同的公車路線會出現不同種類的精靈，路線重疊處可能會出現多種路線的精靈。
 </div>
 
 <!-- 地圖區域 -->
 <div class="card mb-4">
     <div class="card-body">
-        <h5 class="card-title mb-3">貓空右線探索地圖</h5>
+        <h5 class="card-title mb-3">公車路線探索地圖</h5>
         
         <div id="map"></div>
         
@@ -94,7 +94,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <p><strong>當前位置：</strong> <span id="currentLocation">載入中...</span></p>
-                    <p><strong>附近公車站：</strong> <span id="nearbyStops">搜尋中...</span></p>
+                    <p><strong>精靈生成：</strong> 路線上精靈每5分鐘更新一次，每分鐘有80%機率生成</p>
                 </div>
                 <div class="col-md-6 text-end">
                     <button id="refreshLocationBtn" class="btn btn-primary">
@@ -108,13 +108,13 @@
 
 <!-- 可捕捉的精靈區域 -->
 <div class="creature-container" id="creatureContainer">
-    <h3 class="mb-4">附近的精靈</h3>
+    <h3 class="mb-4">路線上的精靈</h3>
     <div class="row" id="creatureList">
         <div class="col-12 text-center py-5">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">搜尋中...</span>
             </div>
-            <p class="mt-3">正在搜尋附近的精靈...</p>
+            <p class="mt-3">正在搜尋路線上的精靈...</p>
         </div>
     </div>
 </div>
@@ -127,92 +127,18 @@
 <!-- 引入公車路線地圖 JS -->
 <script src="{{ url_for('static', filename='js/bus-route-map.js') }}"></script>
 <script>
-    // 精靈相關變數
-    const creatureTypes = [
-        { name: '火焰雄獅', type: '火', rarity: '稀有', power: 75, img: 'https://placehold.co/300x200/ff5733/ffffff?text=火焰雄獅' },
-        { name: '水晶海豚', type: '水', rarity: '普通', power: 50, img: 'https://placehold.co/300x200/33a1ff/ffffff?text=水晶海豚' },
-        { name: '翠綠蜥蜴', type: '草', rarity: '普通', power: 45, img: 'https://placehold.co/300x200/4caf50/ffffff?text=翠綠蜥蜴' },
-        { name: '雷電貓頭鷹', type: '電', rarity: '稀有', power: 70, img: 'https://placehold.co/300x200/ffd700/ffffff?text=雷電貓頭鷹' },
-        { name: '星塵兔子', type: '一般', rarity: '普通', power: 40, img: 'https://placehold.co/300x200/8c9eff/ffffff?text=星塵兔子' }
-    ];
-    
-    document.addEventListener('DOMContentLoaded', function() {
-        // 初始化地圖（bus-route-map.js 中已實現）
-        initMap('map');
-        
-        // 直接加載貓空右線，無需用戶選擇
-        loadCatRightRoute();
-        
-        // 重新定位按鈕事件
-        document.getElementById('refreshLocationBtn').addEventListener('click', function() {
-            updateUserLocation();
-        });
-        
-        // 其他頁面初始化代碼...
-        // 根據用戶位置生成附近精靈
-        generateNearbyCreatures();
-    });
-    
-    // 根據用戶位置生成附近的精靈
-    function generateNearbyCreatures() {
-        // 模擬獲取附近的精靈
-        // 在實際應用中，這裡可以根據用戶位置和公車路線進行更複雜的計算
-        
-        const creatureList = document.getElementById('creatureList');
-        creatureList.innerHTML = ''; // 清空現有內容
-        
-        // 隨機選擇2-4個精靈
-        const creatureCount = Math.floor(Math.random() * 3) + 2;
-        
-        for (let i = 0; i < creatureCount; i++) {
-            // 隨機選擇一個精靈類型
-            const creatureIndex = Math.floor(Math.random() * creatureTypes.length);
-            const creature = creatureTypes[creatureIndex];
-            
-            // 創建精靈卡片
-            const creatureCard = document.createElement('div');
-            creatureCard.className = 'col-md-4 col-sm-6';
-            creatureCard.innerHTML = `
-                <div class="card creature-card">
-                    <img src="${creature.img}" class="card-img-top" alt="${creature.name}">
-                    <div class="card-body">
-                        <h5 class="card-title">${creature.name}</h5>
-                        <p class="card-text">
-                            類型: <span class="badge bg-${getTypeBadgeColor(creature.type)}">${creature.type}</span><br>
-                            稀有度: ${creature.rarity}<br>
-                            力量: ${creature.power}
-                        </p>
-                        <button class="btn btn-success catch-btn" data-creature-id="${creatureIndex}">捕捉</button>
-                    </div>
-                </div>
-            `;
-            
-            creatureList.appendChild(creatureCard);
-        }
-        
-        // 為所有捕捉按鈕添加事件
-        document.querySelectorAll('.catch-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const creatureId = this.getAttribute('data-creature-id');
-                catchCreature(creatureId);
-            });
-        });
-    }
-    
-    // 根據精靈類型獲取適合的 Bootstrap 徽章顏色
-    function getTypeBadgeColor(type) {
-        switch (type) {
-            case '火': return 'danger';
-            case '水': return 'primary';
-            case '草': return 'success';
-            case '電': return 'warning';
-            default: return 'secondary';
-        }
-    }
-    
     // 處理精靈捕捉
     function catchCreature(creatureId) {
-        const creature = creatureTypes[creatureId];
+        // 從路線精靈列表中查找該精靈
+        const creatureIndex = routeCreatures.findIndex(c => c.id === creatureId);
+        
+        if (creatureIndex === -1) {
+            console.error('找不到指定ID的精靈:', creatureId);
+            alert('找不到該精靈，可能已經被捕捉或消失了！');
+            return;
+        }
+        
+        const creature = routeCreatures[creatureIndex];
         
         // 模擬捕捉成功率 (在實際應用中，這可能與玩家等級、道具等有關)
         const successRate = creature.rarity === '稀有' ? 0.6 : 0.8;
@@ -221,12 +147,27 @@
         if (isSuccess) {
             alert(`恭喜！你成功捕捉了 ${creature.name}！`);
             // 在實際應用中，這裡可以調用 API 將精靈添加到玩家的收藏中
+            
+            // 從地圖上移除該精靈的標記
+            if (creature.marker) {
+                creaturesLayer.removeLayer(creature.marker);
+            }
+            
+            // 從精靈列表中移除
+            routeCreatures.splice(creatureIndex, 1);
+            
+            // 更新UI
+            updateCreaturesList();
         } else {
             alert(`可惜！${creature.name} 逃走了！再試一次吧！`);
         }
-        
-        // 重新生成精靈
-        generateNearbyCreatures();
     }
+    
+    // 為了支持地圖上的捕捉功能，將該函數暴露到全域
+    window.catchCreatureFromMap = function(creatureId) {
+        catchCreature(creatureId);
+        // 關閉彈出窗口
+        map.closePopup();
+    };
 </script>
 {% endblock %}
