@@ -19,6 +19,7 @@ class User(UserMixin, db.Model):
     last_location_lng = db.Column(db.Float, nullable=True)
     last_active = db.Column(db.DateTime, default=datetime.utcnow)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_admin = db.Column(db.Boolean, default=False)  # 添加管理員標識
     
     # 關聯
     creatures = db.relationship('Creature', backref='owner', lazy='dynamic')

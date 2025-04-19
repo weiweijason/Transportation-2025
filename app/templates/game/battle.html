@@ -1,0 +1,619 @@
+{% extends 'base.html' %}
+
+{% block title %}站點擂台戰鬥{% endblock %}
+
+{% block extra_css %}
+<style>
+  .arena-header {
+    background-size: cover;
+    background-position: center;
+    height: 150px;
+    position: relative;
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
+  }
+  
+  .arena-header-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+  }
+  
+  .arena-info {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .creature-card {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+    cursor: pointer;
+  }
+  
+  .creature-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .creature-selected {
+    border: 3px solid #dc3545;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+  }
+  
+  .creature-image {
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background-color: #f1f1f1;
+  }
+  
+  .creature-image img {
+    max-height: 140px;
+    max-width: 100%;
+  }
+  
+  .battle-area {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .battle-result {
+    display: none;
+    margin-top: 20px;
+  }
+  
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    visibility: hidden;
+  }
+  
+  .loading-spinner {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">站點擂台戰鬥</h2>
+  
+  <!-- 擂台信息 -->
+  <div class="arena-header" id="arenaHeader" style="background-image: url('https://placehold.co/1200x300/e91e63/ffffff?text=Loading...');">
+    <div class="arena-header-overlay">
+      <h2 id="arenaName">載入中...</h2>
+      <p id="arenaRoute">路線: 載入中...</p>
+    </div>
+  </div>
+  
+  <div class="arena-info mb-4">
+    <div class="row">
+      <div class="col-md-6">
+        <h4>擂台資訊</h4>
+        <p><strong>站點ID:</strong> <span id="arenaStopId">載入中...</span></p>
+        <p><strong>擂台狀態:</strong> <span id="arenaStatus">載入中...</span></p>
+        <p><strong>擂台主:</strong> <span id="arenaOwner">載入中...</span></p>
+      </div>
+      <div class="col-md-6" id="guardianContainer">
+        <h4>守護精靈</h4>
+        <div id="guardianInfo">
+          <p>此擂台暫無守護精靈，你可以占領它！</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 選擇戰鬥精靈 -->
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="card-title mb-0">選擇挑戰精靈</h5>
+    </div>
+    <div class="card-body">
+      <div class="row" id="creatureList">
+        <div class="col-12 text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">正在載入精靈...</span>
+          </div>
+          <p class="mt-2">正在載入您的精靈...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 戰鬥區域 -->
+  <div class="battle-area">
+    <div class="row">
+      <div class="col-md-12 text-center">
+        <h4>準備戰鬥</h4>
+        <p class="mb-4">選擇一隻精靈進行挑戰！</p>
+        <button id="battleButton" class="btn btn-danger btn-lg" disabled>開始戰鬥</button>
+      </div>
+    </div>
+    
+    <!-- 戰鬥結果 -->
+    <div class="battle-result mt-4" id="battleResult">
+      <div class="card">
+        <div class="card-header text-white" id="battleResultHeader">
+          <h5 class="card-title mb-0" id="battleResultTitle">戰鬥結果</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-12" id="battleResultContent">
+              <!-- 戰鬥結果內容 -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 加載中遮罩 -->
+<div id="loadingOverlay" class="loading-overlay">
+  <div class="loading-spinner"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 全局變數
+let selectedCreature = null;
+let arenaData = null;
+let userCreatures = [];
+
+// 頁面載入完成事件
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('戰鬥頁面已載入');
+  
+  // 獲取URL參數
+  const urlParams = new URLSearchParams(window.location.search);
+  const stopId = urlParams.get('stopId');
+  const stopName = urlParams.get('stopName');
+  const routeName = urlParams.get('routeName');
+  
+  // 設置擂台基本信息
+  if (stopName) {
+    document.getElementById('arenaName').textContent = stopName + '道館';
+    // 設置根據路線名稱的背景顏色
+    setArenaBackground(routeName);
+  }
+  
+  if (routeName) {
+    document.getElementById('arenaRoute').textContent = '路線: ' + routeName;
+  }
+  
+  if (stopId) {
+    document.getElementById('arenaStopId').textContent = stopId;
+    
+    // 根據路線名稱設置不同的背景圖
+    let backgroundImage = '';
+    if (routeName && routeName.includes('右線')) {
+      backgroundImage = 'https://placehold.co/1200x300/ff9800/ffffff?text=' + encodeURIComponent(stopName);
+    } else if (routeName && routeName.includes('左線') && routeName.includes('動物園')) {
+      backgroundImage = 'https://placehold.co/1200x300/4caf50/ffffff?text=' + encodeURIComponent(stopName);
+    } else if (routeName && routeName.includes('左線') && routeName.includes('指南宮')) {
+      backgroundImage = 'https://placehold.co/1200x300/9c27b0/ffffff?text=' + encodeURIComponent(stopName);
+    } else {
+      backgroundImage = 'https://placehold.co/1200x300/3f51b5/ffffff?text=' + encodeURIComponent(stopName);
+    }
+    document.getElementById('arenaHeader').style.backgroundImage = `url('${backgroundImage}')`;
+    
+    // 獲取或創建擂台資料
+    fetchOrCreateArena(stopId, stopName, routeName);
+  } else {
+    alert('缺少站點ID參數，無法顯示擂台資訊');
+  }
+  
+  // 獲取用戶的精靈列表
+  fetchUserCreatures();
+  
+  // 綁定戰鬥按鈕事件
+  document.getElementById('battleButton').addEventListener('click', function() {
+    if (selectedCreature) {
+      challengeArena();
+    } else {
+      alert('請選擇一隻精靈進行挑戰');
+    }
+  });
+});
+
+// 設置擂台背景顏色
+function setArenaBackground(routeName) {
+  const arenaHeader = document.getElementById('arenaHeader');
+  const headerOverlay = document.querySelector('.arena-header-overlay');
+  
+  if (routeName && routeName.includes('右線')) {
+    arenaHeader.style.backgroundColor = '#ff9800';
+  } else if (routeName && routeName.includes('左線') && routeName.includes('動物園')) {
+    arenaHeader.style.backgroundColor = '#4caf50';
+  } else if (routeName && routeName.includes('左線') && routeName.includes('指南宮')) {
+    arenaHeader.style.backgroundColor = '#9c27b0';
+  } else {
+    arenaHeader.style.backgroundColor = '#3f51b5';
+  }
+}
+
+// 獲取或創建擂台
+function fetchOrCreateArena(stopId, stopName, routeName) {
+  console.log('獲取擂台信息:', stopId, stopName, routeName);
+  showLoading();
+  
+  // 嘗試通過名稱獲取現有擂台
+  fetch(`/game/api/arena/get-all`)
+    .then(response => response.json())
+    .then(arenas => {
+      // 查找匹配的擂台
+      const matchedArena = arenas.find(arena => 
+        arena.name === stopName + '道館' || 
+        arena.stopIds.includes(stopId)
+      );
+      
+      if (matchedArena) {
+        console.log('找到現有擂台:', matchedArena);
+        // 更新擂台數據
+        arenaData = matchedArena;
+        updateArenaDisplay(matchedArena);
+      } else {
+        console.log('未找到擂台，創建新擂台');
+        // 創建新擂台
+        createNewArena(stopId, stopName, routeName);
+      }
+    })
+    .catch(error => {
+      console.error('獲取擂台列表錯誤:', error);
+      createNewArena(stopId, stopName, routeName);
+    })
+    .finally(() => {
+      hideLoading();
+    });
+}
+
+// 創建新擂台
+function createNewArena(stopId, stopName, routeName) {
+  const arenaId = 'arena-' + stopId;
+  const arenaName = stopName + '道館';
+  
+  // 獲取可能的位置（從URL參數或使用默認值）
+  const urlParams = new URLSearchParams(window.location.search);
+  const lat = parseFloat(urlParams.get('lat')) || 25.0282;
+  const lon = parseFloat(urlParams.get('lon')) || 121.5432;
+  
+  // 創建新擂台數據
+  const newArena = {
+    id: arenaId,
+    name: arenaName,
+    position: [lat, lon],
+    stopIds: [stopId],
+    routes: [routeName],
+    owner: null,
+    ownerCreature: null
+  };
+  
+  // 保存到服務器
+  fetch('/game/api/arena/save', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(newArena)
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('保存擂台失敗');
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('擂台創建成功:', data);
+    arenaData = data.arena;
+    updateArenaDisplay(data.arena);
+  })
+  .catch(error => {
+    console.error('創建擂台錯誤:', error);
+    alert('創建擂台失敗，請稍後再試');
+  });
+}
+
+// 更新擂台顯示
+function updateArenaDisplay(arena) {
+  // 更新擂台狀態
+  const arenaStatus = document.getElementById('arenaStatus');
+  const arenaOwner = document.getElementById('arenaOwner');
+  const guardianContainer = document.getElementById('guardianContainer');
+  const guardianInfo = document.getElementById('guardianInfo');
+  
+  if (arena.owner) {
+    arenaStatus.textContent = '已被佔領';
+    arenaStatus.className = 'text-danger';
+    arenaOwner.textContent = arena.owner;
+    
+    // 顯示守護精靈信息
+    if (arena.ownerCreature) {
+      guardianInfo.innerHTML = `
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">${arena.ownerCreature.name}</h5>
+            <p><strong>力量:</strong> ${arena.ownerCreature.power}</p>
+            <div class="text-center">
+              <img src="${arena.ownerCreature.img || 'https://placehold.co/200x200/e91e63/ffffff?text=' + encodeURIComponent(arena.ownerCreature.name)}" 
+                   alt="${arena.ownerCreature.name}" 
+                   class="img-fluid" 
+                   style="max-height: 100px;">
+            </div>
+          </div>
+        </div>
+      `;
+    } else {
+      guardianInfo.innerHTML = `<p>擁有者尚未指派守護精靈</p>`;
+    }
+  } else {
+    arenaStatus.textContent = '無人佔領';
+    arenaStatus.className = 'text-success';
+    arenaOwner.textContent = '無';
+    guardianInfo.innerHTML = `<p>此擂台暫無守護精靈，你可以占領它！</p>`;
+  }
+}
+
+// 獲取用戶精靈
+function fetchUserCreatures() {
+  console.log('獲取用戶精靈');
+  showLoading();
+  
+  fetch('/game/api/user/creatures')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('獲取精靈失敗');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('獲取到用戶精靈:', data);
+      userCreatures = data;
+      renderCreatureList(data);
+    })
+    .catch(error => {
+      console.error('獲取用戶精靈錯誤:', error);
+      document.getElementById('creatureList').innerHTML = `
+        <div class="col-12 text-center py-3">
+          <div class="alert alert-danger">
+            獲取精靈失敗，請稍後再試 (${error.message})
+          </div>
+        </div>
+      `;
+    })
+    .finally(() => {
+      hideLoading();
+    });
+}
+
+// 渲染精靈列表
+function renderCreatureList(creatures) {
+  const creatureList = document.getElementById('creatureList');
+  
+  if (!creatures || creatures.length === 0) {
+    creatureList.innerHTML = `
+      <div class="col-12 text-center py-3">
+        <div class="alert alert-warning">
+          您還沒有任何精靈，請先去捕捉精靈！
+        </div>
+        <a href="/game/catch" class="btn btn-primary mt-2">去捕捉精靈</a>
+      </div>
+    `;
+    return;
+  }
+  
+  // 清空列表並渲染精靈卡片
+  creatureList.innerHTML = '';
+  
+  creatures.forEach(creature => {
+    const creatureCard = document.createElement('div');
+    creatureCard.className = 'col-md-3 col-sm-6 mb-4';
+    creatureCard.innerHTML = `
+      <div class="card creature-card" data-creature-id="${creature.id}">
+        <div class="creature-image">
+          <img src="${creature.imageUrl || 'https://placehold.co/200x200/e91e63/ffffff?text=' + encodeURIComponent(creature.name)}" alt="${creature.name}">
+        </div>
+        <div class="card-body">
+          <h5 class="card-title">${creature.name}</h5>
+          <p class="card-text">
+            <small>類型: ${creature.type} | 稀有度: ${creature.rarity}</small><br>
+            <strong>力量: ${creature.power}</strong><br>
+            等級: ${creature.level}
+          </p>
+        </div>
+      </div>
+    `;
+    
+    creatureList.appendChild(creatureCard);
+    
+    // 添加精靈選擇事件
+    creatureCard.querySelector('.creature-card').addEventListener('click', function() {
+      selectCreature(this, creature);
+    });
+  });
+}
+
+// 選擇精靈
+function selectCreature(element, creature) {
+  // 移除其他精靈的選中狀態
+  document.querySelectorAll('.creature-card').forEach(card => {
+    card.classList.remove('creature-selected');
+  });
+  
+  // 添加選中狀態
+  element.classList.add('creature-selected');
+  
+  // 更新選中的精靈
+  selectedCreature = creature;
+  
+  // 啟用戰鬥按鈕
+  document.getElementById('battleButton').disabled = false;
+}
+
+// 挑戰擂台
+function challengeArena() {
+  if (!selectedCreature || !arenaData) {
+    alert('請選擇精靈並確保擂台資料已載入');
+    return;
+  }
+  
+  console.log('開始挑戰擂台:', arenaData.id, '使用精靈:', selectedCreature.name);
+  showLoading();
+  
+  // 準備挑戰資料
+  const challengeData = {
+    arenaId: arenaData.id,
+    creatureId: selectedCreature.id,
+    creatureName: selectedCreature.name,
+    creaturePower: selectedCreature.power
+  };
+  
+  // 發送挑戰請求
+  fetch('/game/api/arena/challenge', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(challengeData)
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('挑戰擂台失敗');
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('挑戰結果:', data);
+    
+    // 更新擂台數據
+    arenaData = data.arena;
+    
+    // 更新擂台顯示
+    updateArenaDisplay(data.arena);
+    
+    // 顯示戰鬥結果
+    showBattleResult(data.result, data.message, selectedCreature, arenaData);
+  })
+  .catch(error => {
+    console.error('挑戰擂台錯誤:', error);
+    alert('挑戰擂台失敗，請稍後再試');
+  })
+  .finally(() => {
+    hideLoading();
+  });
+}
+
+// 顯示戰鬥結果
+function showBattleResult(isWin, message, challenger, arena) {
+  const battleResult = document.getElementById('battleResult');
+  const resultHeader = document.getElementById('battleResultHeader');
+  const resultTitle = document.getElementById('battleResultTitle');
+  const resultContent = document.getElementById('battleResultContent');
+  
+  // 設置結果樣式
+  if (isWin) {
+    resultHeader.className = 'card-header bg-success text-white';
+    resultTitle.textContent = '挑戰成功！';
+  } else {
+    resultHeader.className = 'card-header bg-danger text-white';
+    resultTitle.textContent = '挑戰失敗！';
+  }
+  
+  // 準備守護者資訊
+  let defenderInfo = '無守護精靈';
+  if (arena.ownerCreature && arena.owner) {
+    defenderInfo = `
+      <div class="text-center mb-3">
+        <img src="${arena.ownerCreature.img || 'https://placehold.co/100x100?text=' + encodeURIComponent(arena.ownerCreature.name)}" 
+             alt="${arena.ownerCreature.name}" 
+             style="max-height: 80px; margin-bottom: 5px;">
+        <p><strong>${arena.ownerCreature.name}</strong> (力量: ${arena.ownerCreature.power})</p>
+        <p>擁有者: ${arena.owner}</p>
+      </div>
+    `;
+  }
+  
+  // 渲染戰鬥結果
+  resultContent.innerHTML = `
+    <div class="alert ${isWin ? 'alert-success' : 'alert-danger'}">
+      ${message}
+    </div>
+    
+    <div class="row">
+      <div class="col-md-5 text-center">
+        <h5>挑戰者</h5>
+        <img src="${challenger.imageUrl || 'https://placehold.co/100x100?text=' + encodeURIComponent(challenger.name)}" 
+             alt="${challenger.name}" 
+             style="max-height: 100px; margin-bottom: 10px;">
+        <p><strong>${challenger.name}</strong></p>
+        <p>力量: ${challenger.power}</p>
+      </div>
+      
+      <div class="col-md-2 d-flex align-items-center justify-content-center">
+        <h2>VS</h2>
+      </div>
+      
+      <div class="col-md-5 text-center">
+        <h5>守護者</h5>
+        ${defenderInfo}
+      </div>
+    </div>
+    
+    <div class="text-center mt-4">
+      <button class="btn btn-primary" onclick="location.reload()">再次挑戰</button>
+      <a href="/game/catch" class="btn btn-secondary">返回地圖</a>
+    </div>
+  `;
+  
+  // 顯示結果
+  battleResult.style.display = 'block';
+  
+  // 滾動到結果區域
+  battleResult.scrollIntoView({ behavior: 'smooth' });
+}
+
+// 顯示載入中
+function showLoading() {
+  document.getElementById('loadingOverlay').style.visibility = 'visible';
+}
+
+// 隱藏載入中
+function hideLoading() {
+  document.getElementById('loadingOverlay').style.visibility = 'hidden';
+}
+</script>
+{% endblock %}

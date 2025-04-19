@@ -168,3 +168,25 @@ package-lock.json
 /dataconnect-generated/
 .vercel
 .netlify
+
+# Firebase 相關
+.firebase/
+firebase-debug.log
+firebase-debug.*.log*
+.firebaserc
+.runtimeconfig.json
+*-debug.log
+.firebase/*.cache
+.dataconnect
+dataconnect-generated/
+
+# 快取檔案
+.cache/
+__pycache__/
+app/__pycache__/
+app/*/__pycache__/
+app/*/*/__pycache__/
+
+# 本地資料文件
+# 允許追蹤本地資料目錄結構，但不追蹤具體資料檔案
+# app/data/*/*.json

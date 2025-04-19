@@ -1,0 +1,33 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}管理後台 - 儀表板{% endblock %}
+
+{% block admin_header %}儀表板{% endblock %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">歡迎使用精靈公車後台管理系統</h5>
+                <p class="card-text">在這裡您可以管理系統資料、查看統計信息並執行維護任務。</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-header">TDX API 資料</div>
+            <div class="card-body">
+                <h5 class="card-title">資料管理</h5>
+                <p class="card-text">在這裡管理貓空纜車相關的路線和站點資料。</p>
+                <a href="{{ url_for('admin.data_management') }}" class="btn btn-light btn-sm">前往管理</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 如有需要，可以新增更多卡片 -->
+</div>
+{% endblock %}

@@ -1,0 +1,501 @@
+{
+  "data": [
+    {
+      "StopID": "216113",
+      "StopName": {
+        "Zh_tw": "富德"
+      },
+      "StopPosition": {
+        "PositionLon": 121.590415672036,
+        "PositionLat": 25.0000781080637
+      },
+      "StopSequence": "1"
+    },
+    {
+      "StopID": "200277",
+      "StopName": {
+        "Zh_tw": "貓空纜車站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.588052,
+        "PositionLat": 24.968307
+      },
+      "StopSequence": "1"
+    },
+    {
+      "StopID": "216114",
+      "StopName": {
+        "Zh_tw": "象頭埔"
+      },
+      "StopPosition": {
+        "PositionLon": 121.588485768495,
+        "PositionLat": 25.0018480966022
+      },
+      "StopSequence": "2"
+    },
+    {
+      "StopID": "216115",
+      "StopName": {
+        "Zh_tw": "萬福橋"
+      },
+      "StopPosition": {
+        "PositionLon": 121.585066207329,
+        "PositionLat": 25.0031479361546
+      },
+      "StopSequence": "3"
+    },
+    {
+      "StopID": "200262",
+      "StopName": {
+        "Zh_tw": "捷運動物園站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.580221,
+        "PositionLat": 24.99882
+      },
+      "StopSequence": "4"
+    },
+    {
+      "StopID": "200263",
+      "StopName": {
+        "Zh_tw": "貓纜動物園站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.576778,
+        "PositionLat": 24.9968
+      },
+      "StopSequence": "5"
+    },
+    {
+      "StopID": "200264",
+      "StopName": {
+        "Zh_tw": "萬壽橋頭(新光)"
+      },
+      "StopPosition": {
+        "PositionLon": 121.57363,
+        "PositionLat": 24.993482
+      },
+      "StopSequence": "6"
+    },
+    {
+      "StopID": "200265",
+      "StopName": {
+        "Zh_tw": "萬壽橋頭(秀明)"
+      },
+      "StopPosition": {
+        "PositionLon": 121.574153,
+        "PositionLat": 24.99161
+      },
+      "StopSequence": "7"
+    },
+    {
+      "StopID": "200266",
+      "StopName": {
+        "Zh_tw": "萬興國小"
+      },
+      "StopPosition": {
+        "PositionLon": 121.576757,
+        "PositionLat": 24.989679
+      },
+      "StopSequence": "8"
+    },
+    {
+      "StopID": "200267",
+      "StopName": {
+        "Zh_tw": "政大(聯合醫院)"
+      },
+      "StopPosition": {
+        "PositionLon": 121.576765,
+        "PositionLat": 24.987374
+      },
+      "StopSequence": "9"
+    },
+    {
+      "StopID": "200268",
+      "StopName": {
+        "Zh_tw": "小坑口(北政國中)"
+      },
+      "StopPosition": {
+        "PositionLon": 121.579379,
+        "PositionLat": 24.986195
+      },
+      "StopSequence": "10"
+    },
+    {
+      "StopID": "200269",
+      "StopName": {
+        "Zh_tw": "北政國中(政大實小)"
+      },
+      "StopPosition": {
+        "PositionLon": 121.579955106331,
+        "PositionLat": 24.9850502753839
+      },
+      "StopSequence": "11"
+    },
+    {
+      "StopID": "200270",
+      "StopName": {
+        "Zh_tw": "三角公園"
+      },
+      "StopPosition": {
+        "PositionLon": 121.579664080453,
+        "PositionLat": 24.983627
+      },
+      "StopSequence": "12"
+    },
+    {
+      "StopID": "200271",
+      "StopName": {
+        "Zh_tw": "政大威秀"
+      },
+      "StopPosition": {
+        "PositionLon": 121.57999610766447,
+        "PositionLat": 24.983063000243483
+      },
+      "StopSequence": "13"
+    },
+    {
+      "StopID": "200272",
+      "StopName": {
+        "Zh_tw": "水鋼琴社區"
+      },
+      "StopPosition": {
+        "PositionLon": 121.580958243996,
+        "PositionLat": 24.9815541435518
+      },
+      "StopSequence": "14"
+    },
+    {
+      "StopID": "200273",
+      "StopName": {
+        "Zh_tw": "指南實小"
+      },
+      "StopPosition": {
+        "PositionLon": 121.583526,
+        "PositionLat": 24.976495
+      },
+      "StopSequence": "15"
+    },
+    {
+      "StopID": "200274",
+      "StopName": {
+        "Zh_tw": "樟山寺一"
+      },
+      "StopPosition": {
+        "PositionLon": 121.5803701,
+        "PositionLat": 24.97414808
+      },
+      "StopSequence": "16"
+    },
+    {
+      "StopID": "200275",
+      "StopName": {
+        "Zh_tw": "樟樹步道北口"
+      },
+      "StopPosition": {
+        "PositionLon": 121.58329,
+        "PositionLat": 24.96844
+      },
+      "StopSequence": "17"
+    },
+    {
+      "StopID": "200276",
+      "StopName": {
+        "Zh_tw": "田寮橋"
+      },
+      "StopPosition": {
+        "PositionLon": 121.58698,
+        "PositionLat": 24.97017
+      },
+      "StopSequence": "18"
+    },
+    {
+      "StopID": "200277",
+      "StopName": {
+        "Zh_tw": "貓空纜車站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.588052,
+        "PositionLat": 24.968307
+      },
+      "StopSequence": "19"
+    },
+    {
+      "StopID": "58811",
+      "StopName": {
+        "Zh_tw": "天恩宮"
+      },
+      "StopPosition": {
+        "PositionLon": 121.592291,
+        "PositionLat": 24.970627
+      },
+      "StopSequence": "1"
+    },
+    {
+      "StopID": "58811",
+      "StopName": {
+        "Zh_tw": "天恩宮"
+      },
+      "StopPosition": {
+        "PositionLon": 121.592291,
+        "PositionLat": 24.970627
+      },
+      "StopSequence": "1"
+    },
+    {
+      "StopID": "58812",
+      "StopName": {
+        "Zh_tw": "茶推廣中心"
+      },
+      "StopPosition": {
+        "PositionLon": 121.59349562698,
+        "PositionLat": 24.969327396833
+      },
+      "StopSequence": "2"
+    },
+    {
+      "StopID": "58827",
+      "StopName": {
+        "Zh_tw": "貓空壺穴站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.5953918,
+        "PositionLat": 24.96880012
+      },
+      "StopSequence": "3"
+    },
+    {
+      "StopID": "58813",
+      "StopName": {
+        "Zh_tw": "貓空站(小天空步道)"
+      },
+      "StopPosition": {
+        "PositionLon": 121.59534,
+        "PositionLat": 24.96784
+      },
+      "StopSequence": "4"
+    },
+    {
+      "StopID": "58814",
+      "StopName": {
+        "Zh_tw": "涼亭站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.59729,
+        "PositionLat": 24.96582
+      },
+      "StopSequence": "5"
+    },
+    {
+      "StopID": "58826",
+      "StopName": {
+        "Zh_tw": "捷運動物園站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.579926,
+        "PositionLat": 24.998553
+      },
+      "StopSequence": "5"
+    },
+    {
+      "StopID": "58815",
+      "StopName": {
+        "Zh_tw": "圓山"
+      },
+      "StopPosition": {
+        "PositionLon": 121.60048,
+        "PositionLat": 24.970103
+      },
+      "StopSequence": "6"
+    },
+    {
+      "StopID": "197399",
+      "StopName": {
+        "Zh_tw": "圓山一"
+      },
+      "StopPosition": {
+        "PositionLon": 121.601616,
+        "PositionLat": 24.9702
+      },
+      "StopSequence": "7"
+    },
+    {
+      "StopID": "58816",
+      "StopName": {
+        "Zh_tw": "草湳"
+      },
+      "StopPosition": {
+        "PositionLon": 121.605524,
+        "PositionLat": 24.970449
+      },
+      "StopSequence": "8"
+    },
+    {
+      "StopID": "214296",
+      "StopName": {
+        "Zh_tw": "岐山"
+      },
+      "StopPosition": {
+        "PositionLon": 121.598729,
+        "PositionLat": 24.972478
+      },
+      "StopSequence": "9"
+    },
+    {
+      "StopID": "58817",
+      "StopName": {
+        "Zh_tw": "水鋼琴社區"
+      },
+      "StopPosition": {
+        "PositionLon": 121.580992722893,
+        "PositionLat": 24.9819160086821
+      },
+      "StopSequence": "10"
+    },
+    {
+      "StopID": "200278",
+      "StopName": {
+        "Zh_tw": "三角公園"
+      },
+      "StopPosition": {
+        "PositionLon": 121.58007427699314,
+        "PositionLat": 24.98319988723959
+      },
+      "StopSequence": "11"
+    },
+    {
+      "StopID": "58818",
+      "StopName": {
+        "Zh_tw": "北政國中(政大實小)"
+      },
+      "StopPosition": {
+        "PositionLon": 121.580132112058,
+        "PositionLat": 24.9850343300953
+      },
+      "StopSequence": "12"
+    },
+    {
+      "StopID": "58819",
+      "StopName": {
+        "Zh_tw": "小坑口(北政國中)"
+      },
+      "StopPosition": {
+        "PositionLon": 121.579711,
+        "PositionLat": 24.986063
+      },
+      "StopSequence": "13"
+    },
+    {
+      "StopID": "58820",
+      "StopName": {
+        "Zh_tw": "政大"
+      },
+      "StopPosition": {
+        "PositionLon": 121.576536,
+        "PositionLat": 24.987567
+      },
+      "StopSequence": "14"
+    },
+    {
+      "StopID": "58821",
+      "StopName": {
+        "Zh_tw": "萬興圖書館"
+      },
+      "StopPosition": {
+        "PositionLon": 121.57697,
+        "PositionLat": 24.98897
+      },
+      "StopSequence": "15"
+    },
+    {
+      "StopID": "58822",
+      "StopName": {
+        "Zh_tw": "大誠高中"
+      },
+      "StopPosition": {
+        "PositionLon": 121.576905,
+        "PositionLat": 24.990413
+      },
+      "StopSequence": "16"
+    },
+    {
+      "StopID": "58823",
+      "StopName": {
+        "Zh_tw": "萬壽橋頭(秀明)"
+      },
+      "StopPosition": {
+        "PositionLon": 121.574627,
+        "PositionLat": 24.991863
+      },
+      "StopSequence": "17"
+    },
+    {
+      "StopID": "58824",
+      "StopName": {
+        "Zh_tw": "萬壽橋頭(新光)"
+      },
+      "StopPosition": {
+        "PositionLon": 121.573853,
+        "PositionLat": 24.992819
+      },
+      "StopSequence": "18"
+    },
+    {
+      "StopID": "58825",
+      "StopName": {
+        "Zh_tw": "貓纜動物園站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.576197,
+        "PositionLat": 24.996309
+      },
+      "StopSequence": "19"
+    },
+    {
+      "StopID": "58826",
+      "StopName": {
+        "Zh_tw": "捷運動物園站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.579926,
+        "PositionLat": 24.998553
+      },
+      "StopSequence": "20"
+    },
+    {
+      "StopID": "216116",
+      "StopName": {
+        "Zh_tw": "萬福橋"
+      },
+      "StopPosition": {
+        "PositionLon": 121.584612472655,
+        "PositionLat": 25.0029972947861
+      },
+      "StopSequence": "21"
+    },
+    {
+      "StopID": "216117",
+      "StopName": {
+        "Zh_tw": "象頭埔"
+      },
+      "StopPosition": {
+        "PositionLon": 121.588451423211,
+        "PositionLat": 25.0017166398919
+      },
+      "StopSequence": "22"
+    },
+    {
+      "StopID": "216118",
+      "StopName": {
+        "Zh_tw": "富德"
+      },
+      "StopPosition": {
+        "PositionLon": 121.590552451575,
+        "PositionLat": 24.9998141769425
+      },
+      "StopSequence": "23"
+    }
+  ],
+  "timestamp": 1745074551.032159,
+  "expires_at": 1745160951.032159
+}

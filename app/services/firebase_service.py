@@ -1,5 +1,5 @@
 import firebase_admin
-from firebase_admin import credentials, auth
+from firebase_admin import credentials, auth, firestore
 import pyrebase
 from flask import session, redirect, url_for
 from functools import wraps
@@ -16,6 +16,7 @@ class FirebaseUser(UserMixin):
         self.email = email
         self.username = username
         self.data = data or {}
+        self.is_admin = self.data.get('is_admin', False)  # 從 data 字典中獲取 is_admin 屬性
         
     def get_id(self):
         return self.id
@@ -78,6 +79,9 @@ class FirebaseService:
             self.auth = self.firebase.auth()
             self.db = self.firebase.database()
             
+            # 初始化 Firestore 資料庫
+            self.firestore_db = firestore.client()
+            
             print("Firebase服務初始化成功")
         except Exception as e:
             print(f"Firebase服務初始化失敗: {e}")
@@ -97,17 +101,29 @@ class FirebaseService:
             # 使用Firebase創建使用者
             user = self.auth.create_user_with_email_and_password(email, password)
             
-            # 儲存額外的使用者資訊到Firebase Realtime Database
+            # 準備使用者資料
             user_data = {
+                "username": username,
+                "email": email,
+                "created_at": firebase_admin.firestore.SERVER_TIMESTAMP,
+                "experience": 0,
+                "level": 1,
+                "avatar": "default.png",
+                "last_active": firebase_admin.firestore.SERVER_TIMESTAMP,
+                "is_admin": False
+            }
+            
+            # 儲存使用者資料到 Realtime Database (保留原有功能)
+            self.db.child("users").child(user['localId']).set({
                 "username": username,
                 "email": email,
                 "created_at": {".sv": "timestamp"},
                 "experience": 0,
                 "level": 1
-            }
+            })
             
-            # 用戶UID作為資料庫的key
-            self.db.child("users").child(user['localId']).set(user_data)
+            # 儲存使用者資料到 Firestore Database
+            self.firestore_db.collection('users').document(user['localId']).set(user_data)
             
             # 為用戶設置顯示名稱
             self.auth.update_profile(user['idToken'], display_name=username)
@@ -137,43 +153,75 @@ class FirebaseService:
             # 使用Firebase驗證使用者
             user = self.auth.sign_in_with_email_and_password(email, password)
             
-            # 獲取使用者資料
-            user_data = self.db.child("users").child(user['localId']).get().val()
+            # 首先嘗試從 Firestore 獲取使用者資料
+            firestore_user_doc = self.firestore_db.collection('users').document(user['localId']).get()
+            user_data = firestore_user_doc.to_dict() if firestore_user_doc.exists else None
             
-            # 如果用戶數據不存在，則創建基本用戶數據
+            # 如果 Firestore 中沒有用戶數據，嘗試從 Realtime Database 獲取
+            if user_data is None:
+                user_data = self.db.child("users").child(user['localId']).get().val()
+            
+            # 如果用戶數據仍不存在，則創建基本用戶數據
             if user_data is None:
                 print(f"警告: 用戶 {user['localId']} 的數據在數據庫中不存在，創建基本資料")
                 user_data = {
                     "username": email.split('@')[0],  # 使用郵箱前綴作為默認用戶名
                     "email": email,
-                    "created_at": {".sv": "timestamp"},
+                    "created_at": firebase_admin.firestore.SERVER_TIMESTAMP,
                     "experience": 0,
-                    "level": 1
+                    "level": 1,
+                    "avatar": "default.png",
+                    "last_active": firebase_admin.firestore.SERVER_TIMESTAMP,
+                    "is_admin": False
                 }
-                # 嘗試保存基本用戶資料到數據庫
+                
+                # 保存到 Firestore
                 try:
-                    self.db.child("users").child(user['localId']).set(user_data)
-                    print(f"已創建用戶 {user['localId']} 的基本資料")
+                    self.firestore_db.collection('users').document(user['localId']).set(user_data)
+                    # 為了與時間戳相容，需要替換 user_data 中的 SERVER_TIMESTAMP
+                    user_data["created_at"] = user_data["last_active"] = {"seconds": int(firebase_admin.datetime.datetime.now().timestamp())}
+                    print(f"已創建用戶 {user['localId']} 的基本資料於 Firestore")
                 except Exception as e:
-                    print(f"創建基本用戶資料失敗: {e}")
+                    print(f"創建 Firestore 基本用戶資料失敗: {e}")
+                
+                # 同時保存到 Realtime Database (保持兼容性)
+                try:
+                    self.db.child("users").child(user['localId']).set({
+                        "username": email.split('@')[0],
+                        "email": email,
+                        "created_at": {".sv": "timestamp"},
+                        "experience": 0,
+                        "level": 1
+                    })
+                    print(f"已創建用戶 {user['localId']} 的基本資料於 Realtime Database")
+                except Exception as e:
+                    print(f"創建 Realtime Database 基本用戶資料失敗: {e}")
             
             # 創建 Flask-Login 用戶
             firebase_user = FirebaseUser(
                 uid=user['localId'],
                 email=email,
-                username=user_data.get('username', 'User') if user_data else email.split('@')[0],  # 安全地獲取用戶名
-                data=user_data or {}  # 確保 data 至少是一個空字典
+                username=user_data.get('username', 'User') if user_data else email.split('@')[0],
+                data=user_data or {}
             )
+            
+            # 更新用戶的最後活動時間
+            try:
+                self.firestore_db.collection('users').document(user['localId']).update({
+                    "last_active": firebase_admin.firestore.SERVER_TIMESTAMP
+                })
+            except Exception as e:
+                print(f"更新用戶最後活動時間失敗: {e}")
             
             return {
                 "status": "success",
                 "message": "登入成功",
                 "user": user,
-                "user_data": user_data or {},  # 確保 user_data 不為 None
+                "user_data": user_data or {},
                 "flask_user": firebase_user
             }
         except Exception as e:
-            print(f"登入詳細錯誤: {str(e)}")  # 輸出詳細錯誤信息以便調試
+            print(f"登入詳細錯誤: {str(e)}")
             return {
                 "status": "error",
                 "message": f"登入失敗: {str(e)}"
@@ -189,6 +237,12 @@ class FirebaseService:
             dict: 使用者資訊
         """
         try:
+            # 首先嘗試從 Firestore 獲取用戶數據
+            firestore_user_doc = self.firestore_db.collection('users').document(uid).get()
+            if firestore_user_doc.exists:
+                return firestore_user_doc.to_dict()
+            
+            # 如果 Firestore 中沒有，嘗試從 Realtime Database 獲取
             user_data = self.db.child("users").child(uid).get().val()
             return user_data
         except Exception as e:
@@ -206,7 +260,12 @@ class FirebaseService:
             bool: 更新成功返回True，否則返回False
         """
         try:
+            # 更新 Firestore 中的用戶數據
+            self.firestore_db.collection('users').document(uid).update(user_data)
+            
+            # 同時更新 Realtime Database 中的用戶數據 (保持兼容性)
             self.db.child("users").child(uid).update(user_data)
+            
             return True
         except Exception as e:
             print(f"更新使用者資訊失敗: {e}")

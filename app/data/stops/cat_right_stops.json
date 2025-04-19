@@ -1,0 +1,116 @@
+{
+  "data": [
+    {
+      "StopID": "45825",
+      "StopName": {
+        "Zh_tw": "貓空纜車站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.5881,
+        "PositionLat": 24.9685
+      },
+      "StopSequence": "1"
+    },
+    {
+      "StopID": "45826",
+      "StopName": {
+        "Zh_tw": "田寮橋"
+      },
+      "StopPosition": {
+        "PositionLon": 121.58686,
+        "PositionLat": 24.97012
+      },
+      "StopSequence": "2"
+    },
+    {
+      "StopID": "45827",
+      "StopName": {
+        "Zh_tw": "樟樹步道北口"
+      },
+      "StopPosition": {
+        "PositionLon": 121.583422,
+        "PositionLat": 24.968542
+      },
+      "StopSequence": "3"
+    },
+    {
+      "StopID": "45828",
+      "StopName": {
+        "Zh_tw": "樟山寺"
+      },
+      "StopPosition": {
+        "PositionLon": 121.58003,
+        "PositionLat": 24.97112
+      },
+      "StopSequence": "4"
+    },
+    {
+      "StopID": "180071",
+      "StopName": {
+        "Zh_tw": "望遠亭(老泉里)"
+      },
+      "StopPosition": {
+        "PositionLon": 121.57883,
+        "PositionLat": 24.970101
+      },
+      "StopSequence": "5"
+    },
+    {
+      "StopID": "45829",
+      "StopName": {
+        "Zh_tw": "杏花林(老泉里)"
+      },
+      "StopPosition": {
+        "PositionLon": 121.57678,
+        "PositionLat": 24.9691
+      },
+      "StopSequence": "6"
+    },
+    {
+      "StopID": "45830",
+      "StopName": {
+        "Zh_tw": "樟樹步道南口"
+      },
+      "StopPosition": {
+        "PositionLon": 121.580321,
+        "PositionLat": 24.969425
+      },
+      "StopSequence": "7"
+    },
+    {
+      "StopID": "215393",
+      "StopName": {
+        "Zh_tw": "瓦厝"
+      },
+      "StopPosition": {
+        "PositionLon": 121.580639,
+        "PositionLat": 24.967886
+      },
+      "StopSequence": "8"
+    },
+    {
+      "StopID": "45831",
+      "StopName": {
+        "Zh_tw": "樟湖步道"
+      },
+      "StopPosition": {
+        "PositionLon": 121.58306,
+        "PositionLat": 24.96589
+      },
+      "StopSequence": "9"
+    },
+    {
+      "StopID": "45855",
+      "StopName": {
+        "Zh_tw": "貓空纜車站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.5881,
+        "PositionLat": 24.9685
+      },
+      "StopSequence": "1"
+    }
+  ],
+  "timestamp": 1745074535.881023,
+  "expires_at": 1745160935.881023
+}

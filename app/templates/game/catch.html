@@ -1,173 +1,594 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}捕捉精靈 - 精靈公車{% endblock %}
+{% block title %}精靈捕捉{% endblock %}
 
 {% block extra_css %}
-<!-- Leaflet CSS (OpenStreetMap) -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
-    #map {
-        height: 500px;
-        width: 100%;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    .location-info {
-        margin-top: 20px;
-        padding: 15px;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        box-shadow: 0 0 5px rgba(0,0,0,0.05);
-    }
-    .creature-container {
-        margin-top: 30px;
-    }
-    .creature-card {
-        border-radius: 15px;
-        transition: transform 0.3s;
-        margin-bottom: 20px;
-        overflow: hidden;
-    }
-    .creature-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    }
-    .catch-btn {
-        width: 100%;
-        margin-top: 10px;
-    }
-    .loading-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(255,255,255,0.8);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-        visibility: hidden;
-    }
-    .spinner {
-        width: 50px;
-        height: 50px;
-    }
-    .bus-routes-legend {
-        padding: 10px;
-        background: white;
-        border-radius: 5px;
-        box-shadow: 0 1px 5px rgba(0,0,0,0.2);
-    }
-    .route-line {
-        display: inline-block;
-        width: 30px;
-        height: 3px;
-        margin-right: 8px;
-        vertical-align: middle;
-    }
+  #map {
+    height: 500px;
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  }
+  
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    visibility: hidden;
+  }
+  
+  .loading-spinner {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .route-line {
+    display: inline-block;
+    width: 20px;
+    height: 3px;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+  
+  .bus-routes-legend {
+    padding: 10px;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  }
+  
+  .user-marker {
+    z-index: 1000;
+  }
+  
+  .arena-marker {
+    width: 36px;
+    height: 36px;
+    z-index: 1000;
+  }
+  
+  .creature-marker {
+    z-index: 900;
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="loading-overlay" id="loadingOverlay">
-    <div class="spinner-border text-primary spinner" role="status">
-        <span class="visually-hidden">載入中...</span>
-    </div>
-</div>
-
-<h1 class="mb-4">精靈探索</h1>
-<p class="lead">探索公車路線，發現並捕捉特殊的公車精靈！</p>
-
-<div class="alert alert-info">
-    <i class="bi bi-info-circle-fill"></i> 提示：不同的公車路線會出現不同種類的精靈，路線重疊處可能會出現多種路線的精靈。
-</div>
-
-<!-- 地圖區域 -->
-<div class="card mb-4">
-    <div class="card-body">
-        <h5 class="card-title mb-3">公車路線探索地圖</h5>
-        
-        <div id="map"></div>
-        
-        <div class="location-info">
-            <div class="row">
+<div class="container mt-4">
+  <h2 class="mb-4">精靈公車遊戲</h2>
+  
+  <!-- 頁籤導航 -->
+  <ul class="nav nav-tabs mb-4" id="gameTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="map-tab" data-bs-toggle="tab" data-bs-target="#map-content" type="button" role="tab" aria-controls="map-content" aria-selected="true">路線地圖</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="arenas-tab" data-bs-toggle="tab" data-bs-target="#arenas-content" type="button" role="tab" aria-controls="arenas-content" aria-selected="false">站牌擂台</button>
+    </li>
+  </ul>
+  
+  <!-- 頁籤內容 -->
+  <div class="tab-content" id="gameTabsContent">
+    <!-- 地圖頁籤 -->
+    <div class="tab-pane fade show active" id="map-content" role="tabpanel" aria-labelledby="map-tab">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+              <h5 class="card-title mb-0">貓空纜車路線地圖</h5>
+            </div>
+            <div class="card-body">
+              <div id="map"></div>
+              
+              <div class="row mt-3">
+                <div class="col-12">
+                  <div class="bus-routes-legend">
+                    <h6>路線圖例：</h6>
+                    <div class="d-flex flex-wrap">
+                      <div class="me-4 mb-2">
+                        <span class="route-line" style="background-color: #ff9800;"></span>
+                        <span>貓空右線</span>
+                      </div>
+                      <div class="me-4 mb-2">
+                        <span class="route-line" style="background-color: #4caf50;"></span>
+                        <span>貓空左線(動物園)</span>
+                      </div>
+                      <div class="me-4 mb-2">
+                        <span class="route-line" style="background-color: #9c27b0;"></span>
+                        <span>貓空左線(指南宮)</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row mt-3">
                 <div class="col-md-6">
-                    <p><strong>當前位置：</strong> <span id="currentLocation">載入中...</span></p>
-                    <p><strong>精靈生成：</strong> 路線上精靈每5分鐘更新一次，每分鐘有80%機率生成</p>
+                  <p><strong>當前位置:</strong> <span id="currentLocation">尚未定位</span></p>
                 </div>
                 <div class="col-md-6 text-end">
-                    <button id="refreshLocationBtn" class="btn btn-primary">
-                        <i class="bi bi-geo-alt"></i> 重新定位
-                    </button>
+                  <button id="refreshLocationBtn" class="btn btn-sm btn-primary">重新定位</button>
+                  <button id="initMapBtn" class="btn btn-sm btn-success">重新載入地圖</button>
                 </div>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
     </div>
+    
+    <!-- 擂台頁籤 -->
+    <div class="tab-pane fade" id="arenas-content" role="tabpanel" aria-labelledby="arenas-tab">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card mb-4">
+            <div class="card-header bg-danger text-white">
+              <h5 class="card-title mb-0">站牌擂台</h5>
+            </div>
+            <div class="card-body">
+              <p class="mb-3">這些是貓空纜車路線上的站牌擂台（道館），您可以使用您的精靈挑戰並佔領它們！</p>
+              <div class="row" id="arenaList">
+                <!-- 擂台列表將由JavaScript動態生成 -->
+                <div class="col-12 text-center py-5">
+                  <div class="spinner-border text-danger" role="status">
+                    <span class="visually-hidden">正在加載擂台資訊...</span>
+                  </div>
+                  <p class="mt-2">正在加載擂台資訊...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- 可捕捉的精靈區域 -->
-<div class="creature-container" id="creatureContainer">
-    <h3 class="mb-4">路線上的精靈</h3>
-    <div class="row" id="creatureList">
-        <div class="col-12 text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">搜尋中...</span>
-            </div>
-            <p class="mt-3">正在搜尋路線上的精靈...</p>
-        </div>
-    </div>
+<!-- 加載中遮罩 -->
+<div id="loadingOverlay" class="loading-overlay">
+  <div class="loading-spinner"></div>
 </div>
 
+<!-- 捕捉成功模態框 -->
+<div class="modal fade" id="catchSuccessModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title">捕捉成功！</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p id="catchSuccessMessage"></p>
+        <div class="text-center my-3">
+          <img id="caughtCreatureImage" src="" alt="捕捉到的精靈" class="img-fluid" style="max-height: 200px;">
+        </div>
+        <p>該精靈已被添加到您的收藏中！</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+        <a href="{{ url_for('main.profile') }}" class="btn btn-primary">查看我的精靈</a>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
-<!-- Leaflet JS (OpenStreetMap) -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<!-- 引入公車路線地圖 JS -->
+<!-- 載入Leaflet庫 -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- 引入公車路線地圖相關JS -->
 <script src="{{ url_for('static', filename='js/bus-route-map.js') }}"></script>
+
+<!-- 生成精靈和初始化地圖 -->
 <script>
-    // 處理精靈捕捉
-    function catchCreature(creatureId) {
-        // 從路線精靈列表中查找該精靈
-        const creatureIndex = routeCreatures.findIndex(c => c.id === creatureId);
+// 全局變數
+var gameMap;
+var arenaList = [];
+
+// 頁面載入完成事件
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM內容載入完成');
+  
+  // 檢查map元素是否存在
+  const mapElement = document.getElementById('map');
+  if (!mapElement) {
+    console.error('找不到ID為map的元素!');
+    alert('找不到地圖容器元素!');
+    return;
+  }
+  
+  console.log('找到地圖容器元素，開始初始化地圖');
+  
+  // 初始化地圖 (使用一個延遲確保DOM完全渲染)
+  setTimeout(initializeMap, 500);
+  
+  // 綁定更新位置按鈕
+  const refreshLocationBtn = document.getElementById('refreshLocationBtn');
+  if (refreshLocationBtn) {
+    refreshLocationBtn.addEventListener('click', function() {
+      console.log('點擊了重新定位按鈕');
+      if (typeof updateUserLocation === 'function') {
+        updateUserLocation();
+      } else {
+        console.error('updateUserLocation 函數不存在');
+      }
+    });
+  }
+  
+  // 綁定重新載入地圖按鈕
+  const initMapBtn = document.getElementById('initMapBtn');
+  if (initMapBtn) {
+    initMapBtn.addEventListener('click', function() {
+      console.log('點擊了重新載入地圖按鈕');
+      initializeMap();
+    });
+  }
+  
+  // 處理頁籤切換事件，確保地圖正確渲染
+  const mapTab = document.getElementById('map-tab');
+  if (mapTab) {
+    mapTab.addEventListener('shown.bs.tab', function() {
+      console.log('地圖頁籤被啟用');
+      if (gameMap) {
+        console.log('調整地圖大小');
+        gameMap.invalidateSize();
+      } else {
+        console.log('地圖未初始化，嘗試初始化');
+        initializeMap();
+      }
+    });
+  }
+  
+  // 更新擂台列表
+  fetchArenasInfo();
+});
+
+// 初始化地圖的函數
+function initializeMap() {
+  console.log('開始初始化地圖...');
+  try {
+    // 使用 bus-route-map.js 中的初始化函數
+    gameMap = initMap('map');
+    
+    if (gameMap) {
+      console.log('地圖成功初始化');
+      
+      // 加載路線
+      console.log('載入路線');
+      loadCatRightRoute();
+      loadCatLeftRoute();
+      loadCatLeftZhinanRoute();
+      
+      // 加載站點和道館
+      console.log('載入站點和道館');
+      loadAllBusStops();
+      
+      // 調整地圖大小以確保正確渲染
+      setTimeout(function() {
+        console.log('調整地圖大小');
+        gameMap.invalidateSize();
+      }, 500);
+      
+      // 設置精靈生成定時器
+      console.log('設置精靈生成定時器');
+      startCreatureSpawning();
+    } else {
+      console.error('地圖初始化失敗，gameMap 為 null');
+    }
+  } catch (error) {
+    console.error('初始化地圖時發生錯誤:', error);
+    alert('初始化地圖時發生錯誤: ' + error.message);
+  }
+}
+
+// 精靈生成相關函數
+function startCreatureSpawning() {
+  console.log('開始精靈生成系統');
+  
+  // 清除現有精靈
+  if (creaturesLayer) {
+    creaturesLayer.clearLayers();
+  }
+  routeCreatures = [];
+  
+  // 初始生成一些精靈
+  spawnCreaturesOnRoutes();
+  
+  // 定時生成新精靈
+  setInterval(spawnCreaturesOnRoutes, SPAWN_INTERVAL);
+}
+
+// 在路線上生成精靈
+function spawnCreaturesOnRoutes() {
+  console.log('嘗試在路線上生成精靈');
+  
+  // 移除超過存在時間的精靈
+  const currentTime = Date.now();
+  routeCreatures = routeCreatures.filter(creature => {
+    if (currentTime > creature.spawnTime + CREATURE_LIFETIME) {
+      console.log(`精靈 ${creature.name} 存在時間到，消失`);
+      if (creature.marker) {
+        creaturesLayer.removeLayer(creature.marker);
+      }
+      return false;
+    }
+    return true;
+  });
+  
+  // 為每條路線嘗試生成精靈
+  Object.keys(routeCoordinates).forEach(routeKey => {
+    // 檢查該路線上的精靈數量
+    const routeCreatureCount = routeCreatures.filter(c => c.routeKey === routeKey).length;
+    
+    // 如果該路線精靈數量未達到上限，嘗試生成
+    if (routeCreatureCount < MAX_CREATURES_PER_ROUTE) {
+      // 檢查生成機率
+      if (Math.random() < SPAWN_CHANCE) {
+        // 獲取路線座標
+        const coordinates = routeCoordinates[routeKey];
         
-        if (creatureIndex === -1) {
-            console.error('找不到指定ID的精靈:', creatureId);
-            alert('找不到該精靈，可能已經被捕捉或消失了！');
-            return;
+        if (coordinates.length > 0) {
+          // 從路線上隨機選擇一個位置
+          const randomIndex = Math.floor(Math.random() * coordinates.length);
+          const position = coordinates[randomIndex];
+          
+          // 從該路線的精靈列表中隨機選擇一種
+          const routeCreatureList = routeCreatureTypes[routeKey];
+          const randomCreatureIndex = Math.floor(Math.random() * routeCreatureList.length);
+          const creatureTemplate = routeCreatureList[randomCreatureIndex];
+          
+          // 創建精靈實例
+          const creatureId = `${creatureTemplate.id}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+          const creature = {
+            ...creatureTemplate,
+            id: creatureId,
+            position: position,
+            routeKey: routeKey,
+            spawnTime: Date.now()
+          };
+          
+          // 創建精靈圖標
+          const creatureIcon = L.divIcon({
+            className: 'creature-marker',
+            html: `
+              <div style="
+                width: 40px;
+                height: 40px;
+                background-color: ${routeColors[routeKey]};
+                border-radius: 50%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                border: 2px solid white;
+                box-shadow: 0 0 5px rgba(0,0,0,0.5);
+                color: white;
+                font-weight: bold;
+                font-size: 18px;
+              ">
+                💫
+              </div>
+            `,
+            iconSize: [40, 40],
+            iconAnchor: [20, 20]
+          });
+          
+          // 創建地圖標記
+          const marker = L.marker(position, {
+            icon: creatureIcon,
+            zIndexOffset: 900
+          }).addTo(creaturesLayer);
+          
+          // 綁定彈出框
+          marker.bindPopup(`
+            <div style="text-align:center;">
+              <h5>${creature.name}</h5>
+              <p>類型: ${creature.type} | 稀有度: ${creature.rarity}</p>
+              <p>力量: ${creature.power}</p>
+              <button class="btn btn-success btn-sm catch-btn" onclick="catchCreature('${creature.id}')">捕捉</button>
+            </div>
+          `);
+          
+          // 保存標記引用
+          creature.marker = marker;
+          
+          // 添加到精靈列表
+          routeCreatures.push(creature);
+          
+          console.log(`在 ${routeKey} 路線上生成精靈: ${creature.name}`);
         }
-        
-        const creature = routeCreatures[creatureIndex];
-        
-        // 模擬捕捉成功率 (在實際應用中，這可能與玩家等級、道具等有關)
-        const successRate = creature.rarity === '稀有' ? 0.6 : 0.8;
-        const isSuccess = Math.random() < successRate;
-        
-        if (isSuccess) {
-            alert(`恭喜！你成功捕捉了 ${creature.name}！`);
-            // 在實際應用中，這裡可以調用 API 將精靈添加到玩家的收藏中
-            
-            // 從地圖上移除該精靈的標記
-            if (creature.marker) {
-                creaturesLayer.removeLayer(creature.marker);
-            }
-            
-            // 從精靈列表中移除
-            routeCreatures.splice(creatureIndex, 1);
-            
-            // 更新UI
-            updateCreaturesList();
-        } else {
-            alert(`可惜！${creature.name} 逃走了！再試一次吧！`);
-        }
+      }
+    }
+  });
+}
+
+// 捕捉精靈的函數
+function catchCreature(creatureId) {
+  // 尋找對應的精靈資訊
+  const creature = routeCreatures.find(c => c.id === creatureId);
+  if (!creature) {
+    console.error('找不到指定精靈:', creatureId);
+    return;
+  }
+  
+  // 顯示加載中
+  showLoading();
+  
+  // 准備要發送到後端的資料
+  const creatureData = {
+    creatureId: creature.id,
+    creatureName: creature.name,
+    creatureType: creature.type,
+    creatureRarity: creature.rarity,
+    creaturePower: creature.power,
+    creatureImg: creature.img
+  };
+  
+  // 發送到後端API
+  fetch('/game/api/catch-creature', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(creatureData)
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('捕捉精靈失敗');
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('捕捉成功:', data);
+    
+    // 從地圖上和列表中移除該精靈
+    if (creature.marker) {
+      creaturesLayer.removeLayer(creature.marker);
     }
     
-    // 為了支持地圖上的捕捉功能，將該函數暴露到全域
-    window.catchCreatureFromMap = function(creatureId) {
-        catchCreature(creatureId);
-        // 關閉彈出窗口
-        map.closePopup();
-    };
+    const index = routeCreatures.findIndex(c => c.id === creatureId);
+    if (index !== -1) {
+      routeCreatures.splice(index, 1);
+    }
+    
+    // 顯示成功模態框
+    document.getElementById('catchSuccessMessage').textContent = data.message;
+    document.getElementById('caughtCreatureImage').src = creature.img;
+    
+    const successModal = new bootstrap.Modal(document.getElementById('catchSuccessModal'));
+    successModal.show();
+  })
+  .catch(error => {
+    console.error('捕捉精靈錯誤:', error);
+    alert('捕捉精靈失敗，請稍後再試！');
+  })
+  .finally(() => {
+    // 隱藏加載中
+    hideLoading();
+  });
+}
+
+// 獲取擂台列表
+function fetchArenasInfo() {
+  console.log('獲取擂台資訊');
+  
+  const arenaListElement = document.getElementById('arenaList');
+  if (!arenaListElement) {
+    console.error('找不到擂台列表元素');
+    return;
+  }
+  
+  // 如果尚未獲取到擂台列表，等待道館加載完成
+  if (!window.busStopsArenas || Object.keys(window.busStopsArenas).length === 0) {
+    console.log('尚未獲取到擂台列表，等待一秒後重試');
+    setTimeout(fetchArenasInfo, 1000);
+    return;
+  }
+  
+  // 清空列表
+  arenaListElement.innerHTML = '';
+  
+  // 將擂台資訊轉換為陣列
+  arenaList = Object.values(window.busStopsArenas);
+  
+  if (arenaList.length === 0) {
+    arenaListElement.innerHTML = '<div class="col-12 text-center py-5"><p>找不到任何擂台資訊</p></div>';
+    return;
+  }
+  
+  // 按照路線分組
+  const groupedArenas = {};
+  
+  arenaList.forEach(arena => {
+    if (!groupedArenas[arena.routeName]) {
+      groupedArenas[arena.routeName] = [];
+    }
+    groupedArenas[arena.routeName].push(arena);
+  });
+  
+  // 生成HTML
+  Object.keys(groupedArenas).forEach(routeName => {
+    const arenas = groupedArenas[routeName];
+    
+    // 添加路線標題
+    const routeColor = getRouteColorByName(routeName);
+    const routeSection = document.createElement('div');
+    routeSection.classList.add('col-12', 'mb-4');
+    routeSection.innerHTML = `
+      <div class="card">
+        <div class="card-header" style="background-color:${routeColor};color:white;">
+          <h5 class="mb-0">${routeName} 站點道館</h5>
+        </div>
+        <div class="card-body">
+          <div class="row arena-route-row" id="arena-route-${routeName.replace(/[\(\)]/g, '')}"></div>
+        </div>
+      </div>
+    `;
+    arenaListElement.appendChild(routeSection);
+    
+    // 添加該路線的擂台
+    const routeRowElement = document.getElementById(`arena-route-${routeName.replace(/[\(\)]/g, '')}`);
+    
+    arenas.forEach(arena => {
+      const arenaCard = document.createElement('div');
+      arenaCard.classList.add('col-md-4', 'mb-3');
+      arenaCard.innerHTML = `
+        <div class="card arena-card">
+          <div class="card-header text-center" style="background-color:${routeColor};color:white;">
+            <h6 class="mb-0">${arena.name}</h6>
+          </div>
+          <div class="card-body text-center">
+            <p><strong>等級:</strong> ${arena.level} 級</p>
+            <p><strong>站點:</strong> ${arena.stopName}</p>
+            <button class="btn btn-danger mt-2 challenge-arena-btn" 
+                  onclick="showArenaInfo('${arena.stopId}', '${arena.stopName}', '${arena.routeName}')">
+              前往道館
+            </button>
+          </div>
+        </div>
+      `;
+      routeRowElement.appendChild(arenaCard);
+    });
+  });
+  
+  console.log('擂台列表生成完成');
+}
+
+// 根據路線名稱獲取顏色
+function getRouteColorByName(routeName) {
+  if (routeName.includes('右線')) {
+    return '#ff9800';
+  } else if (routeName.includes('左線') && routeName.includes('動物園')) {
+    return '#4caf50';
+  } else if (routeName.includes('左線') && routeName.includes('指南宮')) {
+    return '#9c27b0';
+  }
+  return '#3498db'; // 預設藍色
+}
+
+// 當發生錯誤時，在控制台輸出錯誤信息
+window.onerror = function(message, source, lineno, colno, error) {
+  console.error('全局錯誤:', message, 'at', source, lineno, colno);
+  return false;
+};
 </script>
 {% endblock %}

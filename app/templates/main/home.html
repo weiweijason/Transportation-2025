@@ -8,7 +8,7 @@
     <p class="lead">在大眾運輸過程中增加樂趣，透過捕捉不同的精靈，成為最強的訓練師。</p>
     <hr class="my-4">
     <p>開始你的旅程，捕捉精靈，挑戰站點擂台，與其他玩家進行PVP對戰！</p>
-    <a class="btn btn-primary btn-lg" href="{{ url_for('game.catch_creatures') }}" role="button">開始探索</a>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('game.catch') }}" role="button">開始探索</a>
 </div>
 
 <div class="row mt-4">
@@ -17,7 +17,7 @@
             <div class="card-body">
                 <h5 class="card-title">捕捉精靈</h5>
                 <p class="card-text">當公車靠近點位500米時，系統會生成與路線屬性相關的精靈。</p>
-                <a href="{{ url_for('game.catch_creatures') }}" class="btn btn-outline-primary">前往捕捉</a>
+                <a href="{{ url_for('game.catch') }}" class="btn btn-outline-primary">前往捕捉</a>
             </div>
         </div>
     </div>
@@ -26,7 +26,7 @@
             <div class="card-body">
                 <h5 class="card-title">站點擂台</h5>
                 <p class="card-text">每個站點都設有擂台和站主，派出你的精靈守擂或挑戰他人。</p>
-                <a href="{{ url_for('game.arena_list') }}" class="btn btn-outline-primary">查看擂台</a>
+                <a href="{{ url_for('game.catch') }}#arenas-tab" class="btn btn-outline-primary">查看擂台</a>
             </div>
         </div>
     </div>
@@ -35,7 +35,7 @@
             <div class="card-body">
                 <h5 class="card-title">PVP對戰</h5>
                 <p class="card-text">與其他玩家進行精靈對戰，提升你的等級和聲望。</p>
-                <a href="{{ url_for('game.battle') }}" class="btn btn-outline-primary">開始對戰</a>
+                <a href="{{ url_for('game.game_home') }}" class="btn btn-outline-primary">開始對戰</a>
             </div>
         </div>
     </div>

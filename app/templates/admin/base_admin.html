@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}後台管理{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<style>
+    .admin-sidebar {
+        background-color: #343a40;
+        color: #fff;
+        min-height: calc(100vh - 56px);
+        padding: 20px 0;
+    }
+    .admin-sidebar .nav-link {
+        color: rgba(255, 255, 255, 0.75);
+        padding: 10px 20px;
+    }
+    .admin-sidebar .nav-link:hover,
+    .admin-sidebar .nav-link.active {
+        color: #fff;
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    .admin-content {
+        padding: 20px;
+    }
+    .admin-header {
+        border-bottom: 1px solid #dee2e6;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- 側邊欄 -->
+        <div class="col-md-3 col-lg-2 admin-sidebar">
+            <h5 class="my-3 text-center">管理後台</h5>
+            <div class="nav flex-column">
+                <a class="nav-link {% if request.endpoint == 'admin.admin_index' %}active{% endif %}" href="{{ url_for('admin.admin_index') }}">
+                    儀表板
+                </a>
+                <a class="nav-link {% if request.endpoint == 'admin.data_management' %}active{% endif %}" href="{{ url_for('admin.data_management') }}">
+                    資料管理
+                </a>
+                <!-- 可以添加更多管理功能 -->
+            </div>
+        </div>
+
+        <!-- 主要內容區域 -->
+        <div class="col-md-9 col-lg-10 admin-content">
+            <div class="admin-header">
+                <h4>{% block admin_header %}管理後台{% endblock %}</h4>
+            </div>
+            
+            <!-- 通知消息 -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <!-- 頁面主要內容 -->
+            {% block admin_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

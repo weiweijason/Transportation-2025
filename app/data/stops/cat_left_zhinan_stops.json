@@ -1,0 +1,336 @@
+{
+  "data": [
+    {
+      "StopID": "219833",
+      "StopName": {
+        "Zh_tw": "貓空纜車站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.588052,
+        "PositionLat": 24.968307
+      },
+      "StopSequence": "1"
+    },
+    {
+      "StopID": "58902",
+      "StopName": {
+        "Zh_tw": "貓空壺穴站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.5953918,
+        "PositionLat": 24.96880012
+      },
+      "StopSequence": "1"
+    },
+    {
+      "StopID": "58903",
+      "StopName": {
+        "Zh_tw": "貓空站(小天空步道)"
+      },
+      "StopPosition": {
+        "PositionLon": 121.59534,
+        "PositionLat": 24.96784
+      },
+      "StopSequence": "2"
+    },
+    {
+      "StopID": "219836",
+      "StopName": {
+        "Zh_tw": "天恩宮"
+      },
+      "StopPosition": {
+        "PositionLon": 121.592291,
+        "PositionLat": 24.970627
+      },
+      "StopSequence": "2"
+    },
+    {
+      "StopID": "219835",
+      "StopName": {
+        "Zh_tw": "茶推廣中心"
+      },
+      "StopPosition": {
+        "PositionLon": 121.59349562698,
+        "PositionLat": 24.969327396833
+      },
+      "StopSequence": "3"
+    },
+    {
+      "StopID": "58904",
+      "StopName": {
+        "Zh_tw": "涼亭站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.59729,
+        "PositionLat": 24.96582
+      },
+      "StopSequence": "3"
+    },
+    {
+      "StopID": "58905",
+      "StopName": {
+        "Zh_tw": "圓山"
+      },
+      "StopPosition": {
+        "PositionLon": 121.60048,
+        "PositionLat": 24.970103
+      },
+      "StopSequence": "4"
+    },
+    {
+      "StopID": "58902",
+      "StopName": {
+        "Zh_tw": "貓空壺穴站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.5953918,
+        "PositionLat": 24.96880012
+      },
+      "StopSequence": "4"
+    },
+    {
+      "StopID": "58903",
+      "StopName": {
+        "Zh_tw": "貓空站(小天空步道)"
+      },
+      "StopPosition": {
+        "PositionLon": 121.59534,
+        "PositionLat": 24.96784
+      },
+      "StopSequence": "5"
+    },
+    {
+      "StopID": "58906",
+      "StopName": {
+        "Zh_tw": "草湳"
+      },
+      "StopPosition": {
+        "PositionLon": 121.605562,
+        "PositionLat": 24.97046871
+      },
+      "StopSequence": "5"
+    },
+    {
+      "StopID": "214295",
+      "StopName": {
+        "Zh_tw": "岐山"
+      },
+      "StopPosition": {
+        "PositionLon": 121.598729,
+        "PositionLat": 24.972478
+      },
+      "StopSequence": "6"
+    },
+    {
+      "StopID": "58904",
+      "StopName": {
+        "Zh_tw": "涼亭站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.59729,
+        "PositionLat": 24.96582
+      },
+      "StopSequence": "6"
+    },
+    {
+      "StopID": "58905",
+      "StopName": {
+        "Zh_tw": "圓山"
+      },
+      "StopPosition": {
+        "PositionLon": 121.60048,
+        "PositionLat": 24.970103
+      },
+      "StopSequence": "7"
+    },
+    {
+      "StopID": "58907",
+      "StopName": {
+        "Zh_tw": "貓纜指南宮站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.5899016,
+        "PositionLat": 24.9788899
+      },
+      "StopSequence": "7"
+    },
+    {
+      "StopID": "58906",
+      "StopName": {
+        "Zh_tw": "草湳"
+      },
+      "StopPosition": {
+        "PositionLon": 121.605562,
+        "PositionLat": 24.97046871
+      },
+      "StopSequence": "8"
+    },
+    {
+      "StopID": "214295",
+      "StopName": {
+        "Zh_tw": "岐山"
+      },
+      "StopPosition": {
+        "PositionLon": 121.598729,
+        "PositionLat": 24.972478
+      },
+      "StopSequence": "9"
+    },
+    {
+      "StopID": "58907",
+      "StopName": {
+        "Zh_tw": "貓纜指南宮站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.5899016,
+        "PositionLat": 24.9788899
+      },
+      "StopSequence": "10"
+    },
+    {
+      "StopID": "58908",
+      "StopName": {
+        "Zh_tw": "草湳"
+      },
+      "StopPosition": {
+        "PositionLon": 121.6054195,
+        "PositionLat": 24.97038815
+      },
+      "StopSequence": "1"
+    },
+    {
+      "StopID": "58908",
+      "StopName": {
+        "Zh_tw": "草湳"
+      },
+      "StopPosition": {
+        "PositionLon": 121.6054195,
+        "PositionLat": 24.97038815
+      },
+      "StopSequence": "1"
+    },
+    {
+      "StopID": "58909",
+      "StopName": {
+        "Zh_tw": "圓山"
+      },
+      "StopPosition": {
+        "PositionLon": 121.600402,
+        "PositionLat": 24.970251
+      },
+      "StopSequence": "2"
+    },
+    {
+      "StopID": "58909",
+      "StopName": {
+        "Zh_tw": "圓山"
+      },
+      "StopPosition": {
+        "PositionLon": 121.600402,
+        "PositionLat": 24.970251
+      },
+      "StopSequence": "2"
+    },
+    {
+      "StopID": "58910",
+      "StopName": {
+        "Zh_tw": "涼亭站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.5972576,
+        "PositionLat": 24.96603131
+      },
+      "StopSequence": "3"
+    },
+    {
+      "StopID": "58910",
+      "StopName": {
+        "Zh_tw": "涼亭站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.5972576,
+        "PositionLat": 24.96603131
+      },
+      "StopSequence": "3"
+    },
+    {
+      "StopID": "58911",
+      "StopName": {
+        "Zh_tw": "貓空站(小天空步道)"
+      },
+      "StopPosition": {
+        "PositionLon": 121.59539,
+        "PositionLat": 24.96796
+      },
+      "StopSequence": "4"
+    },
+    {
+      "StopID": "58911",
+      "StopName": {
+        "Zh_tw": "貓空站(小天空步道)"
+      },
+      "StopPosition": {
+        "PositionLon": 121.59539,
+        "PositionLat": 24.96796
+      },
+      "StopSequence": "4"
+    },
+    {
+      "StopID": "58912",
+      "StopName": {
+        "Zh_tw": "貓空壺穴站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.5953918,
+        "PositionLat": 24.96880012
+      },
+      "StopSequence": "5"
+    },
+    {
+      "StopID": "58912",
+      "StopName": {
+        "Zh_tw": "貓空壺穴站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.5953918,
+        "PositionLat": 24.96880012
+      },
+      "StopSequence": "5"
+    },
+    {
+      "StopID": "219838",
+      "StopName": {
+        "Zh_tw": "茶推廣中心"
+      },
+      "StopPosition": {
+        "PositionLon": 121.593792638784,
+        "PositionLat": 24.9693585939103
+      },
+      "StopSequence": "6"
+    },
+    {
+      "StopID": "219837",
+      "StopName": {
+        "Zh_tw": "天恩宮"
+      },
+      "StopPosition": {
+        "PositionLon": 121.591969964344,
+        "PositionLat": 24.9705753761932
+      },
+      "StopSequence": "7"
+    },
+    {
+      "StopID": "219834",
+      "StopName": {
+        "Zh_tw": "貓空纜車站"
+      },
+      "StopPosition": {
+        "PositionLon": 121.5881,
+        "PositionLat": 24.9685
+      },
+      "StopSequence": "8"
+    }
+  ],
+  "timestamp": 1745074566.182794,
+  "expires_at": 1745160966.182794
+}
