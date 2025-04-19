@@ -3,55 +3,344 @@
 {% block title %}個人資料 - 精靈公車{% endblock %}
 
 {% block content %}
+<div class="profile-header mb-4">
+    <div class="row align-items-center">
+        <div class="col-lg-12 text-center">
+            <h2 class="profile-title"><i class="fas fa-id-card me-2"></i>訓練師檔案</h2>
+        </div>
+    </div>
+</div>
+
 <div class="row">
-    <div class="col-md-4">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h4>玩家資料</h4>
+    <!-- 玩家資料卡 -->
+    <div class="col-md-4 mb-4">
+        <div class="card profile-card shadow-lg">
+            <div class="profile-banner" style="background-image: url('https://img.freepik.com/free-vector/gradient-mountain-landscape_23-2149162007.jpg?w=740&t=st=1711400000~exp=1711400600~hmac=0d7b12bc87e46f2ce2b8c5b2400c5fb8d0f9dab991a753e4a3cb3324354a7c47');">
+                <div class="profile-avatar-wrapper">
+                    <img src="{{ url_for('static', filename='img/avatar-default.png') }}" alt="玩家頭像" class="profile-avatar">
+                    <div class="level-badge">
+                        <span id="user-level">1</span>
+                    </div>
+                </div>
             </div>
             <div class="card-body text-center">
-                <img src="{{ url_for('static', filename='img/avatar-default.png') }}" alt="玩家頭像" class="rounded-circle mb-3" style="width: 150px; height: 150px;">
-                <h5 class="card-title">{{ session['user']['username'] }}</h5>
-                <p class="card-text">等級：<span id="user-level">1</span></p>
-                <p class="card-text">經驗值：<span id="user-exp">0</span> / 100</p>
-                <div class="progress mb-3">
-                    <div class="progress-bar bg-success" role="progressbar" style="width: 0%" id="exp-progress"></div>
+                <h4 class="trainer-name">{{ session['user']['username'] }}</h4>
+                <div class="trainer-stats mb-3">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <span class="stat-value" id="captured-count">0</span>
+                                <span class="stat-label">已捕獲</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <span class="stat-value" id="arena-count">0</span>
+                                <span class="stat-label">擂台</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <span class="stat-value" id="battle-count">0</span>
+                                <span class="stat-label">戰鬥</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <button class="btn btn-outline-primary">修改資料</button>
+                
+                <div class="exp-container mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="small">經驗值</span>
+                        <span class="small" id="exp-text">0/100</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-success" id="exp-progress" role="progressbar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-outline-primary btn-rounded w-100">
+                    <i class="fas fa-pencil-alt me-2"></i>編輯資料
+                </button>
+            </div>
+            <div class="card-footer bg-light">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="achievement">
+                            <i class="fas fa-medal text-warning"></i>
+                            <span>成就: 3/20</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="achievement">
+                            <i class="fas fa-trophy text-danger"></i>
+                            <span>排名: #42</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     
+    <!-- 精靈收藏 -->
     <div class="col-md-8">
-        <div class="card shadow mb-4">
-            <div class="card-header bg-primary text-white">
-                <h4>我的精靈</h4>
+        <div class="card shadow-lg mb-4">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="fas fa-dragon me-2"></i>我的精靈</h4>
+                <a href="{{ url_for('game.catch_creature') }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-plus me-1"></i>捕捉精靈
+                </a>
             </div>
-            <div class="card-body">
-                <div class="row" id="creature-list">
-                    <div class="col-12 text-center">
-                        <p class="text-muted">你還沒有捕捉到任何精靈。</p>
-                        <a href="{{ url_for('game.catch_creatures') }}" class="btn btn-primary">開始捕捉精靈</a>
+            <div class="card-body p-0">
+                <div class="creature-tabs">
+                    <!-- 分類標籤 -->
+                    <ul class="nav nav-tabs nav-fill" id="creatureTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-creatures" type="button" role="tab">
+                                <i class="fas fa-th me-1"></i>全部
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="water-tab" data-bs-toggle="tab" data-bs-target="#water-creatures" type="button" role="tab">
+                                <i class="fas fa-water me-1 text-primary"></i>水系
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="fire-tab" data-bs-toggle="tab" data-bs-target="#fire-creatures" type="button" role="tab">
+                                <i class="fas fa-fire me-1 text-danger"></i>火系
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="earth-tab" data-bs-toggle="tab" data-bs-target="#earth-creatures" type="button" role="tab">
+                                <i class="fas fa-mountain me-1 text-success"></i>土系
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="air-tab" data-bs-toggle="tab" data-bs-target="#air-creatures" type="button" role="tab">
+                                <i class="fas fa-wind me-1 text-info"></i>風系
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <!-- 分類內容 -->
+                    <div class="tab-content p-3" id="creatureTabContent">
+                        <!-- 全部精靈 -->
+                        <div class="tab-pane fade show active" id="all-creatures" role="tabpanel">
+                            <div class="row" id="creature-list">
+                                <div class="col-12 text-center py-4">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/4698/4698906.png" alt="尚無精靈" style="max-width: 100px; opacity: 0.5;" class="mb-3">
+                                    <p class="text-muted">你還沒有捕捉到任何精靈。</p>
+                                    <a href="{{ url_for('game.catch_creature') }}" class="btn btn-primary mt-2">
+                                        <i class="fas fa-search me-1"></i>開始捕捉精靈
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 水系精靈 -->
+                        <div class="tab-pane fade" id="water-creatures" role="tabpanel">
+                            <div class="text-center py-4">
+                                <p class="text-muted">尚無水系精靈</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 火系精靈 -->
+                        <div class="tab-pane fade" id="fire-creatures" role="tabpanel">
+                            <div class="text-center py-4">
+                                <p class="text-muted">尚無火系精靈</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 土系精靈 -->
+                        <div class="tab-pane fade" id="earth-creatures" role="tabpanel">
+                            <div class="text-center py-4">
+                                <p class="text-muted">尚無土系精靈</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 風系精靈 -->
+                        <div class="tab-pane fade" id="air-creatures" role="tabpanel">
+                            <div class="text-center py-4">
+                                <p class="text-muted">尚無風系精靈</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h4>我的擂台</h4>
+        <!-- 擂台內容 -->
+        <div class="card shadow-lg">
+            <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="fas fa-trophy me-2"></i>我的擂台</h4>
+                <a href="{{ url_for('game.list_arenas') }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-map-marker-alt me-1"></i>檢視擂台
+                </a>
             </div>
             <div class="card-body">
                 <div class="row" id="arena-list">
-                    <div class="col-12 text-center">
-                        <p class="text-muted">你還沒有擁有的擂台。</p>
-                        <a href="{{ url_for('game.arena_list') }}" class="btn btn-primary">前往挑戰擂台</a>
+                    <div class="col-12 text-center py-4">
+                        <img src="https://cdn-icons-png.flaticon.com/512/4076/4076478.png" alt="尚無擂台" style="max-width: 100px; opacity: 0.5;" class="mb-3">
+                        <p class="text-muted">你還沒有擁有任何擂台。</p>
+                        <a href="{{ url_for('game.list_arenas') }}" class="btn btn-danger mt-2">
+                            <i class="fas fa-trophy me-1"></i>前往挑戰擂台
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-title {
+        font-family: 'Baloo 2', cursive;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: var(--dark-color);
+        text-align: center;
+        position: relative;
+    }
+    
+    .profile-title:after {
+        content: '';
+        position: absolute;
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 2px;
+    }
+    
+    .profile-card {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    .profile-banner {
+        height: 120px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
+    
+    .profile-avatar-wrapper {
+        position: absolute;
+        left: 50%;
+        top: 100%;
+        transform: translate(-50%, -50%);
+    }
+    
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        border: 4px solid white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .level-badge {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 30px;
+        height: 30px;
+        background: linear-gradient(135deg, var(--primary-color), #2196f3);
+        border-radius: 50%;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 14px;
+        border: 2px solid white;
+    }
+    
+    .trainer-name {
+        margin-top: 40px;
+        font-family: 'Baloo 2', cursive;
+        font-weight: 600;
+        color: var(--dark-color);
+    }
+    
+    .trainer-stats {
+        margin-top: 1rem;
+    }
+    
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary-color);
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+    
+    .exp-container {
+        margin-top: 1rem;
+    }
+    
+    .btn-rounded {
+        border-radius: 50px;
+    }
+    
+    .achievement {
+        font-size: 0.85rem;
+    }
+    
+    .creature-tabs .nav-tabs {
+        border-bottom: none;
+    }
+    
+    .creature-tabs .nav-link {
+        border: none;
+        color: #495057;
+        font-weight: 500;
+        padding: 12px 15px;
+    }
+    
+    .creature-tabs .nav-link.active {
+        color: var(--primary-color);
+        background-color: transparent;
+        border-bottom: 3px solid var(--primary-color);
+    }
+    
+    .creature-tabs .nav-link:hover:not(.active) {
+        border-bottom: 3px solid #e9ecef;
+    }
+    
+    /* 響應式調整 */
+    @media (max-width: 767.98px) {
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+        }
+        
+        .trainer-name {
+            margin-top: 30px;
+            font-size: 1.25rem;
+        }
+        
+        .stat-value {
+            font-size: 1.25rem;
+        }
+        
+        .creature-tabs .nav-link {
+            padding: 8px 10px;
+            font-size: 0.9rem;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block extra_js %}
@@ -63,16 +352,83 @@
             username: "{{ session['user']['username'] }}",
             level: 3,
             experience: 250,
-            next_level_exp: 300
+            next_level_exp: 300,
+            captured_count: 12,
+            arena_count: 2,
+            battle_count: 15
         };
         
         // 更新用戶數據顯示
         document.getElementById('user-level').textContent = userData.level;
-        document.getElementById('user-exp').textContent = userData.experience;
+        document.getElementById('exp-text').textContent = `${userData.experience}/${userData.next_level_exp}`;
+        document.getElementById('captured-count').textContent = userData.captured_count;
+        document.getElementById('arena-count').textContent = userData.arena_count;
+        document.getElementById('battle-count').textContent = userData.battle_count;
         
         // 計算並更新經驗值進度條
         const expPercentage = (userData.experience / userData.next_level_exp) * 100;
         document.getElementById('exp-progress').style.width = expPercentage + '%';
+        
+        // 加載精靈列表示例
+        loadCreaturesSample();
     });
+    
+    // 加載示例精靈數據
+    function loadCreaturesSample() {
+        // 這裡可以添加從Firebase獲取精靈數據的代碼
+        // 如果有精靈數據，則替換下面的showNoCreatures()調用
+        showNoCreatures();
+    }
+    
+    // 顯示無精靈提示
+    function showNoCreatures() {
+        // 不做任何事，因為我們已經在HTML中設置了默認的「無精靈」顯示
+    }
+    
+    // 渲染精靈列表
+    function renderCreatures(creatures) {
+        const creatureList = document.getElementById('creature-list');
+        creatureList.innerHTML = '';
+        
+        if (creatures && creatures.length > 0) {
+            creatures.forEach(creature => {
+                const creatureCard = document.createElement('div');
+                creatureCard.className = 'col-6 col-md-4 col-lg-3 mb-3';
+                creatureCard.innerHTML = `
+                    <div class="card creature-card h-100">
+                        <div class="creature-image">
+                            <img src="${creature.imageUrl || 'https://placehold.co/150?text=' + encodeURIComponent(creature.name)}" 
+                                 alt="${creature.name}" class="img-fluid">
+                        </div>
+                        <div class="card-body text-center">
+                            <h6 class="card-title">${creature.name}</h6>
+                            <div class="creature-type mb-1">
+                                <span class="badge bg-${getTypeColor(creature.type)}">${creature.type}</span>
+                                <span class="badge bg-secondary">${creature.rarity}</span>
+                            </div>
+                            <div class="creature-power">
+                                <span class="power-value">${creature.power}</span>
+                                <span class="power-label">力量</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                creatureList.appendChild(creatureCard);
+            });
+        } else {
+            showNoCreatures();
+        }
+    }
+    
+    // 根據精靈類型獲取顏色
+    function getTypeColor(type) {
+        switch(type.toLowerCase()) {
+            case '水系': return 'primary';
+            case '火系': return 'danger';
+            case '土系': return 'warning';
+            case '風系': return 'success';
+            default: return 'info';
+        }
+    }
 </script>
 {% endblock %}

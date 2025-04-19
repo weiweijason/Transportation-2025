@@ -1,88 +1,1232 @@
 /* 精靈公車主要樣式表 */
 
 /* 全局樣式 */
+:root {
+    --primary-color: #3d85c6;
+    --secondary-color: #ff9800;
+    --accent-color: #4caf50;
+    --dark-color: #1a2a48;
+    --light-color: #f5f7fa;
+    --danger-color: #e53935;
+    --fire-color: #ff4422;
+    --water-color: #3399ff;
+    --earth-color: #78c850;
+    --air-color: #a890f0;
+    --electric-color: #f8d030;
+}
+
 body {
     font-family: 'Noto Sans TC', sans-serif;
-    background-color: #f8f9fa;
-    color: #333;
+    background-color: #f0f8ff;
+    position: relative;
+    min-height: 100vh;
+    padding-bottom: 60px;
+    overflow-x: hidden; /* 防止水平滾動 */
 }
 
-/* 導航欄品牌樣式 */
-.navbar-brand {
+/* 遊戲風格背景 - 增強遊戲感 */
+.game-background {
+    background-image: url('https://img.freepik.com/free-vector/bus-stop-background-with-flat-design_23-2147867371.jpg');
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    position: relative;
+}
+
+.game-background::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.85);
+    z-index: -1;
+}
+
+/* 遊戲風格裝飾元素 */
+.game-decoration {
+    position: fixed;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.game-decoration.bus {
+    width: 100px;
+    height: 100px;
+    bottom: 20px;
+    left: -100px;
+    background-image: url('https://cdn-icons-png.flaticon.com/512/3828/3828206.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    animation: moveBus 20s linear infinite;
+}
+
+@keyframes moveBus {
+    0% { left: -100px; }
+    100% { left: calc(100% + 100px); }
+}
+
+/* 頂部裝飾 - 更明顯的彩虹效果 */
+.game-header-decoration {
+    height: 8px;
+    background: linear-gradient(90deg, 
+        var(--primary-color), 
+        var(--secondary-color), 
+        var(--accent-color), 
+        var(--fire-color), 
+        var(--water-color));
+    margin-bottom: 0;
+    animation: rainbowShift 10s linear infinite;
+}
+
+@keyframes rainbowShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* 導航欄樣式 - 更遊戲化 */
+.game-navbar {
+    background-color: var(--dark-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.game-brand {
+    font-family: 'Baloo 2', cursive;
+    font-weight: 800;
+    font-size: 1.6rem;
+    color: var(--light-color);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3), 0 0 10px rgba(61, 133, 198, 0.5);
+    transition: all 0.3s;
+    position: relative;
+    display: inline-block;
+}
+
+.game-brand:hover {
+    transform: scale(1.05);
+    color: var(--secondary-color);
+}
+
+.game-brand::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 3px;
+    bottom: -5px;
+    left: 50%;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    transition: all 0.3s;
+    transform: translateX(-50%);
+    border-radius: 3px;
+}
+
+.game-brand:hover::after {
+    width: 100%;
+}
+
+.game-nav-link {
+    font-weight: 500;
+    padding: 0.5rem 1rem !important;
+    margin: 0 0.2rem;
+    border-radius: 20px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.game-nav-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0), 
+        rgba(255, 255, 255, 0.2), 
+        rgba(255, 255, 255, 0));
+    transition: all 0.5s;
+}
+
+.game-nav-link:hover::before {
+    left: 100%;
+}
+
+.game-nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.game-username {
     font-weight: bold;
-    font-size: 1.5rem;
+    color: var(--secondary-color);
+    position: relative;
+    display: inline-block;
 }
 
-/* 卡片樣式增強 */
+.game-username::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    bottom: 2px;
+    left: 0;
+    background-color: var(--secondary-color);
+    opacity: 0.5;
+}
+
+/* 主要容器 - 增強卡片感和陰影 */
+.game-container {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    padding: 25px;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.game-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+}
+
+/* 遊戲卡片 - 更生動的效果 */
 .card {
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    overflow: hidden;
+    position: relative;
+}
+
+.card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: opacity 0.4s;
 }
 
 .card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-8px) scale(1.01);
+}
+
+.card:hover::after {
+    opacity: 1;
 }
 
 .card-header {
-    border-radius: 10px 10px 0 0 !important;
+    font-weight: bold;
+    border-bottom: none;
+    position: relative;
 }
 
-/* 登入和註冊表單樣式 */
-.form-control:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+.card-header::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, 
+        rgba(0, 0, 0, 0.1), 
+        rgba(0, 0, 0, 0.05), 
+        rgba(0, 0, 0, 0));
 }
 
-/* 按鈕樣式 */
+.card-title {
+    font-family: 'Baloo 2', cursive;
+    font-weight: 600;
+    position: relative;
+    display: inline-block;
+}
+
+.card-title.with-badge::before {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: var(--accent-color);
+    border-radius: 50%;
+    left: -15px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* 按鈕樣式 - 更多游戲感 */
+.btn {
+    border-radius: 25px;
+    padding: 0.5rem 1.5rem;
+    font-weight: bold;
+    transition: all 0.3s;
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.btn::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: -100%;
+    background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0), 
+        rgba(255, 255, 255, 0.2), 
+        rgba(255, 255, 255, 0));
+    transition: all 0.5s;
+    z-index: -1;
+}
+
+.btn:hover::after {
+    left: 100%;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.1);
+}
+
+.btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1);
+}
+
 .btn-primary {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
+    background: linear-gradient(135deg, var(--primary-color), #2b6ca8);
+    border: none;
 }
 
 .btn-primary:hover {
-    background-color: #0b5ed7;
-    border-color: #0a58ca;
+    background: linear-gradient(135deg, #2b6ca8, var(--primary-color));
 }
 
-/* 頁腳樣式 */
-footer {
-    margin-top: 3rem;
+.btn-success {
+    background: linear-gradient(135deg, var(--accent-color), #3d8b40);
+    border: none;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #3d8b40, var(--accent-color));
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--danger-color), #c62828);
+    border: none;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #c62828, var(--danger-color));
+}
+
+/* 游戲按鈕 - 特殊效果 */
+.game-btn {
+    position: relative;
+    padding: 0.6rem 1.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    overflow: hidden;
+}
+
+.game-btn::before {
+    content: '';
+    position: absolute;
+    width: 30px;
+    height: 300%;
+    background: rgba(255, 255, 255, 0.5);
+    top: -100%;
+    left: 0;
+    transform: rotate(45deg);
+    transition: all 0.5s;
+}
+
+.game-btn:hover::before {
+    left: 120%;
+}
+
+/* 警告框樣式 */
+.game-alert {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.game-alert::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+}
+
+.alert-success::after {
+    background-color: var(--accent-color);
+}
+
+.alert-danger::after {
+    background-color: var(--danger-color);
+}
+
+.alert-warning::after {
+    background-color: var(--secondary-color);
+}
+
+.alert-info::after {
+    background-color: var(--primary-color);
+}
+
+/* 頁腳 */
+.game-footer {
+    background-color: var(--dark-color);
+    color: white;
     padding: 1rem 0;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2);
 }
 
-/* 精靈元素類型的色彩 */
+.game-copyright {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+.game-footer-links a {
+    color: white;
+    font-size: 1.2rem;
+    transition: all 0.3s;
+    margin: 0 10px;
+    position: relative;
+    display: inline-block;
+}
+
+.game-footer-links a::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    bottom: -5px;
+    left: 0;
+    background: linear-gradient(90deg, transparent, white, transparent);
+    transform: scaleX(0);
+    transition: all 0.3s;
+}
+
+.game-footer-links a:hover::after {
+    transform: scaleX(1);
+}
+
+.game-footer-links a:hover {
+    color: var(--secondary-color);
+    transform: translateY(-3px);
+}
+
+/* 浮動操作按鈕 (針對移動設備) - 增強便捷性和視覺效果 */
+.fab-container {
+    position: fixed;
+    right: 20px;
+    bottom: 70px;
+    z-index: 999;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+}
+
+.btn-fab {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    margin: 5px 0;
+    font-size: 1.5rem;
+    padding: 0;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.btn-fab.main {
+    background: linear-gradient(135deg, var(--primary-color), #2196f3);
+    z-index: 1002;
+    position: relative;
+}
+
+.btn-fab.main::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: inherit;
+    opacity: 0.6;
+    z-index: -1;
+    animation: pulse-ring 2s infinite;
+}
+
+@keyframes pulse-ring {
+    0% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.2); opacity: 0; }
+    100% { transform: scale(1); opacity: 0; }
+}
+
+.btn-fab-sub {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+    opacity: 0;
+    transform: scale(0) translateY(20px);
+    transition: all 0.3s;
+    position: absolute;
+}
+
+.sub-button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    bottom: 70px;
+    height: 200px;
+}
+
+.fab-container.open .btn-fab-sub {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+
+.fab-container.open .btn-fab-sub:nth-child(1) {
+    bottom: 0px;
+    transition-delay: 0.1s;
+}
+
+.fab-container.open .btn-fab-sub:nth-child(2) {
+    bottom: 65px;
+    transition-delay: 0.2s;
+}
+
+.fab-container.open .btn-fab-sub:nth-child(3) {
+    bottom: 130px;
+    transition-delay: 0.3s;
+}
+
+.btn-fab-sub i {
+    animation: bounceIcon 2s infinite;
+    animation-delay: calc(0.2s * var(--i, 0));
+}
+
+@keyframes bounceIcon {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+/* 遊戲元素動畫 - 增強生動感 */
+@keyframes float {
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(3deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(61, 133, 198, 0.4); }
+    50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(61, 133, 198, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(61, 133, 198, 0); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.float-animation {
+    animation: float 4s ease-in-out infinite;
+    transform-origin: center;
+}
+
+.pulse-animation {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.shake-animation {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* 精靈卡片樣式 - 更吸引人的設計 */
+.creature-card {
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.4s;
+    background: linear-gradient(135deg, #ffffff, #f5f5f5);
+    position: relative;
+}
+
+.creature-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(
+        rgba(255, 255, 255, 0.8),
+        rgba(255, 255, 255, 0),
+        rgba(255, 255, 255, 0),
+        rgba(255, 255, 255, 0),
+        rgba(255, 255, 255, 0.8)
+    );
+    transform: rotate(-45deg);
+    opacity: 0;
+    transition: opacity 0.6s;
+    z-index: 0;
+}
+
+.creature-card:hover::before {
+    opacity: 1;
+    animation: rotateGradient 2s linear infinite;
+}
+
+@keyframes rotateGradient {
+    0% { transform: rotate(-45deg); }
+    100% { transform: rotate(315deg); }
+}
+
+.creature-selected {
+    border: 3px solid var(--danger-color);
+    box-shadow: 0 0 20px rgba(220, 53, 69, 0.5) !important;
+    transform: translateY(-5px) scale(1.03);
+}
+
+.creature-image {
+    height: 150px;
+    background: linear-gradient(135deg, #f9f9f9, #e0e0e0);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.creature-image::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.1), transparent);
+}
+
+.creature-image img {
+    max-height: 120px;
+    transition: all 0.4s;
+    position: relative;
+    z-index: 1;
+}
+
+.creature-card:hover .creature-image img {
+    transform: scale(1.15) translateY(-5px);
+}
+
+/* 擂台樣式 - 更具戰鬥氛圍 */
+.arena-header {
+    position: relative;
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+    transition: all 0.3s;
+    height: 120px;
+    display: flex;
+    align-items: flex-end;
+    background-size: cover;
+    background-position: center;
+}
+
+.arena-header:hover {
+    transform: translateY(-3px);
+}
+
+.arena-header-overlay {
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.7));
+    width: 100%;
+    padding: 15px;
+    color: white;
+}
+
+.arena-header-overlay h2 {
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.arena-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--secondary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    animation: pulse 2s infinite;
+}
+
+/* 移動設備優化 - 更好的響應式設計 */
+@media (max-width: 767.98px) {
+    .game-container {
+        padding: 15px 12px;
+        margin-bottom: 80px;
+        border-radius: 10px;
+    }
+    
+    .navbar-brand {
+        font-size: 1.3rem;
+    }
+    
+    .card {
+        margin-bottom: 15px;
+        border-radius: 12px;
+    }
+    
+    .card-body {
+        padding: 12px;
+    }
+    
+    .btn {
+        padding: 0.4rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    h1 {
+        font-size: 1.7rem;
+    }
+    
+    h2 {
+        font-size: 1.4rem;
+    }
+    
+    /* 地圖高度調整 */
+    #map {
+        height: 300px !important;
+    }
+    
+    /* 底部邊距調整 */
+    body {
+        padding-bottom: 80px;
+    }
+    
+    /* 移動優化 - 導航欄 */
+    .game-navbar {
+        padding: 0.3rem 0;
+    }
+    
+    .game-nav-link {
+        padding: 0.4rem 0.8rem !important;
+        margin: 0.1rem;
+    }
+    
+    /* 浮動按鈕優化 */
+    .btn-fab {
+        width: 56px;
+        height: 56px;
+    }
+    
+    .btn-fab-sub {
+        width: 46px;
+        height: 46px;
+    }
+    
+    /* 卡片間距縮小 */
+    .row .col-md-4 {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+    
+    /* 表單元素優化 */
+    .form-control {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    /* 標籤調整 */
+    .badge {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+    }
+    
+    /* 精靈卡片優化 */
+    .creature-image {
+        height: 120px;
+    }
+    
+    .creature-image img {
+        max-height: 100px;
+    }
+    
+    /* 精靈詳情頁面優化 */
+    .creature-detail-card {
+        flex-direction: column;
+    }
+    
+    .creature-detail-image {
+        width: 100%;
+        height: auto;
+    }
+    
+    /* 擂台頁面優化 */
+    .arena-header {
+        height: 100px;
+    }
+    
+    .arena-badge {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+    
+    /* 捕捉頁面優化 */
+    .game-tabs .nav-link {
+        padding: 0.4rem 0.7rem;
+        font-size: 0.9rem;
+    }
+    
+    .game-tabs .nav-link i {
+        margin-right: 5px;
+    }
+    
+    /* 捕捉模態框優化 */
+    .catch-modal .modal-body {
+        padding: 15px;
+    }
+    
+    .catch-success-image {
+        max-height: 120px;
+    }
+}
+
+/* 輸入框樣式 - 更遊戲化設計 */
+.form-control {
+    border-radius: 12px;
+    border: 2px solid #e0e0e0;
+    padding: 0.7rem 1rem;
+    transition: all 0.3s;
+    background-color: #f8f9fa;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(61, 133, 198, 0.25);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--dark-color);
+    position: relative;
+    display: inline-block;
+}
+
+.form-label::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 30px;
+    height: 2px;
+    background-color: var(--primary-color);
+}
+
+/* 遊戲化進度條 */
+.progress {
+    height: 15px;
+    border-radius: 20px;
+    background-color: #e0e0e0;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar {
+    background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+    transition: width 0.5s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, 
+        rgba(255, 255, 255, 0.2) 25%, 
+        transparent 25%, 
+        transparent 50%, 
+        rgba(255, 255, 255, 0.2) 50%, 
+        rgba(255, 255, 255, 0.2) 75%, 
+        transparent 75%, 
+        transparent);
+    background-size: 15px 15px;
+    animation: progressAnimation 1s linear infinite;
+}
+
+@keyframes progressAnimation {
+    0% { background-position: 0 0; }
+    100% { background-position: 15px 0; }
+}
+
+/* 資料表格樣式 - 更現代化 */
+.table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.table th {
+    background-color: #f5f5f5;
+    border-top: none;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    padding: 15px;
+}
+
+.table td {
+    padding: 15px;
+    vertical-align: middle;
+    transition: all 0.3s;
+}
+
+.table-hover tbody tr {
+    transition: all 0.3s;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(61, 133, 198, 0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* 徽章樣式 - 更具游戲感 */
+.badge {
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.badge.bg-primary {
+    background: linear-gradient(135deg, var(--primary-color), #2196f3) !important;
+}
+
+.badge.bg-success {
+    background: linear-gradient(135deg, var(--accent-color), #388e3c) !important;
+}
+
+.badge.bg-danger {
+    background: linear-gradient(135deg, var(--danger-color), #c62828) !important;
+}
+
+.badge.bg-warning {
+    background: linear-gradient(135deg, var(--secondary-color), #f57c00) !important;
+}
+
+.badge.bg-info {
+    background: linear-gradient(135deg, #29b6f6, #0288d1) !important;
+}
+
+.badge::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: rotate(45deg);
+    opacity: 0;
+    transition: opacity 0.6s;
+}
+
+.badge:hover::after {
+    opacity: 1;
+}
+
+/* 自定義滾動條 - 更美觀 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f5f7fa;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, var(--primary-color), #2196f3);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom, #2196f3, var(--primary-color));
+}
+
+/* 精靈元素類型的色彩 - 豐富多樣 */
 .type-fire {
-    color: #ff4422;
+    color: var(--fire-color);
+    text-shadow: 0 0 5px rgba(255, 68, 34, 0.3);
 }
 
 .type-water {
-    color: #3399ff;
+    color: var(--water-color);
+    text-shadow: 0 0 5px rgba(51, 153, 255, 0.3);
 }
 
 .type-earth {
-    color: #78c850;
+    color: var(--earth-color);
+    text-shadow: 0 0 5px rgba(120, 200, 80, 0.3);
 }
 
 .type-air {
-    color: #a890f0;
+    color: var(--air-color);
+    text-shadow: 0 0 5px rgba(168, 144, 240, 0.3);
 }
 
 .type-electric {
-    color: #f8d030;
+    color: var(--electric-color);
+    text-shadow: 0 0 5px rgba(248, 208, 48, 0.3);
 }
 
 .type-normal {
     color: #a8a878;
+    text-shadow: 0 0 5px rgba(168, 168, 120, 0.3);
 }
 
-/* 響應式調整 */
-@media (max-width: 768px) {
-    .jumbotron {
-        padding: 2rem 1rem;
-    }
-    
-    h1 {
-        font-size: 2rem;
-    }
+/* 精靈詳情頁面 */
+.creature-detail-card {
+    display: flex;
+    background: #fff;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.creature-detail-image {
+    width: 40%;
+    background: linear-gradient(135deg, var(--primary-color), #2196f3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.creature-detail-info {
+    width: 60%;
+    padding: 25px;
+}
+
+.creature-detail-title {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    color: var(--dark-color);
+    position: relative;
+    display: inline-block;
+}
+
+.creature-detail-title::after {
+    content: '';
+    position: absolute;
+    width: 50%;
+    height: 3px;
+    bottom: -8px;
+    left: 0;
+    background: linear-gradient(90deg, var(--primary-color), transparent);
+}
+
+.creature-stats {
+    display: flex;
+    margin: 20px 0;
+}
+
+.stat-item {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    background: #f5f7fa;
+    border-radius: 10px;
+    margin: 0 5px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s;
+}
+
+.stat-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* 登入和註冊頁面增強 */
+.auth-card {
+    max-width: 450px;
+    margin: 0 auto;
+    padding: 30px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+}
+
+.auth-title {
+    font-size: 1.8rem;
+    color: var(--dark-color);
+    text-align: center;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.auth-title::after {
+    content: '';
+    position: absolute;
+    width: 50px;
+    height: 3px;
+    background: var(--primary-color);
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.auth-link {
+    color: var(--primary-color);
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.auth-link:hover {
+    color: var(--secondary-color);
+    text-decoration: none;
+}
+
+/* 添加額外動畫效果 */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.6s ease forwards;
+}
+
+.fade-in-delay-1 {
+    animation: fadeIn 0.6s ease 0.2s forwards;
+    opacity: 0;
+}
+
+.fade-in-delay-2 {
+    animation: fadeIn 0.6s ease 0.4s forwards;
+    opacity: 0;
+}
+
+/* 觸覺回饋增強 */
+.btn:active, .card:active, .form-control:focus {
+    transform: scale(0.98);
+}
+
+/* 添加陰影過渡效果 */
+@keyframes shadowPulse {
+    0% { box-shadow: 0 0 0 0 rgba(61, 133, 198, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(61, 133, 198, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(61, 133, 198, 0); }
+}
+
+.shadow-pulse {
+    animation: shadowPulse 2s infinite;
+}
+
+/* 模態框優化 */
+.modal-content {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, var(--primary-color), #2196f3);
+    color: white;
+    border-bottom: none;
+}
+
+.modal-title {
+    font-weight: 600;
+}
+
+.modal-footer {
+    border-top: none;
+    padding: 15px 20px 20px;
 }

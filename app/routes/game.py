@@ -33,6 +33,15 @@ def catch():
 def battle():
     return render_template('game/battle.html')
 
+# 新增：擂台列表頁面
+@game_bp.route('/arenas')
+@login_required
+def list_arenas():
+    """顯示所有擂台列表"""
+    # 獲取所有擂台
+    arenas = Arena.get_all()
+    return render_template('game/arenas.html', arenas=arenas)
+
 # 精靈捕捉 API
 @game_bp.route('/api/catch-creature', methods=['POST'])
 @login_required

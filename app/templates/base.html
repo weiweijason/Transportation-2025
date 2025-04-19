@@ -2,10 +2,14 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{% block title %}精靈公車{% endblock %}</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts - 遊戲風格字體 -->
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome 圖標 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- 自定義CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <!-- Firebase SDK -->
@@ -15,13 +19,27 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-analytics-compat.js"></script>
     <!-- Firebase 初始化 -->
     <script src="{{ url_for('static', filename='js/firebase-init-legacy.js') }}"></script>
+    <!-- 移動設備觸控優化 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#3d85c6">
+    <!-- PWA支援 -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/app-icon.png') }}">
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body class="game-background">
+    <!-- 遊戲裝飾元素 -->
+    <div class="game-decoration bus"></div>
+    
+    <!-- 頂部色彩裝飾 -->
+    <div class="game-header-decoration"></div>
+    
     <!-- 導航欄 -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark game-navbar sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">精靈公車</a>
+            <a class="navbar-brand game-brand" href="{{ url_for('main.index') }}">
+                <i class="fas fa-bus-alt me-2 float-animation"></i>精靈公車
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -29,27 +47,44 @@
                 <ul class="navbar-nav me-auto">
                     {% if 'user' in session %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.home') }}">主頁</a>
+                        <a class="nav-link game-nav-link" href="{{ url_for('main.home') }}">
+                            <i class="fas fa-home me-1"></i> 主頁
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.profile') }}">個人資料</a>
+                        <a class="nav-link game-nav-link" href="{{ url_for('main.profile') }}">
+                            <i class="fas fa-user me-1"></i> 個人資料
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link game-nav-link" href="{{ url_for('game.catch') }}">
+                            <i class="fas fa-search me-1"></i> 探索捕捉
+                        </a>
                     </li>
                     {% endif %}
                 </ul>
                 <ul class="navbar-nav">
                     {% if 'user' in session %}
                     <li class="nav-item">
-                        <span class="nav-link">你好，{{ session['user']['username'] }}</span>
+                        <span class="nav-link game-username">
+                            <i class="fas fa-star me-1 text-warning pulse-animation"></i>{{ session['user']['username'] }}
+                        </span>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('auth.logout') }}">登出</a>
+                        <a class="nav-link game-nav-link" href="{{ url_for('auth.logout') }}">
+                            <i class="fas fa-sign-out-alt me-1"></i>登出
+                        </a>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('auth.login') }}">登入</a>
+                        <a class="nav-link game-nav-link" href="{{ url_for('auth.login') }}">
+                            <i class="fas fa-sign-in-alt me-1"></i>登入
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('auth.register') }}">註冊</a>
+                        <a class="nav-link game-nav-link" href="{{ url_for('auth.register') }}">
+                            <i class="fas fa-user-plus me-1"></i>註冊
+                        </a>
                     </li>
                     {% endif %}
                 </ul>
@@ -58,12 +93,13 @@
     </nav>
 
     <!-- 主要內容 -->
-    <div class="container mt-4">
+    <div class="container mt-4 game-container">
         <!-- 顯示提示訊息 -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show">
+                    <div class="alert game-alert alert-{{ category }} alert-dismissible fade show">
+                        <i class="fas {% if category == 'success' %}fa-check-circle{% elif category == 'danger' %}fa-exclamation-circle{% elif category == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} me-2"></i>
                         {{ message }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
@@ -75,10 +111,35 @@
         {% block content %}{% endblock %}
     </div>
 
+    <!-- 快速操作浮動按鈕 (適應性地顯示在移動設備上) -->
+    {% if 'user' in session %}
+    <div class="fab-container d-md-none">
+        <button class="btn btn-primary btn-fab main">
+            <i class="fas fa-gamepad"></i>
+        </button>
+        <div class="sub-button-container">
+            <a href="{{ url_for('game.catch') }}" class="btn btn-success btn-fab-sub" style="--i:1" data-toggle="tooltip" title="捕捉精靈">
+                <i class="fas fa-search"></i>
+            </a>
+            <a href="{{ url_for('main.profile') }}" class="btn btn-info btn-fab-sub" style="--i:2" data-toggle="tooltip" title="個人資料">
+                <i class="fas fa-user"></i>
+            </a>
+            <a href="{{ url_for('game.catch') }}#arenas-tab" class="btn btn-danger btn-fab-sub" style="--i:3" data-toggle="tooltip" title="擂台挑戰">
+                <i class="fas fa-trophy"></i>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- 頁腳 -->
-    <footer class="bg-light text-center text-lg-start mt-5">
-        <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-            © 2025 精靈公車
+    <footer class="game-footer text-center text-lg-start mt-5">
+        <div class="text-center p-3">
+            <span class="game-copyright">© 2025 精靈公車</span>
+            <div class="mt-2 d-flex justify-content-center game-footer-links">
+                <a href="#" class="mx-2"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="mx-2"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="mx-2"><i class="fab fa-line"></i></a>
+            </div>
         </div>
     </footer>
 
@@ -86,6 +147,37 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- 自定義JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <!-- 浮動按鈕操作 -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mainButton = document.querySelector('.btn-fab.main');
+        if (mainButton) {
+            mainButton.addEventListener('click', function() {
+                document.querySelector('.fab-container').classList.toggle('open');
+            });
+        }
+        
+        // 點擊頁面其他區域時關閉浮動按鈕菜單
+        document.addEventListener('click', function(event) {
+            const fabContainer = document.querySelector('.fab-container');
+            if (fabContainer && !fabContainer.contains(event.target)) {
+                fabContainer.classList.remove('open');
+            }
+        });
+        
+        // 添加觸覺反饋功能（如果設備支持）
+        const buttons = document.querySelectorAll('.btn, .card, .nav-link');
+        if ('vibrate' in navigator) {
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    navigator.vibrate(20); // 輕微震動20毫秒
+                });
+            });
+        }
+    });
+    </script>
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -120,12 +120,23 @@
 ├── credentials/            # 憑證文件
 ├── dataconnect/            # 資料連接設定
 ├── dataconnect-generated/  # 資料連接生成的檔案
+├── extensions/             # 擴展功能目錄
 ├── functions/              # Firebase 雲函數
 ├── instance/               # Flask 實例配置
 ├── public/                 # 公開檔案
+├── test/                   # 測試代碼目錄
 ├── app.py                  # 應用程式入口
+├── apphosting.emulator.yaml # Firebase 模擬器配置
+├── apphosting.yaml         # Firebase 部署配置
 ├── config.py               # 配置文件
-├── requirements.txt        # 依賴套件
+├── database.rules.json     # Firebase 資料庫規則
+├── firebase.json           # Firebase 配置
+├── firestore.indexes.json  # Firestore 索引設定
+├── firestore.rules         # Firestore 安全規則
+├── package.json            # npm 套件依賴
+├── remoteconfig.template.json # Firebase 遠端配置
+├── requirements.txt        # Python 依賴套件
+├── storage.rules           # Firebase 存儲規則
 └── README.md               # 本文件
 ```
 
@@ -201,12 +212,12 @@
    - 使用者位置與公車位置確認
    - 擂台系統建立
    
-4. 階段四：PVP功能與進階功能 (進行中)
+4. 階段四：PVP功能與進階功能 ✓
    - 玩家對戰系統 ✓
    - 管理員後台功能 ✓
-   - 獎勵機制設計
+   - 獎勵機制設計 ✓
    
-5. 階段五：系統優化與擴展 (計劃中)
+5. 階段五：系統優化與擴展 (進行中)
    - 更多公車路線支持
    - 使用者體驗優化
    - 社群功能整合
@@ -218,4 +229,5 @@
 - **資料儲存**：Firebase Realtime Database + Firestore
 - **使用者認證**：Firebase Authentication
 - **API 整合**：TDX 運輸資料 API + Firebase Cloud Functions
+- **部署環境**：Firebase Hosting + Cloud Functions
 - **版本控制**：Git + GitHub

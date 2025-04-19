@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}擂台列表 - 精靈公車{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4 text-center"><i class="fas fa-trophy me-2"></i>擂台列表</h2>
+    
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow-lg mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">可挑戰擂台</h5>
+                </div>
+                <div class="card-body">
+                    {% if arenas %}
+                        <div class="row">
+                            {% for arena in arenas %}
+                                <div class="col-md-4 mb-4">
+                                    <div class="card arena-card h-100">
+                                        <div class="card-header bg-light">
+                                            <h5 class="card-title mb-0">{{ arena.name }}</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <p><strong>位置：</strong> {{ arena.position.lat }}, {{ arena.position.lng }}</p>
+                                            <p><strong>擁有者：</strong> {{ arena.owner or '無人佔領' }}</p>
+                                            {% if arena.owner_creature %}
+                                                <div class="arena-defender">
+                                                    <strong>鎮守精靈：</strong>
+                                                    <div class="mt-2">
+                                                        <div class="defender-info d-flex align-items-center">
+                                                            <div class="defender-img me-3">
+                                                                <img src="{{ arena.owner_creature.image_url or 'https://placehold.co/80?text=精靈' }}" 
+                                                                    alt="{{ arena.owner_creature.name }}" class="img-fluid rounded" style="max-width: 80px;">
+                                                            </div>
+                                                            <div class="defender-stats">
+                                                                <h6>{{ arena.owner_creature.name }}</h6>
+                                                                <div class="mb-1">
+                                                                    <span class="badge bg-primary">{{ arena.owner_creature.type }}</span>
+                                                                    <span class="badge bg-secondary">{{ arena.owner_creature.rarity }}</span>
+                                                                </div>
+                                                                <div><strong>力量：</strong> {{ arena.owner_creature.power }}</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <p class="text-muted">無鎮守精靈</p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="card-footer">
+                                            <a href="{{ url_for('game.battle') }}" class="btn btn-danger w-100">
+                                                <i class="fas fa-fist-raised me-1"></i>挑戰擂台
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <img src="https://cdn-icons-png.flaticon.com/512/4076/4076478.png" alt="尚無擂台" style="max-width: 100px; opacity: 0.5;" class="mb-3">
+                            <p class="text-muted">目前沒有任何可挑戰的擂台</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center mt-4">
+        <a href="{{ url_for('main.profile') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>返回個人頁面
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .arena-card {
+        transition: transform 0.2s;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .arena-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .arena-card .card-header {
+        border-bottom: 2px solid rgba(0,0,0,0.1);
+    }
+    
+    .arena-card .card-footer {
+        background-color: transparent;
+    }
+    
+    .defender-info {
+        padding: 10px;
+        background-color: rgba(0,0,0,0.025);
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}

@@ -3,41 +3,248 @@
 {% block title %}主頁 - 精靈公車{% endblock %}
 
 {% block content %}
-<div class="jumbotron p-4 bg-light rounded-3">
-    <h1 class="display-4">歡迎使用精靈公車！</h1>
-    <p class="lead">在大眾運輸過程中增加樂趣，透過捕捉不同的精靈，成為最強的訓練師。</p>
-    <hr class="my-4">
-    <p>開始你的旅程，捕捉精靈，挑戰站點擂台，與其他玩家進行PVP對戰！</p>
-    <a class="btn btn-primary btn-lg" href="{{ url_for('game.catch') }}" role="button">開始探索</a>
+<div class="row">
+    <!-- 遊戲主視覺 -->
+    <div class="col-lg-8 mb-4">
+        <div class="card game-hero">
+            <div class="card-body p-0 position-relative">
+                <img src="https://img.freepik.com/free-vector/public-transport-concept-illustration_114360-9825.jpg" class="img-fluid w-100 rounded-3" alt="精靈公車世界">
+                <div class="game-hero-overlay p-4 text-white">
+                    <h1 class="display-4 game-title float-animation">歡迎來到精靈公車世界！</h1>
+                    <p class="lead">在大眾運輸的旅程中，發現並收集各種奇妙的精靈，成為最強大的訓練師！</p>
+                    <div class="mt-4">
+                        <a class="btn btn-lg btn-primary me-2 pulse-animation" href="{{ url_for('game.catch') }}">
+                            <i class="fas fa-search me-2"></i>開始探索
+                        </a>
+                        {% if 'user' not in session %}
+                        <a class="btn btn-lg btn-outline-light" href="{{ url_for('auth.register') }}">
+                            <i class="fas fa-user-plus me-2"></i>立即註冊
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 遊戲新聞/提示 -->
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-bullhorn me-2"></i>最新消息</h5>
+            </div>
+            <div class="card-body">
+                <div class="news-item mb-3 pb-3 border-bottom">
+                    <h6><i class="fas fa-star text-warning me-2"></i>新精靈登場！</h6>
+                    <p class="small">貓空纜車左線現在出現了全新的水系精靈，快去捕捉吧！</p>
+                    <small class="text-muted">2025/4/15</small>
+                </div>
+                <div class="news-item mb-3 pb-3 border-bottom">
+                    <h6><i class="fas fa-trophy text-danger me-2"></i>週末活動</h6>
+                    <p class="small">本週末所有站點擂台的精靈都將獲得雙倍力量加成！</p>
+                    <small class="text-muted">2025/4/17</small>
+                </div>
+                <div class="news-item">
+                    <h6><i class="fas fa-gift text-success me-2"></i>新手提示</h6>
+                    <p class="small">記得每天登入遊戲可以獲得額外的捕捉機會哦！</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="row mt-4">
+<!-- 遊戲特色 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="section-title text-center mb-4"><i class="fas fa-gamepad me-2"></i>遊戲特色</h2>
+    </div>
     <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">捕捉精靈</h5>
-                <p class="card-text">當公車靠近點位500米時，系統會生成與路線屬性相關的精靈。</p>
-                <a href="{{ url_for('game.catch') }}" class="btn btn-outline-primary">前往捕捉</a>
+        <div class="card game-feature-card h-100">
+            <div class="card-body text-center">
+                <div class="feature-icon mb-3 float-animation">
+                    <i class="fas fa-map-marked-alt fa-3x text-primary"></i>
+                </div>
+                <h5 class="card-title">探索捕捉</h5>
+                <p class="card-text">當你搭乘貓空纜車時，系統會在附近生成各種精靈，趕快抓住它們！</p>
+                <a href="{{ url_for('game.catch') }}" class="btn btn-sm btn-outline-primary mt-3">開始捕捉</a>
             </div>
         </div>
     </div>
     <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-body">
+        <div class="card game-feature-card h-100">
+            <div class="card-body text-center">
+                <div class="feature-icon mb-3 float-animation">
+                    <i class="fas fa-trophy fa-3x text-danger"></i>
+                </div>
                 <h5 class="card-title">站點擂台</h5>
-                <p class="card-text">每個站點都設有擂台和站主，派出你的精靈守擂或挑戰他人。</p>
-                <a href="{{ url_for('game.catch') }}#arenas-tab" class="btn btn-outline-primary">查看擂台</a>
+                <p class="card-text">每個站點都設有擂台，派出你最強的精靈佔領擂台或挑戰他人！</p>
+                <a href="{{ url_for('game.catch') }}#arenas-tab" class="btn btn-sm btn-outline-danger mt-3">查看擂台</a>
             </div>
         </div>
     </div>
     <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">PVP對戰</h5>
-                <p class="card-text">與其他玩家進行精靈對戰，提升你的等級和聲望。</p>
-                <a href="{{ url_for('game.game_home') }}" class="btn btn-outline-primary">開始對戰</a>
+        <div class="card game-feature-card h-100">
+            <div class="card-body text-center">
+                <div class="feature-icon mb-3 float-animation">
+                    <i class="fas fa-users fa-3x text-success"></i>
+                </div>
+                <h5 class="card-title">玩家對戰</h5>
+                <p class="card-text">與其他玩家進行精靈PVP對戰，提升你的等級和聲望！</p>
+                <a href="{{ url_for('game.game_home') }}" class="btn btn-sm btn-outline-success mt-3">開始對戰</a>
             </div>
         </div>
     </div>
 </div>
+
+<!-- 精靈展示 -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-dragon me-2"></i>熱門精靈</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="creature-showcase text-center">
+                            <div class="creature-image-container mb-2 float-animation">
+                                <img src="https://cdn-icons-png.flaticon.com/512/1752/1752776.png" class="img-fluid" alt="水系精靈" style="max-height: 80px;">
+                            </div>
+                            <h6>水精靈</h6>
+                            <span class="badge bg-primary">水系</span>
+                            <span class="badge bg-info">稀有</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="creature-showcase text-center">
+                            <div class="creature-image-container mb-2 float-animation">
+                                <img src="https://cdn-icons-png.flaticon.com/512/1752/1752778.png" class="img-fluid" alt="火系精靈" style="max-height: 80px;">
+                            </div>
+                            <h6>火精靈</h6>
+                            <span class="badge bg-danger">火系</span>
+                            <span class="badge bg-warning">普通</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="creature-showcase text-center">
+                            <div class="creature-image-container mb-2 float-animation">
+                                <img src="https://cdn-icons-png.flaticon.com/512/1752/1752780.png" class="img-fluid" alt="風系精靈" style="max-height: 80px;">
+                            </div>
+                            <h6>風精靈</h6>
+                            <span class="badge bg-success">風系</span>
+                            <span class="badge bg-secondary">史詩</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="creature-showcase text-center">
+                            <div class="creature-image-container mb-2 float-animation">
+                                <img src="https://cdn-icons-png.flaticon.com/512/1752/1752822.png" class="img-fluid" alt="土系精靈" style="max-height: 80px;">
+                            </div>
+                            <h6>土精靈</h6>
+                            <span class="badge bg-warning">土系</span>
+                            <span class="badge bg-danger">傳說</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .game-hero {
+        overflow: hidden;
+        border-radius: 15px;
+        position: relative;
+    }
+    
+    .game-hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .game-title {
+        font-family: 'Baloo 2', cursive;
+        font-weight: 800;
+        text-shadow: 3px 3px 5px rgba(0,0,0,0.5);
+    }
+    
+    .section-title {
+        font-family: 'Baloo 2', cursive;
+        font-weight: 600;
+        color: var(--dark-color);
+        position: relative;
+        display: inline-block;
+    }
+    
+    .section-title:after {
+        content: '';
+        position: absolute;
+        width: 50%;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), transparent);
+        bottom: -10px;
+        left: 25%;
+    }
+    
+    .game-feature-card {
+        transition: all 0.3s;
+        border-radius: 15px;
+    }
+    
+    .game-feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .feature-icon {
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .creature-showcase {
+        transition: all 0.3s;
+    }
+    
+    .creature-showcase:hover {
+        transform: scale(1.05);
+    }
+    
+    .creature-image-container {
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    @media (max-width: 767.98px) {
+        .game-hero-overlay {
+            padding: 15px !important;
+        }
+        
+        .game-title {
+            font-size: 1.8rem;
+        }
+        
+        .lead {
+            font-size: 1rem;
+        }
+        
+        .btn-lg {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+        }
+    }
+</style>
 {% endblock %}

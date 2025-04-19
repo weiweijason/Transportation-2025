@@ -4,38 +4,284 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white text-center">
-                <h3>註冊精靈公車帳號</h3>
+    <div class="col-md-6 col-lg-5">
+        <div class="card game-auth-card shadow-lg">
+            <div class="card-header bg-success text-white text-center position-relative p-4">
+                <div class="game-auth-icon pulse-animation">
+                    <i class="fas fa-user-plus fa-3x"></i>
+                </div>
+                <h3 class="mt-2">冒險家註冊</h3>
+                <p class="auth-subtitle">加入精靈公車世界，開始你的冒險之旅！</p>
             </div>
-            <div class="card-body">
-                <form method="post" action="{{ url_for('auth.register') }}">
+            <div class="card-body p-4">
+                <form method="post" action="{{ url_for('auth.register') }}" class="game-form">
                     <div class="mb-3">
-                        <label for="username" class="form-label">玩家名稱</label>
-                        <input type="text" class="form-control" id="username" name="username" required>
+                        <label for="username" class="form-label">
+                            <i class="fas fa-user me-2 text-success"></i>玩家名稱
+                        </label>
+                        <input type="text" class="form-control game-input" id="username" name="username" placeholder="選擇你的冒險家名稱" required>
                     </div>
                     <div class="mb-3">
-                        <label for="email" class="form-label">電子郵件</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
+                        <label for="email" class="form-label">
+                            <i class="fas fa-envelope me-2 text-success"></i>電子郵件
+                        </label>
+                        <input type="email" class="form-control game-input" id="email" name="email" placeholder="你的電子郵件地址" required>
                     </div>
                     <div class="mb-3">
-                        <label for="password" class="form-label">密碼</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock me-2 text-success"></i>密碼
+                        </label>
+                        <input type="password" class="form-control game-input" id="password" name="password" placeholder="設定一個安全的密碼" required>
+                        <div class="password-strength mt-2 d-none" id="passwordStrength">
+                            <small>密碼強度：</small>
+                            <div class="progress" style="height: 5px;">
+                                <div class="progress-bar" id="passwordStrengthBar" role="progressbar" style="width: 0%"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="confirm_password" class="form-label">確認密碼</label>
-                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                    <div class="mb-4">
+                        <label for="confirm_password" class="form-label">
+                            <i class="fas fa-shield-alt me-2 text-success"></i>確認密碼
+                        </label>
+                        <input type="password" class="form-control game-input" id="confirm_password" name="confirm_password" placeholder="再次輸入你的密碼" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
+                        <label class="form-check-label" for="terms">我已閱讀並同意<a href="#" class="game-link">服務條款</a>和<a href="#" class="game-link">隱私政策</a></label>
                     </div>
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">註冊</button>
+                        <button type="submit" class="btn btn-success btn-lg game-button">
+                            <i class="fas fa-paper-plane me-2"></i>創建帳號
+                        </button>
                     </div>
                 </form>
             </div>
-            <div class="card-footer text-center">
-                <p class="mb-0">已有帳號？<a href="{{ url_for('auth.login') }}">立即登入</a></p>
+            <div class="card-footer bg-light text-center p-3">
+                <p class="mb-0">已有帳號？ 
+                    <a href="{{ url_for('auth.login') }}" class="game-link">
+                        <i class="fas fa-sign-in-alt me-1"></i>立即登入
+                    </a>
+                </p>
+            </div>
+        </div>
+        
+        <!-- 精靈選擇器 (僅裝飾用) -->
+        <div class="starter-creatures text-center mt-4 mb-4">
+            <p class="text-muted">註冊成功後可以捕捉精靈！</p>
+            <div class="creature-selection">
+                <div class="row justify-content-center">
+                    <div class="col-4">
+                        <div class="starter-creature float-animation">
+                            <img src="https://cdn-icons-png.flaticon.com/512/1752/1752776.png" class="img-fluid" alt="水系精靈">
+                            <div class="creature-type-badge water-type">水系</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="starter-creature float-animation">
+                            <img src="https://cdn-icons-png.flaticon.com/512/1752/1752778.png" class="img-fluid" alt="火系精靈">
+                            <div class="creature-type-badge fire-type">火系</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="starter-creature float-animation">
+                            <img src="https://cdn-icons-png.flaticon.com/512/1752/1752780.png" class="img-fluid" alt="風系精靈">
+                            <div class="creature-type-badge air-type">風系</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .game-auth-card {
+        border-radius: 20px;
+        overflow: hidden;
+        border: none;
+        margin-top: 1rem;
+    }
+    
+    .game-auth-icon {
+        margin: 0 auto;
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .auth-subtitle {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1rem;
+    }
+    
+    .game-input {
+        border-radius: 15px;
+        padding: 12px 15px;
+        border: 2px solid #eaeaea;
+        transition: all 0.3s;
+    }
+    
+    .game-input:focus {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 0.25rem rgba(76, 175, 80, 0.25);
+    }
+    
+    .game-button {
+        border-radius: 15px;
+        padding: 12px;
+        font-weight: bold;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .game-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+    }
+    
+    .game-link {
+        color: var(--accent-color);
+        font-weight: bold;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+    
+    .game-link:hover {
+        color: #3a8a3a;
+        text-decoration: underline;
+    }
+    
+    .starter-creatures {
+        margin-bottom: 2rem;
+    }
+    
+    .starter-creature {
+        padding: 10px;
+        border-radius: 15px;
+        background-color: white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        position: relative;
+        transition: all 0.3s;
+        max-width: 100px;
+        margin: 0 auto;
+    }
+    
+    .starter-creature:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+    }
+    
+    .creature-type-badge {
+        position: absolute;
+        bottom: -5px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        font-weight: bold;
+        color: white;
+    }
+    
+    .water-type {
+        background-color: #3498db;
+    }
+    
+    .fire-type {
+        background-color: #e74c3c;
+    }
+    
+    .air-type {
+        background-color: #9b59b6;
+    }
+    
+    @media (max-width: 767.98px) {
+        .game-auth-card {
+            margin-top: 0.5rem;
+        }
+        
+        .game-auth-icon {
+            width: 60px;
+            height: 60px;
+            font-size: 0.8em;
+        }
+        
+        .game-button {
+            padding: 10px;
+        }
+        
+        .starter-creature {
+            max-width: 80px;
+        }
+        
+        .creature-type-badge {
+            font-size: 0.6rem;
+            padding: 1px 6px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 密碼強度檢查
+        const passwordInput = document.getElementById('password');
+        const strengthBar = document.getElementById('passwordStrengthBar');
+        const strengthContainer = document.getElementById('passwordStrength');
+        
+        passwordInput.addEventListener('input', function() {
+            const password = passwordInput.value;
+            let strength = 0;
+            
+            // 不顯示空密碼的強度
+            if (password.length === 0) {
+                strengthContainer.classList.add('d-none');
+                return;
+            } else {
+                strengthContainer.classList.remove('d-none');
+            }
+            
+            // 計算密碼強度
+            if (password.length >= 8) strength += 25;
+            if (/[A-Z]/.test(password)) strength += 25;
+            if (/[0-9]/.test(password)) strength += 25;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 25;
+            
+            // 設置強度條樣式
+            strengthBar.style.width = strength + '%';
+            
+            if (strength < 50) {
+                strengthBar.className = 'progress-bar bg-danger';
+            } else if (strength < 75) {
+                strengthBar.className = 'progress-bar bg-warning';
+            } else {
+                strengthBar.className = 'progress-bar bg-success';
+            }
+        });
+        
+        // 密碼確認檢查
+        const confirmInput = document.getElementById('confirm_password');
+        
+        confirmInput.addEventListener('input', function() {
+            if (passwordInput.value === confirmInput.value) {
+                confirmInput.classList.remove('is-invalid');
+                confirmInput.classList.add('is-valid');
+            } else {
+                confirmInput.classList.remove('is-valid');
+                confirmInput.classList.add('is-invalid');
+            }
+        });
+    });
+</script>
 {% endblock %}

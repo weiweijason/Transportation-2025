@@ -98,6 +98,118 @@ def refresh_data():
         flash(f'資料刷新過程中發生錯誤: {str(e)}', 'danger')
         return redirect(url_for('admin.data_management'))
 
+# API 端點 - 獲取資料概況
+@admin_bp.route('/api/data-summary')
+@admin_required
+def api_data_summary():
+    """提供資料概況的 API 端點"""
+    # 獲取所有資料的狀態
+    data_status = get_data_status()
+    
+    # 計算各種統計資料
+    routes_count = sum(1 for k in data_status if 'route' in k)
+    stops_count = sum(1 for k in data_status if 'stops' in k)
+    
+    # 獲取最後更新時間
+    last_update_time = None
+    for _, status in data_status.items():
+        if status['timestamp']:
+            if not last_update_time or status['timestamp'] > last_update_time:
+                last_update_time = status['timestamp']
+    
+    # 計算時間格式
+    last_update_time_ago = format_time_ago(last_update_time) if last_update_time else '未知'
+    
+    # 模擬 API 請求數據（實際可從監控系統獲取）
+    api_requests_count = 87  # 實際中可以從監控系統獲取
+    
+    return jsonify({
+        'routesCount': routes_count,
+        'stopsCount': stops_count,
+        'lastUpdateTime': last_update_time,
+        'lastUpdateTimeAgo': last_update_time_ago,
+        'apiRequestsCount': api_requests_count
+    })
+
+# API 端點 - 獲取資料健康狀態
+@admin_bp.route('/api/data-health')
+@admin_required
+def api_data_health():
+    """提供資料健康狀態的 API 端點"""
+    # 獲取所有資料的狀態
+    data_status = get_data_status()
+    
+    # 計算路線資料健康度
+    routes_data = [
+        {'exists': status['exists'], 'isExpired': status['is_expired']}
+        for key, status in data_status.items() if 'route' in key
+    ]
+    routes_health = calculate_data_health(routes_data)
+    
+    # 計算站點資料健康度
+    stops_data = [
+        {'exists': status['exists'], 'isExpired': status['is_expired']}
+        for key, status in data_status.items() if 'stops' in key
+    ]
+    stops_health = calculate_data_health(stops_data)
+    
+    # 模擬時間健康度 (實際可以基於最後更新時間計算)
+    time_health = 75
+    
+    # 模擬 API 健康度 (實際可以基於 API 調用成功率計算)
+    api_health = 35
+    
+    return jsonify({
+        'routesHealth': routes_health,
+        'stopsHealth': stops_health,
+        'timeHealth': time_health,
+        'apiHealth': api_health
+    })
+
+# 輔助函數 - 計算資料健康度百分比
+def calculate_data_health(data_array):
+    """計算資料健康度百分比"""
+    if not data_array:
+        return 0
+    
+    healthy_count = sum(1 for item in data_array if item['exists'] and not item['isExpired'])
+    return round((healthy_count / len(data_array)) * 100)
+
+# 輔助函數 - 格式化時間（多久之前）
+def format_time_ago(timestamp):
+    """將時間戳格式化為'多久之前'的形式"""
+    if not timestamp:
+        return '未知'
+    
+    from datetime import datetime
+    import pytz
+    
+    try:
+        # 嘗試將時間字符串轉換為 datetime 對象
+        if isinstance(timestamp, str):
+            dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+        else:
+            dt = timestamp
+        
+        # 確保時間是 aware 的
+        if dt.tzinfo is None:
+            dt = pytz.utc.localize(dt)
+        
+        now = datetime.now(pytz.utc)
+        diff_seconds = (now - dt).total_seconds()
+        
+        if diff_seconds < 60:
+            return '剛剛'
+        elif diff_seconds < 3600:
+            return f"{int(diff_seconds // 60)} 分鐘前"
+        elif diff_seconds < 86400:
+            return f"{int(diff_seconds // 3600)} 小時前"
+        else:
+            return f"{int(diff_seconds // 86400)} 天前"
+    except Exception as e:
+        logging.error(f"格式化時間錯誤: {e}")
+        return '未知'
+
 # 輔助函數 - 獲取資料類型的中文名稱
 def get_data_type_name(data_type):
     """將資料類型轉換為易讀的名稱"""

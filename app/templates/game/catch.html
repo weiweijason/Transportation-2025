@@ -8,9 +8,10 @@
   #map {
     height: 500px;
     width: 100%;
-    border-radius: 10px;
+    border-radius: 15px;
     margin-bottom: 20px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    z-index: 1;
   }
   
   .loading-overlay {
@@ -19,7 +20,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.7);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -28,11 +29,11 @@
   }
   
   .loading-spinner {
-    border: 5px solid #f3f3f3;
-    border-top: 5px solid #3498db;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
-    width: 50px;
-    height: 50px;
+    background: conic-gradient(transparent, var(--primary-color));
+    -webkit-mask: radial-gradient(white, transparent 70%);
     animation: spin 1s linear infinite;
   }
   
@@ -44,16 +45,17 @@
   .route-line {
     display: inline-block;
     width: 20px;
-    height: 3px;
+    height: 4px;
     margin-right: 5px;
     vertical-align: middle;
+    border-radius: 2px;
   }
   
   .bus-routes-legend {
-    padding: 10px;
+    padding: 12px;
     background: white;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   }
   
   .user-marker {
@@ -64,70 +66,270 @@
     width: 36px;
     height: 36px;
     z-index: 1000;
+    filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.3));
+    transition: all 0.3s;
+  }
+  
+  .arena-marker:hover {
+    transform: scale(1.2);
   }
   
   .creature-marker {
     z-index: 900;
+    filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));
+    animation: bounce 2s infinite;
+  }
+  
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  
+  .game-tab-content {
+    min-height: 600px;
+  }
+  
+  /* 遊戲化頁籤 */
+  .game-tabs .nav-item {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .game-tabs .nav-link {
+    border: none;
+    padding: 12px 20px;
+    font-weight: 600;
+    color: #495057;
+    border-radius: 10px 10px 0 0;
+    margin-right: 5px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+  
+  .game-tabs .nav-link.active {
+    color: white;
+    background-color: var(--primary-color);
+    box-shadow: 0 -3px 10px rgba(0,0,0,0.1);
+  }
+  
+  .game-tabs .nav-link.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(120deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+    z-index: -1;
+  }
+  
+  .game-tabs .nav-link:hover:not(.active) {
+    background-color: rgba(0,0,0,0.05);
+  }
+  
+  .game-tabs .nav-link i {
+    margin-right: 8px;
+  }
+  
+  /* 擂台卡片 */
+  .arena-card {
+    transition: all 0.3s;
+    background-position: center;
+    background-size: cover;
+    position: relative;
+    overflow: hidden;
+    min-height: 180px;
+  }
+  
+  .arena-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.7) 100%);
+    z-index: 0;
+  }
+  
+  .arena-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  }
+  
+  .arena-card-header {
+    position: relative;
+    z-index: 1;
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+  }
+  
+  .arena-card-body {
+    position: relative;
+    z-index: 1;
+    color: white;
+  }
+  
+  .arena-level-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+    color: var(--dark-color);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1;
+  }
+  
+  /* 捕捉成功模態框 */
+  .catch-modal .modal-content {
+    border-radius: 20px;
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  
+  .catch-modal .modal-header {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  
+  .catch-modal .modal-body {
+    padding: 30px;
+    text-align: center;
+  }
+  
+  .catch-success-image {
+    max-height: 200px;
+    filter: drop-shadow(0px 5px 10px rgba(0,0,0,0.2));
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  .catch-sparkle {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFD700"><path d="M12 0L14.59 9.41 24 12 14.59 14.59 12 24 9.41 14.59 0 12 9.41 9.41z"/></svg>');
+    background-size: contain;
+    opacity: 0.8;
+    z-index: 10;
+    pointer-events: none;
+  }
+  
+  /* 移動設備適配 */
+  @media (max-width: 767.98px) {
+    #map {
+      height: 350px;
+    }
+    
+    .game-tabs .nav-link {
+      padding: 8px 12px;
+      font-size: 0.9rem;
+    }
+    
+    .arena-card {
+      min-height: 150px;
+    }
+    
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+    }
+    
+    .catch-success-image {
+      max-height: 150px;
+    }
   }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-  <h2 class="mb-4">精靈公車遊戲</h2>
+  <h2 class="section-title text-center mb-4"><i class="fas fa-map-marked-alt me-2"></i>精靈探索捕捉</h2>
   
   <!-- 頁籤導航 -->
-  <ul class="nav nav-tabs mb-4" id="gameTabs" role="tablist">
+  <ul class="nav nav-tabs game-tabs mb-4" id="gameTabs" role="tablist">
     <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="map-tab" data-bs-toggle="tab" data-bs-target="#map-content" type="button" role="tab" aria-controls="map-content" aria-selected="true">路線地圖</button>
+      <button class="nav-link active" id="map-tab" data-bs-toggle="tab" data-bs-target="#map-content" type="button" role="tab" aria-controls="map-content" aria-selected="true">
+        <i class="fas fa-map"></i>路線地圖
+      </button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link" id="arenas-tab" data-bs-toggle="tab" data-bs-target="#arenas-content" type="button" role="tab" aria-controls="arenas-content" aria-selected="false">站牌擂台</button>
+      <button class="nav-link" id="arenas-tab" data-bs-toggle="tab" data-bs-target="#arenas-content" type="button" role="tab" aria-controls="arenas-content" aria-selected="false">
+        <i class="fas fa-trophy"></i>站牌擂台
+      </button>
     </li>
   </ul>
   
   <!-- 頁籤內容 -->
-  <div class="tab-content" id="gameTabsContent">
+  <div class="tab-content game-tab-content" id="gameTabsContent">
     <!-- 地圖頁籤 -->
     <div class="tab-pane fade show active" id="map-content" role="tabpanel" aria-labelledby="map-tab">
       <div class="row">
         <div class="col-md-12">
-          <div class="card mb-4">
-            <div class="card-header bg-primary text-white">
-              <h5 class="card-title mb-0">貓空纜車路線地圖</h5>
-            </div>
-            <div class="card-body">
-              <div id="map"></div>
+          <div class="card shadow-lg mb-4">
+            <div class="card-body p-3">
+              <div id="map" class="mb-3"></div>
               
-              <div class="row mt-3">
-                <div class="col-12">
-                  <div class="bus-routes-legend">
-                    <h6>路線圖例：</h6>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="bus-routes-legend mb-3">
+                    <h6 class="mb-2"><i class="fas fa-route me-2"></i>路線圖例</h6>
                     <div class="d-flex flex-wrap">
-                      <div class="me-4 mb-2">
+                      <div class="me-4 mb-2 d-flex align-items-center">
                         <span class="route-line" style="background-color: #ff9800;"></span>
                         <span>貓空右線</span>
                       </div>
-                      <div class="me-4 mb-2">
+                      <div class="me-4 mb-2 d-flex align-items-center">
                         <span class="route-line" style="background-color: #4caf50;"></span>
                         <span>貓空左線(動物園)</span>
                       </div>
-                      <div class="me-4 mb-2">
+                      <div class="me-4 mb-2 d-flex align-items-center">
                         <span class="route-line" style="background-color: #9c27b0;"></span>
                         <span>貓空左線(指南宮)</span>
                       </div>
                     </div>
                   </div>
                 </div>
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="current-location">
+                      <p class="mb-0"><i class="fas fa-location-arrow me-2 text-primary"></i><strong>當前位置:</strong> <span id="currentLocation" class="ms-2 badge bg-light text-dark">尚未定位</span></p>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button id="refreshLocationBtn" class="btn btn-sm btn-primary">
+                        <i class="fas fa-crosshairs me-1"></i>重新定位
+                      </button>
+                      <button id="initMapBtn" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-sync-alt me-1"></i>重整地圖
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
               
-              <div class="row mt-3">
-                <div class="col-md-6">
-                  <p><strong>當前位置:</strong> <span id="currentLocation">尚未定位</span></p>
-                </div>
-                <div class="col-md-6 text-end">
-                  <button id="refreshLocationBtn" class="btn btn-sm btn-primary">重新定位</button>
-                  <button id="initMapBtn" class="btn btn-sm btn-success">重新載入地圖</button>
+              <!-- 提示信息 -->
+              <div class="alert alert-info mt-3">
+                <div class="d-flex">
+                  <div class="me-3">
+                    <i class="fas fa-info-circle fa-2x"></i>
+                  </div>
+                  <div>
+                    <h5 class="alert-heading">遊戲提示</h5>
+                    <p class="mb-0">地圖上將隨機生成精靈，點擊標記可以嘗試捕捉。靠近站牌時，您可以挑戰該站牌的擂台！</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -140,13 +342,15 @@
     <div class="tab-pane fade" id="arenas-content" role="tabpanel" aria-labelledby="arenas-tab">
       <div class="row">
         <div class="col-md-12">
-          <div class="card mb-4">
+          <div class="card shadow-lg mb-4">
             <div class="card-header bg-danger text-white">
-              <h5 class="card-title mb-0">站牌擂台</h5>
+              <h5 class="card-title mb-0"><i class="fas fa-trophy me-2"></i>站牌擂台挑戰</h5>
             </div>
             <div class="card-body">
-              <p class="mb-3">這些是貓空纜車路線上的站牌擂台（道館），您可以使用您的精靈挑戰並佔領它們！</p>
-              <div class="row" id="arenaList">
+              <p class="mb-3">這些是貓空纜車路線上的站牌擂台（道館），您可以使用您的精靈挑戰並佔領它們！擊敗當前的擂主即可成為新的擂主。</p>
+              
+              <!-- 擂台列表 -->
+              <div id="arenaList" class="row g-3">
                 <!-- 擂台列表將由JavaScript動態生成 -->
                 <div class="col-12 text-center py-5">
                   <div class="spinner-border text-danger" role="status">
@@ -169,23 +373,45 @@
 </div>
 
 <!-- 捕捉成功模態框 -->
-<div class="modal fade" id="catchSuccessModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
+<div class="modal fade catch-modal" id="catchSuccessModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header bg-success text-white">
-        <h5 class="modal-title">捕捉成功！</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-header bg-success text-white text-center">
+        <h5 class="modal-title w-100"><i class="fas fa-check-circle me-2"></i>捕捉成功！</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
-        <p id="catchSuccessMessage"></p>
-        <div class="text-center my-3">
-          <img id="caughtCreatureImage" src="" alt="捕捉到的精靈" class="img-fluid" style="max-height: 200px;">
+      <div class="modal-body position-relative">
+        <p id="catchSuccessMessage" class="lead"></p>
+        <div class="text-center mb-3">
+          <img id="caughtCreatureImage" src="" alt="捕捉到的精靈" class="catch-success-image">
+          <!-- 裝飾性閃光效果 -->
+          <div class="catch-sparkle" style="top:20%; left:30%;"></div>
+          <div class="catch-sparkle" style="top:15%; left:60%;"></div>
+          <div class="catch-sparkle" style="top:50%; left:20%;"></div>
+          <div class="catch-sparkle" style="top:60%; left:70%;"></div>
+          <div class="catch-sparkle" style="top:30%; left:80%;"></div>
         </div>
-        <p>該精靈已被添加到您的收藏中！</p>
+        <div class="creature-stats d-flex justify-content-around mb-4">
+          <div class="stat-item text-center">
+            <span class="d-block fs-4 fw-bold text-primary" id="creature-power">--</span>
+            <span class="small text-muted">力量</span>
+          </div>
+          <div class="stat-item text-center">
+            <span class="d-block fs-4 fw-bold text-success" id="creature-type">--</span>
+            <span class="small text-muted">屬性</span>
+          </div>
+          <div class="stat-item text-center">
+            <span class="d-block fs-4 fw-bold text-warning" id="creature-rarity">--</span>
+            <span class="small text-muted">稀有度</span>
+          </div>
+        </div>
+        <p class="mb-0 text-center">該精靈已被添加到您的收藏中！</p>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-        <a href="{{ url_for('main.profile') }}" class="btn btn-primary">查看我的精靈</a>
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">繼續探索</button>
+        <a href="{{ url_for('main.profile') }}" class="btn btn-primary">
+          <i class="fas fa-book me-1"></i>查看我的精靈
+        </a>
       </div>
     </div>
   </div>
@@ -204,45 +430,40 @@
 // 全局變數
 var gameMap;
 var arenaList = [];
+var currentCreatures = [];
+var capturedCreatures = 0;
 
 // 頁面載入完成事件
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOM內容載入完成');
   
-  // 檢查map元素是否存在
-  const mapElement = document.getElementById('map');
-  if (!mapElement) {
-    console.error('找不到ID為map的元素!');
-    alert('找不到地圖容器元素!');
-    return;
-  }
-  
-  console.log('找到地圖容器元素，開始初始化地圖');
-  
   // 初始化地圖 (使用一個延遲確保DOM完全渲染)
   setTimeout(initializeMap, 500);
   
   // 綁定更新位置按鈕
-  const refreshLocationBtn = document.getElementById('refreshLocationBtn');
-  if (refreshLocationBtn) {
-    refreshLocationBtn.addEventListener('click', function() {
-      console.log('點擊了重新定位按鈕');
-      if (typeof updateUserLocation === 'function') {
-        updateUserLocation();
-      } else {
-        console.error('updateUserLocation 函數不存在');
-      }
-    });
-  }
+  document.getElementById('refreshLocationBtn').addEventListener('click', function() {
+    console.log('點擊了重新定位按鈕');
+    showLoading();
+    if (typeof updateUserLocation === 'function') {
+      updateUserLocation().then(() => {
+        hideLoading();
+      }).catch(() => {
+        hideLoading();
+        showGameAlert('無法獲取您的位置，請確保已授予位置權限。', 'warning');
+      });
+    } else {
+      console.error('updateUserLocation 函數不存在');
+      hideLoading();
+    }
+  });
   
   // 綁定重新載入地圖按鈕
-  const initMapBtn = document.getElementById('initMapBtn');
-  if (initMapBtn) {
-    initMapBtn.addEventListener('click', function() {
-      console.log('點擊了重新載入地圖按鈕');
-      initializeMap();
-    });
-  }
+  document.getElementById('initMapBtn').addEventListener('click', function() {
+    console.log('點擊了重新載入地圖按鈕');
+    showLoading();
+    initializeMap();
+    setTimeout(hideLoading, 1000);
+  });
   
   // 處理頁籤切換事件，確保地圖正確渲染
   const mapTab = document.getElementById('map-tab');
@@ -259,8 +480,17 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // 更新擂台列表
-  fetchArenasInfo();
+  // 更新擂台列表當擂台標籤被點擊時
+  const arenasTab = document.getElementById('arenas-tab');
+  if (arenasTab) {
+    arenasTab.addEventListener('shown.bs.tab', function() {
+      console.log('擂台頁籤被啟用');
+      fetchArenasInfo();
+    });
+  }
+  
+  // 初始化捕捉模態框動畫效果
+  initCatchModal();
 });
 
 // 初始化地圖的函數
@@ -292,12 +522,20 @@ function initializeMap() {
       // 設置精靈生成定時器
       console.log('設置精靈生成定時器');
       startCreatureSpawning();
+      
+      // 更新用戶位置
+      updateUserLocation();
+      
+      hideLoading();
     } else {
       console.error('地圖初始化失敗，gameMap 為 null');
+      hideLoading();
+      showGameAlert('地圖初始化失敗，請刷新頁面重試。', 'danger');
     }
   } catch (error) {
     console.error('初始化地圖時發生錯誤:', error);
-    alert('初始化地圖時發生錯誤: ' + error.message);
+    hideLoading();
+    showGameAlert('初始化地圖時發生錯誤: ' + error.message, 'danger');
   }
 }
 
@@ -309,7 +547,7 @@ function startCreatureSpawning() {
   if (creaturesLayer) {
     creaturesLayer.clearLayers();
   }
-  routeCreatures = [];
+  currentCreatures = [];
   
   // 初始生成一些精靈
   spawnCreaturesOnRoutes();
@@ -324,7 +562,7 @@ function spawnCreaturesOnRoutes() {
   
   // 移除超過存在時間的精靈
   const currentTime = Date.now();
-  routeCreatures = routeCreatures.filter(creature => {
+  currentCreatures = currentCreatures.filter(creature => {
     if (currentTime > creature.spawnTime + CREATURE_LIFETIME) {
       console.log(`精靈 ${creature.name} 存在時間到，消失`);
       if (creature.marker) {
@@ -338,7 +576,7 @@ function spawnCreaturesOnRoutes() {
   // 為每條路線嘗試生成精靈
   Object.keys(routeCoordinates).forEach(routeKey => {
     // 檢查該路線上的精靈數量
-    const routeCreatureCount = routeCreatures.filter(c => c.routeKey === routeKey).length;
+    const routeCreatureCount = currentCreatures.filter(c => c.routeKey === routeKey).length;
     
     // 如果該路線精靈數量未達到上限，嘗試生成
     if (routeCreatureCount < MAX_CREATURES_PER_ROUTE) {
@@ -384,8 +622,9 @@ function spawnCreaturesOnRoutes() {
                 color: white;
                 font-weight: bold;
                 font-size: 18px;
+                cursor: pointer;
               ">
-                💫
+                ${getCreatureEmoji(creature.type)}
               </div>
             `,
             iconSize: [40, 40],
@@ -400,19 +639,29 @@ function spawnCreaturesOnRoutes() {
           
           // 綁定彈出框
           marker.bindPopup(`
-            <div style="text-align:center;">
-              <h5>${creature.name}</h5>
-              <p>類型: ${creature.type} | 稀有度: ${creature.rarity}</p>
-              <p>力量: ${creature.power}</p>
-              <button class="btn btn-success btn-sm catch-btn" onclick="catchCreature('${creature.id}')">捕捉</button>
+            <div class="text-center py-2">
+              <h5 class="mb-2">${creature.name}</h5>
+              <p class="mb-2">
+                <span class="badge ${getTypeBadgeClass(creature.type)}">${creature.type}</span>
+                <span class="badge ${getRarityBadgeClass(creature.rarity)}">${creature.rarity}</span>
+              </p>
+              <p class="mb-3"><strong>力量:</strong> ${creature.power}</p>
+              <button class="btn btn-success btn-sm w-100 catch-btn" onclick="catchCreature('${creature.id}')">
+                <i class="fas fa-hand-sparkles me-1"></i>捕捉
+              </button>
             </div>
           `);
+          
+          // 點擊精靈直接打開彈出框
+          marker.on('click', function() {
+            marker.openPopup();
+          });
           
           // 保存標記引用
           creature.marker = marker;
           
           // 添加到精靈列表
-          routeCreatures.push(creature);
+          currentCreatures.push(creature);
           
           console.log(`在 ${routeKey} 路線上生成精靈: ${creature.name}`);
         }
@@ -424,9 +673,10 @@ function spawnCreaturesOnRoutes() {
 // 捕捉精靈的函數
 function catchCreature(creatureId) {
   // 尋找對應的精靈資訊
-  const creature = routeCreatures.find(c => c.id === creatureId);
+  const creature = currentCreatures.find(c => c.id === creatureId);
   if (!creature) {
     console.error('找不到指定精靈:', creatureId);
+    showGameAlert('這個精靈已經消失了，請尋找其他精靈。', 'warning');
     return;
   }
   
@@ -440,7 +690,7 @@ function catchCreature(creatureId) {
     creatureType: creature.type,
     creatureRarity: creature.rarity,
     creaturePower: creature.power,
-    creatureImg: creature.img
+    creatureImg: creature.img || `https://placehold.co/200x200/${getTypeColor(creature.type)}/white?text=${encodeURIComponent(creature.name)}`
   };
   
   // 發送到後端API
@@ -465,35 +715,96 @@ function catchCreature(creatureId) {
       creaturesLayer.removeLayer(creature.marker);
     }
     
-    const index = routeCreatures.findIndex(c => c.id === creatureId);
+    const index = currentCreatures.findIndex(c => c.id === creatureId);
     if (index !== -1) {
-      routeCreatures.splice(index, 1);
+      currentCreatures.splice(index, 1);
     }
     
-    // 顯示成功模態框
-    document.getElementById('catchSuccessMessage').textContent = data.message;
-    document.getElementById('caughtCreatureImage').src = creature.img;
+    // 更新捕捉數量
+    capturedCreatures++;
     
+    // 更新UI中的精靈資訊
+    document.getElementById('creature-power').textContent = creature.power;
+    document.getElementById('creature-type').textContent = creature.type;
+    document.getElementById('creature-rarity').textContent = creature.rarity;
+    
+    // 顯示成功模態框
+    document.getElementById('catchSuccessMessage').textContent = `恭喜！你成功捕捉到了 ${creature.name}！`;
+    document.getElementById('caughtCreatureImage').src = creature.img || `https://placehold.co/200x200/${getTypeColor(creature.type)}/white?text=${encodeURIComponent(creature.name)}`;
+    
+    // 顯示模態框並啟動動畫
     const successModal = new bootstrap.Modal(document.getElementById('catchSuccessModal'));
     successModal.show();
+    animateSparkles();
+    
+    // 播放捕捉成功音效
+    playCatchSound();
+    
+    hideLoading();
   })
   .catch(error => {
     console.error('捕捉精靈錯誤:', error);
-    alert('捕捉精靈失敗，請稍後再試！');
-  })
-  .finally(() => {
-    // 隱藏加載中
     hideLoading();
+    showGameAlert('捕捉精靈失敗，請稍後再試！', 'danger');
   });
+}
+
+// 根據精靈類型獲取顏色
+function getTypeColor(type) {
+  switch(type) {
+    case '水系': return '3498db';
+    case '火系': return 'e74c3c';
+    case '土系': return 'd35400';
+    case '風系': return '9b59b6';
+    case '電系': return 'f1c40f';
+    default: return '3498db';
+  }
+}
+
+// 根據精靈類型獲取徽章類別
+function getTypeBadgeClass(type) {
+  switch(type) {
+    case '水系': return 'bg-primary';
+    case '火系': return 'bg-danger';
+    case '土系': return 'bg-warning';
+    case '風系': return 'bg-info';
+    case '電系': return 'bg-warning';
+    default: return 'bg-secondary';
+  }
+}
+
+// 根據稀有度獲取徽章類別
+function getRarityBadgeClass(rarity) {
+  switch(rarity) {
+    case '普通': return 'bg-secondary';
+    case '稀有': return 'bg-info';
+    case '史詩': return 'bg-primary';
+    case '傳說': return 'bg-danger';
+    default: return 'bg-secondary';
+  }
+}
+
+// 根據精靈類型獲取表情符號
+function getCreatureEmoji(type) {
+  switch(type) {
+    case '水系': return '💧';
+    case '火系': return '🔥';
+    case '土系': return '🌱';
+    case '風系': return '💨';
+    case '電系': return '⚡';
+    default: return '✨';
+  }
 }
 
 // 獲取擂台列表
 function fetchArenasInfo() {
   console.log('獲取擂台資訊');
+  showLoading();
   
   const arenaListElement = document.getElementById('arenaList');
   if (!arenaListElement) {
     console.error('找不到擂台列表元素');
+    hideLoading();
     return;
   }
   
@@ -512,6 +823,7 @@ function fetchArenasInfo() {
   
   if (arenaList.length === 0) {
     arenaListElement.innerHTML = '<div class="col-12 text-center py-5"><p>找不到任何擂台資訊</p></div>';
+    hideLoading();
     return;
   }
   
@@ -531,46 +843,51 @@ function fetchArenasInfo() {
     
     // 添加路線標題
     const routeColor = getRouteColorByName(routeName);
-    const routeSection = document.createElement('div');
-    routeSection.classList.add('col-12', 'mb-4');
-    routeSection.innerHTML = `
-      <div class="card">
-        <div class="card-header" style="background-color:${routeColor};color:white;">
+    arenaListElement.innerHTML += `
+      <div class="col-12 mb-3">
+        <div class="d-flex align-items-center mb-2">
+          <span class="route-line" style="background-color:${routeColor};"></span>
           <h5 class="mb-0">${routeName} 站點道館</h5>
-        </div>
-        <div class="card-body">
-          <div class="row arena-route-row" id="arena-route-${routeName.replace(/[\(\)]/g, '')}"></div>
         </div>
       </div>
     `;
-    arenaListElement.appendChild(routeSection);
     
     // 添加該路線的擂台
-    const routeRowElement = document.getElementById(`arena-route-${routeName.replace(/[\(\)]/g, '')}`);
-    
     arenas.forEach(arena => {
       const arenaCard = document.createElement('div');
-      arenaCard.classList.add('col-md-4', 'mb-3');
+      arenaCard.className = 'col-md-4 col-sm-6 mb-3';
       arenaCard.innerHTML = `
-        <div class="card arena-card">
-          <div class="card-header text-center" style="background-color:${routeColor};color:white;">
-            <h6 class="mb-0">${arena.name}</h6>
+        <div class="card arena-card" style="background-image: url('https://placehold.co/600x400/${routeColor.replace('#', '')}/white?text=${encodeURIComponent(arena.stopName)}')">
+          <div class="arena-level-badge">${arena.level}</div>
+          <div class="card-header arena-card-header text-center">
+            <h5 class="mb-0">${arena.stopName}</h5>
           </div>
-          <div class="card-body text-center">
-            <p><strong>等級:</strong> ${arena.level} 級</p>
-            <p><strong>站點:</strong> ${arena.stopName}</p>
-            <button class="btn btn-danger mt-2 challenge-arena-btn" 
-                  onclick="showArenaInfo('${arena.stopId}', '${arena.stopName}', '${arena.routeName}')">
-              前往道館
+          <div class="card-body arena-card-body d-flex flex-column justify-content-end">
+            <div class="arena-status mb-2">
+              <p class="mb-0"><small>擂主: ${arena.owner || '無'}</small></p>
+              <p class="mb-0"><small>守護精靈: ${arena.guardianName || '無'}</small></p>
+            </div>
+            <button class="btn btn-light btn-sm challenge-arena-btn" 
+                  onclick="goToArena('${arena.stopId}', '${arena.stopName}', '${arena.routeName}')">
+              <i class="fas fa-trophy me-1"></i>前往道館
             </button>
           </div>
         </div>
       `;
-      routeRowElement.appendChild(arenaCard);
+      arenaListElement.appendChild(arenaCard);
     });
   });
   
   console.log('擂台列表生成完成');
+  hideLoading();
+}
+
+// 前往道館的函數
+function goToArena(stopId, stopName, routeName) {
+  // 獲取目前位置（用於lat和lon參數）
+  const location = userLocation || [25.0282, 121.5432]; // 默認位置
+  
+  window.location.href = `/game/battle?stopId=${stopId}&stopName=${encodeURIComponent(stopName)}&routeName=${encodeURIComponent(routeName)}&lat=${location[0]}&lon=${location[1]}`;
 }
 
 // 根據路線名稱獲取顏色
@@ -585,9 +902,91 @@ function getRouteColorByName(routeName) {
   return '#3498db'; // 預設藍色
 }
 
+// 顯示遊戲提示
+function showGameAlert(message, type = 'info') {
+  const alertContainer = document.createElement('div');
+  alertContainer.className = `alert alert-${type} alert-dismissible fade show game-alert position-fixed`;
+  alertContainer.style.top = '80px';
+  alertContainer.style.right = '20px';
+  alertContainer.style.zIndex = '9999';
+  alertContainer.style.maxWidth = '300px';
+  alertContainer.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.2)';
+  
+  alertContainer.innerHTML = `
+    <div class="d-flex">
+      <div class="me-3">
+        <i class="fas fa-${type === 'danger' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+      </div>
+      <div>${message}</div>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  `;
+  
+  document.body.appendChild(alertContainer);
+  
+  // 自動消失
+  setTimeout(() => {
+    const bsAlert = new bootstrap.Alert(alertContainer);
+    bsAlert.close();
+  }, 5000);
+}
+
+// 初始化捕捉模態框動畫
+function initCatchModal() {
+  const modal = document.getElementById('catchSuccessModal');
+  if (modal) {
+    modal.addEventListener('shown.bs.modal', function() {
+      animateSparkles();
+    });
+  }
+}
+
+// 閃光動畫
+function animateSparkles() {
+  const sparkles = document.querySelectorAll('.catch-sparkle');
+  sparkles.forEach(sparkle => {
+    // 重置動畫
+    sparkle.style.animation = 'none';
+    sparkle.offsetHeight; // 觸發重排
+    
+    // 隨機位置
+    const top = 10 + Math.random() * 80;
+    const left = 10 + Math.random() * 80;
+    sparkle.style.top = `${top}%`;
+    sparkle.style.left = `${left}%`;
+    
+    // 隨機大小
+    const size = 10 + Math.random() * 20;
+    sparkle.style.width = `${size}px`;
+    sparkle.style.height = `${size}px`;
+    
+    // 隨機動畫
+    const duration = 1 + Math.random() * 2;
+    const delay = Math.random() * 0.5;
+    sparkle.style.animation = `float ${duration}s ease-in-out ${delay}s infinite alternate`;
+  });
+}
+
+// 播放捕捉成功音效
+function playCatchSound() {
+  // 如果可以，這裡可以添加聲音效果
+  console.log('播放捕捉成功音效');
+}
+
+// 顯示載入中
+function showLoading() {
+  document.getElementById('loadingOverlay').style.visibility = 'visible';
+}
+
+// 隱藏載入中
+function hideLoading() {
+  document.getElementById('loadingOverlay').style.visibility = 'hidden';
+}
+
 // 當發生錯誤時，在控制台輸出錯誤信息
 window.onerror = function(message, source, lineno, colno, error) {
   console.error('全局錯誤:', message, 'at', source, lineno, colno);
+  hideLoading();
   return false;
 };
 </script>
