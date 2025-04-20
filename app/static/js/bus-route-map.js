@@ -14,6 +14,9 @@ let creaturesLayer = L.layerGroup();
 // 道館圖層
 let arenaLayer = L.layerGroup();
 
+// 追蹤已創建的站點/道館，避免重複創建
+let uniqueStops = {};
+
 // 路線顏色配置
 const routeColors = {
     'cat-right': '#ff9800', // 橙色 - 貓空右線
@@ -34,6 +37,7 @@ const MAX_CREATURES_PER_ROUTE = 10; // 每條路線最多精靈數量
 const CREATURE_LIFETIME = 5 * 60 * 1000; // 精靈存在時間 (5分鐘，單位毫秒)
 const SPAWN_INTERVAL = 60 * 1000; // 生成嘗試間隔 (1分鐘，單位毫秒)
 const SPAWN_CHANCE = 0.8; // 生成機率 (80%)
+
 
 // 各路線的精靈定義
 const routeCreatureTypes = {
@@ -423,6 +427,9 @@ function loadAllBusStops() {
     stopsLayer.clearLayers();
     arenaLayer.clearLayers();
     
+    // 重置站點追蹤器
+    uniqueStops = {};
+    
     // 加載貓空右線站點
     loadBusStops('cat-right');
     
@@ -594,39 +601,66 @@ function useBackupStops(routeKey, routeName) {
 function drawStop(stop, color, routeName, isBackup = false) {
     console.log(`繪製站點: ${stop.name} at [${stop.position[0]}, ${stop.position[1]}]`);
     
-    // 繪製站點標記 (小圓點)
-    const marker = L.circleMarker(stop.position, {
-        radius: 6,
-        fillColor: color,
-        color: 'white',
-        weight: 2,
-        opacity: 1,
-        fillOpacity: 0.8
-    }).addTo(stopsLayer);
-    
-    // 綁定站點信息彈窗
-    marker.bindPopup(`
-        <div style="text-align:center;">
-            <h6>${stop.name}${isBackup ? ' (備用資料)' : ''}</h6>
-            <p>站點ID: ${stop.id}</p>
-            <p>路線: ${routeName}</p>
-            <button class="btn btn-sm btn-danger mt-2 challenge-arena-btn" 
-                    onclick="showArenaInfo('${stop.id}', '${stop.name}', '${routeName}')">
-                前往道館
-            </button>
-        </div>
-    `);
+    // 不再繪製站點標記（小圓點）
+    // 只記錄站點資訊用於創建道館，但不添加到地圖上
 }
 
 // 創建道館
 function createArena(stop, color, routeName, isBackup = false) {
-    console.log(`創建道館: ${stop.name}`);
+    console.log(`嘗試創建道館: ${stop.name}`);
+    
+    // 檢查站點名稱是否已存在（不區分大小寫且去除空格）
+    const normalizeName = name => name.toLowerCase().replace(/\s+/g, '');
+    const stopNormalizedName = normalizeName(stop.name);
+    
+    // 檢查是否已有相同名稱的站點
+    for (let key in uniqueStops) {
+        if (normalizeName(uniqueStops[key].stopName) === stopNormalizedName) {
+            console.log(`已存在同名道館 (${uniqueStops[key].stopName})，跳過創建: ${stop.name}`);
+            return null;
+        }
+    }
+    
+    // 檢查是否已經存在相近位置的道館
+    const positionKey = `${stop.position[0].toFixed(4)},${stop.position[1].toFixed(4)}`;
+    if (uniqueStops[positionKey]) {
+        console.log(`道館已存在於位置 ${positionKey}，跳過創建: ${stop.name}`);
+        return null;
+    }
+    
+    // 檢查是否有相近的道館
+    // 計算經緯度約30米的差值 (0.0003大約是30米)
+    const nearbyDistance = 0.0003;
+    for (let key in uniqueStops) {
+        const [existingLat, existingLng] = key.split(',').map(Number);
+        const lat = parseFloat(stop.position[0]);
+        const lng = parseFloat(stop.position[1]);
+        
+        // 如果兩個站牌位置非常接近，視為同一站牌
+        if (Math.abs(existingLat - lat) < nearbyDistance && 
+            Math.abs(existingLng - lng) < nearbyDistance) {
+            console.log(`在附近找到現有道館 (${key})，跳過創建: ${stop.name}`);
+            return null;
+        }
+    }
+    
+    // 如果沒有找到相同或相近的道館，則創建新道館
+    console.log(`創建新道館: ${stop.name}`);
+    
+    // 記錄該位置已創建道館
+    uniqueStops[positionKey] = { 
+        stopName: stop.name, 
+        routeName: routeName 
+    };
     
     // 生成唯一ID
     const arenaId = `arena-${stop.id}`;
     
     // 創建道館級別 (1-3級，隨機生成)
     const level = Math.floor(Math.random() * 3) + 1;
+    
+    // 使用統一的顏色 - 深藍色
+    const arenaColor = '#1565C0';
     
     // 創建道館圖標
     const iconSize = 36 + (level - 1) * 6; // 基礎大小36px，每增加一級增加6px
@@ -635,7 +669,7 @@ function createArena(stop, color, routeName, isBackup = false) {
         className: 'arena-marker',
         html: `
             <div style="
-                background-color:${color};
+                background-color:${arenaColor};
                 width:${iconSize}px;
                 height:${iconSize}px;
                 border-radius:50%;
@@ -649,7 +683,7 @@ function createArena(stop, color, routeName, isBackup = false) {
                 color:white;
             ">
                 <span>⚔️</span>
-                <span style="position:absolute;bottom:2px;right:2px;background:white;color:${color};border-radius:50%;width:18px;height:18px;font-size:12px;display:flex;justify-content:center;align-items:center;">${level}</span>
+                <span style="position:absolute;bottom:2px;right:2px;background:white;color:${arenaColor};border-radius:50%;width:18px;height:18px;font-size:12px;display:flex;justify-content:center;align-items:center;">${level}</span>
             </div>
         `,
         iconSize: [iconSize, iconSize],
@@ -681,12 +715,11 @@ function createArena(stop, color, routeName, isBackup = false) {
     }
     window.busStopsArenas[arenaId] = arena;
     
-    // 綁定彈出信息
+    // 綁定彈出信息 - 簡化版本，只顯示名稱和等級
     arenaMarker.bindPopup(`
         <div style="text-align:center;">
-            <h5>${arena.name}${isBackup ? ' (備用資料)' : ''}</h5>
-            <p>等級: ${arena.level} 級道館</p>
-            <p>路線: ${arena.routeName}</p>
+            <h5>${arena.name}</h5>
+            <p>等級: ${arena.level} 級</p>
             <button class="btn btn-danger mt-2 challenge-arena-btn" 
                     onclick="showArenaInfo('${arena.stopId}', '${arena.stopName}', '${arena.routeName}')">
                 前往道館
