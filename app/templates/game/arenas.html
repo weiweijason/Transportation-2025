@@ -102,5 +102,63 @@
         background-color: rgba(0,0,0,0.025);
         border-radius: 8px;
     }
+    
+    /* 深色模式適配 */
+    [data-theme="dark"] .arena-card {
+        background-color: #2d3436;
+        border-color: #4d5656;
+    }
+    
+    [data-theme="dark"] .arena-card .card-header {
+        background-color: #3d4852 !important;
+        border-bottom: 2px solid #4d5656;
+    }
+    
+    [data-theme="dark"] .arena-card .card-header h5 {
+        color: #f0f0f0;
+    }
+    
+    [data-theme="dark"] .arena-card .card-body {
+        color: #e0e0e0;
+    }
+    
+    [data-theme="dark"] .arena-card .card-body p {
+        color: #e0e0e0;
+    }
+    
+    [data-theme="dark"] .arena-card .card-body strong {
+        color: #f5f5f5;
+    }
+    
+    [data-theme="dark"] .arena-card .defender-info {
+        background-color: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    [data-theme="dark"] .arena-card .defender-info h6 {
+        color: #f0f0f0;
+    }
+    
+    [data-theme="dark"] .arena-card .text-muted {
+        color: #adb5bd !important;
+    }
+    
+    [data-theme="dark"] .btn-outline-secondary {
+        color: #cbd3da;
+        border-color: #6c757d;
+    }
+    
+    [data-theme="dark"] .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        color: #fff;
+    }
+    
+    [data-theme="dark"] h2 {
+        color: var(--text-color);
+    }
+    
+    [data-theme="dark"] img[style*="opacity: 0.5"] {
+        opacity: 0.7 !important;
+    }
 </style>
 {% endblock %}

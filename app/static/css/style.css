@@ -13,15 +13,96 @@
     --earth-color: #78c850;
     --air-color: #a890f0;
     --electric-color: #f8d030;
+    
+    /* 淺色模式變量 */
+    --bg-color: #f0f8ff;
+    --text-color: #333333;
+    --card-bg-color: rgba(255, 255, 255, 0.95);
+    --navbar-bg-color: var(--dark-color);
+    --navbar-text-color: var(--light-color);
+    --footer-bg-color: var(--dark-color);
+    --footer-text-color: white;
+    --input-bg-color: #f8f9fa;
+    --container-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    --card-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    --table-hover-bg: rgba(61, 133, 198, 0.08);
+    --form-label-color: var(--dark-color);
+    --link-color: var(--primary-color);
+    --link-hover-color: var(--secondary-color);
+    --border-color: #e0e0e0;
+    --card-header-color: #333333;
+    --card-title-color: var(--dark-color);
+    --stat-label-color: #666;
+}
+
+/* 深色模式變量 */
+[data-theme="dark"] {
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --card-bg-color: rgba(30, 30, 30, 0.95);
+    --navbar-bg-color: #0d1625;
+    --navbar-text-color: #e0e0e0;
+    --footer-bg-color: #0d1625;
+    --footer-text-color: #e0e0e0;
+    --input-bg-color: #2d2d2d;
+    --container-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    --card-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+    --table-hover-bg: rgba(61, 133, 198, 0.15);
+    --form-label-color: #c0c0c0;
+    --link-color: #5a9bd5;
+    --link-hover-color: #ffb74d;
+    --border-color: #444444;
+    --card-header-color: #e0e0e0;
+    --card-title-color: #e0e0e0;
+    --stat-label-color: #b0b0b0;
+}
+
+/* 模式切換按鈕 */
+.mode-toggle {
+    background: transparent;
+    border: none;
+    color: var(--navbar-text-color);
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: transform 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.mode-toggle:hover {
+    transform: rotate(15deg);
+}
+
+/* 模式切換動畫 */
+.mode-toggle .fa-sun, .mode-toggle .fa-moon {
+    transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .mode-toggle .fa-sun {
+    display: inline-block;
+}
+
+[data-theme="dark"] .mode-toggle .fa-moon {
+    display: none;
+}
+
+[data-theme="light"] .mode-toggle .fa-sun {
+    display: none;
+}
+
+[data-theme="light"] .mode-toggle .fa-moon {
+    display: inline-block;
 }
 
 body {
     font-family: 'Noto Sans TC', sans-serif;
-    background-color: #f0f8ff;
+    background-color: var(--bg-color);
+    color: var(--text-color);
     position: relative;
     min-height: 100vh;
     padding-bottom: 60px;
     overflow-x: hidden; /* 防止水平滾動 */
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* 遊戲風格背景 - 增強遊戲感 */
@@ -42,6 +123,11 @@ body {
     height: 100%;
     background-color: rgba(255, 255, 255, 0.85);
     z-index: -1;
+    transition: background-color 0.3s ease;
+}
+
+[data-theme="dark"] .game-background::before {
+    background-color: rgba(18, 18, 18, 0.9);
 }
 
 /* 遊戲風格裝飾元素 */
@@ -88,20 +174,21 @@ body {
 
 /* 導航欄樣式 - 更遊戲化 */
 .game-navbar {
-    background-color: var(--dark-color);
+    background-color: var(--navbar-bg-color);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     margin-bottom: 1rem;
     padding: 0.5rem 0;
     position: sticky;
     top: 0;
     z-index: 1000;
+    transition: background-color 0.3s ease;
 }
 
 .game-brand {
     font-family: 'Baloo 2', cursive;
     font-weight: 800;
     font-size: 1.6rem;
-    color: var(--light-color);
+    color: var(--navbar-text-color);
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3), 0 0 10px rgba(61, 133, 198, 0.5);
     transition: all 0.3s;
     position: relative;
@@ -138,6 +225,7 @@ body {
     transition: all 0.3s;
     position: relative;
     overflow: hidden;
+    color: var(--navbar-text-color) !important;
 }
 
 .game-nav-link::before {
@@ -184,13 +272,14 @@ body {
 
 /* 主要容器 - 增強卡片感和陰影 */
 .game-container {
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: var(--card-bg-color);
     border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--container-shadow);
     padding: 25px;
     margin-bottom: 2rem;
     position: relative;
     overflow: hidden;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .game-container::before {
@@ -207,10 +296,11 @@ body {
 .card {
     border: none;
     border-radius: 15px;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--card-shadow);
     transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     overflow: hidden;
     position: relative;
+    background-color: var(--card-bg-color);
 }
 
 .card::after {
@@ -238,6 +328,7 @@ body {
     font-weight: bold;
     border-bottom: none;
     position: relative;
+    color: var(--card-header-color);
 }
 
 .card-header::after {
@@ -258,6 +349,7 @@ body {
     font-weight: 600;
     position: relative;
     display: inline-block;
+    color: var(--card-title-color);
 }
 
 .card-title.with-badge::before {
@@ -401,13 +493,14 @@ body {
 
 /* 頁腳 */
 .game-footer {
-    background-color: var(--dark-color);
-    color: white;
+    background-color: var(--footer-bg-color);
+    color: var(--footer-text-color);
     padding: 1rem 0;
     position: absolute;
     bottom: 0;
     width: 100%;
     box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .game-copyright {
@@ -416,7 +509,7 @@ body {
 }
 
 .game-footer-links a {
-    color: white;
+    color: var(--footer-text-color);
     font-size: 1.2rem;
     transition: all 0.3s;
     margin: 0 10px;
@@ -837,7 +930,8 @@ body {
     border: 2px solid #e0e0e0;
     padding: 0.7rem 1rem;
     transition: all 0.3s;
-    background-color: #f8f9fa;
+    background-color: var(--input-bg-color);
+    color: var(--text-color);
 }
 
 .form-control:focus {
@@ -849,7 +943,7 @@ body {
 .form-label {
     font-weight: 600;
     margin-bottom: 0.5rem;
-    color: var(--dark-color);
+    color: var(--form-label-color);
     position: relative;
     display: inline-block;
 }
@@ -862,6 +956,17 @@ body {
     width: 30px;
     height: 2px;
     background-color: var(--primary-color);
+}
+
+/* 鏈接顏色 */
+a {
+    color: var(--link-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--link-hover-color);
 }
 
 /* 遊戲化進度條 */
@@ -915,19 +1020,21 @@ body {
 }
 
 .table th {
-    background-color: #f5f5f5;
+    background-color: var(--navbar-bg-color);
     border-top: none;
     font-weight: 600;
     text-transform: uppercase;
     font-size: 0.85rem;
     letter-spacing: 1px;
     padding: 15px;
+    color: var(--navbar-text-color);
 }
 
 .table td {
     padding: 15px;
     vertical-align: middle;
     transition: all 0.3s;
+    color: var(--text-color);
 }
 
 .table-hover tbody tr {
@@ -935,7 +1042,7 @@ body {
 }
 
 .table-hover tbody tr:hover {
-    background-color: rgba(61, 133, 198, 0.08);
+    background-color: var(--table-hover-bg);
     transform: translateY(-2px);
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
 }
@@ -997,6 +1104,10 @@ body {
 ::-webkit-scrollbar-track {
     background: #f5f7fa;
     border-radius: 10px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+    background: #2d2d2d;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -1109,7 +1220,7 @@ body {
 
 .stat-label {
     font-size: 0.9rem;
-    color: #666;
+    color: var(--stat-label-color);
     margin-top: 5px;
 }
 
@@ -1137,7 +1248,7 @@ body {
 
 .auth-title {
     font-size: 1.8rem;
-    color: var(--dark-color);
+    color: var(--card-title-color);
     text-align: center;
     margin-bottom: 30px;
     position: relative;
@@ -1162,13 +1273,13 @@ body {
 }
 
 .auth-link {
-    color: var(--primary-color);
+    color: var(--link-color);
     font-weight: 600;
     transition: all 0.3s;
 }
 
 .auth-link:hover {
-    color: var(--secondary-color);
+    color: var(--link-hover-color);
     text-decoration: none;
 }
 
@@ -1229,4 +1340,61 @@ body {
 .modal-footer {
     border-top: none;
     padding: 15px 20px 20px;
+}
+
+/* 調整深色模式下的卡片背景 */
+[data-theme="dark"] .creature-card {
+    background: linear-gradient(135deg, #2d2d2d, #1a1a1a);
+}
+
+[data-theme="dark"] .creature-image {
+    background: linear-gradient(135deg, #333333, #222222);
+}
+
+[data-theme="dark"] .stat-item {
+    background: #2d2d2d;
+}
+
+[data-theme="dark"] .auth-card {
+    background: var(--card-bg-color);
+}
+
+/* 調整深色模式下邊框顏色 */
+[data-theme="dark"] .form-control {
+    border-color: var(--border-color);
+}
+
+/* 確保深色模式下的按鈕文字顏色 */
+[data-theme="dark"] .btn {
+    color: #ffffff;
+}
+
+/* 確保深色模式下表格的邊框可見 */
+[data-theme="dark"] .table {
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .table td, 
+[data-theme="dark"] .table th {
+    border-color: var(--border-color);
+}
+
+/* 深色模式下警告框文字顏色 */
+[data-theme="dark"] .alert {
+    color: #f5f5f5;
+}
+
+/* 深色模式下的模態框調整 */
+[data-theme="dark"] .modal-content {
+    background-color: var(--card-bg-color);
+    color: var(--text-color);
+}
+
+/* 調整深色模式下的精靈卡片樣式 */
+[data-theme="dark"] .creature-detail-card {
+    background: var(--card-bg-color);
+}
+
+[data-theme="dark"] .creature-detail-title {
+    color: var(--text-color);
 }

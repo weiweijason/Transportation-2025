@@ -198,7 +198,7 @@
         font-family: 'Baloo 2', cursive;
         font-weight: 700;
         margin-bottom: 1.5rem;
-        color: var(--dark-color);
+        color: var(--text-color);
         text-align: center;
         position: relative;
     }
@@ -263,7 +263,7 @@
         margin-top: 40px;
         font-family: 'Baloo 2', cursive;
         font-weight: 600;
-        color: var(--dark-color);
+        color: var(--text-color);
     }
     
     .trainer-stats {
@@ -304,7 +304,7 @@
     
     .creature-tabs .nav-link {
         border: none;
-        color: #495057;
+        color: var(--text-color);
         font-weight: 500;
         padding: 12px 15px;
     }
@@ -317,6 +317,65 @@
     
     .creature-tabs .nav-link:hover:not(.active) {
         border-bottom: 3px solid #e9ecef;
+    }
+    
+    /* 深色模式適配 */
+    [data-theme="dark"] .profile-title {
+        color: var(--text-color);
+    }
+    
+    [data-theme="dark"] .trainer-name {
+        color: var(--text-color);
+    }
+    
+    [data-theme="dark"] .stat-label {
+        color: #adb5bd;
+    }
+    
+    [data-theme="dark"] .text-muted {
+        color: #adb5bd !important;
+    }
+    
+    [data-theme="dark"] .card-footer.bg-light {
+        background-color: #2c3035 !important;
+        color: #e0e0e0;
+    }
+    
+    [data-theme="dark"] .achievement {
+        color: #e0e0e0;
+    }
+    
+    /* 深色模式按鈕適配 */
+    [data-theme="dark"] .btn-outline-primary {
+        color: var(--link-color);
+        border-color: var(--link-color);
+    }
+    
+    [data-theme="dark"] .btn-outline-primary:hover {
+        background-color: var(--link-color);
+        color: #fff;
+    }
+    
+    /* 修正卡片頭部的捕捉精靈和檢視擂台按鈕 */
+    [data-theme="dark"] .card-header .btn-light {
+        background-color: #495057;
+        color: #f8f9fa;
+        border-color: #495057;
+    }
+    
+    [data-theme="dark"] .card-header .btn-light:hover {
+        background-color: #5a6268;
+        border-color: #5a6268;
+    }
+    
+    /* 修正卡片內容的按鈕 */
+    [data-theme="dark"] .card-body .btn-primary,
+    [data-theme="dark"] .card-body .btn-danger {
+        border-color: transparent;
+    }
+    
+    [data-theme="dark"] .small {
+        color: var(--text-color);
     }
     
     /* 響應式調整 */

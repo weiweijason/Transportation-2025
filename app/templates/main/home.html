@@ -37,12 +37,12 @@
                 <div class="news-item mb-3 pb-3 border-bottom">
                     <h6><i class="fas fa-star text-warning me-2"></i>新精靈登場！</h6>
                     <p class="small">貓空纜車左線現在出現了全新的水系精靈，快去捕捉吧！</p>
-                    <small class="text-muted">2025/4/15</small>
+                    <small class="text-muted news-date">2025/4/15</small>
                 </div>
                 <div class="news-item mb-3 pb-3 border-bottom">
                     <h6><i class="fas fa-trophy text-danger me-2"></i>週末活動</h6>
                     <p class="small">本週末所有站點擂台的精靈都將獲得雙倍力量加成！</p>
-                    <small class="text-muted">2025/4/17</small>
+                    <small class="text-muted news-date">2025/4/17</small>
                 </div>
                 <div class="news-item">
                     <h6><i class="fas fa-gift text-success me-2"></i>新手提示</h6>
@@ -181,7 +181,7 @@
     .section-title {
         font-family: 'Baloo 2', cursive;
         font-weight: 600;
-        color: var(--dark-color);
+        color: var(--text-color);
         position: relative;
         display: inline-block;
     }
@@ -226,6 +226,64 @@
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+    
+    /* 深色模式適配 */
+    [data-theme="dark"] .news-date,
+    [data-theme="dark"] .text-muted {
+        color: #adb5bd !important;
+    }
+    
+    [data-theme="dark"] .border-bottom {
+        border-color: var(--border-color) !important;
+    }
+    
+    [data-theme="dark"] .btn-outline-primary {
+        color: var(--link-color);
+        border-color: var(--link-color);
+    }
+    
+    [data-theme="dark"] .btn-outline-primary:hover {
+        background-color: var(--link-color);
+        color: #fff;
+    }
+    
+    [data-theme="dark"] .btn-outline-danger {
+        color: #e74c3c;
+        border-color: #e74c3c;
+    }
+    
+    [data-theme="dark"] .btn-outline-danger:hover {
+        background-color: #e74c3c;
+        color: #fff;
+    }
+    
+    [data-theme="dark"] .btn-outline-success {
+        color: #2ecc71;
+        border-color: #2ecc71;
+    }
+    
+    [data-theme="dark"] .btn-outline-success:hover {
+        background-color: #2ecc71;
+        color: #fff;
+    }
+    
+    /* 修正深色模式下的文字顯示問題 */
+    [data-theme="dark"] .card-body p,
+    [data-theme="dark"] .card-body .small,
+    [data-theme="dark"] .card-body h6,
+    [data-theme="dark"] .card-text,
+    [data-theme="dark"] .news-item p,
+    [data-theme="dark"] .news-item h6 {
+        color: var(--text-color);
+    }
+    
+    [data-theme="dark"] .creature-showcase h6 {
+        color: var(--text-color);
+    }
+    
+    [data-theme="dark"] .card-header h5 {
+        color: white;
     }
     
     @media (max-width: 767.98px) {

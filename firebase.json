@@ -12,9 +12,6 @@
     "auth": {
       "port": 9099
     },
-    "functions": {
-      "port": 5001
-    },
     "firestore": {
       "port": 8080
     },
@@ -26,9 +23,6 @@
     },
     "pubsub": {
       "port": 8085
-    },
-    "storage": {
-      "port": 9199
     },
     "eventarc": {
       "port": 9299
@@ -48,23 +42,6 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
-  "functions": [
-    {
-      "source": "functions",
-      "codebase": "default",
-      "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR\" run lint",
-        "npm --prefix \"$RESOURCE_DIR\" run build"
-      ],
-      "ignore": [
-        "node_modules",
-        ".git",
-        "firebase-debug.log",
-        "firebase-debug.*.log",
-        "*.local"
-      ]
-    }
-  ],
   "hosting": {
     "public": "public",
     "ignore": [
@@ -72,9 +49,6 @@
       "**/.*",
       "**/node_modules/**"
     ]
-  },
-  "storage": {
-    "rules": "storage.rules"
   },
   "remoteconfig": {
     "template": "remoteconfig.template.json"

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -64,6 +64,14 @@
                     {% endif %}
                 </ul>
                 <ul class="navbar-nav">
+                    <!-- 主題切換按鈕 -->
+                    <li class="nav-item">
+                        <button id="themeToggle" class="nav-link game-nav-link mode-toggle" aria-label="切換深淺色主題">
+                            <i class="fas fa-moon"></i>
+                            <i class="fas fa-sun"></i>
+                            <span class="ms-1 d-none d-sm-inline-block">主題</span>
+                        </button>
+                    </li>
                     {% if 'user' in session %}
                     <li class="nav-item">
                         <span class="nav-link game-username">
@@ -175,6 +183,21 @@
                 });
             });
         }
+
+        // 主題切換功能
+        const themeToggle = document.getElementById('themeToggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', function() {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+        }
+
+        // 設置初始主題
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
     });
     </script>
     

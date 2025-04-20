@@ -205,6 +205,53 @@
         background-color: #9b59b6;
     }
     
+    /* 深色模式適配 */
+    [data-theme="dark"] .game-auth-card {
+        background-color: #2d3436;
+        border-color: #4d5656;
+    }
+    
+    [data-theme="dark"] .form-label {
+        color: #e0e0e0;
+    }
+    
+    [data-theme="dark"] .form-check-label {
+        color: #e0e0e0;
+    }
+    
+    [data-theme="dark"] .card-footer.bg-light {
+        background-color: #2c3035 !important;
+        color: #e0e0e0;
+    }
+    
+    [data-theme="dark"] .game-input {
+        background-color: #3d4852;
+        border-color: #4d5656;
+        color: #e0e0e0;
+    }
+    
+    [data-theme="dark"] .game-input:focus {
+        border-color: var(--accent-color);
+        background-color: #3d4852;
+    }
+    
+    [data-theme="dark"] .game-input::placeholder {
+        color: #adb5bd;
+    }
+    
+    [data-theme="dark"] .text-muted {
+        color: #adb5bd !important;
+    }
+    
+    [data-theme="dark"] .starter-creature {
+        background-color: #3d4852;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    [data-theme="dark"] .starter-creature:hover {
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+    
     @media (max-width: 767.98px) {
         .game-auth-card {
             margin-top: 0.5rem;
