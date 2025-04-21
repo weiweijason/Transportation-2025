@@ -65,12 +65,12 @@
 
 ### 技術棧
 - 後端：Python 3.10+ / Flask 2.3.0+
-- 資料庫：Firebase Realtime Database 與 Firestore
+- 資料庫：Firebase Realtime Database 與 Firestore + SQLite/SQLAlchemy
 - 前端：HTML5, CSS3, JavaScript, Bootstrap 5
 - 地圖：OpenStreetMap 與 Leaflet.js
 - API整合：TDX運輸資料API
 - 地理位置：使用瀏覽器的Geolocation API
-- 使用者認證：Firebase Authentication
+- 使用者認證：Firebase Authentication + Flask-Login
 
 ### 環境設置
 1. 安裝Python 3.10以上版本
@@ -85,7 +85,13 @@
    ```
    pip install -r requirements.txt
    ```
-5. 設置環境變數（TDX API密鑰、Firebase 配置等）
+5. 設置環境變數（在 .env 檔或系統環境變數）：
+   ```
+   SECRET_KEY=your_secret_key
+   TDX_CLIENT_ID=your_tdx_client_id
+   TDX_CLIENT_SECRET=your_tdx_client_secret
+   FLASK_CONFIG=development  # 或 production, testing
+   ```
 6. 啟動開發伺服器：
    ```
    python app.py
@@ -121,7 +127,7 @@
 │   │   ├── game/           # 遊戲功能頁面
 │   │   │   ├── battle.html # 擂台對戰頁面
 │   │   │   └── catch.html  # 捕捉精靈頁面
-│   │   └── main/           # 主要頁面
+│   └── main/               # 主要頁面
 │   └── __init__.py         # 應用程式初始化
 ├── credentials/            # 憑證文件
 ├── dataconnect/            # 資料連接設定
@@ -148,6 +154,32 @@
 
 ## 關鍵功能說明
 
+### 應用初始化與配置
+應用在啟動時會執行以下操作：
+1. 載入環境變數配置
+2. 初始化Flask應用和擴展（SQLAlchemy, Flask-Login）
+3. 預載TDX公車資料（在後台線程進行，避免阻塞應用啟動）
+4. 設置會話管理（7天有效期）
+5. 實現自動重定向，未登入用戶訪問非認證頁面時重定向至登入頁面
+
+### TDX API 整合服務
+透過 `tdx_service.py` 實現與台灣運輸資料交換平台 (TDX) 的整合：
+
+1. **路線資料管理**：
+   - 自動抓取貓空左右線路線數據
+   - 適應性地處理 GeoJSON 格式資料
+   - 本地緩存機制降低 API 請求次數
+
+2. **站點資料整合**：
+   - 系統性管理公車站點資訊
+   - 支援多種路線的站點資料
+   - 資料自動更新與過期管理
+
+3. **錯誤處理與重試機制**：
+   - 完善的 API 錯誤處理流程
+   - 退避式重試減輕 API 負載
+   - 本地資料備援確保系統穩定性
+
 ### 捕捉精靈頁面 (`game/catch.html`)
 捕捉精靈頁面使用 OpenStreetMap 作為基礎地圖，提供以下功能：
 
@@ -172,7 +204,7 @@
    - 成功捕捉後會將精靈加入使用者收藏
 
 ### 擂台對戰系統 (`game/battle.html`)
-擂台對戰系統透過 Firebase 即時資料庫提供以下功能：
+擂台對戰系統透過資料庫提供以下功能：
 
 1. **擂台管理**：
    - 顯示地圖上所有擂台位置
@@ -183,24 +215,6 @@
    - 挑戰者可選擇精靈進行對戰
    - 以精靈力量值和屬性相剋進行判定
    - 勝利後可接管擂台成為新站主
-
-### TDX API 整合服務
-透過 `tdx_service.py` 實現與台灣運輸資料交換平台 (TDX) 的整合：
-
-1. **路線資料管理**：
-   - 自動抓取貓空左右線路線數據
-   - 適應性地處理 GeoJSON 格式資料
-   - 本地緩存機制降低 API 請求次數
-
-2. **站點資料整合**：
-   - 系統性管理公車站點資訊
-   - 支援多種路線的站點資料
-   - 資料自動更新與過期管理
-
-3. **錯誤處理與重試機制**：
-   - 完善的 API 錯誤處理流程
-   - 退避式重試減輕 API 負載
-   - 本地資料備援確保系統穩定性
 
 ## 開發計劃
 1. 階段一：基本功能實作 ✓
@@ -231,9 +245,11 @@
 ## 使用技術
 - **前端框架**：Bootstrap 5 響應式佈局
 - **地圖技術**：OpenStreetMap + Leaflet.js
-- **後端框架**：Flask
-- **資料儲存**：Firebase Realtime Database + Firestore
-- **使用者認證**：Firebase Authentication
+- **後端框架**：Flask 2.3.0
+- **資料庫**：Firebase Realtime Database + Firestore + SQLAlchemy
+- **使用者認證**：Firebase Authentication + Flask-Login
 - **API 整合**：TDX 運輸資料 API + Firebase Cloud Functions
 - **部署環境**：Firebase Hosting + Cloud Functions
+- **自動化測試**：Pytest + pytest-cov
+- **程式碼品質工具**：Black + Ruff
 - **版本控制**：Git + GitHub
