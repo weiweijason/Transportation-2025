@@ -1,0 +1,447 @@
+/* 捕捉遊戲頁面樣式 */
+
+/* 地圖相關樣式 */
+#map {
+  height: 500px;
+  width: 100%;
+  border-radius: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  z-index: 1;
+  touch-action: none;
+  user-select: none;
+  position: relative;
+}
+
+.map-container {
+  position: relative; 
+  width: 100%;
+  z-index: 1;
+}
+
+.card-body {
+  overflow: visible;
+  z-index: auto;
+}
+
+/* 載入中遮罩 */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  visibility: hidden;
+}
+
+.loading-spinner {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: conic-gradient(transparent, var(--primary-color));
+  -webkit-mask: radial-gradient(white, transparent 70%);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 路線相關樣式 */
+.route-line {
+  display: inline-block;
+  width: 20px;
+  height: 4px;
+  margin-right: 5px;
+  vertical-align: middle;
+  border-radius: 2px;
+}
+
+.bus-routes-legend {
+  padding: 12px;
+  background: var(--card-bg-color);
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* 標記樣式 */
+.user-marker {
+  z-index: 1000;
+}
+
+.arena-marker {
+  width: 36px;
+  height: 36px;
+  z-index: 1000;
+  filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.3));
+  transition: all 0.3s;
+}
+
+.arena-marker:hover {
+  transform: scale(1.2);
+}
+
+.creature-marker {
+  z-index: 900;
+  filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* 頁籤相關樣式 */
+.game-tab-content {
+  min-height: 600px;
+}
+
+/* 遊戲化頁籤 */
+.game-tabs .nav-item {
+  position: relative;
+  z-index: 1;
+}
+
+.game-tabs .nav-link {
+  border: none;
+  padding: 12px 20px;
+  font-weight: 600;
+  color: var(--text-color);
+  border-radius: 10px 10px 0 0;
+  margin-right: 5px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.game-tabs .nav-link.active {
+  color: white;
+  background-color: var(--primary-color);
+  box-shadow: 0 -3px 10px rgba(0,0,0,0.1);
+}
+
+.game-tabs .nav-link.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(120deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+  z-index: -1;
+}
+
+.game-tabs .nav-link:hover:not(.active) {
+  background-color: rgba(128,128,128,0.1);
+}
+
+.game-tabs .nav-link i {
+  margin-right: 8px;
+}
+
+/* 擂台卡片樣式 */
+.arena-card {
+  transition: all 0.3s;
+  background-position: center;
+  background-size: cover;
+  position: relative;
+  overflow: hidden;
+  min-height: 180px;
+}
+
+.arena-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.7) 100%);
+  z-index: 0;
+}
+
+.arena-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.arena-card-header {
+  position: relative;
+  z-index: 1;
+  color: white;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+}
+
+.arena-card-body {
+  position: relative;
+  z-index: 1;
+  color: white;
+}
+
+.arena-level-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+  color: var(--dark-color);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* 捕捉成功模態框 */
+.catch-modal .modal-content {
+  border-radius: 20px;
+  overflow: hidden;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.catch-modal .modal-header {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.catch-modal .modal-body {
+  padding: 30px;
+  text-align: center;
+}
+
+.catch-success-image {
+  max-height: 200px;
+  filter: drop-shadow(0px 5px 10px rgba(0,0,0,0.2));
+  animation: float 3s ease-in-out infinite;
+}
+
+.catch-sparkle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFD700"><path d="M12 0L14.59 9.41 24 12 14.59 14.59 12 24 9.41 14.59 0 12 9.41 9.41z"/></svg>');
+  background-size: contain;
+  opacity: 0.8;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* 深色模式適配 */
+[data-theme="dark"] .section-title {
+  color: var(--text-color);
+}
+
+[data-theme="dark"] .badge.bg-light {
+  background-color: #495057 !important;
+  color: #e9ecef !important;
+}
+
+[data-theme="dark"] .small.text-muted,
+[data-theme="dark"] small.text-muted {
+  color: #adb5bd !important;
+}
+
+[data-theme="dark"] .leaflet-tile {
+  filter: brightness(0.8) contrast(1.2);
+}
+
+[data-theme="dark"] .leaflet-container {
+  background-color: #333;
+}
+
+[data-theme="dark"] .creature-stats .stat-item {
+  background-color: #2d2d2d;
+}
+
+[data-theme="dark"] .creature-stats .small.text-muted {
+  color: #adb5bd !important;
+}
+
+[data-theme="dark"] .btn-outline-primary,
+[data-theme="dark"] .btn-outline-secondary {
+  color: var(--text-color);
+  border-color: var(--link-color);
+}
+
+[data-theme="dark"] .btn-outline-primary:hover,
+[data-theme="dark"] .btn-outline-secondary:hover {
+  color: #fff;
+  background-color: var(--link-color);
+}
+
+[data-theme="dark"] .card-header.bg-danger,
+[data-theme="dark"] .card-header.bg-info,
+[data-theme="dark"] .card-header.bg-success,
+[data-theme="dark"] .card-header.bg-primary,
+[data-theme="dark"] .card-header.bg-warning {
+  color: white !important;
+}
+
+[data-theme="dark"] .alert-info {
+  background-color: rgba(23, 162, 184, 0.2);
+  color: var(--text-color);
+  border-color: rgba(23, 162, 184, 0.3);
+}
+
+/* 修正深色模式下圖例文字問題 */
+[data-theme="dark"] .bus-routes-legend {
+  color: var(--text-color);
+}
+
+[data-theme="dark"] .bus-routes-legend h6 {
+  color: var(--text-color);
+}
+
+[data-theme="dark"] .current-location p,
+[data-theme="dark"] .current-location strong {
+  color: var(--text-color);
+}
+
+[data-theme="dark"] #arenaList h5 {
+  color: var(--text-color);
+}
+
+/* 移動設備適配 */
+@media (max-width: 767.98px) {
+  #map {
+    height: 350px;
+  }
+  
+  .game-tabs .nav-link {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+  
+  .arena-card {
+    min-height: 150px;
+  }
+  
+  .loading-spinner {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .catch-success-image {
+    max-height: 150px;
+  }
+}
+
+/* 精靈樣式 */
+.route-creature {
+  animation: bounce 2s infinite;
+  z-index: 900;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.route-creature:hover {
+  transform: scale(1.2);
+}
+
+/* 精靈倒計時樣式 */
+.creature-timer {
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+/* 精靈類型顏色 */
+.creature-fire {
+  background-color: #e74c3c !important;
+}
+
+.creature-water {
+  background-color: #3498db !important;
+}
+
+.creature-earth {
+  background-color: #8e44ad !important;
+}
+
+.creature-air {
+  background-color: #2ecc71 !important;
+}
+
+.creature-electric {
+  background-color: #f1c40f !important;
+}
+
+.creature-normal {
+  background-color: #95a5a6 !important;
+}
+
+/* 精靈稀有度 */
+.creature-common {
+  border: 2px solid #bdc3c7 !important;
+}
+
+.creature-uncommon {
+  border: 2px solid #3498db !important;
+}
+
+.creature-rare {
+  border: 2px solid #9b59b6 !important;
+}
+
+.creature-legendary {
+  border: 2px solid #f1c40f !important;
+  box-shadow: 0 0 10px #f39c12 !important;
+}
+
+/* 精靈更新指示器 */
+.update-indicator {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 12px;
+  z-index: 1000;
+  display: none;
+}
+
+/* 精靈捕捉動畫效果 */
+@keyframes catchEffect {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.7; }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+.catch-animation {
+  animation: catchEffect 0.5s forwards;
+}
+
+/* 漂浮動畫 */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
