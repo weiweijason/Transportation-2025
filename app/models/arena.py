@@ -1,6 +1,7 @@
 import time
 from app.services.firebase_service import FirebaseService
 from datetime import datetime
+import uuid
 from app import db as app_db
 
 class FirebaseArena:
@@ -9,19 +10,22 @@ class FirebaseArena:
     擂台為公車站牌，同名站牌視為同一個擂台，即使位置不同
     """
     def __init__(self, id=None, name=None, position=None, stop_ids=None, routes=None, 
-                 owner=None, owner_creature=None, challengers=None):
-        self.id = id
+                 owner=None, owner_creature=None, challengers=None, owner_player_id=None):
+        # 如果沒有提供ID，生成一個唯一ID
+        self.id = id or str(uuid.uuid4())
         self.name = name  # 站牌名稱，作為唯一識別符
         self.position = position  # [lat, lng] 格式
         self.stop_ids = stop_ids or []  # 站牌ID列表
         self.routes = routes or []  # 經過路線列表
         self.owner = owner  # 控制者 (用戶名稱)
+        self.owner_player_id = owner_player_id  # 控制者玩家ID
         self.owner_creature = owner_creature  # 控制者精靈 (包含id, name, power)
         self.challengers = challengers or []  # 挑戰紀錄
         self.updated_at = int(time.time() * 1000)  # 更新時間 (毫秒時間戳)
         # 獲取 Firebase 服務實例
         self.firebase_service = FirebaseService()
         self.db = self.firebase_service.db
+        self.firestore_db = self.firebase_service.firestore_db
 
     @staticmethod
     def create_from_dict(arena_dict):
@@ -37,7 +41,8 @@ class FirebaseArena:
             routes=arena_dict.get('routes', []),
             owner=arena_dict.get('owner'),
             owner_creature=arena_dict.get('ownerCreature') or arena_dict.get('owner_creature'),
-            challengers=arena_dict.get('challengers', [])
+            challengers=arena_dict.get('challengers', []),
+            owner_player_id=arena_dict.get('ownerPlayerId')
         )
 
     def to_dict(self):
@@ -49,6 +54,7 @@ class FirebaseArena:
             'stopIds': self.stop_ids,
             'routes': self.routes,
             'owner': self.owner,
+            'ownerPlayerId': self.owner_player_id,
             'ownerCreature': self.owner_creature,
             'challengers': self.challengers,
             'updatedAt': self.updated_at
@@ -87,11 +93,68 @@ class FirebaseArena:
                 return FirebaseArena.create_from_dict(arena_data)
         return None
     
+    @staticmethod
+    def get_by_name_firestore(name):
+        """根據名稱從Firestore獲取擂台"""
+        firebase_service = FirebaseService()
+        
+        # 使用Firestore的where查詢功能
+        arenas_ref = firebase_service.firestore_db.collection('arenas').where('name', '==', name).limit(1).get()
+        
+        # 檢查是否有結果
+        if not arenas_ref or len(arenas_ref) == 0:
+            return None
+            
+        # 返回第一個匹配的道館
+        arena_dict = arenas_ref[0].to_dict()
+        arena_dict['id'] = arenas_ref[0].id  # 確保ID也被添加到字典中
+        return FirebaseArena.create_from_dict(arena_dict)
+    
     def save(self):
         """保存擂台"""
         self.updated_at = int(time.time() * 1000)
         self.db.child('arenas').child(self.id).set(self.to_dict())
         return self
+    
+    def save_to_firestore(self):
+        """將擂台保存到Firestore"""
+        try:
+            self.updated_at = int(time.time() * 1000)
+            arena_dict = self.to_dict()
+            
+            # 使用文檔ID保存到Firestore
+            self.firestore_db.collection('arenas').document(self.id).set(arena_dict)
+            
+            # 同時更新Realtime Database（保持兼容性）
+            self.save()
+            
+            return True
+        except Exception as e:
+            print(f"保存擂台到Firestore失敗: {e}")
+            return False
+    
+    @staticmethod
+    def create_arena_if_not_exists(name, position, stop_ids=None, routes=None):
+        """創建擂台如果不存在，否則返回現有擂台"""
+        # 首先嘗試從Firestore獲取
+        arena = FirebaseArena.get_by_name_firestore(name)
+        
+        # 如果Firestore中不存在，嘗試從Realtime Database獲取
+        if arena is None:
+            arena = FirebaseArena.get_by_name(name)
+        
+        # 如果仍然不存在，創建新的擂台
+        if arena is None:
+            arena = FirebaseArena(
+                name=name,
+                position=position,
+                stop_ids=stop_ids or [],
+                routes=routes or []
+            )
+            # 保存到兩個數據庫
+            arena.save_to_firestore()
+            
+        return arena
     
     def challenge(self, challenger_id, challenger_name, challenger_power, challenger_username):
         """
@@ -153,6 +216,71 @@ class FirebaseArena:
         self.save()
         
         return is_win, "挑戰成功" if is_win else "挑戰失敗"
+    
+    def challenge_with_player_id(self, challenger_id, challenger_name, challenger_power, challenger_username, challenger_player_id):
+        """
+        帶有玩家ID的擂台挑戰
+        :param challenger_id: 挑戰者精靈ID
+        :param challenger_name: 挑戰者精靈名稱
+        :param challenger_power: 挑戰者精靈力量
+        :param challenger_username: 挑戰者用戶名稱
+        :param challenger_player_id: 挑戰者玩家ID
+        :return: (是否獲勝, 挑戰信息)
+        """
+        # 記錄挑戰
+        challenge_record = {
+            'timestamp': int(time.time() * 1000),
+            'challengerId': challenger_id,
+            'challengerName': challenger_name,
+            'challengerPower': challenger_power,
+            'challengerUsername': challenger_username,
+            'challengerPlayerId': challenger_player_id,
+            'result': False
+        }
+        
+        # 如果擂台無人控制，直接獲勝
+        if not self.owner:
+            self.owner = challenger_username
+            self.owner_player_id = challenger_player_id
+            self.owner_creature = {
+                'id': challenger_id,
+                'name': challenger_name,
+                'power': challenger_power
+            }
+            challenge_record['result'] = True
+            self.challengers.append(challenge_record)
+            self.save_to_firestore()
+            return True, "成功佔領無人擂台"
+            
+        # 計算勝率 - 挑戰者力量 / (挑戰者力量 + 防守者力量)
+        win_chance = challenger_power / (challenger_power + self.owner_creature.get('power', 0))
+        
+        # 決定勝負
+        import random
+        is_win = random.random() < win_chance
+        
+        if is_win:
+            # 更新擂台控制者
+            self.owner = challenger_username
+            self.owner_player_id = challenger_player_id
+            self.owner_creature = {
+                'id': challenger_id,
+                'name': challenger_name,
+                'power': challenger_power
+            }
+            challenge_record['result'] = True
+            
+        # 記錄挑戰結果
+        self.challengers.append(challenge_record)
+        
+        # 限制挑戰記錄數量
+        if len(self.challengers) > 20:
+            self.challengers = self.challengers[-20:]
+            
+        # 保存更新到兩個數據庫
+        self.save_to_firestore()
+        
+        return is_win, "挑戰成功" if is_win else "挑戰失敗"
 
 
 class Arena(app_db.Model):
@@ -171,7 +299,7 @@ class Arena(app_db.Model):
     guardian_id = app_db.Column(app_db.Integer, app_db.ForeignKey('creatures.id'), nullable=True)  # 守護精靈
     
     # 反向關聯
-    bus_stop = app_db.relationship('BusStop', backref=app_db.backref('arena', uselist=False))
+    bus_stop = app_db.relationship('BusStop', foreign_keys=[bus_stop_id], backref=app_db.backref('arena', uselist=False))
     guardian = app_db.relationship('Creature', foreign_keys=[guardian_id])
     battles = app_db.relationship('Battle', backref='arena', lazy='dynamic')
     

@@ -5,8 +5,10 @@ import random
 import json
 
 from app.models.user import User
-from app.models.creature import Creature
+from app.models.creature import Creature, ElementType
+from app.models.bus import BusRoute
 from app.models.arena import FirebaseArena as Arena
+from app.services.firebase_service import FirebaseService
 from app.services.tdx_service import (get_cat_right_route, get_cat_left_route, 
                                      get_cat_left_zhinan_route, get_cat_right_stops,
                                      get_cat_left_stops, get_cat_left_zhinan_stops,
@@ -191,6 +193,43 @@ def get_arena(arena_id):
         return jsonify({'success': False, 'message': '找不到指定擂台'}), 404
     return jsonify(arena.to_dict())
 
+@game_bp.route('/api/arena/get-by-name/<arena_name>')
+def get_arena_by_name(arena_name):
+    """根據名稱獲取擂台資訊（優先從Firestore獲取）"""
+    # 嘗試從Firestore獲取
+    arena = Arena.get_by_name_firestore(arena_name)
+    
+    # 如果Firestore中沒有，嘗試從Realtime Database獲取
+    if not arena:
+        arena = Arena.get_by_name(arena_name)
+        
+    if not arena:
+        return jsonify({'success': False, 'message': '找不到指定擂台'}), 404
+    
+    # 獲取擂台數據
+    arena_data = arena.to_dict()
+    
+    # 如果有擁有者ID，嘗試獲取擁有者用戶名
+    if arena_data.get('ownerPlayerId'):
+        try:
+            from app.services.firebase_service import FirebaseService
+            firebase_service = FirebaseService()
+            
+            # 查詢所有用戶，找到對應playerID的用戶
+            users_ref = firebase_service.firestore_db.collection('users').where('player_id', '==', arena_data['ownerPlayerId']).limit(1).get()
+            
+            if users_ref and len(users_ref) > 0:
+                user_data = users_ref[0].to_dict()
+                # 將用戶名添加到返回數據中
+                arena_data['ownerUsername'] = user_data.get('username', '未知玩家')
+        except Exception as e:
+            current_app.logger.error(f"獲取擁有者資訊失敗: {e}")
+    
+    return jsonify({
+        'success': True,
+        'arena': arena_data
+    })
+
 @game_bp.route('/api/arena/save', methods=['POST'])
 @login_required
 def save_arena():
@@ -201,8 +240,12 @@ def save_arena():
     if not all([data.get('id'), data.get('name'), data.get('position')]):
         return jsonify({'success': False, 'message': '缺少必要資訊'}), 400
     
-    # 先查找是否已有相同名稱的擂台
-    existing_arena = Arena.get_by_name(data.get('name'))
+    # 先查找是否已有相同名稱的擂台 (優先從 Firestore 查詢)
+    existing_arena = Arena.get_by_name_firestore(data.get('name'))
+    
+    # 如果 Firestore 中沒有，再嘗試從 Realtime Database 中查詢
+    if not existing_arena:
+        existing_arena = Arena.get_by_name(data.get('name'))
     
     if existing_arena:
         # 更新現有擂台
@@ -210,10 +253,11 @@ def save_arena():
         existing_arena.stop_ids = data.get('stopIds', [])
         existing_arena.routes = data.get('routes', [])
         existing_arena.owner = data.get('owner')
+        existing_arena.owner_player_id = data.get('ownerPlayerId')
         existing_arena.owner_creature = data.get('ownerCreature')
         
-        # 保存更新
-        existing_arena.save()
+        # 保存更新 (同時儲存到 Firestore 和 Realtime Database)
+        existing_arena.save_to_firestore()
         
         return jsonify({
             'success': True, 
@@ -229,11 +273,12 @@ def save_arena():
             stop_ids=data.get('stopIds', []),
             routes=data.get('routes', []),
             owner=data.get('owner'),
+            owner_player_id=data.get('ownerPlayerId'),
             owner_creature=data.get('ownerCreature')
         )
         
-        # 保存新擂台
-        new_arena.save()
+        # 保存新擂台 (同時儲存到 Firestore 和 Realtime Database)
+        new_arena.save_to_firestore()
         
         return jsonify({
             'success': True, 
@@ -251,17 +296,40 @@ def challenge_arena():
     if not all([data.get('arenaId'), data.get('creatureId'), data.get('creatureName'), data.get('creaturePower')]):
         return jsonify({'success': False, 'message': '缺少必要資訊'}), 400
     
-    # 獲取擂台
-    arena = Arena.get_by_id(data.get('arenaId'))
+    # 獲取擂台 (優先從 Firestore 獲取)
+    arena_name = data.get('arenaName')
+    if arena_name:
+        arena = Arena.get_by_name_firestore(arena_name)
+    else:
+        arena = Arena.get_by_id(data.get('arenaId'))
+        
     if not arena:
         return jsonify({'success': False, 'message': '找不到指定擂台'}), 404
     
-    # 進行挑戰
-    result, message = arena.challenge(
+    # 獲取當前用戶的 player_id
+    from app.services.firebase_service import FirebaseService
+    firebase_service = FirebaseService()
+    user_data = firebase_service.get_user_info(current_user.id)
+    player_id = user_data.get('player_id') if user_data else None
+    
+    # 如果用戶沒有 player_id，生成一個隨機 ID
+    if not player_id:
+        import random
+        import string
+        player_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+        
+        # 更新用戶資料
+        if user_data:
+            user_data['player_id'] = player_id
+            firebase_service.update_user_info(current_user.id, {'player_id': player_id})
+    
+    # 進行挑戰 (使用支援 player_id 的新方法)
+    result, message = arena.challenge_with_player_id(
         challenger_id=data.get('creatureId'),
         challenger_name=data.get('creatureName'),
         challenger_power=data.get('creaturePower'),
-        challenger_username=current_user.username
+        challenger_username=current_user.username,
+        challenger_player_id=player_id
     )
     
     return jsonify({
@@ -270,6 +338,161 @@ def challenge_arena():
         'message': message,
         'arena': arena.to_dict()
     })
+
+# ----- 新增: 路線精靈相關API ----- #
+
+@game_bp.route('/api/route-creatures/generate', methods=['POST'])
+@login_required
+def generate_route_creatures():
+    """生成路線上的精靈
+    
+    需要提供路線ID和元素類型
+    """
+    data = request.json
+    route_id = data.get('routeId')
+    route_name = data.get('routeName')
+    element_type = data.get('elementType')
+    count = data.get('count', 3)  # 預設生成3隻精靈
+    
+    if not all([route_id, route_name, element_type]):
+        return jsonify({
+            'success': False,
+            'message': '缺少必要資訊'
+        }), 400
+    
+    # 檢查元素類型是否有效
+    try:
+        element_enum = ElementType[element_type.upper()]
+    except (KeyError, AttributeError):
+        return jsonify({
+            'success': False,
+            'message': '無效的元素類型'
+        }), 400
+    
+    # 使用Firebase服務生成精靈
+    firebase_service = FirebaseService()
+    creatures = firebase_service.generate_route_creatures(
+        route_id=route_id,
+        route_name=route_name,
+        element_type=element_type,
+        count=count
+    )
+    
+    if not creatures:
+        return jsonify({
+            'success': False,
+            'message': '生成精靈失敗'
+        }), 500
+    
+    return jsonify({
+        'success': True,
+        'message': f'已在路線 {route_name} 上生成 {len(creatures)} 隻精靈',
+        'creatures': creatures
+    })
+
+@game_bp.route('/api/route-creatures/get/<route_id>')
+@login_required
+def get_route_creatures(route_id):
+    """獲取路線上的精靈"""
+    if not route_id:
+        return jsonify({
+            'success': False,
+            'message': '缺少路線ID'
+        }), 400
+    
+    # 獲取路線資訊
+    route = BusRoute.query.filter_by(id=route_id).first()
+    if not route:
+        return jsonify({
+            'success': False,
+            'message': '找不到指定路線'
+        }), 404
+    
+    # 使用Firebase服務獲取精靈
+    firebase_service = FirebaseService()
+    creatures = firebase_service.get_route_creatures(route_id)
+    
+    # 如果路線上沒有精靈，自動生成一些
+    if not creatures:
+        creatures = firebase_service.generate_route_creatures(
+            route_id=route_id,
+            route_name=route.name,
+            element_type=route.element_type,
+            count=random.randint(1, 3)  # 隨機生成1-3隻精靈
+        )
+        message = '路線上沒有精靈，已自動生成新精靈'
+    else:
+        message = f'找到 {len(creatures)} 隻路線精靈'
+    
+    return jsonify({
+        'success': True,
+        'message': message,
+        'route': {
+            'id': route.id,
+            'name': route.name,
+            'element_type': route.element_type
+        },
+        'creatures': creatures
+    })
+
+@game_bp.route('/api/route-creatures/catch', methods=['POST'])
+@login_required
+def catch_route_creature():
+    """捕捉路線上的精靈"""
+    data = request.json
+    creature_id = data.get('creatureId')
+    
+    if not creature_id:
+        return jsonify({
+            'success': False,
+            'message': '缺少精靈ID'
+        }), 400
+    
+    # 使用Firebase服務捕捉精靈
+    firebase_service = FirebaseService()
+    result = firebase_service.catch_route_creature(
+        creature_id=creature_id,
+        user_id=current_user.id
+    )
+    
+    return jsonify(result)
+
+@game_bp.route('/api/route-creatures/get-all')
+@login_required
+def get_all_route_creatures():
+    """獲取所有路線上的精靈
+    
+    此API提供給前端用於顯示地圖上所有路線的精靈
+    """
+    # 使用Firebase服務獲取所有精靈
+    firebase_service = FirebaseService()
+    creatures = firebase_service.get_route_creatures()
+    
+    # 移除所有已過期的精靈（這個操作也會在定時任務中執行，這裡作為額外保障）
+    firebase_service.remove_expired_creatures()
+    
+    return jsonify({
+        'success': True,
+        'message': f'找到 {len(creatures)} 隻路線精靈',
+        'creatures': creatures
+    })
+
+# 新增: 從巴士路線捕捉頁面
+@game_bp.route('/catch-on-route/<route_id>')
+@login_required
+def catch_on_route(route_id):
+    """在特定公車路線上捕捉精靈的頁面"""
+    # 獲取路線資訊
+    route = BusRoute.query.filter_by(id=route_id).first()
+    if not route:
+        flash('找不到指定路線', 'error')
+        return redirect(url_for('game.catch'))
+    
+    return render_template(
+        'game/catch.html',
+        route=route,
+        active_route_id=route_id
+    )
 
 # 用戶相關 API
 @game_bp.route('/api/user/get-current')

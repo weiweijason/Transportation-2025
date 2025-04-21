@@ -1,7 +1,7 @@
 from flask import Flask, current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-from config import config
+import config as config_module
 import logging
 import threading
 
@@ -48,11 +48,11 @@ def load_tdx_data_on_startup(app):
     data_loading_thread.daemon = True  # 設置為守護線程，這樣主程序結束時，線程會自動結束
     data_loading_thread.start()
 
-def create_app(config_name='default'):
+def create_app(config_name='default', load_tdx=True):
     """工廠函數，用於創建應用實例"""
     app = Flask(__name__)
-    app.config.from_object(config[config_name])
-    config[config_name].init_app(app)
+    app.config.from_object(config_module.config[config_name])
+    config_module.config[config_name].init_app(app)
     
     # 初始化擴展
     db.init_app(app)
@@ -72,7 +72,8 @@ def create_app(config_name='default'):
     def load_user(user_id):
         return get_user_from_id(user_id)
     
-    # 直接在應用創建時預載TDX資料，而不是等到第一個請求
-    load_tdx_data_on_startup(app)
+    # 只有在需要時才預載TDX資料
+    if load_tdx:
+        load_tdx_data_on_startup(app)
     
     return app
