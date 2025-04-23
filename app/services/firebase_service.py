@@ -381,18 +381,39 @@ class FirebaseService:
                     geometry_data = route_geometry
                 
                 # 從幾何數據中提取座標點
-                if geometry_data and 'coordinates' in geometry_data:
-                    coordinates = geometry_data['coordinates']
+                if geometry_data:
+                    coordinates = []
+                    
+                    # 檢查數據格式，處理 app/data/routes/ 中的路線數據格式
+                    if 'data' in geometry_data:
+                        # 路線格式: { "data": [ {"PositionLon": x, "PositionLat": y}, ... ] }
+                        for point in geometry_data['data']:
+                            if 'PositionLon' in point and 'PositionLat' in point:
+                                coordinates.append({
+                                    'lng': point['PositionLon'],
+                                    'lat': point['PositionLat']
+                                })
+                    elif 'coordinates' in geometry_data:
+                        # GeoJSON 格式: { "coordinates": [[lng, lat], [lng, lat], ...] }
+                        for coord in geometry_data['coordinates']:
+                            if len(coord) >= 2:
+                                coordinates.append({
+                                    'lng': coord[0],
+                                    'lat': coord[1]
+                                })
+                    
                     # 從路線上隨機選擇點
-                    for _ in range(count):
-                        # 隨機選擇一個座標點作為精靈位置
-                        if coordinates:
+                    if coordinates:
+                        print(f"從路線上的 {len(coordinates)} 個點中選擇精靈位置")
+                        for _ in range(count):
+                            # 隨機選擇一個座標點作為精靈位置
                             random_point_index = random.randint(0, len(coordinates) - 1)
-                            lng, lat = coordinates[random_point_index]
-                            positions.append({'lat': lat, 'lng': lng})
+                            position = coordinates[random_point_index]
+                            positions.append(position)
             
             # 如果無法從路線幾何資訊中獲取位置，使用預設位置
             if not positions:
+                print("警告: 無法從路線數據中獲取座標點，使用預設位置範圍")
                 # 使用硬編碼的預設位置範圍 (台北市範圍)
                 for _ in range(count):
                     lat = random.uniform(25.01, 25.10)  # 台北市緯度範圍
@@ -575,7 +596,7 @@ class FirebaseService:
                 print(f"從Firestore簡單查詢後過濾獲得了 {len(creatures)} 隻未捕捉的精靈")
                 return creatures
         except Exception as e:
-            print(f"獲取路線精靈失敗: {e}")
+            print(f"獲取路線精靊失敗: {e}")
             import traceback
             traceback.print_exc()
             
@@ -601,7 +622,7 @@ class FirebaseService:
                 'expires_at', '<=', current_timestamp
             ).get()
             
-            # 刪除已過期的精靈
+            # 刪除已過期的精靊
             count = 0
             for doc in expired_ref:
                 doc.reference.delete()

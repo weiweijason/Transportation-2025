@@ -3,8 +3,7 @@
  * 處理遊戲初始化、事件綁定和整體狀態管理
  */
 
-// 全局變數
-var gameMap;
+// 全局變數 - 使用bus-route-map.js中的地圖
 var arenaList = [];
 var currentCreatures = [];
 var capturedCreatures = 0;
@@ -16,8 +15,8 @@ var creatureUpdateInterval = 30000; // 30秒更新一次
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOM內容載入完成');
   
-  // 初始化地圖 (使用一個延遲確保DOM完全渲染)
-  setTimeout(initializeMap, 500);
+  // 不再初始化新地圖，而是檢查bus-route-map.js是否已初始化地圖
+  setTimeout(checkMapInitialized, 500);
   
   // 綁定更新位置按鈕
   document.getElementById('refreshLocationBtn').addEventListener('click', function() {
@@ -40,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('initMapBtn').addEventListener('click', function() {
     console.log('點擊了重新載入地圖按鈕');
     showLoading();
-    initializeMap();
+    checkMapInitialized();
     setTimeout(hideLoading, 1000);
   });
   
@@ -49,12 +48,12 @@ document.addEventListener('DOMContentLoaded', function() {
   if (mapTab) {
     mapTab.addEventListener('shown.bs.tab', function() {
       console.log('地圖頁籤被啟用');
-      if (gameMap) {
+      if (window.busMap) {
         console.log('調整地圖大小');
-        gameMap.invalidateSize();
+        window.busMap.invalidateSize();
       } else {
         console.log('地圖未初始化，嘗試初始化');
-        initializeMap();
+        checkMapInitialized();
       }
     });
   }
@@ -74,6 +73,28 @@ document.addEventListener('DOMContentLoaded', function() {
   // 初始化倒計時更新
   startUpdateCountdown();
 });
+
+// 檢查地圖是否已初始化
+function checkMapInitialized() {
+  console.log('檢查地圖初始化狀態...');
+  
+  // 等待bus-route-map.js初始化的全局地圖
+  if (window.busMap) {
+    console.log('地圖已存在，使用現有地圖');
+    // 直接使用全局busMap，不需要重新創建
+    
+    // 確保地圖大小正確
+    window.busMap.invalidateSize();
+    
+    // 獲取精靈數據
+    fetchRouteCreatures();
+  } else {
+    console.log('地圖尚未初始化，等待...');
+    // 如果地圖尚未初始化，等待並重試
+    showLoading();
+    setTimeout(checkMapInitialized, 1000);
+  }
+}
 
 // 開始精靈更新倒計時
 function startUpdateCountdown() {
@@ -98,36 +119,6 @@ function startUpdateCountdown() {
   }, 1000);
 }
 
-// 隨機展示測試標記
-function addTestMarker() {
-  if (!gameMap) return;
-  
-  // 創建超醒目測試標記（紅色大標記）
-  const testMarker = L.marker([25.033, 121.565], {
-    icon: L.divIcon({
-      html: `<div style="
-        width: 60px; 
-        height: 60px; 
-        background-color: red; 
-        border: 4px solid white;
-        border-radius: 50%; 
-        display: flex; 
-        justify-content: center; 
-        align-items: center; 
-        color: white; 
-        font-weight: bold;
-        font-size: 16px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.5);
-      ">測試</div>`,
-      className: 'test-marker',
-      iconSize: [60, 60],
-      iconAnchor: [30, 30]
-    })
-  }).addTo(gameMap);
-  
-  console.log('超醒目測試標記已添加');
-}
-
 // 獲取路線上的精靈
 function fetchRouteCreatures() {
   console.log('獲取路線上的精靈...');
@@ -145,16 +136,26 @@ function fetchRouteCreatures() {
       console.log('獲取到的精靈:', data);
       
       if (data.success) {
-        // 清除當前地圖上的精靈
-        if (window.creaturesLayer) {
-          window.creaturesLayer.clearLayers();
-        }
+        // 確保清除現有精靈標記
+        clearExistingCreatureMarkers();
         
         // 更新精靈列表
-        currentCreatures = data.creatures;
+        currentCreatures = data.creatures || [];
         
-        // 在地圖上顯示精靈
-        displayCreaturesOnMap(currentCreatures);
+        // 輸出精靈數量和資料結構，方便調試
+        console.log(`收到 ${currentCreatures.length} 隻精靈`);
+        if (currentCreatures.length > 0) {
+          console.log('第一個精靈資料:', JSON.stringify(currentCreatures[0]));
+        }
+        
+        // 只有在真的有精靈數據時才顯示
+        if (currentCreatures.length > 0) {
+          // 在地圖上顯示精靈 - 直接使用新的渲染方法
+          displayCreaturesDirectly(currentCreatures);
+        } else {
+          console.log('沒有可顯示的精靈');
+          showGameAlert('當前沒有可捕捉的精靈，請稍後再來！', 'info');
+        }
         
         // 重新開始倒計時
         startUpdateCountdown();
@@ -172,8 +173,141 @@ function fetchRouteCreatures() {
     });
 }
 
+// 清除地圖上現有的所有精靈標記
+function clearExistingCreatureMarkers() {
+  console.log('清除現有精靈標記');
+  
+  // 方法1：使用圖層清除
+  if (window.creaturesLayer) {
+    console.log('使用 creaturesLayer.clearLayers() 清除');
+    window.creaturesLayer.clearLayers();
+  }
+  
+  // 方法2：直接從地圖移除
+  if (window.busMap) {
+    console.log('使用 busMap.eachLayer 清除');
+    window.busMap.eachLayer(layer => {
+      if (layer instanceof L.Marker && layer._icon) {
+        const className = layer._icon.className || '';
+        if (className.includes('spirit-marker') || className.includes('creature-marker')) {
+          console.log('移除一個精靈標記');
+          window.busMap.removeLayer(layer);
+        }
+      }
+    });
+  }
+}
+
+// 直接在地圖上顯示精靈 (不依賴任何圖層)
+function displayCreaturesDirectly(creatures) {
+  if (!window.busMap) {
+    console.error('地圖未初始化，無法顯示精靈');
+    return;
+  }
+  
+  console.log(`嘗試直接在地圖上顯示 ${creatures.length} 隻精靈`);
+  
+  if (!creatures || creatures.length === 0) {
+    console.log('沒有精靈可以顯示');
+    return;
+  }
+  
+  // 為每個精靈創建小圓點標記
+  creatures.forEach((creature, index) => {
+    try {
+      // 獲取基本信息並輸出位置信息以便調試
+      console.log(`精靈 ${index+1} 位置資料:`, JSON.stringify(creature.position));
+      
+      const position = creature.position || { lat: 25.033 + (Math.random() * 0.02), lng: 121.565 + (Math.random() * 0.02) };
+      const name = creature.name || '未知精靈';
+      
+      // 輸出位置數據進行調試
+      console.log(`精靈 ${name} 的位置: lat=${position.lat}, lng=${position.lng}`);
+      
+      // 確保位置為有效數值
+      const lat = parseFloat(position.lat);
+      const lng = parseFloat(position.lng);
+      
+      if (isNaN(lat) || isNaN(lng)) {
+        console.error(`精靈 ${name} 位置無效:`, position);
+        return;
+      }
+      
+      // 獲取元素類型對應的顏色
+      let color = '#FF0000'; // 預設紅色
+      if (creature.element_type) {
+        switch(creature.element_type) {
+          case 'fire': color = '#e74c3c'; break;    // 火紅色
+          case 'water': color = '#3498db'; break;   // 水藍色
+          case 'earth': color = '#8e44ad'; break;   // 地紫色
+          case 'air': color = '#2ecc71'; break;     // 風綠色
+          case 'electric': color = '#f1c40f'; break; // 電黃色
+          default: color = '#95a5a6';              // 一般灰色
+        }
+      }
+      
+      // 創建小圓點標記
+      const circleMarker = L.circleMarker([lat, lng], {
+        radius: 20,                 // 小圓點大小
+        color: '#000000',           // 邊框顏色
+        fillColor: color,           // 填充顏色
+        fillOpacity: 0.9,           // 填充不透明度
+        weight: 3,                  // 邊框寬度
+        className: 'creature-circle-marker-' + index
+      });
+      
+      // 直接添加到地圖
+      circleMarker.addTo(window.busMap);
+      console.log(`精靈小圓點已添加: ${name} 在 [${lat}, ${lng}]`);
+      
+      // 保存標記引用
+      creature.circle_marker = circleMarker;
+      
+      // 添加點擊事件處理
+      circleMarker.on('click', function() {
+        console.log(`點擊了精靈 ${name}`);
+        showGameAlert(`你發現了 ${name}！點擊捕捉按鈕來捕捉它。`, 'success');
+        
+        // 顯示精靈信息
+        circleMarker.bindPopup(`
+          <div class="text-center py-2">
+            <h5 class="mb-2">${name}</h5>
+            <p class="mb-1"><span class="badge ${creature.element_type ? 'bg-'+creature.element_type : 'bg-secondary'}">${creature.element_type || '一般'}</span></p>
+            <button class="btn btn-success btn-sm w-100 catch-btn" onclick="catchCreature('${creature.id}')">
+              <i class="fas fa-hand-sparkles me-1"></i>捕捉
+            </button>
+          </div>
+        `).openPopup();
+      });
+      
+      // 將標記添加到全局window對象，以便調試
+      if (!window.creatureMarkers) {
+        window.creatureMarkers = [];
+      }
+      window.creatureMarkers.push(circleMarker);
+      
+      console.log(`成功創建精靈標記: ${name}`);
+    } catch (err) {
+      console.error(`創建精靈標記時發生錯誤:`, err);
+    }
+  });
+  
+  // 強制刷新地圖
+  window.busMap.invalidateSize();
+  
+  // 顯示提示
+  showGameAlert(`已在地圖上顯示 ${creatures.length} 隻精靈！尋找彩色小圓點。`, 'success', 8000);
+}
+
+// 添加一個明顯的測試標記，用於驗證地圖是否正常工作
+function addTestMarker() {
+  // 此功能已被禁用
+  console.log('測試標記功能已禁用');
+  return null;
+}
+
 // 顯示遊戲提示
-function showGameAlert(message, type = 'info') {
+function showGameAlert(message, type = 'info', duration = 5000) {
   const alertContainer = document.createElement('div');
   alertContainer.className = `alert alert-${type} alert-dismissible fade show game-alert position-fixed`;
   alertContainer.style.top = '80px';
@@ -198,8 +332,101 @@ function showGameAlert(message, type = 'info') {
   setTimeout(() => {
     const bsAlert = new bootstrap.Alert(alertContainer);
     bsAlert.close();
-  }, 5000);
+  }, duration);
 }
+
+// 捕捉精靈函數 - 為全局作用域添加此函數
+window.catchCreature = function(creatureId) {
+  console.log(`嘗試捕捉精靈，ID: ${creatureId}`);
+  
+  // 查找點擊的精靈
+  const creature = currentCreatures.find(c => c.id === creatureId);
+  if (!creature) {
+    console.error('找不到指定精靈:', creatureId);
+    showGameAlert('這個精靈已經消失了，請尋找其他精靈。', 'warning');
+    return;
+  }
+  
+  // 顯示加載中
+  showLoading();
+  
+  // 呼叫API捕捉精靈
+  fetch('/game/api/route-creatures/catch', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ creatureId: creatureId })
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('捕捉精靈失敗');
+    }
+    return response.json();
+  })
+  .then(data => {
+    hideLoading();
+    
+    if (data.success) {
+      console.log('捕捉成功:', data);
+      
+      // 從地圖上移除該精靈標記
+      if (creature.direct_marker) {
+        if (window.creaturesLayer) {
+          window.creaturesLayer.removeLayer(creature.direct_marker);
+        } else if (window.busMap) {
+          window.busMap.removeLayer(creature.direct_marker);
+        }
+        console.log(`已從地圖移除精靈 ${creature.name}`);
+      }
+      
+      // 從精靈列表中移除
+      const index = currentCreatures.findIndex(c => c.id === creatureId);
+      if (index !== -1) {
+        currentCreatures.splice(index, 1);
+      }
+      
+      // 更新計數
+      capturedCreatures++;
+      
+      // 顯示成功信息
+      showGameAlert(`恭喜！你成功捕捉到了 ${creature.name}！`, 'success');
+      
+      // 如果有捕捉成功模態框，更新內容並顯示
+      const catchSuccessModal = document.getElementById('catchSuccessModal');
+      if (catchSuccessModal) {
+        document.getElementById('catchSuccessMessage').textContent = data.message || `恭喜捕捉到 ${creature.name}!`;
+        
+        // 設置精靈圖片
+        const creatureImg = document.getElementById('caughtCreatureImage');
+        if (creatureImg) {
+          creatureImg.src = data.creature.image_url || 'https://placehold.co/300x300?text=' + creature.name;
+        }
+        
+        // 設置精靈屬性
+        const powerEl = document.getElementById('creature-power');
+        const typeEl = document.getElementById('creature-type');
+        const rarityEl = document.getElementById('creature-rarity');
+        
+        if (powerEl) powerEl.textContent = data.creature.power || creature.power || '??';
+        if (typeEl) typeEl.textContent = data.creature.element_type || creature.element_type || '一般';
+        if (rarityEl) rarityEl.textContent = data.creature.species || creature.species || '普通';
+        
+        // 顯示模態框
+        const bsModal = new bootstrap.Modal(catchSuccessModal);
+        bsModal.show();
+      }
+    } else {
+      console.error('捕捉失敗:', data);
+      showGameAlert(data.message || '捕捉精靈失敗，請稍後再試！', 'warning');
+    }
+  })
+  .catch(error => {
+    console.error('捕捉精靈錯誤:', error);
+    hideLoading();
+    showGameAlert('捕捉精靈失敗，請稍後再試！', 'danger');
+  });
+};
 
 // 初始化捕捉模態框動畫
 function initCatchModal() {
@@ -211,14 +438,30 @@ function initCatchModal() {
   }
 }
 
+// 動畫效果 - 閃爍
+function animateSparkles() {
+  const sparkles = document.querySelectorAll('.catch-sparkle');
+  sparkles.forEach((sparkle, index) => {
+    setTimeout(() => {
+      sparkle.classList.add('animate-sparkle');
+    }, index * 200);
+  });
+}
+
 // 顯示載入中遮罩
 function showLoading() {
-  document.getElementById('loadingOverlay').style.visibility = 'visible';
+  const overlay = document.getElementById('loadingOverlay');
+  if (overlay) {
+    overlay.style.visibility = 'visible';
+  }
 }
 
 // 隱藏載入中遮罩
 function hideLoading() {
-  document.getElementById('loadingOverlay').style.visibility = 'hidden';
+  const overlay = document.getElementById('loadingOverlay');
+  if (overlay) {
+    overlay.style.visibility = 'hidden';
+  }
 }
 
 // 當發生錯誤時，在控制台輸出錯誤信息

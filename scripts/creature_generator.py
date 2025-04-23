@@ -38,19 +38,34 @@ def load_route_geometry(route_id):
     if route_key and route_key in route_files:
         try:
             file_path = os.path.join(app_dir, route_files[route_key])
+            print(f"嘗試載入路線檔案: {file_path}")
+            
             with open(file_path, 'r', encoding='utf-8') as f:
                 route_data = json.load(f)
                 
-                # 嘗試解析幾何資訊
+                # 直接返回整個數據，交給 generate_route_creatures 處理
+                # 貓空路線使用 data 屬性，包含座標點數組
+                if isinstance(route_data, dict) and 'data' in route_data:
+                    print(f"找到 {len(route_data['data'])} 個座標點在路線 {route_key} 中")
+                    return route_data
+                
+                # 其他可能的格式
                 if isinstance(route_data, list) and len(route_data) > 0:
                     route_item = route_data[0]
                     if 'geometry' in route_item:
                         return route_item['geometry']
                     elif 'Geometry' in route_item:
                         return route_item['Geometry']
+                
+                # 如果沒有找到標準結構，但數據不為空，直接返回原始數據
+                if route_data:
+                    print(f"找到非標準格式的路線數據，直接傳遞")
+                    return route_data
+                    
         except Exception as e:
             print(f"載入路線幾何數據失敗 {file_path}: {e}")
     
+    print(f"沒有找到路線 {route_id} 的幾何數據")
     return None
 
 def generate_creatures_for_all_routes():

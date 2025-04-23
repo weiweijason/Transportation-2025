@@ -61,23 +61,24 @@ function displayCreaturesOnMap(creatures) {
     // 獲取表情符號
     let emoji = getCreatureEmoji(elementType);
     
-    // 創建醒目的圖標HTML（增加尺寸和邊框）
+    // 創建醒目的圖標HTML（增加尺寸和邊框，添加動畫和脈衝效果）
     const iconHtml = `
       <div style="
-        width: 50px;
-        height: 50px;
+        width: 60px;
+        height: 60px;
         border-radius: 50%;
         background-color: ${bgColor};
-        border: 3px solid white;
+        border: 5px solid yellow;
         display: flex;
         justify-content: center;
         align-items: center;
-        box-shadow: 0 0 10px rgba(0,0,0,0.7);
+        box-shadow: 0 0 20px rgba(255,255,0,0.8);
         color: white;
         font-weight: bold;
-        font-size: 22px;
+        font-size: 30px;
         position: relative;
-        z-index: 1000;
+        z-index: 2000;
+        animation: pulse 1.5s infinite;
       ">
         ${emoji}
         <div style="
@@ -87,14 +88,21 @@ function displayCreaturesOnMap(creatures) {
           transform: translateX(-50%);
           background-color: rgba(0, 0, 0, 0.8);
           color: white;
-          padding: 2px 8px;
+          padding: 3px 10px;
           border-radius: 10px;
-          font-size: 11px;
+          font-size: 12px;
           white-space: nowrap;
-          font-weight: normal;
-          border: 1px solid white;
+          font-weight: bold;
+          border: 2px solid yellow;
         ">${timeStr}</div>
       </div>
+      <style>
+        @keyframes pulse {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.1); }
+          100% { transform: scale(1); }
+        }
+      </style>
     `;
     
     try {
@@ -111,18 +119,23 @@ function displayCreaturesOnMap(creatures) {
       const icon = L.divIcon({
         html: iconHtml,
         className: 'spirit-marker spirit-marker-' + index,
-        iconSize: [50, 50],
-        iconAnchor: [25, 25]
+        iconSize: [60, 60],
+        iconAnchor: [30, 30]
       });
       
-      // 創建標記並設置高zIndex
+      // 創建標記並設置極高zIndex
       const marker = L.marker([lat, lng], { 
         icon: icon,
-        zIndexOffset: 1000 + index  // 確保高於其他地圖元素
+        zIndexOffset: 9000 + index  // 極高的z-index確保顯示在最上層
       });
       
-      // 直接添加到地圖
+      // 首先把精靈標記直接添加到地圖，確保可見
       marker.addTo(gameMap);
+      
+      // 再次確認已添加到地圖
+      if (window.creaturesLayer) {
+        window.creaturesLayer.addLayer(marker);
+      }
       
       // 添加彈出框
       marker.bindPopup(`
@@ -167,19 +180,43 @@ function displayCreaturesOnMap(creatures) {
     console.log(`平移到第一個精靈位置:`, pos);
     gameMap.setView([parseFloat(pos.lat), parseFloat(pos.lng)], 16);
     
-    // 額外確認：在標記附近添加一個大型指示器
-    L.circleMarker([parseFloat(pos.lat), parseFloat(pos.lng)], {
-      radius: 30,
+    // 添加大型閃爍圈圈指示器來標示精靈位置
+    const animatedCircle = L.circleMarker([parseFloat(pos.lat), parseFloat(pos.lng)], {
+      radius: 40,
       color: 'yellow',
-      fillColor: 'transparent',
+      fillColor: 'rgba(255, 255, 0, 0.3)',
       weight: 5,
       opacity: 0.8,
+      fillOpacity: 0.5,
       dashArray: '5, 10'
     }).addTo(gameMap);
+    
+    // 添加動畫效果
+    let growing = true;
+    let radius = 40;
+    const pulseAnimation = setInterval(() => {
+      if (growing) {
+        radius += 2;
+        if (radius >= 60) growing = false;
+      } else {
+        radius -= 2;
+        if (radius <= 40) growing = true;
+      }
+      animatedCircle.setRadius(radius);
+    }, 100);
+    
+    // 60秒後停止動畫
+    setTimeout(() => {
+      clearInterval(pulseAnimation);
+      gameMap.removeLayer(animatedCircle);
+    }, 60000);
   }
   
   // 強制刷新地圖
   gameMap.invalidateSize();
+  
+  // 向用戶顯示提示
+  showGameAlert('精靈已出現在地圖上！請尋找黃色閃爍的標記。', 'success', 5000);
   
   // 返回創建的標記
   return createdMarkers;

@@ -15,12 +15,13 @@ import {
     arenaLayer,
     routeColors,
     routeCoordinates,
-    routeCreatures,
-    MAX_CREATURES_PER_ROUTE,
-    CREATURE_LIFETIME,
-    SPAWN_INTERVAL,
-    SPAWN_CHANCE,
-    routeCreatureTypes
+    routeCreatures
+    // 移除與客戶端精靈生成相關的配置
+    // MAX_CREATURES_PER_ROUTE,
+    // CREATURE_LIFETIME,
+    // SPAWN_INTERVAL,
+    // SPAWN_CHANCE,
+    // routeCreatureTypes
 } from './modules/config.js';
 
 // 全局暴露必要的函數給 HTML，使其可以通過onclick等直接調用
@@ -41,16 +42,18 @@ window.showErrorMessage = showErrorMessage;
 window.routeLayer = routeLayer;
 window.stopsLayer = stopsLayer;
 window.busesLayer = busesLayer;
-window.creaturesLayer = creaturesLayer;
+window.creaturesLayer = creaturesLayer;  // 保留 creaturesLayer，但不生成精靈
 window.arenaLayer = arenaLayer;
 window.routeColors = routeColors;
 window.routeCoordinates = routeCoordinates;
+
+// 註解掉與客戶端精靈生成相關的全局變數
 window.routeCreatures = routeCreatures;
-window.MAX_CREATURES_PER_ROUTE = MAX_CREATURES_PER_ROUTE;
-window.CREATURE_LIFETIME = CREATURE_LIFETIME;
-window.SPAWN_INTERVAL = SPAWN_INTERVAL;
-window.SPAWN_CHANCE = SPAWN_CHANCE;
-window.routeCreatureTypes = routeCreatureTypes;
+// window.MAX_CREATURES_PER_ROUTE = MAX_CREATURES_PER_ROUTE;
+// window.CREATURE_LIFETIME = CREATURE_LIFETIME;
+// window.SPAWN_INTERVAL = SPAWN_INTERVAL;
+// window.SPAWN_CHANCE = SPAWN_CHANCE;
+// window.routeCreatureTypes = routeCreatureTypes;
 
 // 初始化應用
 function initApp() {
@@ -110,6 +113,12 @@ function initApp() {
                         // 載入所有站點和道館
                         loadAllBusStops();
                         
+                        // 初始化精靈圖層，但不生成精靈
+                        console.log('初始化精靈圖層，等待從Firebase加載精靈');
+                        if (!window.creaturesLayer) {
+                            window.creaturesLayer = L.layerGroup().addTo(window.busMap);
+                        }
+                                                
                         // 隱藏加載中提示
                         hideLoading();
                     } else if (checkCount >= maxChecks) {
