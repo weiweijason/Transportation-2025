@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, jsonify, request, current_app, flash, redirect, url_for, session, abort
 from flask_login import login_required, current_user
+from functools import wraps
 from datetime import datetime
 import random
 import json
@@ -13,6 +14,36 @@ from app.services.tdx_service import (get_cat_right_route, get_cat_left_route,
                                      get_cat_left_zhinan_route, get_cat_right_stops,
                                      get_cat_left_stops, get_cat_left_zhinan_stops,
                                      get_tdx_token, TDX_API_URL)
+
+# 認證裝飾器 - 同時支援 JWT 和 Session
+def jwt_or_session_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # 檢查是否有 JWT 令牌
+        auth_header = request.headers.get('Authorization')
+        if (auth_header and auth_header.startswith('Bearer ')):
+            token = auth_header.split(' ')[1]
+            try:
+                firebase_service = FirebaseService()
+                decoded_token = firebase_service.verify_id_token(token)
+                if decoded_token:
+                    # 令牌有效，可以繼續
+                    return f(*args, **kwargs)
+            except Exception as e:
+                print(f"JWT 驗證失敗: {e}")
+                # 如果 JWT 驗證失敗，繼續檢查 session
+        
+        # 檢查是否有 session
+        if 'user' in session:
+            return f(*args, **kwargs)
+        
+        # 如果兩種認證都失敗，返回 401 未授權
+        return jsonify({
+            'success': False,
+            'message': '請先登入'
+        }), 401
+    
+    return decorated_function
 
 # 創建藍圖 blueprint
 game_bp = Blueprint('game', __name__, url_prefix='/game')
@@ -420,7 +451,7 @@ def get_route_creatures(route_id):
             element_type=route.element_type,
             count=random.randint(1, 3)  # 隨機生成1-3隻精靈
         )
-        message = '路線上沒有精靈，已自動生成新精靈'
+        message = '路線上沒有精靈，已自動生成新精靊'
     else:
         message = f'找到 {len(creatures)} 隻路線精靈'
     
@@ -468,7 +499,7 @@ def get_all_route_creatures():
     firebase_service = FirebaseService()
     creatures = firebase_service.get_route_creatures()
     
-    # 移除所有已過期的精靈（這個操作也會在定時任務中執行，這裡作為額外保障）
+    # 移除所有已過期的精靊（這個操作也會在定時任務中執行，這裡作為額外保障）
     firebase_service.remove_expired_creatures()
     
     return jsonify({
@@ -476,6 +507,40 @@ def get_all_route_creatures():
         'message': f'找到 {len(creatures)} 隻路線精靈',
         'creatures': creatures
     })
+
+@game_bp.route('/api/route-creatures/get-from-csv', methods=['GET'])
+@jwt_or_session_required
+def get_route_creatures_from_csv():
+    """從CSV檔案獲取快取的精靈資料
+
+    Returns:
+        JSON: 所有可捕捉的精靈資料
+    """
+    try:
+        firebase_service = FirebaseService()
+        creatures = firebase_service.get_creatures_from_csv()
+        
+        if not creatures:
+            return jsonify({
+                'success': False,
+                'message': '目前沒有精靈資料。請稍後再試。',
+                'creatures': []
+            })
+        
+        return jsonify({
+            'success': True,
+            'message': f'成功從CSV檔案讀取 {len(creatures)} 隻精靈',
+            'creatures': creatures
+        })
+    except Exception as e:
+        print(f"獲取CSV精靈資料時發生錯誤: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'message': f'無法獲取精靈資料: {str(e)}',
+            'creatures': []
+        }), 500
 
 # 新增: 從巴士路線捕捉頁面
 @game_bp.route('/catch-on-route/<route_id>')

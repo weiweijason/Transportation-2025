@@ -8,8 +8,15 @@ import os
 import json
 import random
 import string
+import pandas as pd
+import time
+from datetime import datetime
+import logging
 
 from app.config.firebase_config import FIREBASE_CONFIG, FIREBASE_ADMIN_CONFIG
+
+# 確保data/creatures目錄存在
+os.makedirs('app/data/creatures', exist_ok=True)
 
 # 創建一個 Flask-Login 相容的用戶類別
 class FirebaseUser(UserMixin):
@@ -708,6 +715,130 @@ class FirebaseService:
                 'success': False,
                 'message': f'捕捉精靈時發生錯誤: {str(e)}'
             }
+
+    # 新增 - 將精靈資料緩存到CSV文件
+    def cache_creatures_to_csv(self):
+        """從Firebase抓取精靈資料並緩存到CSV文件
+        
+        Returns:
+            int: 緩存的精靈數量
+        """
+        try:
+            # 獲取所有未捕捉且未過期的精靈
+            creatures = self.get_route_creatures()
+            
+            if not creatures:
+                logging.warning("沒有可緩存的精靈，返回空數據")
+                # 創建一個空的DataFrame並保存，確保文件存在
+                empty_df = pd.DataFrame(columns=['id', 'name', 'species', 'element_type', 'level', 
+                                                'power', 'defense', 'hp', 'position_lat', 'position_lng', 
+                                                'bus_route_id', 'bus_route_name', 'image_url'])
+                csv_path = 'app/data/creatures/current_creatures.csv'
+                empty_df.to_csv(csv_path, index=False, encoding='utf-8')
+                return 0
+            
+            # 將精靈資料轉換為DataFrame格式
+            creatures_data = []
+            for creature in creatures:
+                # 提取位置資訊
+                position = creature.get('position', {})
+                lat = position.get('lat', 0)
+                lng = position.get('lng', 0)
+                
+                # 創建行數據
+                row = {
+                    'id': creature.get('id', ''),
+                    'name': creature.get('name', '未知精靈'),
+                    'species': creature.get('species', '一般種'),
+                    'element_type': creature.get('element_type', 'normal'),
+                    'level': creature.get('level', 1),
+                    'power': creature.get('power', 10),
+                    'defense': creature.get('defense', 10),
+                    'hp': creature.get('hp', 100),
+                    'position_lat': lat,
+                    'position_lng': lng,
+                    'bus_route_id': creature.get('bus_route_id', ''),
+                    'bus_route_name': creature.get('bus_route_name', ''),
+                    'image_url': creature.get('image_url', '')
+                }
+                creatures_data.append(row)
+            
+            # 創建DataFrame
+            df = pd.DataFrame(creatures_data)
+            
+            # 確保目錄存在
+            os.makedirs('app/data/creatures', exist_ok=True)
+            
+            # 設定CSV文件路徑
+            csv_path = 'app/data/creatures/current_creatures.csv'
+            
+            # 保存到CSV
+            df.to_csv(csv_path, index=False, encoding='utf-8')
+            
+            # 添加時間戳記錄，方便前端檢查更新時間
+            timestamp = int(time.time())
+            with open('app/data/creatures/last_update.txt', 'w') as f:
+                f.write(str(timestamp))
+            
+            logging.info(f"已將 {len(creatures)} 隻精靈緩存到 {csv_path}")
+            return len(creatures)
+        except Exception as e:
+            logging.error(f"緩存精靈資料到CSV失敗: {e}")
+            import traceback
+            traceback.print_exc()
+            return 0
+    
+    # 新增 - 從CSV讀取緩存的精靈數據
+    def get_creatures_from_csv(self):
+        """從CSV文件讀取緩存的精靈數據
+        
+        Returns:
+            list: 精靈列表，如果文件不存在則返回空列表
+        """
+        try:
+            csv_path = 'app/data/creatures/current_creatures.csv'
+            
+            # 檢查文件是否存在
+            if not os.path.exists(csv_path):
+                logging.warning(f"CSV文件不存在: {csv_path}")
+                return []
+            
+            # 讀取CSV文件
+            df = pd.read_csv(csv_path, encoding='utf-8')
+            
+            # 將DataFrame轉換為列表格式
+            creatures = []
+            for _, row in df.iterrows():
+                # 創建位置字典
+                position = {
+                    'lat': row['position_lat'],
+                    'lng': row['position_lng']
+                }
+                
+                # 創建精靈字典
+                creature = {
+                    'id': row['id'],
+                    'name': row['name'],
+                    'species': row['species'],
+                    'element_type': row['element_type'],
+                    'level': row['level'],
+                    'power': row['power'],
+                    'defense': row['defense'],
+                    'hp': row['hp'],
+                    'position': position,
+                    'bus_route_id': row['bus_route_id'],
+                    'bus_route_name': row['bus_route_name'],
+                    'image_url': row['image_url']
+                }
+                creatures.append(creature)
+            
+            logging.info(f"已從CSV讀取 {len(creatures)} 隻精靈")
+            return creatures
+        except Exception as e:
+            logging.error(f"從CSV讀取精靈資料失敗: {e}")
+            import traceback
+            traceback.print_exc()
+            return []
 
 # 創建裝飾器，用於路由保護
 def login_required(f):

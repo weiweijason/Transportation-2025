@@ -1,7 +1,10 @@
 import os
+import threading
+import time
 from app import create_app, db
 from flask_migrate import Migrate
 from flask import session, redirect, url_for, request
+from app.services.firebase_service import FirebaseService
 
 # 創建應用實例
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
@@ -47,5 +50,20 @@ def before_request():
         if path != '/' and not path.startswith('/auth/login') and not path.startswith('/auth/register'):
             return redirect(url_for('auth.login'))
 
+def start_periodic_cache():
+    def periodic_task():
+        firebase_service = FirebaseService()
+        while True:
+            print("[INFO] 正在從 Firebase 獲取精靈數據並更新到 CSV...")
+            firebase_service.cache_creatures_to_csv()
+            time.sleep(30)  # 每 30 秒執行一次
+
+    thread = threading.Thread(target=periodic_task, daemon=True)
+    thread.start()
+
 if __name__ == '__main__':
+    # 啟動定時任務
+    start_periodic_cache()
+
+    # 啟動伺服器
     app.run(debug=True)

@@ -9,7 +9,10 @@ var currentCreatures = [];
 var capturedCreatures = 0;
 var updateTimer = 30;
 var updateInterval;
-var creatureUpdateInterval = 30000; // 30秒更新一次
+var dataSourceToggle = true; // true 表示從Firebase獲取，false 表示從CSV獲取
+var creatureUpdateInterval = 15000; // 15秒更新一次，實現交替更新
+var firebaseListener = null; // 用於存儲Firebase監聽器的引用
+var lastDataSourceUpdateTime = 0; // 上次資料來源更新時間
 
 // DOM載入完成後初始化遊戲
 document.addEventListener('DOMContentLoaded', function() {
@@ -72,27 +75,35 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // 初始化倒計時更新
   startUpdateCountdown();
+  
+  // 頁面關閉時清除Firebase監聽器
+  window.addEventListener('beforeunload', function() {
+    if (firebaseListener) {
+      console.log('清除Firebase監聽器');
+      firebaseListener();
+      firebaseListener = null;
+    }
+  });
 });
 
 // 檢查地圖是否已初始化
-function checkMapInitialized() {
+function checkMapInitialized(callback) {
   console.log('檢查地圖初始化狀態...');
-  
+
   // 等待bus-route-map.js初始化的全局地圖
   if (window.busMap) {
     console.log('地圖已存在，使用現有地圖');
-    // 直接使用全局busMap，不需要重新創建
-    
     // 確保地圖大小正確
     window.busMap.invalidateSize();
-    
-    // 獲取精靈數據
-    fetchRouteCreatures();
+
+    // 如果提供了回調函數，執行它
+    if (typeof callback === 'function') {
+      callback();
+    }
   } else {
     console.log('地圖尚未初始化，等待...');
     // 如果地圖尚未初始化，等待並重試
-    showLoading();
-    setTimeout(checkMapInitialized, 1000);
+    setTimeout(() => checkMapInitialized(callback), 1000);
   }
 }
 
@@ -112,12 +123,56 @@ function startUpdateCountdown() {
     
     if (updateTimer <= 0) {
       // 時間到，更新精靈
-      fetchRouteCreatures();
+      fetchCreatures();
       // 重置計時器
       updateTimer = 30;
     }
   }, 1000);
 }
+
+// 修改更新邏輯，統一從CSV獲取資料
+function fetchCreatures() {
+  console.log('從CSV獲取精靈資料...');
+  showLoading();
+
+  // 調用API從CSV獲取精靈資料
+  fetch('/game/api/route-creatures/get-from-csv')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('從CSV獲取精靈失敗');
+      }
+      return response.json();
+    })
+    .then(data => {
+      hideLoading();
+      console.log('從CSV獲取到的精靈:', data);
+
+      if (data.success) {
+        // 清除現有精靊標記
+        clearExistingCreatureMarkers();
+
+        // 更新精靈列表
+        currentCreatures = data.creatures || [];
+
+        // 在地圖上顯示精靈
+        displayCreaturesDirectly(currentCreatures);
+
+        // 顯示提示
+        showGameAlert(`已從CSV更新 ${currentCreatures.length} 隻精靈！`, 'info', 3000);
+      } else {
+        console.error('從CSV獲取精靈返回失敗:', data.message);
+        showGameAlert(data.message || '獲取精靈資訊失敗!', 'warning');
+      }
+    })
+    .catch(error => {
+      hideLoading();
+      console.error('從CSV獲取精靈錯誤:', error);
+      showGameAlert('無法讀取CSV資料，請稍後再試！', 'danger');
+    });
+}
+
+// 初始化時調用fetchCreatures
+checkMapInitialized(fetchCreatures);
 
 // 獲取路線上的精靈
 function fetchRouteCreatures() {
@@ -142,7 +197,7 @@ function fetchRouteCreatures() {
         // 更新精靈列表
         currentCreatures = data.creatures || [];
         
-        // 輸出精靈數量和資料結構，方便調試
+        // 輸出精靊數量和資料結構，方便調試
         console.log(`收到 ${currentCreatures.length} 隻精靈`);
         if (currentCreatures.length > 0) {
           console.log('第一個精靈資料:', JSON.stringify(currentCreatures[0]));
@@ -152,6 +207,9 @@ function fetchRouteCreatures() {
         if (currentCreatures.length > 0) {
           // 在地圖上顯示精靈 - 直接使用新的渲染方法
           displayCreaturesDirectly(currentCreatures);
+          
+          // 設置Firebase監聽，監聽精靈刪除事件
+          setupFirebaseListener();
         } else {
           console.log('沒有可顯示的精靈');
           showGameAlert('當前沒有可捕捉的精靈，請稍後再來！', 'info');
@@ -161,7 +219,7 @@ function fetchRouteCreatures() {
         startUpdateCountdown();
       } else {
         console.error('獲取精靈返回失敗:', data.message);
-        showGameAlert(data.message || '獲取精靈資訊失敗!', 'warning');
+        showGameAlert(data.message || '獲取精靊資訊失敗!', 'warning');
       }
     })
     .catch(error => {
@@ -175,26 +233,43 @@ function fetchRouteCreatures() {
 
 // 清除地圖上現有的所有精靈標記
 function clearExistingCreatureMarkers() {
-  console.log('清除現有精靈標記');
-  
-  // 方法1：使用圖層清除
+  console.log('清除地圖上所有現有的精靈標記');
+
+  // 如果有專門的圖層用於存放精靈標記，清空該圖層
   if (window.creaturesLayer) {
-    console.log('使用 creaturesLayer.clearLayers() 清除');
+    console.log('清空 creaturesLayer 圖層');
     window.creaturesLayer.clearLayers();
   }
-  
-  // 方法2：直接從地圖移除
+
+  // 如果沒有專門的圖層，遍歷地圖上的所有圖層，移除精靈標記
   if (window.busMap) {
-    console.log('使用 busMap.eachLayer 清除');
+    console.log('遍歷地圖圖層，移除精靈標記');
+    const layersToRemove = [];
     window.busMap.eachLayer(layer => {
       if (layer instanceof L.Marker && layer._icon) {
         const className = layer._icon.className || '';
-        if (className.includes('spirit-marker') || className.includes('creature-marker')) {
-          console.log('移除一個精靈標記');
-          window.busMap.removeLayer(layer);
+        if (className.includes('creature-circle-marker')) {
+          console.log('標記為移除的精靈標記');
+          layersToRemove.push(layer);
         }
       }
     });
+
+    // 從地圖中移除標記
+    layersToRemove.forEach(layer => {
+      window.busMap.removeLayer(layer);
+    });
+  }
+
+  // 清空全局精靈標記數組
+  if (window.creatureMarkers) {
+    console.log('清空全局精靊標記數組');
+    window.creatureMarkers.forEach(marker => {
+      if (window.busMap && window.busMap.hasLayer(marker)) {
+        window.busMap.removeLayer(marker);
+      }
+    });
+    window.creatureMarkers = [];
   }
 }
 
@@ -246,13 +321,13 @@ function displayCreaturesDirectly(creatures) {
         }
       }
       
-      // 創建小圓點標記
+      // 創建小圓點標記 - 修改為更小的圓點
       const circleMarker = L.circleMarker([lat, lng], {
-        radius: 20,                 // 小圓點大小
+        radius: 10,                 // 小圓點大小從20減為10
         color: '#000000',           // 邊框顏色
         fillColor: color,           // 填充顏色
         fillOpacity: 0.9,           // 填充不透明度
-        weight: 3,                  // 邊框寬度
+        weight: 2,                  // 邊框寬度從3減為2
         className: 'creature-circle-marker-' + index
       });
       
@@ -260,8 +335,9 @@ function displayCreaturesDirectly(creatures) {
       circleMarker.addTo(window.busMap);
       console.log(`精靈小圓點已添加: ${name} 在 [${lat}, ${lng}]`);
       
-      // 保存標記引用
+      // 保存標記引用 - 同時保存到circle_marker和direct_marker屬性中
       creature.circle_marker = circleMarker;
+      creature.direct_marker = circleMarker; // 確保在捕獲時能夠正確找到
       
       // 添加點擊事件處理
       circleMarker.on('click', function() {
