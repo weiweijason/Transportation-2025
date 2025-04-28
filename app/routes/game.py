@@ -495,7 +495,7 @@ def get_all_route_creatures():
     
     此API提供給前端用於顯示地圖上所有路線的精靈
     """
-    # 使用Firebase服務獲取所有精靈
+    # 使用Firebase服務獲取所有精靊
     firebase_service = FirebaseService()
     creatures = firebase_service.get_route_creatures()
     
@@ -576,3 +576,59 @@ def get_user_creatures():
     """獲取當前用戶的所有精靈"""
     creatures = Creature.get_by_user(current_user.id)
     return jsonify([creature.to_dict() for creature in creatures])
+
+@game_bp.route('/api/arena/cached-levels')
+def get_cached_arena_levels():
+    """獲取緩存的道館等級資料"""
+    from app.models.arena import get_all_arenas_from_cache
+    
+    try:
+        # 從緩存獲取所有道館資料
+        arenas = get_all_arenas_from_cache()
+        
+        # 將數據格式化為適合前端使用的格式
+        formatted_arenas = {}
+        
+        # 依照道館名稱進行分類，確保同名道館只出現一次
+        arena_by_name = {}
+        for arena in arenas:
+            arena_name = arena.get('name')
+            
+            # 直接使用原始名稱，不進行任何映射
+            if arena_name in arena_by_name:
+                # 如果同名道館已存在，則保留等級較高的那個
+                if arena.get('level', 1) > arena_by_name[arena_name].get('level', 1):
+                    arena_by_name[arena_name] = arena
+                    print(f"[道館API] 更新道館 {arena_name} 等級為 {arena.get('level', 1)}")
+            else:
+                arena_by_name[arena_name] = arena
+                print(f"[道館API] 添加道館 {arena_name} 等級為 {arena.get('level', 1)}")
+        
+        # 將分類後的道館資料轉換為前端所需格式
+        for arena_name, arena in arena_by_name.items():
+            formatted_arenas[arena.get('id')] = {
+                'id': arena.get('id'),
+                'name': arena.get('name'),
+                'level': arena.get('level', 1),
+                'routes': arena.get('routes', []),
+                'position': arena.get('position'),
+                'updatedAt': arena.get('updatedAt')
+            }
+        
+        print(f"[道館API] 從緩存讀取了 {len(arenas)} 個道館，合併後剩餘 {len(formatted_arenas)} 個道館")
+        
+        return jsonify({
+            'success': True,
+            'message': f'成功獲取 {len(formatted_arenas)} 個道館等級資料',
+            'arenas': formatted_arenas
+        })
+    except Exception as e:
+        current_app.logger.error(f"獲取緩存道館等級時出錯: {e}")
+        print(f"[道館API錯誤] 獲取緩存道館等級時出錯: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'message': f'獲取道館等級失敗: {str(e)}',
+            'arenas': {}
+        }), 500

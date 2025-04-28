@@ -1,8 +1,406 @@
 import time
 from app.services.firebase_service import FirebaseService
+from app.services.tdx_service import TdxService
 from datetime import datetime
 import uuid
 from app import db as app_db
+import json
+import os
+import threading
+import logging
+import pandas as pd
+
+# 設置日誌記錄
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# 緩存檔案路徑
+ARENA_CACHE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'arenas')
+ARENA_CACHE_FILE = os.path.join(ARENA_CACHE_DIR, 'arena_levels.json')
+
+# 全局道館等級緩存
+arena_levels_cache = {}
+cache_lock = threading.Lock()
+
+# 特殊處理的道館站點映射 - 解決命名不一致問題
+SPECIAL_STOP_MAPPING = {
+    "圓山一": "圓山",  # 圓山一道館和圓山道館視為同一道館
+    "圓山": "圓山",
+    "貓空纜車站": "貓空纜車總站",  # 確保貓空纜車站在所有路線中使用相同名稱
+    "貓纜指南宮站": "貓纜指南宮總站",
+    "貓空站(小天空步道)": "貓空站",  # 貓空站(小天空步道)統一命名
+    "貓空壺穴站": "貓空站"  # 貓空壺穴站也視為貓空站
+}
+
+# 手動設定為三級道館的站點
+FORCE_LEVEL_THREE_STOPS = [
+    "貓空纜車站",
+    "貓空纜車總站"
+]
+
+# 緩存相關函數
+def load_arena_cache():
+    """從緩存檔案載入道館等級資料"""
+    global arena_levels_cache
+    
+    try:
+        if os.path.exists(ARENA_CACHE_FILE):
+            with open(ARENA_CACHE_FILE, 'r', encoding='utf-8') as f:
+                with cache_lock:
+                    arena_levels_cache = json.load(f)
+                logger.info(f"已從緩存檔案載入 {len(arena_levels_cache)} 個道館等級資料")
+                print(f"[道館緩存] 已從緩存檔案載入 {len(arena_levels_cache)} 個道館等級資料")
+        else:
+            logger.info("緩存檔案不存在，將創建新緩存")
+            print("[道館緩存] 緩存檔案不存在，將創建新緩存")
+            update_arena_cache()
+    except Exception as e:
+        logger.error(f"載入道館等級緩存時發生錯誤: {e}")
+        print(f"[道館緩存錯誤] 載入道館等級緩存時發生錯誤: {e}")
+        arena_levels_cache = {}
+
+def update_arena_cache_from_tdx():
+    """從TDX獲取站點資料並更新道館等級緩存，使用pandas進行數據處理"""
+    global arena_levels_cache
+    
+    try:
+        # 確保緩存目錄存在
+        os.makedirs(ARENA_CACHE_DIR, exist_ok=True)
+        
+        # 獲取TDX服務實例
+        tdx_service = TdxService()
+        
+        # 獲取各路線站點資料
+        routes_info = [
+            {'key': 'cat-right', 'name': '貓空右線'},
+            {'key': 'cat-left', 'name': '貓空左線(動物園)'},
+            {'key': 'cat-left-zhinan', 'name': '貓空左線(指南宮)'}
+        ]
+        
+        print(f"[道館數據處理] 開始從TDX獲取{len(routes_info)}條路線的站點資料")
+        
+        # 創建pandas DataFrame來存儲和處理站點數據
+        all_stops_df = pd.DataFrame(columns=['StopID', 'StopName', 'Route', 'PositionLat', 'PositionLon'])
+        
+        # 處理每條路線的站點
+        for route_info in routes_info:
+            route_key = route_info['key']
+            route_name = route_info['name']
+            
+            print(f"[道館數據處理] 正在處理路線: {route_name}")
+            
+            # 從TDX獲取站點資料
+            stops_data = tdx_service.get_route_stops(route_key)
+            
+            if not stops_data:
+                logger.warning(f"無法從TDX獲取路線 {route_name} 的站點資料")
+                print(f"[道館數據處理] 警告: 無法從TDX獲取路線 {route_name} 的站點資料")
+                continue
+                
+            logger.info(f"從TDX獲取了 {route_name} 的 {len(stops_data)} 個站點資料")
+            print(f"[道館數據處理] 從TDX獲取了 {route_name} 的 {len(stops_data)} 個站點資料")
+            
+            # 處理每個站點，添加到DataFrame
+            for stop in stops_data:
+                stop_id = stop.get('StopID')
+                stop_name = stop.get('StopName', {}).get('Zh_tw', '未知站點')
+                
+                # 特殊站點處理 - 修正名稱不一致問題
+                if stop_name in SPECIAL_STOP_MAPPING:
+                    print(f"[道館數據處理] 特殊站點映射: {stop_name} -> {SPECIAL_STOP_MAPPING[stop_name]}")
+                    stop_name = SPECIAL_STOP_MAPPING[stop_name]
+                
+                # 取得站點坐標
+                position_lat = None
+                position_lon = None
+                if 'StopPosition' in stop:
+                    position_lat = stop['StopPosition'].get('PositionLat')
+                    position_lon = stop['StopPosition'].get('PositionLon')
+                
+                if not stop_id or not position_lat or not position_lon:
+                    continue
+                
+                # 添加到DataFrame
+                new_row = {
+                    'StopID': stop_id,
+                    'StopName': stop_name,
+                    'Route': route_name,
+                    'PositionLat': position_lat,
+                    'PositionLon': position_lon
+                }
+                all_stops_df = pd.concat([all_stops_df, pd.DataFrame([new_row])], ignore_index=True)
+        
+        # 計算每個站點經過的路線數量
+        print(f"[道館數據處理] 開始分析站點和路線關係")
+        stops_routes_count = all_stops_df.groupby(['StopName']).agg({
+            'StopID': 'first',  # 取第一個站點ID
+            'Route': lambda x: list(set(x)),  # 去重後的路線列表
+            'PositionLat': 'first',  # 取第一個座標值
+            'PositionLon': 'first'   # 取第一個座標值
+        }).reset_index()
+        
+        # 添加路線數量和道館等級
+        stops_routes_count['RoutesCount'] = stops_routes_count['Route'].apply(len)
+        stops_routes_count['Level'] = stops_routes_count['RoutesCount']
+        
+        # 手動處理特殊站點的等級
+        for i, row in stops_routes_count.iterrows():
+            stop_name = row['StopName']
+            # 特定站點強制設置為三級道館
+            if stop_name in FORCE_LEVEL_THREE_STOPS:
+                print(f"[道館數據處理] 手動設置 {stop_name} 為三級道館")
+                # 確保包含所有三條路線
+                all_routes = ['貓空右線', '貓空左線(動物園)', '貓空左線(指南宮)']
+                # 更新Level和Routes
+                stops_routes_count.at[i, 'Level'] = 3
+                stops_routes_count.at[i, 'Route'] = all_routes
+                stops_routes_count.at[i, 'RoutesCount'] = 3
+        
+        # 創建道館數據
+        arenas_data = {}
+        
+        print(f"[道館數據處理] 開始創建道館數據，共有{len(stops_routes_count)}個站點")
+        
+        # 檢查是否有現有數據
+        existing_data = {}
+        if os.path.exists(ARENA_CACHE_FILE):
+            try:
+                with open(ARENA_CACHE_FILE, 'r', encoding='utf-8') as f:
+                    existing_data = json.load(f)
+                print(f"[道館數據處理] 載入了{len(existing_data)}個現有道館數據")
+            except Exception as e:
+                logger.error(f"讀取現有道館數據時出錯: {e}")
+                print(f"[道館數據處理] 警告: 讀取現有道館數據時出錯: {e}")
+        
+        # 統計
+        new_arenas_count = 0
+        updated_arenas_count = 0
+        unchanged_arenas_count = 0
+        
+        # 根據分析結果創建道館數據
+        for _, row in stops_routes_count.iterrows():
+            stop_id = row['StopID']
+            stop_name = row['StopName']
+            routes = row['Route']
+            position = [row['PositionLat'], row['PositionLon']]
+            level = row['Level']
+            
+            # 創建道館ID和名稱
+            arena_id = f"arena-{stop_id}"
+            arena_name = f"{stop_name}道館"
+            
+            # 檢查是否已存在此道館 (按名稱查找)
+            existing_arena = None
+            existing_arena_id = None
+            
+            # 首先尋找完全相同名稱的道館
+            for ex_id, ex_arena in existing_data.items():
+                if ex_arena.get('name') == arena_name:
+                    existing_arena = ex_arena
+                    existing_arena_id = ex_id
+                    break
+            
+            # 如果找不到完全相同名稱的，檢查是否有類似的名稱
+            if not existing_arena:
+                base_name = stop_name.replace("貓空站(小天空步道)", "貓空站").replace("貓空壺穴站", "貓空站")
+                base_name = base_name.replace("圓山一", "圓山").replace("貓空纜車站", "貓空纜車總站")
+                
+                for ex_id, ex_arena in existing_data.items():
+                    ex_name = ex_arena.get('name', '').replace("道館", "")
+                    if base_name in ex_name or ex_name in base_name:
+                        print(f"[道館數據處理] 找到類似名稱道館: {arena_name} ~ {ex_arena.get('name')}")
+                        existing_arena = ex_arena
+                        existing_arena_id = ex_id
+                        break
+            
+            if existing_arena:
+                # 道館已存在，更新路線和等級
+                existing_routes = set(existing_arena.get('routes', []))
+                new_routes = set(routes)
+                combined_routes = list(existing_routes.union(new_routes))
+                
+                # 計算新等級 - 根據經過的路線數量
+                new_level = len(combined_routes) if combined_routes else 1
+                
+                # 特殊站點強制設定等級
+                if stop_name in FORCE_LEVEL_THREE_STOPS:
+                    new_level = 3
+                    combined_routes = ['貓空右線', '貓空左線(動物園)', '貓空左線(指南宮)']
+                
+                # 檢查是否需要更新
+                if new_level != existing_arena.get('level', 1) or set(combined_routes) != existing_routes:
+                    # 創建更新後的道館資料，保留現有的戰鬥相關數據
+                    arena_data = {
+                        'id': existing_arena_id,
+                        'name': arena_name,
+                        'position': position,
+                        'stopIds': [stop_id] + existing_arena.get('stopIds', [])[1:] if existing_arena.get('stopIds') else [stop_id],
+                        'stopName': stop_name,
+                        'routes': combined_routes,
+                        'level': new_level,
+                        'owner': existing_arena.get('owner'),
+                        'ownerPlayerId': existing_arena.get('ownerPlayerId'),
+                        'ownerCreature': existing_arena.get('ownerCreature'),
+                        'challengers': existing_arena.get('challengers', []),
+                        'updatedAt': int(time.time() * 1000)
+                    }
+                    arenas_data[existing_arena_id] = arena_data
+                    updated_arenas_count += 1
+                    print(f"[道館數據處理] 更新道館: {arena_name} (ID: {existing_arena_id}), 路線數: {new_level}, 路線: {combined_routes}")
+                else:
+                    # 無需更新，保留原有數據
+                    arenas_data[existing_arena_id] = existing_arena
+                    unchanged_arenas_count += 1
+            else:
+                # 創建新道館資料
+                arena_data = {
+                    'id': arena_id,
+                    'name': arena_name,
+                    'position': position,
+                    'stopIds': [stop_id],
+                    'stopName': stop_name,
+                    'routes': routes,
+                    'level': level,
+                    'owner': None,
+                    'ownerPlayerId': None,
+                    'ownerCreature': None,
+                    'challengers': [],
+                    'updatedAt': int(time.time() * 1000)
+                }
+                arenas_data[arena_id] = arena_data
+                new_arenas_count += 1
+                print(f"[道館數據處理] 新建道館: {arena_name} (ID: {arena_id}), 路線數: {level}, 路線: {routes}")
+        
+        # 報告處理結果
+        print(f"[道館數據處理] 處理完成: 新增{new_arenas_count}個道館, 更新{updated_arenas_count}個道館, 保留{unchanged_arenas_count}個道館")
+        logger.info(f"從TDX共處理了 {len(arenas_data)} 個道館資料")
+        print(f"[道館數據處理] 從TDX共處理了 {len(arenas_data)} 個道館資料")
+        
+        # 更新緩存
+        with cache_lock:
+            arena_levels_cache = arenas_data
+        
+        # 保存到緩存檔案
+        with open(ARENA_CACHE_FILE, 'w', encoding='utf-8') as f:
+            json.dump(arenas_data, f, ensure_ascii=False, indent=2)
+            
+        logger.info(f"成功更新道館等級緩存，共 {len(arenas_data)} 筆資料")
+        print(f"[道館數據處理] 成功更新道館等級緩存，共 {len(arenas_data)} 筆資料")
+        return True
+    except Exception as e:
+        logger.error(f"從TDX更新道館等級緩存時發生錯誤: {e}")
+        print(f"[道館數據處理錯誤] 從TDX更新道館等級緩存時發生錯誤: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+def update_arena_cache():
+    """更新道館等級緩存檔案"""
+    # 優先使用 TDX 作為資料來源
+    success = update_arena_cache_from_tdx()
+    
+    # 如果從 TDX 更新失敗且 Firebase 可用，則嘗試從 Firebase 更新
+    if not success:
+        try:
+            # 確保緩存目錄存在
+            os.makedirs(ARENA_CACHE_DIR, exist_ok=True)
+            
+            # 獲取所有道館資料
+            firebase_service = FirebaseService()
+            arenas_data = {}
+            
+            # 從 Firestore 獲取
+            arenas_ref = firebase_service.firestore_db.collection('arenas').get()
+            if arenas_ref:
+                for arena_doc in arenas_ref:
+                    arena_data = arena_doc.to_dict()
+                    arena_id = arena_doc.id
+                    # 確保 ID 被包含
+                    arena_data['id'] = arena_id
+                    # 計算等級
+                    if 'routes' in arena_data:
+                        arena_data['level'] = len(arena_data['routes']) if arena_data['routes'] else 1
+                    else:
+                        arena_data['level'] = 1
+                    arenas_data[arena_id] = arena_data
+            
+            logger.info(f"從 Firebase 獲取了 {len(arenas_data)} 個道館資料（作為備用）")
+            
+            # 更新緩存
+            with cache_lock:
+                arena_levels_cache = arenas_data
+                
+            # 保存到緩存檔案
+            with open(ARENA_CACHE_FILE, 'w', encoding='utf-8') as f:
+                json.dump(arenas_data, f, ensure_ascii=False, indent=2)
+                
+            logger.info(f"成功從Firebase更新道館等級緩存，共 {len(arenas_data)} 筆資料")
+            return True
+        except Exception as e:
+            logger.error(f"更新道館等級緩存時發生錯誤: {e}")
+            return False
+    
+    return success
+
+def get_arena_level_from_cache(arena_id):
+    """從緩存中獲取道館等級"""
+    with cache_lock:
+        if arena_id in arena_levels_cache:
+            return arena_levels_cache[arena_id].get('level', 1)
+    return 1  # 默認等級
+
+def get_arena_from_cache(arena_id=None, arena_name=None):
+    """從緩存中獲取道館資料，可以通過ID或名稱獲取"""
+    with cache_lock:
+        # 使用ID搜尋
+        if arena_id and arena_id in arena_levels_cache:
+            return arena_levels_cache[arena_id]
+        
+        # 使用名稱搜尋
+        if arena_name:
+            for arena_id, arena_data in arena_levels_cache.items():
+                if arena_data.get('name') == arena_name:
+                    return arena_data
+    
+    return None
+
+def get_all_arenas_from_cache():
+    """從緩存中獲取所有道館資料"""
+    with cache_lock:
+        return list(arena_levels_cache.values())
+
+# 在模組載入時初始化緩存
+load_arena_cache()
+
+# 定期更新緩存的後台任務
+def start_cache_update_scheduler():
+    """啟動緩存定期更新的排程器"""
+    import threading
+    import time
+    
+    def update_cache_periodically():
+        while True:
+            try:
+                logger.info("開始定期更新道館等級緩存...")
+                update_arena_cache()
+                # 每小時更新一次
+                time.sleep(3600)
+            except Exception as e:
+                logger.error(f"定期更新道館緩存時發生錯誤: {e}")
+                # 發生錯誤時，等待10分鐘後重試
+                time.sleep(600)
+    
+    # 創建後台執行緒
+    update_thread = threading.Thread(
+        target=update_cache_periodically, 
+        daemon=True,
+        name="ArenaLevelCacheUpdater"
+    )
+    update_thread.start()
+    logger.info("道館等級緩存自動更新排程器已啟動")
+
+# 啟動緩存更新排程器
+start_cache_update_scheduler()
 
 class FirebaseArena:
     """
@@ -53,6 +451,7 @@ class FirebaseArena:
             'position': self.position,
             'stopIds': self.stop_ids,
             'routes': self.routes,
+            'level': self.calculate_level(),  # 確保在每次轉換為字典時計算正確的等級
             'owner': self.owner,
             'ownerPlayerId': self.owner_player_id,
             'ownerCreature': self.owner_creature,
@@ -135,14 +534,14 @@ class FirebaseArena:
     
     @staticmethod
     def create_arena_if_not_exists(name, position, stop_ids=None, routes=None):
-        """創建擂台如果不存在，否則返回現有擂台"""
+        """創建擂台如果不存在，否則返回現有擂台，並根據路線更新道館等級"""
         # 首先嘗試從Firestore獲取
         arena = FirebaseArena.get_by_name_firestore(name)
-        
+
         # 如果Firestore中不存在，嘗試從Realtime Database獲取
         if arena is None:
             arena = FirebaseArena.get_by_name(name)
-        
+
         # 如果仍然不存在，創建新的擂台
         if arena is None:
             arena = FirebaseArena(
@@ -153,9 +552,19 @@ class FirebaseArena:
             )
             # 保存到兩個數據庫
             arena.save_to_firestore()
+        else:
+            # 如果擂台已存在，檢查路線是否為新路線
+            existing_routes = set(arena.routes) if arena.routes else set()
+            new_routes = set(routes) if routes else set()
             
+            # 如果有新路線，添加新路線
+            if not new_routes.issubset(existing_routes) and new_routes:
+                arena.routes = list(existing_routes.union(new_routes))
+                # 保存到數據庫
+                arena.save_to_firestore()
+
         return arena
-    
+
     def challenge(self, challenger_id, challenger_name, challenger_power, challenger_username):
         """
         挑戰擂台
@@ -189,7 +598,7 @@ class FirebaseArena:
             return True, "成功佔領無人擂台"
             
         # 計算勝率 - 挑戰者力量 / (挑戰者力量 + 防守者力量)
-        win_chance = challenger_power / (challenger_power + self.owner_creature.get('power', 0))
+        win_chance = challenger_power / (挑戰者力量 + self.owner_creature.get('power', 0))
         
         # 決定勝負
         import random
@@ -253,7 +662,7 @@ class FirebaseArena:
             return True, "成功佔領無人擂台"
             
         # 計算勝率 - 挑戰者力量 / (挑戰者力量 + 防守者力量)
-        win_chance = challenger_power / (challenger_power + self.owner_creature.get('power', 0))
+        win_chance = challenger_power / (挑戰者力量 + self.owner_creature.get('power', 0))
         
         # 決定勝負
         import random
@@ -281,6 +690,17 @@ class FirebaseArena:
         self.save_to_firestore()
         
         return is_win, "挑戰成功" if is_win else "挑戰失敗"
+
+    def calculate_level(self):
+        """根據經過的路線數量計算道館等級"""
+        if not self.routes:
+            return 1  # 如果沒有路線，默認為等級1
+        return len(self.routes)  # 道館等級為路線數量
+
+    def update_level(self):
+        """更新道館等級"""
+        self.level = self.calculate_level()
+        self.save_to_firestore()
 
 
 class Arena(app_db.Model):

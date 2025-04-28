@@ -5,7 +5,7 @@ import { initMap } from './modules/map-core.js';
 import { updateUserLocation } from './modules/user-location.js';
 import { loadAllRoutes, loadCatRightRoute, loadCatLeftRoute, loadCatLeftZhinanRoute } from './modules/route-manager.js';
 import { loadAllBusStops } from './modules/stop-manager.js';
-import { createArena, showArenaInfo } from './modules/arena-manager.js';
+import { createArena, showArenaInfo, renderAllArenas } from './modules/arena-manager.js';
 import { showLoading, hideLoading, showErrorMessage } from './modules/ui-utils.js';
 import { 
     routeLayer,
@@ -16,13 +16,10 @@ import {
     routeColors,
     routeCoordinates,
     routeCreatures
-    // 移除與客戶端精靈生成相關的配置
-    // MAX_CREATURES_PER_ROUTE,
-    // CREATURE_LIFETIME,
-    // SPAWN_INTERVAL,
-    // SPAWN_CHANCE,
-    // routeCreatureTypes
 } from './modules/config.js';
+
+// 從 arena-manager.js 導入新增的函數
+import { checkExistingArenaForStop, updateArenaRoutes } from './modules/arena-manager.js';
 
 // 全局暴露必要的函數給 HTML，使其可以通過onclick等直接調用
 window.initMap = initMap;
@@ -37,6 +34,11 @@ window.createArena = createArena;
 window.showLoading = showLoading;
 window.hideLoading = hideLoading;
 window.showErrorMessage = showErrorMessage;
+window.renderAllArenas = renderAllArenas; // 暴露新函數
+
+// 暴露道館等級相關的新函數
+window.checkExistingArenaForStop = checkExistingArenaForStop;
+window.updateArenaRoutes = updateArenaRoutes;
 
 // 全局暴露必要的變數給其他模組可能需要用到
 window.routeLayer = routeLayer;
@@ -110,8 +112,15 @@ function initApp() {
                         // 載入所有路線
                         loadAllRoutes();
                         
-                        // 載入所有站點和道館
+                        // 修改: 使用新的流程
+                        // 1. 首先只載入所有站點，但不創建道館
                         loadAllBusStops();
+                        
+                        // 2. 等待站點載入完成後，從緩存中載入並繪製所有道館
+                        setTimeout(() => {
+                            console.log('站點載入完成，開始從緩存中載入並繪製道館...');
+                            renderAllArenas();
+                        }, 2000); // 給予2秒的時間讓站點完全載入
                         
                         // 初始化精靈圖層，但不生成精靈
                         console.log('初始化精靈圖層，等待從Firebase加載精靈');

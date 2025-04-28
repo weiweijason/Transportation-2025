@@ -697,3 +697,56 @@ def get_data_status():
             }
     
     return status
+
+class TdxService:
+    """TDX 交通資料 API 服務類"""
+    
+    def __init__(self):
+        """初始化 TDX 服務"""
+        self.token = get_tdx_token()
+    
+    def get_route_stops(self, route_key):
+        """獲取指定路線的站點資料
+        
+        Args:
+            route_key: 路線鍵值，可以是 'cat-right', 'cat-left', 'cat-left-zhinan'
+            
+        Returns:
+            站點資料列表
+        """
+        if route_key == 'cat-right':
+            return get_cat_right_stops()
+        elif route_key == 'cat-left':
+            return get_cat_left_stops()
+        elif route_key == 'cat-left-zhinan':
+            return get_cat_left_zhinan_stops()
+        else:
+            logger.warning(f"不支援的路線鍵值: {route_key}")
+            return []
+    
+    def get_route_data(self, route_key):
+        """獲取指定路線的路線資料
+        
+        Args:
+            route_key: 路線鍵值，可以是 'cat-right', 'cat-left', 'cat-left-zhinan'
+            
+        Returns:
+            路線資料列表
+        """
+        if route_key == 'cat-right':
+            return get_cat_right_route()
+        elif route_key == 'cat-left':
+            return get_cat_left_route()
+        elif route_key == 'cat-left-zhinan':
+            return get_cat_left_zhinan_route()
+        else:
+            logger.warning(f"不支援的路線鍵值: {route_key}")
+            return []
+    
+    def update_all_data(self):
+        """更新所有路線和站點資料"""
+        return fetch_all_data()
+    
+    def get_data_status(self):
+        """獲取所有本地數據的狀態"""
+        return get_data_status()

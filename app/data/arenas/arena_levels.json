@@ -1,0 +1,769 @@
+{
+  "arena-200270": {
+    "id": "arena-200270",
+    "name": "三角公園道館",
+    "position": [
+      24.983627,
+      121.579664080453
+    ],
+    "stopIds": [
+      "200270"
+    ],
+    "stopName": "三角公園",
+    "routes": [
+      "貓空左線(動物園)"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670027
+  },
+  "arena-200269": {
+    "id": "arena-200269",
+    "name": "北政國中(政大實小)道館",
+    "position": [
+      24.9850502753839,
+      121.579955106331
+    ],
+    "stopIds": [
+      "200269"
+    ],
+    "stopName": "北政國中(政大實小)",
+    "routes": [
+      "貓空左線(動物園)"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670026
+  },
+  "arena-58815": {
+    "id": "arena-58815",
+    "name": "圓山道館",
+    "position": [
+      24.970251,
+      121.600402
+    ],
+    "stopIds": [
+      "58909"
+    ],
+    "stopName": "圓山",
+    "routes": [
+      "貓空左線(指南宮)",
+      "貓空左線(動物園)"
+    ],
+    "level": 2,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483671388
+  },
+  "arena-58822": {
+    "id": "arena-58822",
+    "name": "大誠高中道館",
+    "position": [
+      24.990413,
+      121.576905
+    ],
+    "stopIds": [
+      "58822"
+    ],
+    "stopName": "大誠高中",
+    "routes": [
+      "貓空左線(動物園)"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670097
+  },
+  "arena-219836": {
+    "id": "arena-219836",
+    "name": "天恩宮道館",
+    "position": [
+      24.970627,
+      121.592291
+    ],
+    "stopIds": [
+      "58811"
+    ],
+    "stopName": "天恩宮",
+    "routes": [
+      "貓空左線(指南宮)",
+      "貓空左線(動物園)"
+    ],
+    "level": 2,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483671386
+  },
+  "arena-216113": {
+    "id": "arena-216113",
+    "name": "富德道館",
+    "position": [
+      25.0000781080637,
+      121.590415672036
+    ],
+    "stopIds": [
+      "216113"
+    ],
+    "stopName": "富德",
+    "routes": [
+      "貓空左線(動物園)"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670033
+  },
+  "arena-200268": {
+    "id": "arena-200268",
+    "name": "小坑口(北政國中)道館",
+    "position": [
+      24.986195,
+      121.579379
+    ],
+    "stopIds": [
+      "200268"
+    ],
+    "stopName": "小坑口(北政國中)",
+    "routes": [
+      "貓空左線(動物園)"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670025
+  },
+  "arena-214295": {
+    "id": "arena-214295",
+    "name": "岐山道館",
+    "position": [
+      24.972478,
+      121.598729
+    ],
+    "stopIds": [
+      "214296"
+    ],
+    "stopName": "岐山",
+    "routes": [
+      "貓空左線(指南宮)",
+      "貓空左線(動物園)"
+    ],
+    "level": 2,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483671384
+  },
+  "arena-200273": {
+    "id": "arena-200273",
+    "name": "指南實小道館",
+    "position": [
+      24.976495,
+      121.583526
+    ],
+    "stopIds": [
+      "200273"
+    ],
+    "stopName": "指南實小",
+    "routes": [
+      "貓空左線(動物園)"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670028
+  },
+  "arena-200262": {
+    "id": "arena-200262",
+    "name": "捷運動物園站道館",
+    "position": [
+      24.99882,
+      121.580221
+    ],
+    "stopIds": [
+      "200262"
+    ],
+    "stopName": "捷運動物園站",
+    "routes": [
+      "貓空左線(動物園)"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670016
+  },
+  "arena-58820": {
+    "id": "arena-58820",
+    "name": "政大道館",
+    "position": [
+      24.987567,
+      121.576536
+    ],
+    "stopIds": [
+      "58820"
+    ],
+    "stopName": "政大",
+    "routes": [
+      "貓空左線(動物園)"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670085
+  },
+  "arena-200267": {
+    "id": "arena-200267",
+    "name": "政大(聯合醫院)道館",
+    "position": [
+      24.987374,
+      121.576765
+    ],
+    "stopIds": [
+      "200267"
+    ],
+    "stopName": "政大(聯合醫院)",
+    "routes": [
+      "貓空左線(動物園)"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670023
+  },
+  "arena-200271": {
+    "id": "arena-200271",
+    "name": "政大威秀道館",
+    "position": [
+      24.983063000243483,
+      121.57999610766447
+    ],
+    "stopIds": [
+      "200271"
+    ],
+    "stopName": "政大威秀",
+    "routes": [
+      "貓空左線(動物園)"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670028
+  },
+  "arena-180071": {
+    "id": "arena-180071",
+    "name": "望遠亭(老泉里)道館",
+    "position": [
+      24.970101,
+      121.57883
+    ],
+    "stopIds": [
+      "180071"
+    ],
+    "stopName": "望遠亭(老泉里)",
+    "routes": [
+      "貓空右線"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670015
+  },
+  "arena-45829": {
+    "id": "arena-45829",
+    "name": "杏花林(老泉里)道館",
+    "position": [
+      24.9691,
+      121.57678
+    ],
+    "stopIds": [
+      "45829"
+    ],
+    "stopName": "杏花林(老泉里)",
+    "routes": [
+      "貓空右線"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670064
+  },
+  "arena-45828": {
+    "id": "arena-45828",
+    "name": "樟山寺道館",
+    "position": [
+      24.97112,
+      121.58003
+    ],
+    "stopIds": [
+      "45828"
+    ],
+    "stopName": "樟山寺",
+    "routes": [
+      "貓空右線"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670064
+  },
+  "arena-200274": {
+    "id": "arena-200274",
+    "name": "樟山寺一道館",
+    "position": [
+      24.97414808,
+      121.5803701
+    ],
+    "stopIds": [
+      "200274"
+    ],
+    "stopName": "樟山寺一",
+    "routes": [
+      "貓空左線(動物園)"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670028
+  },
+  "arena-200275": {
+    "id": "arena-200275",
+    "name": "樟樹步道北口道館",
+    "position": [
+      24.968542,
+      121.583422
+    ],
+    "stopIds": [
+      "45827"
+    ],
+    "stopName": "樟樹步道北口",
+    "routes": [
+      "貓空右線",
+      "貓空左線(動物園)"
+    ],
+    "level": 2,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483671386
+  },
+  "arena-45830": {
+    "id": "arena-45830",
+    "name": "樟樹步道南口道館",
+    "position": [
+      24.969425,
+      121.580321
+    ],
+    "stopIds": [
+      "45830"
+    ],
+    "stopName": "樟樹步道南口",
+    "routes": [
+      "貓空右線"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670065
+  },
+  "arena-45831": {
+    "id": "arena-45831",
+    "name": "樟湖步道道館",
+    "position": [
+      24.96589,
+      121.58306
+    ],
+    "stopIds": [
+      "45831"
+    ],
+    "stopName": "樟湖步道",
+    "routes": [
+      "貓空右線"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670065
+  },
+  "arena-200272": {
+    "id": "arena-200272",
+    "name": "水鋼琴社區道館",
+    "position": [
+      24.9815541435518,
+      121.580958243996
+    ],
+    "stopIds": [
+      "200272"
+    ],
+    "stopName": "水鋼琴社區",
+    "routes": [
+      "貓空左線(動物園)"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670028
+  },
+  "arena-58814": {
+    "id": "arena-58814",
+    "name": "涼亭站道館",
+    "position": [
+      24.96603131,
+      121.5972576
+    ],
+    "stopIds": [
+      "58910"
+    ],
+    "stopName": "涼亭站",
+    "routes": [
+      "貓空左線(指南宮)",
+      "貓空左線(動物園)"
+    ],
+    "level": 2,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483671388
+  },
+  "arena-215393": {
+    "id": "arena-215393",
+    "name": "瓦厝道館",
+    "position": [
+      24.967886,
+      121.580639
+    ],
+    "stopIds": [
+      "215393"
+    ],
+    "stopName": "瓦厝",
+    "routes": [
+      "貓空右線"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670031
+  },
+  "arena-200276": {
+    "id": "arena-200276",
+    "name": "田寮橋道館",
+    "position": [
+      24.97012,
+      121.58686
+    ],
+    "stopIds": [
+      "45826"
+    ],
+    "stopName": "田寮橋",
+    "routes": [
+      "貓空右線",
+      "貓空左線(動物園)"
+    ],
+    "level": 2,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483671385
+  },
+  "arena-219835": {
+    "id": "arena-219835",
+    "name": "茶推廣中心道館",
+    "position": [
+      24.969327396833,
+      121.59349562698
+    ],
+    "stopIds": [
+      "58812"
+    ],
+    "stopName": "茶推廣中心",
+    "routes": [
+      "貓空左線(指南宮)",
+      "貓空左線(動物園)"
+    ],
+    "level": 2,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483671387
+  },
+  "arena-58816": {
+    "id": "arena-58816",
+    "name": "草湳道館",
+    "position": [
+      24.97038815,
+      121.6054195
+    ],
+    "stopIds": [
+      "58908"
+    ],
+    "stopName": "草湳",
+    "routes": [
+      "貓空左線(指南宮)",
+      "貓空左線(動物園)"
+    ],
+    "level": 2,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483671388
+  },
+  "arena-200264": {
+    "id": "arena-200264",
+    "name": "萬壽橋頭(新光)道館",
+    "position": [
+      24.993482,
+      121.57363
+    ],
+    "stopIds": [
+      "200264"
+    ],
+    "stopName": "萬壽橋頭(新光)",
+    "routes": [
+      "貓空左線(動物園)"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670017
+  },
+  "arena-200265": {
+    "id": "arena-200265",
+    "name": "萬壽橋頭(秀明)道館",
+    "position": [
+      24.99161,
+      121.574153
+    ],
+    "stopIds": [
+      "200265"
+    ],
+    "stopName": "萬壽橋頭(秀明)",
+    "routes": [
+      "貓空左線(動物園)"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670017
+  },
+  "arena-216115": {
+    "id": "arena-216115",
+    "name": "萬福橋道館",
+    "position": [
+      25.0031479361546,
+      121.585066207329
+    ],
+    "stopIds": [
+      "216115"
+    ],
+    "stopName": "萬福橋",
+    "routes": [
+      "貓空左線(動物園)"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670039
+  },
+  "arena-200266": {
+    "id": "arena-200266",
+    "name": "萬興國小道館",
+    "position": [
+      24.989679,
+      121.576757
+    ],
+    "stopIds": [
+      "200266"
+    ],
+    "stopName": "萬興國小",
+    "routes": [
+      "貓空左線(動物園)"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670018
+  },
+  "arena-58821": {
+    "id": "arena-58821",
+    "name": "萬興圖書館道館",
+    "position": [
+      24.98897,
+      121.57697
+    ],
+    "stopIds": [
+      "58821"
+    ],
+    "stopName": "萬興圖書館",
+    "routes": [
+      "貓空左線(動物園)"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670089
+  },
+  "arena-216114": {
+    "id": "arena-216114",
+    "name": "象頭埔道館",
+    "position": [
+      25.0018480966022,
+      121.588485768495
+    ],
+    "stopIds": [
+      "216114"
+    ],
+    "stopName": "象頭埔",
+    "routes": [
+      "貓空左線(動物園)"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670036
+  },
+  "arena-58813": {
+    "id": "arena-58813",
+    "name": "貓空站(小天空步道)道館",
+    "position": [
+      24.96796,
+      121.59539
+    ],
+    "stopIds": [
+      "58911"
+    ],
+    "stopName": "貓空站(小天空步道)",
+    "routes": [
+      "貓空左線(指南宮)",
+      "貓空左線(動物園)"
+    ],
+    "level": 2,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483671388
+  },
+  "arena-45825": {
+    "id": "arena-45825",
+    "name": "貓空纜車總站道館",
+    "position": [
+      24.9685,
+      121.5881
+    ],
+    "stopIds": [
+      "45825"
+    ],
+    "stopName": "貓空纜車總站",
+    "routes": [
+      "貓空右線",
+      "貓空左線(動物園)",
+      "貓空左線(指南宮)"
+    ],
+    "level": 3,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745485003776
+  },
+  "arena-200263": {
+    "id": "arena-200263",
+    "name": "貓纜動物園站道館",
+    "position": [
+      24.9968,
+      121.576778
+    ],
+    "stopIds": [
+      "200263"
+    ],
+    "stopName": "貓纜動物園站",
+    "routes": [
+      "貓空左線(動物園)"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745483670017
+  },
+  "arena-58907": {
+    "id": "arena-58907",
+    "name": "貓纜指南宮總站道館",
+    "position": [
+      24.9788899,
+      121.5899016
+    ],
+    "stopIds": [
+      "58907"
+    ],
+    "stopName": "貓纜指南宮總站",
+    "routes": [
+      "貓空左線(指南宮)"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745485003776
+  }
+}
