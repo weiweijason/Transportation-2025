@@ -63,6 +63,27 @@
     "challengers": [],
     "updatedAt": 1745483671388
   },
+  "arena-197399": {
+    "id": "arena-197399",
+    "name": "圓山一道館",
+    "position": [
+      24.9702,
+      121.601616
+    ],
+    "stopIds": [
+      "197399"
+    ],
+    "stopName": "圓山一",
+    "routes": [
+      "貓空左線(動物園)"
+    ],
+    "level": 1,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745892060726
+  },
   "arena-58822": {
     "id": "arena-58822",
     "name": "大誠高中道館",
@@ -679,6 +700,28 @@
     "challengers": [],
     "updatedAt": 1745483670036
   },
+  "arena-58827": {
+    "id": "arena-58827",
+    "name": "貓空壺穴站道館",
+    "position": [
+      24.96880012,
+      121.5953918
+    ],
+    "stopIds": [
+      "58827"
+    ],
+    "stopName": "貓空壺穴站",
+    "routes": [
+      "貓空左線(指南宮)",
+      "貓空左線(動物園)"
+    ],
+    "level": 2,
+    "owner": null,
+    "ownerPlayerId": null,
+    "ownerCreature": null,
+    "challengers": [],
+    "updatedAt": 1745892060728
+  },
   "arena-58813": {
     "id": "arena-58813",
     "name": "貓空站(小天空步道)道館",
@@ -703,7 +746,7 @@
   },
   "arena-45825": {
     "id": "arena-45825",
-    "name": "貓空纜車總站道館",
+    "name": "貓空纜車站道館",
     "position": [
       24.9685,
       121.5881
@@ -711,18 +754,18 @@
     "stopIds": [
       "45825"
     ],
-    "stopName": "貓空纜車總站",
+    "stopName": "貓空纜車站",
     "routes": [
-      "貓空右線",
+      "貓空左線(指南宮)",
       "貓空左線(動物園)",
-      "貓空左線(指南宮)"
+      "貓空右線"
     ],
     "level": 3,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745485003776
+    "updatedAt": 1745892060728
   },
   "arena-200263": {
     "id": "arena-200263",
@@ -747,7 +790,7 @@
   },
   "arena-58907": {
     "id": "arena-58907",
-    "name": "貓纜指南宮總站道館",
+    "name": "貓纜指南宮站道館",
     "position": [
       24.9788899,
       121.5899016
@@ -755,7 +798,7 @@
     "stopIds": [
       "58907"
     ],
-    "stopName": "貓纜指南宮總站",
+    "stopName": "貓纜指南宮站",
     "routes": [
       "貓空左線(指南宮)"
     ],
@@ -764,6 +807,6 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745485003776
+    "updatedAt": 1745828637547
   }
 }

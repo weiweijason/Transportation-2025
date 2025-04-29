@@ -704,6 +704,22 @@ class FirebaseService:
             # 儲存到用戶精靈集合
             self.firestore_db.collection('user_creatures').document(user_creature_id).set(user_creature_data)
             
+            # 同步道館資料到 Firebase (如果該精靈是在道館捕獲的)
+            if 'arena_id' in creature_data and creature_data['arena_id']:
+                arena_id = creature_data['arena_id']
+                # 檢查道館是否存在於 Firebase
+                arena_ref = self.firestore_db.collection('arenas').document(arena_id)
+                arena_doc = arena_ref.get()
+                
+                if not arena_doc.exists:
+                    # 如果道館不存在，從本地緩存獲取道館資料並保存到 Firebase
+                    from app.models.arena import get_arena_from_cache
+                    arena_data = get_arena_from_cache(arena_id=arena_id)
+                    if arena_data:
+                        # 保存道館資料到 Firebase
+                        arena_ref.set(arena_data)
+                        print(f"已同步道館 {arena_data.get('name', arena_id)} 到 Firebase")
+            
             return {
                 'success': True,
                 'message': f"已成功捕捉 {creature_data.get('name', '未知精靈')}!",

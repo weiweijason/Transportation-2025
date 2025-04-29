@@ -18,8 +18,11 @@
                             {% for arena in arenas %}
                                 <div class="col-md-4 mb-4">
                                     <div class="card arena-card h-100">
-                                        <div class="card-header bg-light">
+                                        <div class="card-header 
+                                            {% if arena.level == 1 %}bg-success{% elif arena.level == 2 %}bg-warning{% else %}bg-danger{% endif %} 
+                                            text-white">
                                             <h5 class="card-title mb-0">{{ arena.name }}</h5>
+                                            <span class="badge bg-light text-dark">Lv. {{ arena.level }}</span>
                                         </div>
                                         <div class="card-body">
                                             <p><strong>位置：</strong> {{ arena.position.lat }}, {{ arena.position.lng }}</p>
@@ -49,7 +52,8 @@
                                             {% endif %}
                                         </div>
                                         <div class="card-footer">
-                                            <a href="{{ url_for('game.battle') }}" class="btn btn-danger w-100">
+                                            <a href="{{ url_for('game.battle', arena_id=arena.id) }}" class="btn btn-danger w-100" 
+                                               onclick="syncArenaToFirebase('{{ arena.id }}')">
                                                 <i class="fas fa-fist-raised me-1"></i>挑戰擂台
                                             </a>
                                         </div>
@@ -93,6 +97,14 @@
         border-bottom: 2px solid rgba(0,0,0,0.1);
     }
     
+    .arena-card .card-header .badge {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    
     .arena-card .card-footer {
         background-color: transparent;
     }
@@ -110,7 +122,6 @@
     }
     
     [data-theme="dark"] .arena-card .card-header {
-        background-color: #3d4852 !important;
         border-bottom: 2px solid #4d5656;
     }
     
@@ -161,4 +172,28 @@
         opacity: 0.7 !important;
     }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 當點擊擂台時，同步擂台資料到 Firebase
+    function syncArenaToFirebase(arenaId) {
+        console.log('同步擂台資料到 Firebase:', arenaId);
+        
+        // 使用 fetch API 發送請求到後端 API
+        fetch(`/game/api/arena/sync/${arenaId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('同步結果:', data);
+        })
+        .catch(error => {
+            console.error('同步擂台資料失敗:', error);
+        });
+    }
+</script>
 {% endblock %}

@@ -24,18 +24,14 @@ cache_lock = threading.Lock()
 
 # 特殊處理的道館站點映射 - 解決命名不一致問題
 SPECIAL_STOP_MAPPING = {
-    "圓山一": "圓山",  # 圓山一道館和圓山道館視為同一道館
-    "圓山": "圓山",
-    "貓空纜車站": "貓空纜車總站",  # 確保貓空纜車站在所有路線中使用相同名稱
-    "貓纜指南宮站": "貓纜指南宮總站",
-    "貓空站(小天空步道)": "貓空站",  # 貓空站(小天空步道)統一命名
-    "貓空壺穴站": "貓空站"  # 貓空壺穴站也視為貓空站
+    # 取消特殊處理的道館站點映射功能
+    # 原有映射已被移除
 }
 
 # 手動設定為三級道館的站點
 FORCE_LEVEL_THREE_STOPS = [
-    "貓空纜車站",
-    "貓空纜車總站"
+    # 取消手動設定的三級道館站點
+    # 原有設定已被移除
 ]
 
 # 緩存相關函數
@@ -200,19 +196,6 @@ def update_arena_cache_from_tdx():
                     existing_arena_id = ex_id
                     break
             
-            # 如果找不到完全相同名稱的，檢查是否有類似的名稱
-            if not existing_arena:
-                base_name = stop_name.replace("貓空站(小天空步道)", "貓空站").replace("貓空壺穴站", "貓空站")
-                base_name = base_name.replace("圓山一", "圓山").replace("貓空纜車站", "貓空纜車總站")
-                
-                for ex_id, ex_arena in existing_data.items():
-                    ex_name = ex_arena.get('name', '').replace("道館", "")
-                    if base_name in ex_name or ex_name in base_name:
-                        print(f"[道館數據處理] 找到類似名稱道館: {arena_name} ~ {ex_arena.get('name')}")
-                        existing_arena = ex_arena
-                        existing_arena_id = ex_id
-                        break
-            
             if existing_arena:
                 # 道館已存在，更新路線和等級
                 existing_routes = set(existing_arena.get('routes', []))
@@ -326,6 +309,26 @@ def update_arena_cache():
             
             logger.info(f"從 Firebase 獲取了 {len(arenas_data)} 個道館資料（作為備用）")
             
+            # 檢查本地緩存中是否有已經在 Firebase 中不存在的道館
+            with cache_lock:
+                # 獲取當前緩存道館IDs
+                current_cache_ids = set(arena_levels_cache.keys())
+                # 獲取Firebase道館IDs
+                firebase_ids = set(arenas_data.keys())
+                # 計算在本地緩存但不在Firebase中的道館IDs
+                deleted_ids = current_cache_ids - firebase_ids
+                
+                if deleted_ids:
+                    logger.info(f"發現 {len(deleted_ids)} 個在Firebase中已刪除的道館，將從緩存中移除: {deleted_ids}")
+                    print(f"[道館數據處理] 發現 {len(deleted_ids)} 個在Firebase中已刪除的道館，將從緩存中移除")
+                    # 從緩存中移除已刪除的道館
+                    for arena_id in deleted_ids:
+                        if arena_id in arena_levels_cache:
+                            deleted_name = arena_levels_cache[arena_id].get('name', 'unknown')
+                            logger.info(f"從緩存中移除已刪除的道館: {deleted_name} (ID: {arena_id})")
+                            print(f"[道館數據處理] 從緩存中移除已刪除的道館: {deleted_name} (ID: {arena_id})")
+                            del arena_levels_cache[arena_id]
+            
             # 更新緩存
             with cache_lock:
                 arena_levels_cache = arenas_data
@@ -401,6 +404,85 @@ def start_cache_update_scheduler():
 
 # 啟動緩存更新排程器
 start_cache_update_scheduler()
+
+def sync_arena_cache_to_firebase():
+    """
+    系統啟動時，將本地 JSON 道館數據同步到 Firebase
+    優先保存：如果本地緩存中有道館但 Firebase 中沒有，則將其添加到 Firebase
+    """
+    try:
+        logger.info("開始將本地道館數據同步到 Firebase...")
+        print("[道館數據同步] 開始將本地道館數據同步到 Firebase...")
+        
+        # 檢查緩存文件是否存在
+        if not os.path.exists(ARENA_CACHE_FILE):
+            logger.warning("本地道館緩存文件不存在，無法同步到 Firebase")
+            print("[道館數據同步] 本地道館緩存文件不存在，無法同步到 Firebase")
+            return False
+        
+        # 讀取本地道館緩存
+        local_arenas = {}
+        try:
+            with open(ARENA_CACHE_FILE, 'r', encoding='utf-8') as f:
+                local_arenas = json.load(f)
+            logger.info(f"成功從本地緩存讀取 {len(local_arenas)} 個道館數據")
+            print(f"[道館數據同步] 成功從本地緩存讀取 {len(local_arenas)} 個道館數據")
+        except Exception as e:
+            logger.error(f"讀取本地道館緩存文件時出錯: {e}")
+            print(f"[道館數據同步] 讀取本地道館緩存文件時出錯: {e}")
+            return False
+        
+        # 獲取 Firebase 服務實例
+        firebase_service = FirebaseService()
+        
+        # 從 Firebase 獲取現有道館 ID
+        firebase_arena_ids = set()
+        try:
+            arenas_ref = firebase_service.firestore_db.collection('arenas').get()
+            for arena_doc in arenas_ref:
+                firebase_arena_ids.add(arena_doc.id)
+            logger.info(f"從 Firebase 獲取了 {len(firebase_arena_ids)} 個道館 ID")
+            print(f"[道館數據同步] 從 Firebase 獲取了 {len(firebase_arena_ids)} 個道館 ID")
+        except Exception as e:
+            logger.error(f"從 Firebase 獲取道館數據時出錯: {e}")
+            print(f"[道館數據同步] 從 Firebase 獲取道館數據時出錯: {e}")
+            return False
+        
+        # 找出需要添加到 Firebase 的道館（本地有但 Firebase 沒有的）
+        arenas_to_add = []
+        for arena_id, arena_data in local_arenas.items():
+            if arena_id not in firebase_arena_ids:
+                arenas_to_add.append((arena_id, arena_data))
+        
+        logger.info(f"發現 {len(arenas_to_add)} 個需要添加到 Firebase 的道館")
+        print(f"[道館數據同步] 發現 {len(arenas_to_add)} 個需要添加到 Firebase 的道館")
+        
+        # 批量添加道館到 Firebase
+        added_count = 0
+        for arena_id, arena_data in arenas_to_add:
+            try:
+                # 確保數據格式正確
+                if 'id' not in arena_data:
+                    arena_data['id'] = arena_id
+                
+                # 添加到 Firestore
+                firebase_service.firestore_db.collection('arenas').document(arena_id).set(arena_data)
+                added_count += 1
+                logger.info(f"成功將道館 {arena_data.get('name', arena_id)} 添加到 Firebase")
+                print(f"[道館數據同步] 成功將道館 {arena_data.get('name', arena_id)} 添加到 Firebase")
+            except Exception as e:
+                logger.error(f"將道館 {arena_id} 添加到 Firebase 時出錯: {e}")
+                print(f"[道館數據同步] 將道館 {arena_id} 添加到 Firebase 時出錯: {e}")
+        
+        logger.info(f"完成道館數據同步，成功添加 {added_count}/{len(arenas_to_add)} 個道館到 Firebase")
+        print(f"[道館數據同步] 完成道館數據同步，成功添加 {added_count}/{len(arenas_to_add)} 個道館到 Firebase")
+        return True
+    except Exception as e:
+        logger.error(f"同步道館數據到 Firebase 時發生未預期的錯誤: {e}")
+        print(f"[道館數據同步] 同步道館數據到 Firebase 時發生未預期的錯誤: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
 
 class FirebaseArena:
     """
@@ -501,7 +583,7 @@ class FirebaseArena:
         arenas_ref = firebase_service.firestore_db.collection('arenas').where('name', '==', name).limit(1).get()
         
         # 檢查是否有結果
-        if not arenas_ref or len(arenas_ref) == 0:
+        if not arenas_ref或len(arenas_ref) == 0:
             return None
             
         # 返回第一個匹配的道館

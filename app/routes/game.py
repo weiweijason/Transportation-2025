@@ -632,3 +632,50 @@ def get_cached_arena_levels():
             'message': f'獲取道館等級失敗: {str(e)}',
             'arenas': {}
         }), 500
+
+@game_bp.route('/api/arena/sync/<arena_id>', methods=['POST'])
+@login_required
+def sync_arena_to_firebase(arena_id):
+    """將道館資料同步到 Firebase 的 API"""
+    try:
+        # 從本地緩存獲取道館資料
+        from app.models.arena import get_arena_from_cache
+        arena_data = get_arena_from_cache(arena_id=arena_id)
+        
+        if not arena_data:
+            return jsonify({
+                'success': False,
+                'message': f'無法找到 ID 為 {arena_id} 的道館資料'
+            }), 404
+        
+        # 獲取 Firebase 服務
+        firebase_service = FirebaseService()
+        
+        # 檢查道館是否已存在於 Firebase
+        arena_ref = firebase_service.firestore_db.collection('arenas').document(arena_id)
+        arena_doc = arena_ref.get()
+        
+        if arena_doc.exists:
+            # 道館已存在，更新資料
+            arena_ref.update(arena_data)
+            message = f'已更新道館資料: {arena_data.get("name", arena_id)}'
+        else:
+            # 道館不存在，新增資料
+            arena_ref.set(arena_data)
+            message = f'已新增道館資料: {arena_data.get("name", arena_id)}'
+        
+        return jsonify({
+            'success': True,
+            'message': message,
+            'arena': arena_data
+        })
+    except Exception as e:
+        # 記錄錯誤
+        current_app.logger.error(f'同步道館資料失敗: {str(e)}')
+        import traceback
+        traceback.print_exc()
+        
+        return jsonify({
+            'success': False,
+            'message': f'同步道館資料時發生錯誤: {str(e)}'
+        }), 500

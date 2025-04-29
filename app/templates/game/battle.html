@@ -788,7 +788,7 @@
         </div>
         <div class="arena-header-overlay">
           <h2 id="arenaName">載入中...</h2>
-          <p id="arenaRoute" class="mb-0">路線: 載入中...</p>
+          <p id="arenaLevel" class="mb-0">等級: 載入中...</p>
         </div>
       </div>
       
@@ -807,6 +807,9 @@
             </div>
             <div class="mb-2">
               <i class="fas fa-info-circle me-2 text-info"></i><strong>挑戰狀態：</strong> <span id="arenaStatus">載入中...</span>
+            </div>
+            <div class="mb-2">
+              <i class="fas fa-star me-2 text-warning"></i><strong>道館等級：</strong> <span id="arenaLevelInfo">載入中...</span>
             </div>
           </div>
           <div class="col-md-6" id="guardianContainer">
@@ -940,37 +943,17 @@ document.addEventListener('DOMContentLoaded', function() {
   const urlParams = new URLSearchParams(window.location.search);
   const stopId = urlParams.get('stopId');
   const stopName = urlParams.get('stopName');
-  const routeName = urlParams.get('routeName');
   
   // 設置擂台基本信息
   if (stopName) {
     document.getElementById('arenaName').textContent = stopName + '道館';
-    // 設置根據路線名稱的背景顏色
-    setArenaBackground(routeName);
-  }
-  
-  if (routeName) {
-    document.getElementById('arenaRoute').textContent = '路線: ' + routeName;
   }
   
   if (stopId) {
     document.getElementById('arenaStopId').textContent = stopId;
     
-    // 根據路線名稱設置不同的背景圖
-    let backgroundImage = '';
-    if (routeName && routeName.includes('右線')) {
-      backgroundImage = 'https://placehold.co/1200x300/ff9800/ffffff?text=' + encodeURIComponent(stopName);
-    } else if (routeName && routeName.includes('左線') && routeName.includes('動物園')) {
-      backgroundImage = 'https://placehold.co/1200x300/4caf50/ffffff?text=' + encodeURIComponent(stopName);
-    } else if (routeName && routeName.includes('左線') && routeName.includes('指南宮')) {
-      backgroundImage = 'https://placehold.co/1200x300/9c27b0/ffffff?text=' + encodeURIComponent(stopName);
-    } else {
-      backgroundImage = 'https://placehold.co/1200x300/3f51b5/ffffff?text=' + encodeURIComponent(stopName);
-    }
-    document.getElementById('arenaHeader').style.backgroundImage = `url('${backgroundImage}')`;
-    
-    // 獲取或創建擂台資料
-    fetchOrCreateArena(stopId, stopName, routeName);
+    // 獲取或檢查擂台
+    fetchOrCreateArena(stopId, stopName);
   } else {
     alert('缺少站點ID參數，無法顯示擂台資訊');
   }
@@ -988,113 +971,273 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-// 設置擂台背景顏色
-function setArenaBackground(routeName) {
+// 設置擂台背景顏色，根據等級而非路線
+function setArenaBackground(level) {
   const arenaHeader = document.getElementById('arenaHeader');
   const headerOverlay = document.querySelector('.arena-header-overlay');
   const battleWrapper = document.querySelector('.battle-wrapper');
   
   let bgColor, bgImage;
   
-  if (routeName && routeName.includes('右線')) {
-    bgColor = '#ff9800';
-    bgImage = 'linear-gradient(rgba(255, 152, 0, 0.1), rgba(255, 152, 0, 0.3))';
-  } else if (routeName && routeName.includes('左線') && routeName.includes('動物園')) {
-    bgColor = '#4caf50';
-    bgImage = 'linear-gradient(rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.3))';
-  } else if (routeName && routeName.includes('左線') && routeName.includes('指南宮')) {
-    bgColor = '#9c27b0';
-    bgImage = 'linear-gradient(rgba(156, 39, 176, 0.1), rgba(156, 39, 176, 0.3))';
-  } else {
-    bgColor = '#3f51b5';
-    bgImage = 'linear-gradient(rgba(63, 81, 181, 0.1), rgba(63, 81, 181, 0.3))';
+  // 根據等級設置不同的顏色
+  switch(level) {
+    case 1:
+      bgColor = '#4caf50'; // 綠色
+      bgImage = 'linear-gradient(rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.3))';
+      break;
+    case 2:
+      bgColor = '#ff9800'; // 橙色
+      bgImage = 'linear-gradient(rgba(255, 152, 0, 0.1), rgba(255, 152, 0, 0.3))';
+      break;
+    case 3:
+      bgColor = '#9c27b0'; // 紫色
+      bgImage = 'linear-gradient(rgba(156, 39, 176, 0.1), rgba(156, 39, 176, 0.3))';
+      break;
+    case 4:
+      bgColor = '#e91e63'; // 粉紅色
+      bgImage = 'linear-gradient(rgba(233, 30, 99, 0.1), rgba(233, 30, 99, 0.3))';
+      break;
+    case 5:
+      bgColor = '#f44336'; // 紅色
+      bgImage = 'linear-gradient(rgba(244, 67, 54, 0.1), rgba(244, 67, 54, 0.3))';
+      break;
+    default:
+      bgColor = '#3f51b5'; // 藍色
+      bgImage = 'linear-gradient(rgba(63, 81, 181, 0.1), rgba(63, 81, 181, 0.3))';
   }
   
   arenaHeader.style.backgroundColor = bgColor;
   if (battleWrapper) {
     battleWrapper.style.backgroundImage = bgImage;
   }
+  
+  // 設置道館等級背景圖
+  const backgroundImage = `https://placehold.co/1200x300/${bgColor.replace('#', '')}/ffffff?text=等級 ${level} 道館`;
+  arenaHeader.style.backgroundImage = `url('${backgroundImage}')`;
 }
 
-// 獲取或創建擂台
-function fetchOrCreateArena(stopId, stopName, routeName) {
-  console.log('獲取擂台信息:', stopId, stopName, routeName);
+// 獲取或檢查擂台
+function fetchOrCreateArena(stopId, stopName) {
+  console.log('獲取擂台信息:', stopId, stopName);
   showLoading();
   
+  // 檢查是否為錯誤頁面需求
+  const urlParams = new URLSearchParams(window.location.search);
+  const errorCode = urlParams.get('error');
+  const arenaId = urlParams.get('arenaId');
+  
+  if (errorCode === '404') {
+    console.log('顯示404錯誤頁面');
+    showError404Page(stopName);
+    hideLoading();
+    return;
+  } else if (errorCode === '500') {
+    console.log('顯示500錯誤頁面');
+    showError500Page();
+    hideLoading();
+    return;
+  }
+  
+  // 如果提供了特定的arenaId，直接從Firebase獲取該道館
+  if (arenaId) {
+    fetchArenaById(arenaId);
+    return;
+  }
+  
   // 嘗試通過名稱獲取現有擂台
-  fetch(`/game/api/arena/get-all`)
-    .then(response => response.json())
-    .then(arenas => {
-      // 查找匹配的擂台
-      const matchedArena = arenas.find(arena => 
-        arena.name === stopName + '道館' || 
-        arena.stopIds.includes(stopId)
-      );
-      
-      if (matchedArena) {
-        console.log('找到現有擂台:', matchedArena);
-        // 更新擂台數據
-        arenaData = matchedArena;
-        updateArenaDisplay(matchedArena);
-      } else {
-        console.log('未找到擂台，創建新擂台');
-        // 創建新擂台
-        createNewArena(stopId, stopName, routeName);
-      }
-    })
-    .catch(error => {
-      console.error('獲取擂台列表錯誤:', error);
-      createNewArena(stopId, stopName, routeName);
-    })
-    .finally(() => {
-      hideLoading();
-    });
+  const arenaName = `${stopName}道館`;
+  
+  try {
+    // 從Firebase獲取道館
+    const db = firebase.firestore();
+    
+    db.collection('arenas')
+      .where('name', '==', arenaName)
+      .limit(1)
+      .get()
+      .then((querySnapshot) => {
+        if (!querySnapshot.empty) {
+          // 找到現有道館
+          const arenaData = querySnapshot.docs[0].data();
+          console.log('找到現有擂台:', arenaData);
+          // 更新擂台數據
+          window.arenaData = arenaData;
+          updateArenaDisplay(arenaData);
+          
+          // 根據等級設置背景顏色
+          setArenaBackground(arenaData.level || 1);
+          
+          // 顯示道館等級
+          document.getElementById('arenaLevel').textContent = '等級: ' + (arenaData.level || 1);
+          document.getElementById('arenaLevelInfo').textContent = arenaData.level || 1;
+        } else {
+          // 道館不存在，顯示404錯誤頁面
+          console.log('未找到擂台，顯示404頁面');
+          showError404Page(stopName);
+        }
+        hideLoading();
+      })
+      .catch(error => {
+        console.error('獲取擂台列表錯誤:', error);
+        showError500Page();
+        hideLoading();
+      });
+  } catch (error) {
+    console.error('Firebase訪問錯誤:', error);
+    showError500Page();
+    hideLoading();
+  }
 }
 
-// 創建新擂台
-function createNewArena(stopId, stopName, routeName) {
-  const arenaId = 'arena-' + stopId;
-  const arenaName = stopName + '道館';
+// 通過ID直接獲取道館
+function fetchArenaById(arenaId) {
+  console.log('通過ID獲取道館:', arenaId);
   
-  // 獲取可能的位置（從URL參數或使用默認值）
-  const urlParams = new URLSearchParams(window.location.search);
-  const lat = parseFloat(urlParams.get('lat')) || 25.0282;
-  const lon = parseFloat(urlParams.get('lon')) || 121.5432;
+  try {
+    const db = firebase.firestore();
+    
+    db.collection('arenas').doc(arenaId)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          const arenaData = doc.data();
+          console.log('找到道館:', arenaData);
+          // 更新擂台數據
+          window.arenaData = arenaData;
+          updateArenaDisplay(arenaData);
+          
+          // 更新頁面顯示
+          document.getElementById('arenaName').textContent = arenaData.name;
+          document.getElementById('arenaStopId').textContent = arenaData.stopIds ? arenaData.stopIds[0] : '';
+          
+          // 根據等級設置背景顏色
+          setArenaBackground(arenaData.level || 1);
+          
+          // 顯示道館等級
+          document.getElementById('arenaLevel').textContent = '等級: ' + (arenaData.level || 1);
+          document.getElementById('arenaLevelInfo').textContent = arenaData.level || 1;
+        } else {
+          console.log('未找到該ID的道館:', arenaId);
+          showError404Page();
+        }
+        hideLoading();
+      })
+      .catch(error => {
+        console.error('獲取道館錯誤:', error);
+        showError500Page();
+        hideLoading();
+      });
+  } catch (error) {
+    console.error('Firebase訪問錯誤:', error);
+    showError500Page();
+    hideLoading();
+  }
+}
+
+// 顯示404錯誤頁面
+function showError404Page(stopName) {
+  const container = document.querySelector('.battle-wrapper');
+  container.innerHTML = `
+    <div class="error-container text-center py-5">
+      <div class="error-code">404</div>
+      <h3 class="error-title mb-4">找不到道館</h3>
+      <p class="error-message mb-4">很抱歉，${stopName ? `「${stopName}道館」` : '您請求的道館'} 在系統中不存在或已被移除。</p>
+      <div class="error-image mb-4">
+        <img src="https://cdn-icons-png.flaticon.com/512/4076/4076478.png" alt="無道館" style="max-width: 150px; opacity: 0.5;">
+      </div>
+      <a href="/game/catch" class="btn btn-primary">
+        <i class="fas fa-map-marked-alt me-2"></i>返回地圖
+      </a>
+    </div>
+  `;
   
-  // 創建新擂台數據
-  const newArena = {
-    id: arenaId,
-    name: arenaName,
-    position: [lat, lon],
-    stopIds: [stopId],
-    routes: [routeName],
-    owner: null,
-    ownerCreature: null
-  };
-  
-  // 保存到服務器
-  fetch('/game/api/arena/save', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(newArena)
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('保存擂台失敗');
+  // 添加錯誤頁面樣式
+  const styleElement = document.createElement('style');
+  styleElement.textContent = `
+    .error-container {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
-    return response.json();
-  })
-  .then(data => {
-    console.log('擂台創建成功:', data);
-    arenaData = data.arena;
-    updateArenaDisplay(data.arena);
-  })
-  .catch(error => {
-    console.error('創建擂台錯誤:', error);
-    showGameAlert('創建擂台失敗，請稍後再試', 'danger');
-  });
+    .error-code {
+      font-size: 5rem;
+      font-weight: bold;
+      color: #f44336;
+      margin-bottom: 1rem;
+    }
+    .error-title {
+      font-weight: bold;
+    }
+    .error-message {
+      font-size: 1.1rem;
+      color: #666;
+    }
+    [data-theme="dark"] .error-container {
+      background: rgba(45, 52, 54, 0.9);
+    }
+    [data-theme="dark"] .error-message {
+      color: #adb5bd;
+    }
+  `;
+  document.head.appendChild(styleElement);
+  
+  // 更新頁面標題
+  document.getElementById('arenaHeader').style.display = 'none';
+  document.querySelector('.section-title').textContent = '找不到道館';
+}
+
+// 顯示500錯誤頁面
+function showError500Page() {
+  const container = document.querySelector('.battle-wrapper');
+  container.innerHTML = `
+    <div class="error-container text-center py-5">
+      <div class="error-code">500</div>
+      <h3 class="error-title mb-4">系統錯誤</h3>
+      <p class="error-message mb-4">很抱歉，在獲取道館資訊時發生了系統錯誤，請稍後再試或聯繫管理員。</p>
+      <div class="error-image mb-4">
+        <img src="https://cdn-icons-png.flaticon.com/512/603/603470.png" alt="系統錯誤" style="max-width: 150px; opacity: 0.5;">
+      </div>
+      <a href="/game/catch" class="btn btn-primary">
+        <i class="fas fa-map-marked-alt me-2"></i>返回地圖
+      </a>
+    </div>
+  `;
+  
+  // 添加錯誤頁面樣式
+  const styleElement = document.createElement('style');
+  styleElement.textContent = `
+    .error-container {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    .error-code {
+      font-size: 5rem;
+      font-weight: bold;
+      color: #f44336;
+      margin-bottom: 1rem;
+    }
+    .error-title {
+      font-weight: bold;
+    }
+    .error-message {
+      font-size: 1.1rem;
+      color: #666;
+    }
+    [data-theme="dark"] .error-container {
+      background: rgba(45, 52, 54, 0.9);
+    }
+    [data-theme="dark"] .error-message {
+      color: #adb5bd;
+    }
+  `;
+  document.head.appendChild(styleElement);
+  
+  // 更新頁面標題
+  document.getElementById('arenaHeader').style.display = 'none';
+  document.querySelector('.section-title').textContent = '系統錯誤';
 }
 
 // 更新擂台顯示

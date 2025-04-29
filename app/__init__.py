@@ -42,6 +42,20 @@ def load_tdx_data_on_startup(app):
     def load_data_background():
         with app.app_context():
             fetch_tdx_data()
+            
+            # 在加載 TDX 數據後，同步本地道館數據到 Firebase
+            try:
+                print("=== 開始將本地道館數據同步到 Firebase ===")
+                from app.models.arena import sync_arena_cache_to_firebase
+                sync_result = sync_arena_cache_to_firebase()
+                if sync_result:
+                    print("=== 成功將本地道館數據同步到 Firebase ===")
+                else:
+                    print("=== 同步本地道館數據到 Firebase 失敗，請查看日誌 ===")
+            except Exception as e:
+                import traceback
+                print(f"=== 同步道館數據到 Firebase 時發生錯誤: {e} ===")
+                traceback.print_exc()
     
     # 啟動後台線程載入資料
     data_loading_thread = threading.Thread(target=load_data_background)

@@ -329,6 +329,30 @@ function saveArenaToFirebase(arena) {
     }
 }
 
+// 從 arena_levels.json 獲取道館等級
+function getArenaLevelFromCache(stopName) {
+    console.log(`嘗試從 arena_levels.json 獲取 ${stopName} 道館的等級`);
+    
+    // 使用緩存的道館等級資料
+    if (!cachedArenaLevels || Object.keys(cachedArenaLevels).length === 0) {
+        console.log('沒有緩存道館資料可用，默認返回等級 1');
+        return 1;
+    }
+    
+    // 遍歷所有道館資料，查找匹配的站點名稱
+    for (const arenaId in cachedArenaLevels) {
+        const arena = cachedArenaLevels[arenaId];
+        if (arena.stopName === stopName) {
+            console.log(`在緩存中找到匹配道館: ${stopName}，等級: ${arena.level}`);
+            return arena.level;
+        }
+    }
+    
+    // 沒有找到匹配的道館，返回默認等級 1
+    console.log(`在緩存中未找到匹配道館: ${stopName}，默認返回等級 1`);
+    return 1;
+}
+
 // 顯示道館信息
 function showArenaInfo(stopId, stopName, routeName) {
     console.log(`顯示道館信息: ${stopName}, ID: ${stopId}, 路線: ${routeName}`);
@@ -350,37 +374,42 @@ function showArenaInfo(stopId, stopName, routeName) {
                 if (!querySnapshot.empty) {
                     // 如果找到了道館資料
                     arenaData = querySnapshot.docs[0].data();
-                }
-                
-                // 保存道館數據到查詢參數
-                const params = new URLSearchParams();
-                params.append('stopId', stopId);
-                params.append('stopName', stopName);
-                params.append('routeName', routeName);
-                
-                if (arenaData) {
+                    console.log(`找到現有道館資料: ${arenaName}`, arenaData);
+                    
+                    // 保存道館數據到查詢參數
+                    const params = new URLSearchParams();
+                    params.append('stopId', stopId);
+                    params.append('stopName', stopName);
+                    params.append('routeName', routeName);
                     params.append('arenaId', arenaData.id);
-                    params.append('arenaOwner', arenaData.owner || '');
-                    params.append('arenaOwnerPlayerId', arenaData.ownerPlayerId || '');
+                    
+                    if (arenaData.owner) {
+                        params.append('arenaOwner', arenaData.owner);
+                        params.append('arenaOwnerPlayerId', arenaData.ownerPlayerId || '');
+                    }
                     
                     if (arenaData.ownerCreature) {
                         params.append('ownerCreatureName', arenaData.ownerCreature.name || '');
                         params.append('ownerCreaturePower', arenaData.ownerCreature.power || 0);
                     }
+                    
+                    // 跳轉到戰鬥頁面
+                    window.location.href = `/game/battle?${params.toString()}`;
+                } else {
+                    // 道館不存在於Firebase中，顯示404錯誤頁面
+                    console.log(`道館 ${arenaName} 不存在於Firebase中，顯示404錯誤頁面`);
+                    window.location.href = `/game/battle?error=404&stopId=${stopId}&stopName=${encodeURIComponent(stopName)}&routeName=${encodeURIComponent(routeName)}`;
                 }
-                
-                // 跳轉到戰鬥頁面
-                window.location.href = `/game/battle?${params.toString()}`;
             })
             .catch(error => {
                 console.error(`獲取道館資訊時出錯: ${error}`);
-                // 錯誤時仍跳轉，但不帶道館資料
-                window.location.href = `/game/battle?stopId=${stopId}&stopName=${encodeURIComponent(stopName)}&routeName=${encodeURIComponent(routeName)}`;
+                // 錯誤時顯示錯誤頁面
+                window.location.href = `/game/battle?error=500&stopId=${stopId}&stopName=${encodeURIComponent(stopName)}&routeName=${encodeURIComponent(routeName)}`;
             });
     } catch (error) {
         console.error(`存取Firebase時出錯: ${error}`);
-        // 錯誤時仍跳轉，但不帶道館資料
-        window.location.href = `/game/battle?stopId=${stopId}&stopName=${encodeURIComponent(stopName)}&routeName=${encodeURIComponent(routeName)}`;
+        // 錯誤時顯示錯誤頁面
+        window.location.href = `/game/battle?error=500&stopId=${stopId}&stopName=${encodeURIComponent(stopName)}&routeName=${encodeURIComponent(routeName)}`;
     }
 }
 
