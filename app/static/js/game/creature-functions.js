@@ -22,6 +22,9 @@ function displayCreaturesOnMap(creatures) {
     return;
   }
   
+  // 獲取當前用戶 player_id（從全局變量或 localStorage 中獲取）
+  const currentPlayerId = getCurrentPlayerId();
+  console.log(`當前玩家ID: ${currentPlayerId}`);
   console.log(`嘗試在地圖上顯示 ${creatures.length} 隻精靈`);
   
   // 獲取當前時間
@@ -32,11 +35,22 @@ function displayCreaturesOnMap(creatures) {
   
   // 為每個精靈創建標記
   creatures.forEach((creature, index) => {
+    // 檢查此精靈是否已被當前玩家捕獲
+    const capturedPlayers = creature.captured_players || '';
+    const playerList = capturedPlayers.split(',').filter(Boolean);
+    
+    if (playerList.includes(currentPlayerId)) {
+      console.log(`精靈 ${creature.name} (ID: ${creature.id}) 已被當前玩家捕獲，不顯示`);
+      return; // 跳過此精靈
+    }
+    
     // 獲取基本信息
     const position = creature.position || { lat: 25.033 + (Math.random() * 0.02), lng: 121.565 + (Math.random() * 0.02) };
     const name = creature.name || '未知精靈';
     const elementType = creature.element_type || 'normal';
     const species = creature.species || '一般種';
+    const hp = creature.hp || 100;
+    const attack = creature.attack || 10;
     
     // 計算剩餘時間
     let remainingTime = 0;
@@ -146,9 +160,8 @@ function displayCreaturesOnMap(creatures) {
             <span class="badge ${getRarityBadgeClass(species)}">${species}</span>
           </p>
           <p class="mb-3">
-            <strong>力量:</strong> ${creature.power || 10} | 
-            <strong>防禦:</strong> ${creature.defense || 10} | 
-            <strong>生命:</strong> ${creature.hp || 100}
+            <strong>攻擊:</strong> ${attack} | 
+            <strong>生命:</strong> ${hp}
           </p>
           <button class="btn btn-success btn-sm w-100 catch-btn" onclick="catchCreature('${creature.id}')">
             <i class="fas fa-hand-sparkles me-1"></i>捕捉
@@ -222,6 +235,28 @@ function displayCreaturesOnMap(creatures) {
   return createdMarkers;
 }
 
+// 獲取當前玩家ID的輔助函數
+function getCurrentPlayerId() {
+  // 從全局變量或localStorage中獲取
+  if (window.currentUser && window.currentUser.player_id) {
+    return window.currentUser.player_id;
+  }
+  
+  // 嘗試從 localStorage 獲取
+  const userDataStr = localStorage.getItem('currentUser');
+  if (userDataStr) {
+    try {
+      const userData = JSON.parse(userDataStr);
+      return userData.player_id || '';
+    } catch (e) {
+      console.error('解析用戶數據失敗:', e);
+    }
+  }
+  
+  // 如果無法獲取，返回空字符串
+  return '';
+}
+
 // 捕捉精靈的函數
 function catchCreature(creatureId) {
   // 查找點擊的精靈
@@ -232,80 +267,26 @@ function catchCreature(creatureId) {
     return;
   }
   
+  // 檢查是否已經被捕獲
+  const currentPlayerId = getCurrentPlayerId();
+  const capturedPlayers = creature.captured_players || '';
+  const playerList = capturedPlayers.split(',').filter(Boolean);
+  
+  if (playerList.includes(currentPlayerId)) {
+    showGameAlert('你已經捕獲過這隻精靈了！', 'warning');
+    return;
+  }
+  
+  // 關閉當前的彈出框
+  if (creature.marker && creature.marker.closePopup) {
+    creature.marker.closePopup();
+  }
+  
   // 顯示加載中
   showLoading();
   
-  // 呼叫API捕捉精靈
-  fetch('/game/api/route-creatures/catch', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ creatureId: creatureId })
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('捕捉精靈失敗');
-    }
-    return response.json();
-  })
-  .then(data => {
-    hideLoading();
-    
-    if (data.success) {
-      console.log('捕捉成功:', data);
-      
-      // 應用捕捉動畫效果
-      const markerElement = creature.marker.getElement();
-      if (markerElement) {
-        markerElement.classList.add('catch-animation');
-        
-        // 等待動畫完成後從地圖移除
-        setTimeout(function() {
-          if (window.creaturesLayer) {
-            window.creaturesLayer.removeLayer(creature.marker);
-          }
-        }, 500);
-      } else {
-        // 如果無法獲取DOM元素，直接從地圖中移除
-        if (window.creaturesLayer) {
-          window.creaturesLayer.removeLayer(creature.marker);
-        }
-      }
-      
-      // 從精靈列表中移除
-      const index = currentCreatures.findIndex(c => c.id === creatureId);
-      if (index !== -1) {
-        currentCreatures.splice(index, 1);
-      }
-      
-      // 更新計數
-      capturedCreatures++;
-      
-      // 更新模態框內容
-      document.getElementById('catchSuccessMessage').textContent = data.message;
-      document.getElementById('caughtCreatureImage').src = data.creature.image_url || getDefaultCreatureImage(data.creature.element_type, data.creature.name);
-      document.getElementById('creature-power').textContent = data.creature.power;
-      document.getElementById('creature-type').textContent = getElementTypeName(data.creature.element_type);
-      document.getElementById('creature-rarity').textContent = data.creature.species;
-      
-      // 顯示成功模態框
-      const successModal = new bootstrap.Modal(document.getElementById('catchSuccessModal'));
-      successModal.show();
-      
-      // 播放音效和動畫
-      animateSparkles();
-      playCatchSound();
-    } else {
-      console.error('捕捉失敗:', data);
-      showGameAlert(data.message || '捕捉精靈失敗，請稍後再試！', 'warning');
-    }
-  })
-  .catch(error => {
-    console.error('捕捉精靈錯誤:', error);
-    hideLoading();
-    showGameAlert('捕捉精靈失敗，請稍後再試！', 'danger');
-  });
+  // 導向互動捕捉頁面
+  window.location.href = `/game/capture-interactive/${creatureId}`;
 }
 
 // 根據精靈類型獲取表情符號

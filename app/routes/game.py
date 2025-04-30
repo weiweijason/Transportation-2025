@@ -559,6 +559,86 @@ def catch_on_route(route_id):
         active_route_id=route_id
     )
 
+# 新增：互動捕捉頁面
+@game_bp.route('/capture-interactive/<creature_id>')
+@login_required
+def capture_interactive(creature_id):
+    """精靈互動捕捉頁面"""
+    # 獲取精靈資訊
+    firebase_service = FirebaseService()
+    
+    # 從 Firebase 獲取精靈
+    creature_ref = firebase_service.firestore_db.collection('route_creatures').document(creature_id)
+    creature_doc = creature_ref.get()
+    
+    if not creature_doc.exists:
+        flash('找不到指定精靈', 'error')
+        return redirect(url_for('game.catch'))
+    
+    creature = creature_doc.to_dict()
+    
+    # 檢查該玩家是否已經捕捉過這隻精靈
+    current_player_id = None
+    if current_user.is_authenticated:
+        # 獲取用戶數據
+        user_data = firebase_service.get_user_info(current_user.id)
+        if user_data and 'player_id' in user_data:
+            current_player_id = user_data['player_id']
+    
+    # 檢查是否已被捕捉
+    if current_player_id:
+        captured_players = creature.get('captured_players', '')
+        player_list = captured_players.split(',') if captured_players else []
+        
+        if current_player_id in player_list:
+            flash('你已經捕捉過這隻精靈了', 'warning')
+            return redirect(url_for('game.catch'))
+    
+    # 元素類型對應中文名稱
+    element_types = {
+        'fire': '火系',
+        'water': '水系',
+        'earth': '土系',
+        'air': '風系',
+        'electric': '電系',
+        'normal': '一般系',
+        0: '火系',
+        1: '水系',
+        2: '土系',
+        3: '風系',
+        4: '電系',
+        5: '一般系'
+    }
+    
+    return render_template(
+        'game/capture_interactive.html',
+        creature=creature,
+        element_types=element_types
+    )
+
+# 新增：互動捕捉 API
+@game_bp.route('/api/capture-interactive', methods=['POST'])
+@login_required
+def capture_interactive_api():
+    """精靈互動捕捉 API"""
+    data = request.json
+    creature_id = data.get('creatureId')
+    
+    if not creature_id:
+        return jsonify({
+            'success': False,
+            'message': '缺少精靈ID'
+        }), 400
+    
+    # 使用Firebase服務捕捉精靈
+    firebase_service = FirebaseService()
+    result = firebase_service.catch_route_creature(
+        creature_id=creature_id,
+        user_id=current_user.id
+    )
+    
+    return jsonify(result)
+
 # 用戶相關 API
 @game_bp.route('/api/user/get-current')
 @login_required
@@ -655,7 +735,7 @@ def sync_arena_to_firebase(arena_id):
         arena_ref = firebase_service.firestore_db.collection('arenas').document(arena_id)
         arena_doc = arena_ref.get()
         
-        if arena_doc.exists:
+        if (arena_doc.exists):
             # 道館已存在，更新資料
             arena_ref.update(arena_data)
             message = f'已更新道館資料: {arena_data.get("name", arena_id)}'
@@ -679,3 +759,36 @@ def sync_arena_to_firebase(arena_id):
             'success': False,
             'message': f'同步道館資料時發生錯誤: {str(e)}'
         }), 500
+
+@game_bp.route('/api/route-creatures', methods=['GET'])
+def get_all_route_creatures_by_player():
+    """獲取路線上的精靈 API，會根據玩家ID過濾
+    
+    這個API會傳回當前玩家尚未捕獲的精靈
+    """
+    try:
+        route_id = request.args.get('route_id')
+        
+        # 獲取當前用戶的 player_id
+        player_id = None
+        if current_user.is_authenticated:
+            player_id = current_user.player_id
+        
+        # 初始化 Firebase 服務
+        firebase_service = FirebaseService()
+        
+        # 從 Firebase 獲取精靈數據，並根據玩家 ID 過濾
+        creatures = firebase_service.get_route_creatures(route_id=route_id, player_id=player_id)
+        
+        return jsonify({
+            'success': True,
+            'message': f'找到 {len(creatures)} 隻精靈',
+            'creatures': creatures
+        })
+    except Exception as e:
+        current_app.logger.error(f"獲取精靈失敗: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'獲取精靈失敗: {str(e)}',
+            'creatures': []
+        })

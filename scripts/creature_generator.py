@@ -84,6 +84,10 @@ def generate_creatures_for_all_routes():
     if removed_count > 0:
         print(f"已清理 {removed_count} 隻過期的精靈")
     
+    # 更新本地緩存
+    firebase_service.cache_creatures_to_csv()
+    print("已更新精靈緩存")
+    
     # 為每條路線生成精靈
     for route in routes:
         # 80% 的機率生成精靈
@@ -119,6 +123,9 @@ def generate_creatures_for_all_routes():
                 print(f"在路線 {route.name} 上生成精靈失敗")
         else:
             print(f"路線 {route.name} 本次未生成精靈 (20% 機率)")
+    
+    # 再次更新本地緩存，確保添加了新生成的精靈
+    firebase_service.cache_creatures_to_csv()
     
     print(f"=== 精靈生成任務完成 ===\n")
 

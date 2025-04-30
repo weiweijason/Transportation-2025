@@ -211,7 +211,7 @@ function fetchRouteCreatures() {
           // 設置Firebase監聽，監聽精靈刪除事件
           setupFirebaseListener();
         } else {
-          console.log('沒有可顯示的精靈');
+          console.log('沒有可顯示的精靊');
           showGameAlert('當前沒有可捕捉的精靈，請稍後再來！', 'info');
         }
         
@@ -418,90 +418,21 @@ window.catchCreature = function(creatureId) {
   // 查找點擊的精靈
   const creature = currentCreatures.find(c => c.id === creatureId);
   if (!creature) {
-    console.error('找不到指定精靈:', creatureId);
+    console.error('找不到指定精靊:', creatureId);
     showGameAlert('這個精靈已經消失了，請尋找其他精靈。', 'warning');
     return;
+  }
+  
+  // 關閉當前的彈出框
+  if (creature.direct_marker && creature.direct_marker.closePopup) {
+    creature.direct_marker.closePopup();
   }
   
   // 顯示加載中
   showLoading();
   
-  // 呼叫API捕捉精靈
-  fetch('/game/api/route-creatures/catch', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ creatureId: creatureId })
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('捕捉精靈失敗');
-    }
-    return response.json();
-  })
-  .then(data => {
-    hideLoading();
-    
-    if (data.success) {
-      console.log('捕捉成功:', data);
-      
-      // 從地圖上移除該精靈標記
-      if (creature.direct_marker) {
-        if (window.creaturesLayer) {
-          window.creaturesLayer.removeLayer(creature.direct_marker);
-        } else if (window.busMap) {
-          window.busMap.removeLayer(creature.direct_marker);
-        }
-        console.log(`已從地圖移除精靈 ${creature.name}`);
-      }
-      
-      // 從精靈列表中移除
-      const index = currentCreatures.findIndex(c => c.id === creatureId);
-      if (index !== -1) {
-        currentCreatures.splice(index, 1);
-      }
-      
-      // 更新計數
-      capturedCreatures++;
-      
-      // 顯示成功信息
-      showGameAlert(`恭喜！你成功捕捉到了 ${creature.name}！`, 'success');
-      
-      // 如果有捕捉成功模態框，更新內容並顯示
-      const catchSuccessModal = document.getElementById('catchSuccessModal');
-      if (catchSuccessModal) {
-        document.getElementById('catchSuccessMessage').textContent = data.message || `恭喜捕捉到 ${creature.name}!`;
-        
-        // 設置精靈圖片
-        const creatureImg = document.getElementById('caughtCreatureImage');
-        if (creatureImg) {
-          creatureImg.src = data.creature.image_url || 'https://placehold.co/300x300?text=' + creature.name;
-        }
-        
-        // 設置精靈屬性
-        const powerEl = document.getElementById('creature-power');
-        const typeEl = document.getElementById('creature-type');
-        const rarityEl = document.getElementById('creature-rarity');
-        
-        if (powerEl) powerEl.textContent = data.creature.power || creature.power || '??';
-        if (typeEl) typeEl.textContent = data.creature.element_type || creature.element_type || '一般';
-        if (rarityEl) rarityEl.textContent = data.creature.species || creature.species || '普通';
-        
-        // 顯示模態框
-        const bsModal = new bootstrap.Modal(catchSuccessModal);
-        bsModal.show();
-      }
-    } else {
-      console.error('捕捉失敗:', data);
-      showGameAlert(data.message || '捕捉精靈失敗，請稍後再試！', 'warning');
-    }
-  })
-  .catch(error => {
-    console.error('捕捉精靈錯誤:', error);
-    hideLoading();
-    showGameAlert('捕捉精靈失敗，請稍後再試！', 'danger');
-  });
+  // 導向互動捕捉頁面
+  window.location.href = `/game/capture-interactive/${creatureId}`;
 };
 
 // 初始化捕捉模態框動畫

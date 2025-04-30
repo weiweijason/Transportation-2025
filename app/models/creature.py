@@ -16,17 +16,22 @@ class Creature(db.Model):
     __tablename__ = 'creatures'
     
     id = db.Column(db.Integer, primary_key=True)
+    random_id = db.Column(db.String(32), unique=True, nullable=False)  # 隨機生成的唯一 ID
     name = db.Column(db.String(64), nullable=False)
     species = db.Column(db.String(64), nullable=False)  # 精靈種類
     element_type = db.Column(db.Enum(ElementType), nullable=False)
     level = db.Column(db.Integer, default=1)
     experience = db.Column(db.Integer, default=0)
-    power = db.Column(db.Integer, default=10)  # 攻擊力
-    defense = db.Column(db.Integer, default=10)  # 防禦力
-    hp = db.Column(db.Integer, default=100)  # 血量
-    max_hp = db.Column(db.Integer, default=100)  # 最大血量
+    
+    # 精靈屬性 - 現在使用範圍隨機生成
+    hp = db.Column(db.Integer, default=100)  # 生命值
+    attack = db.Column(db.Integer, default=10)  # 攻擊力
+    
     image_url = db.Column(db.String(256))  # 精靈圖片URL
     captured_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # 捕獲此精靈的玩家 ID 列表 (儲存為逗號分隔的字符串)
+    captured_players = db.Column(db.Text, default="")
     
     # 關聯
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
@@ -36,22 +41,30 @@ class Creature(db.Model):
     # 關聯查詢
     bus_route = db.relationship('BusRoute', backref='creatures')
     
-    def level_up(self):
-        """精靈升級"""
-        self.level += 1
-        self.max_hp += 10
-        self.hp = self.max_hp
-        self.power += 5
-        self.defense += 5
+    def add_player_to_captured(self, player_id):
+        """將玩家添加到已捕獲列表中"""
+        if not self.captured_players:
+            self.captured_players = player_id
+        else:
+            # 檢查玩家是否已在列表中
+            player_list = self.captured_players.split(',')
+            if player_id not in player_list:
+                player_list.append(player_id)
+                self.captured_players = ','.join(player_list)
         return self
     
-    def heal(self, amount=None):
-        """恢復血量"""
-        if amount is None:
-            self.hp = self.max_hp  # 完全恢復
-        else:
-            self.hp = min(self.hp + amount, self.max_hp)  # 恢復特定量，但不超過最大值
-        return self
+    def is_captured_by_player(self, player_id):
+        """檢查是否已被特定玩家捕獲"""
+        if not self.captured_players:
+            return False
+        player_list = self.captured_players.split(',')
+        return player_id in player_list
+    
+    def get_captured_players(self):
+        """獲取已捕獲此精靈的玩家 ID 列表"""
+        if not self.captured_players:
+            return []
+        return self.captured_players.split(',')
     
     def is_effective_against(self, other_creature):
         """檢查屬性相剋關係"""
@@ -70,7 +83,7 @@ class Creature(db.Model):
     def calculate_damage(self, target):
         """計算對目標造成的傷害"""
         # 基本傷害公式
-        base_damage = max(5, self.power - target.defense // 2)
+        base_damage = max(5, self.attack)
         
         # 屬性克制加成
         if self.is_effective_against(target):
@@ -86,18 +99,18 @@ class Creature(db.Model):
         """將精靈數據轉換為字典（用於API）"""
         return {
             'id': self.id,
+            'random_id': self.random_id,
             'name': self.name,
             'species': self.species,
             'element_type': self.element_type.value,
             'level': self.level,
             'experience': self.experience,
-            'power': self.power,
-            'defense': self.defense,
+            'attack': self.attack,
             'hp': self.hp,
-            'max_hp': self.max_hp,
             'image_url': self.image_url,
             'owner_id': self.user_id,
-            'bus_route': self.bus_route.name if self.bus_route else None
+            'bus_route': self.bus_route.name if self.bus_route else None,
+            'captured_players': self.get_captured_players()
         }
     
     def __repr__(self):
