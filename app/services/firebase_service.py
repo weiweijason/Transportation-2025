@@ -484,16 +484,12 @@ class FirebaseService:
                     'bus_route_id': route_id,
                     'bus_route_name': route_name,
                     'generated_at': firebase_admin.firestore.SERVER_TIMESTAMP,
-                    'expires_at': expiry_timestamp  # 精靈過期時間 (5分鐘後)
-                    # 移除 captured_players 字串欄位，將使用子集合代替
+                    'expires_at': expiry_timestamp,  # 精靈過期時間 (5分鐘後)
                 }
                 
                 # 儲存到 Firestore
                 creature_ref = self.firestore_db.collection('route_creatures').document(creature_id)
                 creature_ref.set(creature_data)
-                
-                # 初始化空的 captured_players 子集合
-                # 這是一個隱性操作，不需要特別創建文檔，子集合會在需要時自動建立
                 
                 # 添加到返回列表
                 creatures.append(creature_data)
