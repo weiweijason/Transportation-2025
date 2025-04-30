@@ -585,14 +585,19 @@ def capture_interactive(creature_id):
         if user_data and 'player_id' in user_data:
             current_player_id = user_data['player_id']
     
-    # 檢查是否已被捕捉
+    # 檢查是否已被捕捉 (使用子集合)
     if current_player_id:
-        captured_players = creature.get('captured_players', '')
-        player_list = captured_players.split(',') if captured_players else []
-        
-        if current_player_id in player_list:
-            flash('你已經捕捉過這隻精靈了', 'warning')
-            return redirect(url_for('game.catch'))
+        try:
+            # 檢查 captured_players 子集合中是否已包含此玩家
+            player_capture_ref = creature_ref.collection('captured_players').document(current_player_id)
+            player_capture_doc = player_capture_ref.get()
+            
+            if player_capture_doc.exists:
+                flash('你已經捕捉過這隻精靈了', 'warning')
+                return redirect(url_for('game.catch'))
+        except Exception as e:
+            current_app.logger.error(f"檢查玩家捕捉狀態失敗: {e}")
+            # 若檢查失敗，繼續讓用戶嘗試捕捉
     
     # 元素類型對應中文名稱
     element_types = {
@@ -621,23 +626,134 @@ def capture_interactive(creature_id):
 @login_required
 def capture_interactive_api():
     """精靈互動捕捉 API"""
-    data = request.json
-    creature_id = data.get('creatureId')
-    
-    if not creature_id:
+    try:
+        # 記錄請求開始
+        current_app.logger.info(f"接收到捕捉請求，用戶ID: {current_user.id}")
+        
+        data = request.json
+        creature_id = data.get('creatureId')
+        
+        # 記錄請求參數
+        current_app.logger.info(f"捕捉請求參數: 精靈ID={creature_id}")
+        
+        if not creature_id:
+            return jsonify({
+                'success': False,
+                'message': '缺少精靈ID'
+            }), 400
+        
+        # 獲取 Firebase 服務
+        firebase_service = FirebaseService()
+        
+        # 檢查精靈是否存在
+        try:
+            creature_ref = firebase_service.firestore_db.collection('route_creatures').document(creature_id)
+            creature_doc = creature_ref.get()
+            
+            if not creature_doc.exists:
+                return jsonify({
+                    'success': False,
+                    'message': '找不到指定精靈，可能已被移除或過期'
+                }), 404
+                
+            current_app.logger.info(f"找到精靈: {creature_id}")
+        except Exception as creature_error:
+            current_app.logger.error(f"檢查精靈時發生錯誤: {creature_error}")
+            return jsonify({
+                'success': False,
+                'message': f'檢查精靈時發生錯誤: {str(creature_error)}'
+            }), 500
+        
+        # 檢查用戶 player_id
+        try:
+            user_data = firebase_service.get_user_info(current_user.id)
+            
+            player_id = None
+            if user_data and 'player_id' in user_data:
+                player_id = user_data.get('player_id')
+                current_app.logger.info(f"用戶 {current_user.id} 的 player_id: {player_id}")
+            
+            # 如果用戶沒有 player_id，生成一個並更新用戶資料
+            if not player_id:
+                import string
+                import random
+                player_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+                
+                # 更新用戶資料
+                update_result = firebase_service.update_user_info(current_user.id, {'player_id': player_id})
+                current_app.logger.info(f"已為用戶 {current_user.id} 生成新的 player_id: {player_id}, 更新結果: {update_result}")
+            
+            # 使用子集合檢查是否已經捕捉過該精靈
+            try:
+                # 檢查 captured_players 子集合中是否已包含此玩家
+                player_capture_ref = creature_ref.collection('captured_players').document(player_id)
+                player_capture_doc = player_capture_ref.get()
+                
+                if player_capture_doc.exists:
+                    current_app.logger.info(f"用戶 {player_id} 已經捕捉過精靈 {creature_id}")
+                    return jsonify({
+                        'success': False,
+                        'message': '你已經捕捉過這隻精靈了'
+                    }), 409  # 衝突狀態碼
+            except Exception as check_error:
+                current_app.logger.error(f"檢查玩家捕捉狀態失敗: {check_error}")
+                import traceback
+                current_app.logger.error(f"檢查玩家捕捉狀態失敗詳情: {traceback.format_exc()}")
+                # 即使檢查失敗，也讓捕捉繼續進行，假設用戶尚未捕捉
+                current_app.logger.info(f"忽略檢查錯誤，繼續捕捉流程")
+                
+        except Exception as user_error:
+            current_app.logger.error(f"檢查用戶時發生錯誤: {user_error}")
+            return jsonify({
+                'success': False,
+                'message': f'檢查用戶資料時發生錯誤: {str(user_error)}'
+            }), 500
+        
+        # 使用 Firebase 服務捕捉精靈
+        try:
+            current_app.logger.info(f"開始捕捉精靈，精靈ID: {creature_id}, 用戶ID: {current_user.id}")
+            result = firebase_service.catch_route_creature(
+                creature_id=creature_id,
+                user_id=current_user.id
+            )
+            
+            current_app.logger.info(f"捕捉結果: {result}")
+            
+            # 處理結果中的 Sentinel 對象 (Firebase 伺服器時間戳記)
+            # 如果結果中包含精靈資料且有 captured_at 字段是 Sentinel 對象
+            if result.get('success') and 'creature' in result:
+                creature_data = result['creature']
+                if 'captured_at' in creature_data:
+                    # 檢查是否為 Sentinel 對象 (無法 JSON 序列化)
+                    if hasattr(creature_data['captured_at'], '__class__') and 'Sentinel' in creature_data['captured_at'].__class__.__name__:
+                        # 將 Sentinel 替換為當前時間的字符串表示
+                        from datetime import datetime
+                        creature_data['captured_at'] = datetime.now().isoformat()
+            
+            return jsonify(result)
+        except Exception as catch_error:
+            current_app.logger.error(f"捕捉精靈時發生錯誤: {catch_error}")
+            # 詳細記錄異常
+            import traceback
+            error_details = traceback.format_exc()
+            current_app.logger.error(f"捕捉精靈詳細錯誤: \n{error_details}")
+            
+            return jsonify({
+                'success': False,
+                'message': f'捕捉精靈時發生錯誤: {str(catch_error)}'
+            }), 500
+            
+    except Exception as e:
+        # 詳細記錄異常
+        import traceback
+        error_details = traceback.format_exc()
+        current_app.logger.error(f"捕捉精靈時發生異常: {str(e)}\n{error_details}")
+        
+        # 返回用戶友好的錯誤訊息
         return jsonify({
             'success': False,
-            'message': '缺少精靈ID'
-        }), 400
-    
-    # 使用Firebase服務捕捉精靈
-    firebase_service = FirebaseService()
-    result = firebase_service.catch_route_creature(
-        creature_id=creature_id,
-        user_id=current_user.id
-    )
-    
-    return jsonify(result)
+            'message': f'捕捉精靈時發生錯誤: {str(e)}'
+        }), 500
 
 # 用戶相關 API
 @game_bp.route('/api/user/get-current')
@@ -792,3 +908,38 @@ def get_all_route_creatures_by_player():
             'message': f'獲取精靈失敗: {str(e)}',
             'creatures': []
         })
+
+@game_bp.route('/api/user/verify-auth-status', methods=['POST'])
+@jwt_or_session_required
+def verify_auth_status():
+    """驗證用戶登入狀態，供前端 JS 使用
+    
+    此 API 僅需返回用戶 ID 和基本資訊即可,
+    用於確認用戶是否已登入並獲取基本用戶資料
+    """
+    try:
+        # 如果用戶已登入，jwt_or_session_required 裝飾器會確保 current_user 可用
+        if not current_user.is_authenticated:
+            return jsonify({
+                'success': False,
+                'message': '用戶未登入'
+            }), 401
+        
+        # 獲取 Firebase 用戶資料
+        firebase_service = FirebaseService()
+        user_data = firebase_service.get_user_info(current_user.id)
+        
+        # 返回用戶基本資訊
+        return jsonify({
+            'success': True,
+            'id': current_user.id,
+            'username': current_user.username,
+            'email': current_user.email,
+            'player_id': user_data.get('player_id') if user_data else None
+        })
+    except Exception as e:
+        current_app.logger.error(f"驗證用戶狀態失敗: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'驗證用戶狀態失敗: {str(e)}'
+        }), 500

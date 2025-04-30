@@ -72,6 +72,11 @@ def create_app(config_name='default', load_tdx=True):
     db.init_app(app)
     login_manager.init_app(app)
     
+    # 初始化會話管理
+    if app.config.get('SESSION_TYPE') == 'filesystem':
+        from flask_session import Session
+        Session(app)
+    
     # 註冊藍圖
     from app.routes import main, auth, game, admin
     app.register_blueprint(main.main)
@@ -84,7 +89,13 @@ def create_app(config_name='default', load_tdx=True):
     
     @login_manager.user_loader
     def load_user(user_id):
-        return get_user_from_id(user_id)
+        user = get_user_from_id(user_id)
+        # 增加日誌以幫助排查問題
+        if user:
+            print(f"已載入用戶 {user_id}")
+        else:
+            print(f"無法載入用戶 {user_id}")
+        return user
     
     # 只有在需要時才預載TDX資料
     if load_tdx:

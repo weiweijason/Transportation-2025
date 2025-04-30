@@ -156,6 +156,8 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- 引入捕捉處理器 JavaScript -->
+<script src="{{ url_for('static', filename='js/game/capture-handler.js') }}"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const creatureId = '{{ creature.id }}';
@@ -248,6 +250,9 @@
       }
     }
     
+    // 初始化 CaptureHandler
+    CaptureHandler.initialize();
+    
     // 開始捕捉
     let captureInProgress = false;
     
@@ -268,62 +273,53 @@
       
       // 執行捕捉 API 請求
       setTimeout(() => {
-        // 發送 AJAX 請求到後端
-        fetch('/game/api/capture-interactive', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            creatureId: creatureId
+        // 使用捕捉處理器來處理捕捉邏輯
+        CaptureHandler.captureCreature(creatureId)
+          .then(result => {
+            if (result.success) {
+              // 捕捉成功
+              creatureImage.classList.add('captured');
+              resultMessage.textContent = '捕捉成功！';
+              
+              // 設置成功樣式
+              document.getElementById('resultModalHeader').className = 'modal-header bg-success text-white';
+              document.getElementById('resultModalTitle').textContent = '捕捉成功';
+              document.getElementById('resultText').textContent = '捕捉成功！';
+              document.getElementById('resultDescription').textContent = `恭喜您成功捕捉到了${creatureName}！`;
+            } else {
+              // 捕捉失敗
+              resultMessage.textContent = '捕捉失敗！';
+              resultMessage.style.color = '#dc3545';
+              
+              // 設置失敗樣式
+              document.getElementById('resultModalHeader').className = 'modal-header bg-danger text-white';
+              document.getElementById('resultModalTitle').textContent = '捕捉失敗';
+              document.getElementById('resultText').textContent = '捕捉失敗！';
+              document.getElementById('resultDescription').textContent = result.message || '很遺憾，這隻精靈逃脫了！';
+            }
+            
+            // 顯示結果
+            setTimeout(() => {
+              resultMessage.classList.add('visible');
+              
+              // 顯示結果模態框
+              setTimeout(() => {
+                const resultModal = new bootstrap.Modal(document.getElementById('captureResultModal'));
+                resultModal.show();
+              }, 2000);
+            }, 1000);
           })
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            // 捕捉成功
-            creatureImage.classList.add('captured');
-            resultMessage.textContent = '捕捉成功！';
-            
-            // 設置成功樣式
-            document.getElementById('resultModalHeader').className = 'modal-header bg-success text-white';
-            document.getElementById('resultModalTitle').textContent = '捕捉成功';
-            document.getElementById('resultText').textContent = '捕捉成功！';
-            document.getElementById('resultDescription').textContent = `恭喜您成功捕捉到了${creatureName}！`;
-          } else {
-            // 捕捉失敗
-            resultMessage.textContent = '捕捉失敗！';
+          .catch(error => {
+            console.error('捕捉請求失敗:', error);
+            resultMessage.textContent = '發生錯誤！';
             resultMessage.style.color = '#dc3545';
-            
-            // 設置失敗樣式
-            document.getElementById('resultModalHeader').className = 'modal-header bg-danger text-white';
-            document.getElementById('resultModalTitle').textContent = '捕捉失敗';
-            document.getElementById('resultText').textContent = '捕捉失敗！';
-            document.getElementById('resultDescription').textContent = data.message || '很遺憾，這隻精靈逃脫了！';
-          }
-          
-          // 顯示結果
-          setTimeout(() => {
             resultMessage.classList.add('visible');
             
-            // 顯示結果模態框
-            setTimeout(() => {
-              const resultModal = new bootstrap.Modal(document.getElementById('captureResultModal'));
-              resultModal.show();
-            }, 2000);
-          }, 1000);
-        })
-        .catch(error => {
-          console.error('捕捉請求失敗:', error);
-          resultMessage.textContent = '發生錯誤！';
-          resultMessage.style.color = '#dc3545';
-          resultMessage.classList.add('visible');
-          
-          // 重置按鈕
-          captureBtn.disabled = false;
-          cancelBtn.disabled = false;
-          captureInProgress = false;
-        });
+            // 重置按鈕
+            captureBtn.disabled = false;
+            cancelBtn.disabled = false;
+            captureInProgress = false;
+          });
       }, 3000);
     });
     

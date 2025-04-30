@@ -146,7 +146,8 @@ class FirebaseService:
             return {
                 "status": "success",
                 "message": "使用者註冊成功",
-                "user": user
+                "user": user,
+                "player_id": player_id  # 返回生成的玩家ID
             }
         except Exception as e:
             return {
@@ -483,12 +484,16 @@ class FirebaseService:
                     'bus_route_id': route_id,
                     'bus_route_name': route_name,
                     'generated_at': firebase_admin.firestore.SERVER_TIMESTAMP,
-                    'expires_at': expiry_timestamp,  # 精靈過期時間 (5分鐘後)
-                    'captured_players': ""  # 已捕獲此精靈的玩家ID列表
+                    'expires_at': expiry_timestamp  # 精靈過期時間 (5分鐘後)
+                    # 移除 captured_players 字串欄位，將使用子集合代替
                 }
                 
                 # 儲存到 Firestore
-                self.firestore_db.collection('route_creatures').document(creature_id).set(creature_data)
+                creature_ref = self.firestore_db.collection('route_creatures').document(creature_id)
+                creature_ref.set(creature_data)
+                
+                # 初始化空的 captured_players 子集合
+                # 這是一個隱性操作，不需要特別創建文檔，子集合會在需要時自動建立
                 
                 # 添加到返回列表
                 creatures.append(creature_data)
@@ -671,131 +676,211 @@ class FirebaseService:
             dict: 捕捉結果
         """
         try:
-            print(f"嘗試捕捉精靈 ID: {creature_id}, 用戶 ID: {user_id}")
+            print(f">>> DEBUG: 開始嘗試捕捉精靈 ID: {creature_id}, 用戶 ID: {user_id}")
             
-            # 獲取精靈數據
-            creature_ref = self.firestore_db.collection('route_creatures').document(creature_id)
-            creature_doc = creature_ref.get()
-            
-            if not creature_doc.exists:
-                print(f"找不到精靈，ID: {creature_id}")
+            # 步驟 1: 檢查精靈是否存在
+            try:
+                creature_ref = self.firestore_db.collection('route_creatures').document(creature_id)
+                creature_doc = creature_ref.get()
+                
+                if not creature_doc.exists:
+                    print(f">>> DEBUG: 找不到精靈，ID: {creature_id}")
+                    return {
+                        'success': False,
+                        'message': '找不到該精靈，可能已被移除或過期'
+                    }
+                
+                creature_data = creature_doc.to_dict()
+                print(f">>> DEBUG: 找到精靈: {creature_data.get('name')}, 數據: {creature_data}")
+            except Exception as e:
+                print(f">>> DEBUG: 獲取精靈數據失敗: {e}")
+                import traceback
+                print(f">>> DEBUG: 錯誤詳情: {traceback.format_exc()}")
                 return {
                     'success': False,
-                    'message': '找不到該精靈'
+                    'message': f'獲取精靈數據失敗: {str(e)}'
                 }
             
-            creature_data = creature_doc.to_dict()
-            print(f"精靈數據: {creature_data.get('name')}")
-            
-            # 獲取用戶資料以取得 player_id
-            user_ref = self.firestore_db.collection('users').document(user_id)
-            user_doc = user_ref.get()
-            
-            if not user_doc.exists:
-                print(f"找不到用戶資料，嘗試生成新的 player_id 並創建基本用戶資料")
+            # 步驟 2: 獲取用戶資料以取得 player_id
+            try:
+                user_ref = self.firestore_db.collection('users').document(user_id)
+                user_doc = user_ref.get()
                 
-                # 生成一個新的 player_id
-                player_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
-                
-                # 創建基本用戶資料
-                user_data = {
-                    'username': f'User_{player_id}',
-                    'player_id': player_id,
-                    'created_at': firebase_admin.firestore.SERVER_TIMESTAMP
-                }
-                
-                # 保存用戶資料
-                user_ref.set(user_data)
-                print(f"已為用戶 {user_id} 創建新的基本資料，player_id: {player_id}")
-            else:
-                user_data = user_doc.to_dict()
-                player_id = user_data.get('player_id')
-                
-                # 如果用戶沒有 player_id，生成一個並更新用戶資料
-                if not player_id:
+                if not user_doc.exists:
+                    print(f">>> DEBUG: 找不到用戶資料，嘗試生成新的 player_id 並創建基本用戶資料")
+                    
+                    # 生成一個新的 player_id
                     player_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
-                    user_ref.update({'player_id': player_id})
-                    print(f"已為用戶 {user_id} 更新 player_id: {player_id}")
-            
-            print(f"用戶 player_id: {player_id}")
-            
-            # 檢查精靈是否已被此玩家捕捉
-            captured_players = creature_data.get('captured_players', '')
-            player_list = captured_players.split(',') if captured_players else []
-            
-            if player_id in player_list:
-                print(f"玩家 {player_id} 已經捕捉過精靈 {creature_id}")
+                    
+                    # 創建基本用戶資料
+                    user_data = {
+                        'username': f'User_{player_id}',
+                        'player_id': player_id,
+                        'created_at': firebase_admin.firestore.SERVER_TIMESTAMP
+                    }
+                    
+                    # 保存用戶資料
+                    user_ref.set(user_data)
+                    print(f">>> DEBUG: 已為用戶 {user_id} 創建新的基本資料，player_id: {player_id}")
+                else:
+                    user_data = user_doc.to_dict()
+                    player_id = user_data.get('player_id')
+                    
+                    # 如果用戶沒有 player_id，生成一個並更新用戶資料
+                    if not player_id:
+                        player_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+                        user_ref.update({'player_id': player_id})
+                        print(f">>> DEBUG: 已為用戶 {user_id} 更新 player_id: {player_id}")
+                    else:
+                        print(f">>> DEBUG: 用戶 {user_id} 已有 player_id: {player_id}")
+                
+                print(f">>> DEBUG: 使用 player_id: {player_id}")
+            except Exception as e:
+                print(f">>> DEBUG: 獲取或創建用戶資料失敗: {e}")
+                import traceback
+                print(f">>> DEBUG: 錯誤詳情: {traceback.format_exc()}")
                 return {
                     'success': False,
-                    'message': '你已經捕捉過這隻精靈了'
+                    'message': f'獲取用戶資料失敗: {str(e)}'
                 }
             
-            # 將此玩家添加到捕獲列表中
-            player_list.append(player_id)
-            new_captured_players = ','.join(filter(None, player_list))  # 過濾空字串
-            
-            # 更新精靈數據，僅更新捕獲玩家列表
-            print(f"更新精靈捕獲列表: {new_captured_players}")
-            creature_ref.update({
-                'captured_players': new_captured_players,
-                'last_captured_at': firebase_admin.firestore.SERVER_TIMESTAMP
-            })
-            
-            # 添加精靈到用戶的收藏中
-            user_creature_id = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=12))
-            
-            # 確保有攻擊力值（兼容舊值 power 和新值 attack）
-            attack_value = creature_data.get('attack', creature_data.get('power', 10))
-            
-            user_creature_data = {
-                'id': user_creature_id,
-                'original_creature_id': creature_id,
-                'random_id': creature_data.get('random_id', ''),
-                'name': creature_data.get('name', '未知精靈'),
-                'species': creature_data.get('species', '一般種'),
-                'element_type': creature_data.get('element_type', 'normal'),
-                'level': 1,
-                'experience': 0,
-                'attack': attack_value,
-                'hp': creature_data.get('hp', 100),
-                'image_url': creature_data.get('image_url', ''),
-                'user_id': user_id,
-                'player_id': player_id,
-                'bus_route_id': creature_data.get('bus_route_id', ''),
-                'bus_route_name': creature_data.get('bus_route_name', ''),
-                'captured_at': firebase_admin.firestore.SERVER_TIMESTAMP
-            }
-            
-            # 儲存到用戶精靈集合
-            print(f"將精靈添加到用戶的收藏: {user_creature_id}")
-            self.firestore_db.collection('user_creatures').document(user_creature_id).set(user_creature_data)
-            
-            # 同步道館資料到 Firebase (如果該精靈是在道館捕獲的)
-            if 'arena_id' in creature_data and creature_data['arena_id']:
-                arena_id = creature_data['arena_id']
-                # 檢查道館是否存在於 Firebase
-                arena_ref = self.firestore_db.collection('arenas').document(arena_id)
-                arena_doc = arena_ref.get()
+            # 步驟 3: 檢查精靈是否已被此玩家捕捉 (使用子集合)
+            try:
+                # 檢查 captured_players 子集合中是否已包含此玩家
+                player_capture_ref = creature_ref.collection('captured_players').document(player_id)
+                player_capture_doc = player_capture_ref.get()
                 
-                if not arena_doc.exists:
-                    # 如果道館不存在，從本地緩存獲取道館資料並保存到 Firebase
-                    from app.models.arena import get_arena_from_cache
-                    arena_data = get_arena_from_cache(arena_id=arena_id)
-                    if arena_data:
-                        # 保存道館資料到 Firebase
-                        arena_ref.set(arena_data)
-                        print(f"已同步道館 {arena_data.get('name', arena_id)} 到 Firebase")
+                if player_capture_doc.exists:
+                    print(f">>> DEBUG: 玩家 {player_id} 已經捕捉過精靈 {creature_id}")
+                    return {
+                        'success': False,
+                        'message': '你已經捕捉過這隻精靈了'
+                    }
+            except Exception as e:
+                print(f">>> DEBUG: 檢查玩家捕捉狀態失敗: {e}")
+                import traceback
+                print(f">>> DEBUG: 錯誤詳情: {traceback.format_exc()}")
+                return {
+                    'success': False,
+                    'message': f'檢查捕捉狀態失敗: {str(e)}'
+                }
             
-            print(f"精靈捕捉成功: {creature_data.get('name', '未知精靈')}")
+            # 步驟 4: 將此玩家添加到精靈的捕獲子集合中
+            try:
+                # 在精靈的 captured_players 子集合中添加此玩家
+                capture_data = {
+                    'player_id': player_id,
+                    'user_id': user_id,
+                    'captured_at': firebase_admin.firestore.SERVER_TIMESTAMP
+                }
+                player_capture_ref.set(capture_data)
+                
+                # 更新精靈主文件的捕捉時間
+                creature_ref.update({
+                    'last_captured_at': firebase_admin.firestore.SERVER_TIMESTAMP
+                })
+                
+                print(f">>> DEBUG: 已將玩家 {player_id} 添加到精靈 {creature_id} 的捕獲列表中")
+            except Exception as e:
+                print(f">>> DEBUG: 更新精靈捕獲列表失敗: {e}")
+                import traceback
+                print(f">>> DEBUG: 錯誤詳情: {traceback.format_exc()}")
+                return {
+                    'success': False,
+                    'message': f'更新精靊捕獲列表失敗: {str(e)}'
+                }
+            
+            # 步驟 5: 添加精靈到用戶的收藏子集合中
+            try:
+                user_creature_id = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=12))
+                
+                # 確保有攻擊力值（兼容舊值 power 和新值 attack）
+                attack_value = creature_data.get('attack', creature_data.get('power', 10))
+                
+                # 安全處理 element_type
+                element_type = creature_data.get('element_type')
+                if isinstance(element_type, int):
+                    try:
+                        from app.models.creature import ElementType
+                        element_type = ElementType(element_type).name.lower()
+                    except:
+                        element_type = 'normal'
+                elif not element_type:
+                    element_type = 'normal'
+                
+                # 精靈數據
+                user_creature_data = {
+                    'id': user_creature_id,
+                    'original_creature_id': creature_id,
+                    'random_id': creature_data.get('random_id', ''),
+                    'name': creature_data.get('name', '未知精靈'),
+                    'species': creature_data.get('species', '一般種'),
+                    'element_type': element_type,
+                    'level': 1,
+                    'experience': 0,
+                    'attack': attack_value,
+                    'hp': creature_data.get('hp', 100),
+                    'image_url': creature_data.get('image_url', ''),
+                    'bus_route_id': creature_data.get('bus_route_id', ''),
+                    'bus_route_name': creature_data.get('bus_route_name', ''),
+                    'captured_at': firebase_admin.firestore.SERVER_TIMESTAMP
+                }
+                
+                print(f">>> DEBUG: 精靊數據準備完成，即將添加到用戶收藏: {user_creature_data}")
+                
+                # 儲存到用戶的 user_creatures 子集合中
+                user_ref.collection('user_creatures').document(user_creature_id).set(user_creature_data)
+                
+                # 同時保留在全局 user_creatures 集合中 (兼容現有程式碼)
+                self.firestore_db.collection('user_creatures').document(user_creature_id).set({
+                    **user_creature_data,
+                    'user_id': user_id,
+                    'player_id': player_id
+                })
+                
+                print(f">>> DEBUG: 精靈已成功添加到用戶的收藏: {user_creature_id}")
+            except Exception as e:
+                print(f">>> DEBUG: 添加精靈到用戶收藏失敗: {e}")
+                import traceback
+                print(f">>> DEBUG: 錯誤詳情: {traceback.format_exc()}")
+                return {
+                    'success': False,
+                    'message': f'添加精靈到用戶收藏失敗: {str(e)}'
+                }
+            
+            # 步驟 6: 同步道館資料 (如有必要)
+            try:
+                if 'arena_id' in creature_data and creature_data['arena_id']:
+                    arena_id = creature_data['arena_id']
+                    # 檢查道館是否存在於 Firebase
+                    arena_ref = self.firestore_db.collection('arenas').document(arena_id)
+                    arena_doc = arena_ref.get()
+                    
+                    if not arena_doc.exists:
+                        # 如果道館不存在，從本地緩存獲取道館資料並保存到 Firebase
+                        try:
+                            from app.models.arena import get_arena_from_cache
+                            arena_data = get_arena_from_cache(arena_id=arena_id)
+                            if arena_data:
+                                # 保存道館資料到 Firebase
+                                arena_ref.set(arena_data)
+                                print(f">>> DEBUG: 已同步道館 {arena_data.get('name', arena_id)} 到 Firebase")
+                        except Exception as arena_error:
+                            print(f">>> DEBUG: 同步道館資料失敗 (非致命錯誤): {arena_error}")
+            except Exception as e:
+                # 這個錯誤不影響捕捉結果，只是記錄
+                print(f">>> DEBUG: 同步道館資料失敗 (非致命錯誤): {e}")
+            
+            print(f">>> DEBUG: 精靈捕捉完全成功: {creature_data.get('name', '未知精靈')}")
             return {
                 'success': True,
                 'message': f"已成功捕捉 {creature_data.get('name', '未知精靈')}!",
                 'creature': user_creature_data
             }
         except Exception as e:
-            print(f"捕捉精靈失敗: {e}")
+            print(f">>> DEBUG: 捕捉精靈過程中發生未預期錯誤: {e}")
             import traceback
-            traceback.print_exc()
+            print(f">>> DEBUG: 完整錯誤詳情: {traceback.format_exc()}")
             return {
                 'success': False,
                 'message': f'捕捉精靈時發生錯誤: {str(e)}'
