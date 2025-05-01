@@ -84,6 +84,9 @@ def create_app(config_name='default', load_tdx=True):
     app.register_blueprint(game.game_bp, url_prefix='/game')
     app.register_blueprint(admin.admin_bp, url_prefix='/admin')
     
+    # 初始化遊戲模組的其他API藍圖
+    game.init_app(app)
+    
     # 設置 user_loader 回調
     from app.services.firebase_service import get_user_from_id
     
