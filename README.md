@@ -125,7 +125,15 @@
 │   ├── routes/             # 路由控制器
 │   │   ├── admin.py        # 管理員相關路由
 │   │   ├── auth.py         # 認證相關路由
-│   │   ├── game.py         # 遊戲功能路由
+│   │   ├── game/           # 遊戲功能模組化路由
+│   │   │   ├── __init__.py # 遊戲藍圖整合
+│   │   │   ├── auth.py     # 認證裝飾器
+│   │   │   ├── views.py    # 頁面路由
+│   │   │   ├── creature_api.py    # 精靈API
+│   │   │   ├── bus_api.py         # 公車API
+│   │   │   ├── arena_api.py       # 擂台API
+│   │   │   ├── route_creatures_api.py # 路線精靈API
+│   │   │   └── user_api.py        # 用戶API
 │   │   └── main.py         # 主頁相關路由
 │   ├── services/           # 服務層
 │   │   ├── firebase_service.py  # Firebase 服務
@@ -290,6 +298,26 @@
    - 社群功能整合
 
 ## 最新進度更新 (2025年5月1日)
+
+### 代碼架構改進
+1. **後端代碼模組化重構**:
+   - 將單一的 `game.py` 文件拆分為多個功能模組，提高可維護性
+   - 建立了 `app/routes/game/` 子包，包含多個功能專一的模組
+   - 實現關注點分離，每個功能區域有專屬的程式碼檔案
+
+2. **模組化後的文件結構**:
+   - `app/routes/game/__init__.py` - 整合所有遊戲模組的藍圖
+   - `app/routes/game/auth.py` - 認證裝飾器與相關功能
+   - `app/routes/game/views.py` - 基本頁面路由
+   - `app/routes/game/creature_api.py` - 精靈捕捉 API
+   - `app/routes/game/bus_api.py` - 公車路線 API
+   - `app/routes/game/arena_api.py` - 擂台相關 API
+   - `app/routes/game/route_creatures_api.py` - 路線精靈 API
+   - `app/routes/game/user_api.py` - 用戶相關 API
+
+3. **前後端一致性優化**:
+   - 保持 API 路徑結構一致性，確保前端請求正確
+   - 所有 API 遵循 `/game/api/...` 路徑格式
 
 ### 新增功能
 1. **個人化地圖體驗**:

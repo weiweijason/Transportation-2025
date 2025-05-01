@@ -11,105 +11,61 @@
 <div class="container mt-4">
   <h2 class="section-title text-center mb-4"><i class="fas fa-map-marked-alt me-2"></i>精靈探索捕捉</h2>
   
-  <!-- 頁籤導航 -->
-  <ul class="nav nav-tabs game-tabs mb-4" id="gameTabs" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="map-tab" data-bs-toggle="tab" data-bs-target="#map-content" type="button" role="tab" aria-controls="map-content" aria-selected="true">
-        <i class="fas fa-map"></i>路線地圖
-      </button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="arenas-tab" data-bs-toggle="tab" data-bs-target="#arenas-content" type="button" role="tab" aria-controls="arenas-content" aria-selected="false">
-        <i class="fas fa-trophy"></i>站牌擂台
-      </button>
-    </li>
-  </ul>
-  
-  <!-- 頁籤內容 -->
-  <div class="tab-content game-tab-content" id="gameTabsContent">
-    <!-- 地圖頁籤 -->
-    <div class="tab-pane fade show active" id="map-content" role="tabpanel" aria-labelledby="map-tab">
-      <div class="row">
-        <div class="col-md-12">
-          <div class="card shadow-lg mb-4">
-            <div class="card-body p-3">
-              <div id="map" class="mb-3"></div>
-              
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="bus-routes-legend mb-3">
-                    <h6 class="mb-2"><i class="fas fa-route me-2"></i>路線圖例</h6>
-                    <div class="d-flex flex-wrap">
-                      <div class="me-4 mb-2 d-flex align-items-center">
-                        <span class="route-line" style="background-color: #ff9800;"></span>
-                        <span>貓空右線</span>
-                      </div>
-                      <div class="me-4 mb-2 d-flex align-items-center">
-                        <span class="route-line" style="background-color: #4caf50;"></span>
-                        <span>貓空左線(動物園)</span>
-                      </div>
-                      <div class="me-4 mb-2 d-flex align-items-center">
-                        <span class="route-line" style="background-color: #9c27b0;"></span>
-                        <span>貓空左線(指南宮)</span>
-                      </div>
-                    </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card shadow-lg mb-4">
+        <div class="card-body p-3">
+          <div id="map" class="mb-3"></div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="bus-routes-legend mb-3">
+                <h6 class="mb-2"><i class="fas fa-route me-2"></i>路線圖例</h6>
+                <div class="d-flex flex-wrap">
+                  <div class="me-4 mb-2 d-flex align-items-center">
+                    <span class="route-line" style="background-color: #ff9800;"></span>
+                    <span>貓空右線</span>
                   </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div class="current-location">
-                      <p class="mb-0"><i class="fas fa-location-arrow me-2 text-primary"></i><strong>當前位置:</strong> <span id="currentLocation" class="ms-2 badge bg-light text-dark">尚未定位</span></p>
-                    </div>
-                    <div class="d-flex gap-2">
-                      <button id="refreshLocationBtn" class="btn btn-sm btn-primary">
-                        <i class="fas fa-crosshairs me-1"></i>重新定位
-                      </button>
-                      <button id="initMapBtn" class="btn btn-sm btn-outline-secondary">
-                        <i class="fas fa-sync-alt me-1"></i>重整地圖
-                      </button>
-                    </div>
+                  <div class="me-4 mb-2 d-flex align-items-center">
+                    <span class="route-line" style="background-color: #4caf50;"></span>
+                    <span>貓空左線(動物園)</span>
+                  </div>
+                  <div class="me-4 mb-2 d-flex align-items-center">
+                    <span class="route-line" style="background-color: #9c27b0;"></span>
+                    <span>貓空左線(指南宮)</span>
                   </div>
                 </div>
               </div>
-              
-              <!-- 提示信息 -->
-              <div class="alert alert-info mt-3">
-                <div class="d-flex">
-                  <div class="me-3">
-                    <i class="fas fa-info-circle fa-2x"></i>
-                  </div>
-                  <div>
-                    <h5 class="alert-heading">遊戲提示</h5>
-                    <p class="mb-0">地圖上將隨機生成精靈，點擊標記可以嘗試捕捉。精靈每5分鐘會更新一次。靠近站牌時，您可以挑戰該站牌的擂台！</p>
-                  </div>
+            </div>
+            <div class="col-md-6">
+              <div class="location-controls">
+                <div id="locationErrorContainer" class="current-location d-none">
+                  <p class="mb-0"><i class="fas fa-exclamation-triangle me-2 text-warning"></i><span id="currentLocation" class="ms-2 badge bg-light text-dark">無法定位</span></p>
+                </div>
+                <div class="d-flex flex-wrap justify-content-end gap-2">
+                  <button id="refreshLocationBtn" class="btn btn-sm btn-primary">
+                    <i class="fas fa-crosshairs me-1"></i>重新定位
+                  </button>
+                  <button id="goToCurrentLocationBtn" class="btn btn-sm btn-info">
+                    <i class="fas fa-location-arrow me-1"></i>目前位置
+                  </button>
+                  <button id="initMapBtn" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-sync-alt me-1"></i>重整地圖
+                  </button>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- 擂台頁籤 -->
-    <div class="tab-pane fade" id="arenas-content" role="tabpanel" aria-labelledby="arenas-tab">
-      <div class="row">
-        <div class="col-md-12">
-          <div class="card shadow-lg mb-4">
-            <div class="card-header bg-danger text-white">
-              <h5 class="card-title mb-0"><i class="fas fa-trophy me-2"></i>站牌擂台挑戰</h5>
-            </div>
-            <div class="card-body">
-              <p class="mb-3">這些是貓空纜車路線上的站牌擂台（道館），您可以使用您的精靊挑戰並佔領它們！擊敗當前的擂主即可成為新的擂主。</p>
-              
-              <!-- 擂台列表 -->
-              <div id="arenaList" class="row g-3">
-                <!-- 擂台列表將由JavaScript動態生成 -->
-                <div class="col-12 text-center py-5">
-                  <div class="spinner-border text-danger" role="status">
-                    <span class="visually-hidden">正在加載擂台資訊...</span>
-                  </div>
-                  <p class="mt-2">正在加載擂台資訊...</p>
-                </div>
+          
+          <!-- 提示信息 -->
+          <div class="alert alert-info mt-3">
+            <div class="d-flex">
+              <div class="me-3">
+                <i class="fas fa-info-circle fa-2x"></i>
+              </div>
+              <div>
+                <h5 class="alert-heading">遊戲提示</h5>
+                <p class="mb-0">地圖上將隨機生成精靈，點擊標記可以嘗試捕捉。精靈每5分鐘會更新一次。靠近站牌時，您可以挑戰該站牌的擂台！</p>
               </div>
             </div>
           </div>
@@ -190,5 +146,47 @@
 <script src="{{ url_for('static', filename='js/game/map-functions.js') }}"></script>
 <script src="{{ url_for('static', filename='js/game/creature-functions.js') }}"></script>
 <script src="{{ url_for('static', filename='js/game/arena-functions.js') }}"></script>
+<script type="text/javascript">
+  // 初始化時設置最大縮放級別
+  document.addEventListener('DOMContentLoaded', function() {
+    // 當地圖初始化完成後，設置最大縮放
+    setTimeout(function() {
+      if (window.gameMap) {
+        window.gameMap.setZoom(19); // 設置為最大缩放级别
+      } else if (window.busMap) {
+        window.busMap.setZoom(19); // 設置為最大缩放级别
+      }
+    }, 1000);
+    
+    // 為目前位置按鈕添加事件處理
+    document.getElementById('goToCurrentLocationBtn').addEventListener('click', function() {
+      if (window.userLocation) {
+        if (window.gameMap) {
+          window.gameMap.setView(window.userLocation, 19);
+        } else if (window.busMap) {
+          window.busMap.setView(window.userLocation, 19);
+        }
+      } else {
+        showGameAlert('無法獲取當前位置，請嘗試重新定位', 'warning');
+      }
+    });
+    
+    // 隱藏當前位置顯示，只在定位失敗時才顯示
+    const originalUpdateUserLocation = window.updateUserLocation;
+    if (typeof originalUpdateUserLocation === 'function') {
+      window.updateUserLocation = function() {
+        return originalUpdateUserLocation().then(function(result) {
+          // 定位成功，隱藏錯誤提示
+          document.getElementById('locationErrorContainer').classList.add('d-none');
+          return result;
+        }).catch(function(error) {
+          // 定位失敗，顯示錯誤提示
+          document.getElementById('locationErrorContainer').classList.remove('d-none');
+          throw error;
+        });
+      };
+    }
+  });
+</script>
 <script src="{{ url_for('static', filename='js/game/catch-game.js') }}"></script>
 {% endblock %}
