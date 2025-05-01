@@ -511,10 +511,10 @@ def get_all_route_creatures():
 @game_bp.route('/api/route-creatures/get-from-csv', methods=['GET'])
 @jwt_or_session_required
 def get_route_creatures_from_csv():
-    """從CSV檔案獲取快取的精靈資料
+    """從CSV檔案獲取快取的精靈資料，並過濾掉用戶已捕獲的精靈
 
     Returns:
-        JSON: 所有可捕捉的精靈資料
+        JSON: 所有可捕捉的精靈資料（排除用戶已捕獲的）
     """
     try:
         firebase_service = FirebaseService()
@@ -526,6 +526,42 @@ def get_route_creatures_from_csv():
                 'message': '目前沒有精靈資料。請稍後再試。',
                 'creatures': []
             })
+        
+        # 獲取當前用戶的player_id
+        player_id = None
+        if current_user.is_authenticated:
+            # 獲取用戶數據
+            user_data = firebase_service.get_user_info(current_user.id)
+            if user_data and 'player_id' in user_data:
+                player_id = user_data.get('player_id')
+                current_app.logger.info(f"用戶 {current_user.id} 的 player_id: {player_id}")
+        
+        # 如果用戶已登入且有player_id，過濾出用戶尚未捕獲的精靈
+        if player_id:
+            # 獲取用戶已捕獲的精靈，查詢其original_creature_id
+            captured_creatures_ids = []
+            try:
+                # 從用戶的user_creatures子集合獲取所有已捕獲的精靈
+                user_ref = firebase_service.firestore_db.collection('users').document(current_user.id)
+                user_creatures_ref = user_ref.collection('user_creatures').get()
+                
+                # 提取所有original_creature_id
+                for doc in user_creatures_ref:
+                    creature_data = doc.to_dict()
+                    if 'original_creature_id' in creature_data:
+                        captured_creatures_ids.append(creature_data['original_creature_id'])
+                        
+                current_app.logger.info(f"用戶 {current_user.id} 已捕獲 {len(captured_creatures_ids)} 隻精靈")
+            except Exception as e:
+                current_app.logger.error(f"獲取用戶已捕獲精靈時發生錯誤: {e}")
+                import traceback
+                current_app.logger.error(f"錯誤詳情: {traceback.format_exc()}")
+            
+            # 過濾掉用戶已捕獲的精靈
+            if captured_creatures_ids:
+                filtered_creatures = [c for c in creatures if c['id'] not in captured_creatures_ids]
+                creatures = filtered_creatures
+                current_app.logger.info(f"過濾後剩餘 {len(creatures)} 隻精靈可供捕獲")
         
         return jsonify({
             'success': True,
