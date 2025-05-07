@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, render_template, redirect, url_for, session, flash
 from flask_login import login_required, current_user
 
 # 創建主藍圖
@@ -22,5 +22,13 @@ def home():
 @main.route('/profile')
 @login_required
 def profile():
-    """用戶個人資料頁面 (需要登入)"""
-    return render_template('main/profile.html')
+    """用戶個人資料頁面"""
+    # 從配置獲取Firebase前端配置
+    from app.config.firebase_config import FIREBASE_CONFIG
+    
+    # 確保用戶已登入
+    if 'user' not in session:
+        flash('請先登入', 'warning')
+        return redirect(url_for('auth.login'))
+    
+    return render_template('main/profile.html', firebase_config=FIREBASE_CONFIG)

@@ -20,6 +20,7 @@ class User(UserMixin, db.Model):
     last_active = db.Column(db.DateTime, default=datetime.utcnow)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_admin = db.Column(db.Boolean, default=False)  # 添加管理員標識
+    fight_count = db.Column(db.Integer, default=0)  # 新增: 戰鬥總數
     
     # 關聯
     creatures = db.relationship('Creature', backref='owner', lazy='dynamic')
@@ -66,12 +67,28 @@ class User(UserMixin, db.Model):
             'level': self.level,
             'experience': self.experience,
             'creature_count': self.creatures.count(),
-            'arena_count': self.arenas.count()
+            'arena_count': self.arenas.count(),
+            'fight_count': self.fight_count  # 新增: 戰鬥總數
         }
     
     def __repr__(self):
         return f'<User {self.username}>'
 
+    @classmethod
+    def from_dict(cls, data, uid):
+        """從字典建立模型"""
+        if not data:
+            return cls(uid=uid, email='', username='')
+        
+        return cls(
+            uid=uid,
+            email=data.get('email', ''),
+            username=data.get('username', ''),
+            level=data.get('level', 1),
+            experience=data.get('experience', 0),
+            arenas=data.get('arenas', []),  # 新增: 擂台集合
+            fight_count=data.get('fight_count', 0)  # 新增: 戰鬥總數
+        )
 
 @login_manager.user_loader
 def load_user(user_id):
