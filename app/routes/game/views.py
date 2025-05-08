@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, current_app
+from flask import Blueprint, render_template, flash, redirect, url_for, current_app, request
 from flask_login import login_required, current_user
 from app.models.bus import BusRoute
+from app.config.firebase_config import FIREBASE_CONFIG  # 導入Firebase配置
 
 # 創建藍圖 blueprint - 不設置 url_prefix，將由主藍圖統一設置
 views_bp = Blueprint('game', __name__)
@@ -9,19 +10,27 @@ views_bp = Blueprint('game', __name__)
 @views_bp.route('/')
 @login_required
 def game_home():
-    return render_template('game/catch.html')
+    return render_template('game/catch.html', firebase_config=FIREBASE_CONFIG)
 
 # 捕捉精靈頁面
 @views_bp.route('/catch')
 @login_required
 def catch():
-    return render_template('game/catch.html')
+    return render_template('game/catch.html', firebase_config=FIREBASE_CONFIG)
 
 # 擂台對戰頁面
 @views_bp.route('/battle')
 @login_required
 def battle():
-    return render_template('game/battle.html')
+    # 從請求參數中獲取擂台ID
+    arena_id = request.args.get('arena_id')
+    
+    # 如果沒有提供擂台ID，則重定向到擂台列表頁面
+    if not arena_id:
+        flash('請先選擇一個擂台進行挑戰', 'warning')
+        return redirect(url_for('game.list_arenas'))
+    
+    return render_template('game/battle.html', arena_id=arena_id, firebase_config=FIREBASE_CONFIG)
 
 # 新增：擂台列表頁面
 @views_bp.route('/arenas')
@@ -31,7 +40,7 @@ def list_arenas():
     # 獲取所有擂台
     from app.models.arena import FirebaseArena as Arena
     arenas = Arena.get_all()
-    return render_template('game/arenas.html', arenas=arenas)
+    return render_template('game/arenas.html', arenas=arenas, firebase_config=FIREBASE_CONFIG)
 
 # 新增: 從巴士路線捕捉頁面
 @views_bp.route('/catch-on-route/<route_id>')
@@ -47,7 +56,8 @@ def catch_on_route(route_id):
     return render_template(
         'game/catch.html',
         route=route,
-        active_route_id=route_id
+        active_route_id=route_id,
+        firebase_config=FIREBASE_CONFIG
     )
 
 # 新增：互動捕捉頁面
@@ -111,5 +121,6 @@ def capture_interactive(creature_id):
     return render_template(
         'game/capture_interactive.html',
         creature=creature,
-        element_types=element_types
+        element_types=element_types,
+        firebase_config=FIREBASE_CONFIG
     )

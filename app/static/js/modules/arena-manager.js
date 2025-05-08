@@ -225,7 +225,7 @@ function createArenaMarker(stop, routeName, arenaId, level, arenaData) {
             <p><small>${levelDescription}</small></p>
             <p><small>道館ID: ${arenaId}</small></p>
             <button class="btn btn-danger mt-2 challenge-arena-btn" 
-                    onclick="showArenaInfo('${stop.id}', '${stop.name}', '${routeName}')">
+                    onclick="goToArena('${stop.id}', '${stop.name}', '${routeName}')">
                 前往道館
             </button>
         </div>
@@ -412,6 +412,52 @@ function showArenaInfo(stopId, stopName, routeName) {
         window.location.href = `/game/battle?error=500&stopId=${stopId}&stopName=${encodeURIComponent(stopName)}&routeName=${encodeURIComponent(routeName)}`;
     }
 }
+
+// 直接前往指定道館頁面
+function goToArena(stopId, stopName, routeName) {
+    console.log(`直接前往道館: ${stopName}, ID: ${stopId}, 路線: ${routeName}`);
+    
+    // 道館名稱
+    const arenaName = `${stopName}道館`;
+    
+    try {
+        // 從Firebase獲取道館當前狀況
+        const db = firebase.firestore();
+        
+        db.collection('arenas')
+            .where('name', '==', arenaName)
+            .limit(1)
+            .get()
+            .then((querySnapshot) => {
+                let arenaData = null;
+                
+                if (!querySnapshot.empty) {
+                    // 如果找到了道館資料
+                    arenaData = querySnapshot.docs[0].data();
+                    console.log(`找到現有道館資料: ${arenaName}`, arenaData);
+                    
+                    // 直接導航到擂台頁面，而不是道館列表頁面
+                    window.location.href = `/game/battle?arena_id=${arenaData.id}`;
+                } else {
+                    // 道館不存在於Firebase中，顯示404錯誤頁面
+                    console.log(`道館 ${arenaName} 不存在於Firebase中，顯示404錯誤頁面`);
+                    window.location.href = `/game/battle?error=404&stopId=${stopId}&stopName=${encodeURIComponent(stopName)}&routeName=${encodeURIComponent(routeName)}`;
+                }
+            })
+            .catch(error => {
+                console.error(`獲取道館資訊時出錯: ${error}`);
+                // 錯誤時顯示錯誤頁面
+                window.location.href = `/game/battle?error=500&stopId=${stopId}&stopName=${encodeURIComponent(stopName)}&routeName=${encodeURIComponent(routeName)}`;
+            });
+    } catch (error) {
+        console.error(`存取Firebase時出錯: ${error}`);
+        // 錯誤時顯示錯誤頁面
+        window.location.href = `/game/battle?error=500&stopId=${stopId}&stopName=${encodeURIComponent(stopName)}&routeName=${encodeURIComponent(routeName)}`;
+    }
+}
+
+// 將goToArena函數暴露為全域函數
+window.goToArena = goToArena;
 
 // 檢查是否已有路線對應的道館
 function checkExistingArenaForStop(stopName) {

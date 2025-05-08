@@ -52,8 +52,7 @@
                                             {% endif %}
                                         </div>
                                         <div class="card-footer">
-                                            <a href="{{ url_for('game.battle', arena_id=arena.id) }}" class="btn btn-danger w-100" 
-                                               onclick="syncArenaToFirebase('{{ arena.id }}')">
+                                            <a href="{{ url_for('game.battle', arena_id=arena.id) }}" class="btn btn-danger w-100">
                                                 <i class="fas fa-fist-raised me-1"></i>挑戰擂台
                                             </a>
                                         </div>
@@ -175,25 +174,23 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script>
-    // 當點擊擂台時，同步擂台資料到 Firebase
-    function syncArenaToFirebase(arenaId) {
-        console.log('同步擂台資料到 Firebase:', arenaId);
-        
-        // 使用 fetch API 發送請求到後端 API
-        fetch(`/game/api/arena/sync/${arenaId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('同步結果:', data);
-        })
-        .catch(error => {
-            console.error('同步擂台資料失敗:', error);
-        });
+    // 初始化Firebase
+    var firebaseConfig = {
+        apiKey: "{{ firebase_config.apiKey }}",
+        authDomain: "{{ firebase_config.authDomain }}",
+        projectId: "{{ firebase_config.projectId }}",
+        storageBucket: "{{ firebase_config.storageBucket }}",
+        messagingSenderId: "{{ firebase_config.messagingSenderId }}",
+        appId: "{{ firebase_config.appId }}"
+    };
+    
+    // 初始化Firebase應用
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
     }
 </script>
 {% endblock %}

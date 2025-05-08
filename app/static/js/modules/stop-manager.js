@@ -187,7 +187,7 @@ function updateArenaDisplay(arenaId, newLevel) {
                         <p><small>${levelDescription}</small></p>
                         <p><small>道館ID: ${arenaId}</small></p>
                         <button class="btn btn-danger mt-2 challenge-arena-btn" 
-                                onclick="showArenaInfo('${stopId}', '${stopName}', '${routeName}')">
+                                onclick="goToArena('${stopId}', '${stopName}', '${routeName}')">
                             前往道館
                         </button>
                     </div>

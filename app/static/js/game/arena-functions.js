@@ -91,8 +91,39 @@ function fetchArenasInfo() {
 
 // 前往道館的函數
 function goToArena(stopId, stopName, routeName) {
-  // 獲取目前位置（用於lat和lon參數）
-  const location = window.userLocation || [25.0282, 121.5432]; // 默認位置
+  // 從全局存儲的擂台資訊中查找正確的擂台ID
+  const arenaId = findArenaIdByStopId(stopId);
   
-  window.location.href = `/game/battle?stopId=${stopId}&stopName=${encodeURIComponent(stopName)}&routeName=${encodeURIComponent(routeName)}&lat=${location[0]}&lon=${location[1]}`;
+  if (arenaId) {
+    // 如果找到擂台ID，直接用arena_id參數導向battle頁面
+    window.location.href = `/game/battle?arena_id=${arenaId}`;
+  } else {
+    // 如果找不到擂台ID，回退到原來的方法
+    console.warn('無法找到擂台ID，使用舊方法導航');
+    // 獲取目前位置（用於lat和lon參數）
+    const location = window.userLocation || [25.0282, 121.5432]; // 默認位置
+    
+    window.location.href = `/game/battle?stopId=${stopId}&stopName=${encodeURIComponent(stopName)}&routeName=${encodeURIComponent(routeName)}&lat=${location[0]}&lon=${location[1]}`;
+  }
+}
+
+// 根據站點ID查找擂台ID
+function findArenaIdByStopId(stopId) {
+  // 檢查全局擂台資訊中是否存在此站點ID對應的擂台
+  if (window.busStopsArenas && window.busStopsArenas[stopId] && window.busStopsArenas[stopId].arenaId) {
+    return window.busStopsArenas[stopId].arenaId;
+  }
+  
+  // 如果我們有完整的擂台列表，嘗試從中查找
+  if (window.allArenas) {
+    const arena = window.allArenas.find(a => 
+      a.stopIds && (a.stopIds.includes(stopId) || a.stopIds[0] === stopId)
+    );
+    if (arena && arena.id) {
+      return arena.id;
+    }
+  }
+  
+  // 如果找不到，返回一個格式化的擂台ID (這僅是一種臨時解決方案)
+  return `arena-${stopId}`;
 }

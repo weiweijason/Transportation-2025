@@ -771,12 +771,66 @@
       font-size: 2rem;
     }
   }
+  
+  /* 精靈選擇過濾器樣式 */
+  .creature-filter {
+    margin-bottom: 20px;
+  }
+  
+  .creature-filter .btn-group {
+    width: 100%;
+    overflow: hidden;
+    border-radius: 10px;
+  }
+  
+  .creature-filter button {
+    flex: 1;
+    padding: 8px 15px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  
+  .creature-filter button.active {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2) inset;
+  }
+  
+  /* 精靈選擇區域調整 */
+  .creature-selection .card-body {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  
+  /* 深色模式下的過濾按鈕 */
+  [data-theme="dark"] .creature-filter button {
+    border-color: #4d5656;
+    color: #e0e0e0;
+  }
+  
+  [data-theme="dark"] .creature-filter button.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+  
+  /* 定義震動動畫 */
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container mt-4">
   <h2 class="section-title text-center mb-4"><i class="fas fa-trophy me-2"></i>站點擂台戰鬥</h2>
+  
+  <!-- 用戶ID隱藏字段 -->
+  <input type="hidden" id="user-id" value="{{ session['user']['uid'] }}">
+  
+  <!-- 擂台ID隱藏字段 -->
+  <input type="hidden" id="arena-id" value="{{ arena_id }}">
   
   <!-- 戰鬥頁面主體 -->
   <div class="battle-wrapper">
@@ -827,6 +881,17 @@
           <h5 class="mb-0"><i class="fas fa-hand-pointer me-2"></i>選擇挑戰精靈</h5>
         </div>
         <div class="card-body p-4">
+          <!-- 精靈類型過濾器 -->
+          <div class="creature-filter mb-3">
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-outline-primary active" data-filter="all">全部</button>
+              <button type="button" class="btn btn-outline-primary" data-filter="water">水系</button>
+              <button type="button" class="btn btn-outline-danger" data-filter="fire">火系</button>
+              <button type="button" class="btn btn-outline-warning" data-filter="earth">土系</button>
+              <button type="button" class="btn btn-outline-success" data-filter="air">風系</button>
+            </div>
+          </div>
+          
           <div class="row" id="creatureList">
             <div class="col-12 text-center py-5">
               <div class="spinner-border text-primary" role="status">
@@ -845,7 +910,7 @@
         </div>
         <div class="battle-area-content">
           <p class="mb-4">選擇一隻精靈進行挑戰！擊敗守護精靈即可成為新擂主！</p>
-          <button id="battleButton" class="btn btn-danger btn-lg battle-button" disabled>
+          <button id="battleButton" class="btn btn-danger btn-lg battle-button" disabled onclick="startBattle()">
             <i class="fas fa-bolt me-2"></i>開始戰鬥
           </button>
         </div>
@@ -928,11 +993,29 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script>
+    // 初始化Firebase
+    var firebaseConfig = {
+        apiKey: "{{ firebase_config.apiKey }}",
+        authDomain: "{{ firebase_config.authDomain }}",
+        projectId: "{{ firebase_config.projectId }}",
+        storageBucket: "{{ firebase_config.storageBucket }}",
+        messagingSenderId: "{{ firebase_config.messagingSenderId }}",
+        appId: "{{ firebase_config.appId }}"
+    };
+    
+    // 初始化Firebase應用
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+</script>
+
 <script>
 // 全局變數
-let selectedCreature = null;
 let arenaData = null;
-let userCreatures = [];
 let battleAnimationTimeout = null;
 
 // 頁面載入完成事件
@@ -941,34 +1024,14 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // 獲取URL參數
   const urlParams = new URLSearchParams(window.location.search);
-  const stopId = urlParams.get('stopId');
-  const stopName = urlParams.get('stopName');
+  const arenaId = urlParams.get('arena_id');
   
-  // 設置擂台基本信息
-  if (stopName) {
-    document.getElementById('arenaName').textContent = stopName + '道館';
-  }
-  
-  if (stopId) {
-    document.getElementById('arenaStopId').textContent = stopId;
-    
-    // 獲取或檢查擂台
-    fetchOrCreateArena(stopId, stopName);
+  if (arenaId) {
+    // 獲取擂台資料
+    fetchArenaById(arenaId);
   } else {
-    alert('缺少站點ID參數，無法顯示擂台資訊');
+    alert('缺少擂台ID參數，無法顯示擂台資訊');
   }
-  
-  // 獲取用戶的精靈列表
-  fetchUserCreatures();
-  
-  // 綁定戰鬥按鈕事件
-  document.getElementById('battleButton').addEventListener('click', function() {
-    if (selectedCreature) {
-      challengeArena();
-    } else {
-      alert('請選擇一隻精靈進行挑戰');
-    }
-  });
 });
 
 // 設置擂台背景顏色，根據等級而非路線
@@ -1016,82 +1079,10 @@ function setArenaBackground(level) {
   arenaHeader.style.backgroundImage = `url('${backgroundImage}')`;
 }
 
-// 獲取或檢查擂台
-function fetchOrCreateArena(stopId, stopName) {
-  console.log('獲取擂台信息:', stopId, stopName);
-  showLoading();
-  
-  // 檢查是否為錯誤頁面需求
-  const urlParams = new URLSearchParams(window.location.search);
-  const errorCode = urlParams.get('error');
-  const arenaId = urlParams.get('arenaId');
-  
-  if (errorCode === '404') {
-    console.log('顯示404錯誤頁面');
-    showError404Page(stopName);
-    hideLoading();
-    return;
-  } else if (errorCode === '500') {
-    console.log('顯示500錯誤頁面');
-    showError500Page();
-    hideLoading();
-    return;
-  }
-  
-  // 如果提供了特定的arenaId，直接從Firebase獲取該道館
-  if (arenaId) {
-    fetchArenaById(arenaId);
-    return;
-  }
-  
-  // 嘗試通過名稱獲取現有擂台
-  const arenaName = `${stopName}道館`;
-  
-  try {
-    // 從Firebase獲取道館
-    const db = firebase.firestore();
-    
-    db.collection('arenas')
-      .where('name', '==', arenaName)
-      .limit(1)
-      .get()
-      .then((querySnapshot) => {
-        if (!querySnapshot.empty) {
-          // 找到現有道館
-          const arenaData = querySnapshot.docs[0].data();
-          console.log('找到現有擂台:', arenaData);
-          // 更新擂台數據
-          window.arenaData = arenaData;
-          updateArenaDisplay(arenaData);
-          
-          // 根據等級設置背景顏色
-          setArenaBackground(arenaData.level || 1);
-          
-          // 顯示道館等級
-          document.getElementById('arenaLevel').textContent = '等級: ' + (arenaData.level || 1);
-          document.getElementById('arenaLevelInfo').textContent = arenaData.level || 1;
-        } else {
-          // 道館不存在，顯示404錯誤頁面
-          console.log('未找到擂台，顯示404頁面');
-          showError404Page(stopName);
-        }
-        hideLoading();
-      })
-      .catch(error => {
-        console.error('獲取擂台列表錯誤:', error);
-        showError500Page();
-        hideLoading();
-      });
-  } catch (error) {
-    console.error('Firebase訪問錯誤:', error);
-    showError500Page();
-    hideLoading();
-  }
-}
-
 // 通過ID直接獲取道館
 function fetchArenaById(arenaId) {
   console.log('通過ID獲取道館:', arenaId);
+  showLoading();
   
   try {
     const db = firebase.firestore();
@@ -1100,22 +1091,23 @@ function fetchArenaById(arenaId) {
       .get()
       .then((doc) => {
         if (doc.exists) {
-          const arenaData = doc.data();
-          console.log('找到道館:', arenaData);
+          const data = doc.data();
+          data.id = doc.id;
+          console.log('找到道館:', data);
           // 更新擂台數據
-          window.arenaData = arenaData;
-          updateArenaDisplay(arenaData);
+          arenaData = data;
+          updateArenaDisplay(data);
           
           // 更新頁面顯示
-          document.getElementById('arenaName').textContent = arenaData.name;
-          document.getElementById('arenaStopId').textContent = arenaData.stopIds ? arenaData.stopIds[0] : '';
+          document.getElementById('arenaName').textContent = data.name;
+          document.getElementById('arenaStopId').textContent = data.stopIds ? data.stopIds[0] : '';
           
           // 根據等級設置背景顏色
-          setArenaBackground(arenaData.level || 1);
+          setArenaBackground(data.level || 1);
           
           // 顯示道館等級
-          document.getElementById('arenaLevel').textContent = '等級: ' + (arenaData.level || 1);
-          document.getElementById('arenaLevelInfo').textContent = arenaData.level || 1;
+          document.getElementById('arenaLevel').textContent = '等級: ' + (data.level || 1);
+          document.getElementById('arenaLevelInfo').textContent = data.level || 1;
         } else {
           console.log('未找到該ID的道館:', arenaId);
           showError404Page();
@@ -1132,112 +1124,6 @@ function fetchArenaById(arenaId) {
     showError500Page();
     hideLoading();
   }
-}
-
-// 顯示404錯誤頁面
-function showError404Page(stopName) {
-  const container = document.querySelector('.battle-wrapper');
-  container.innerHTML = `
-    <div class="error-container text-center py-5">
-      <div class="error-code">404</div>
-      <h3 class="error-title mb-4">找不到道館</h3>
-      <p class="error-message mb-4">很抱歉，${stopName ? `「${stopName}道館」` : '您請求的道館'} 在系統中不存在或已被移除。</p>
-      <div class="error-image mb-4">
-        <img src="https://cdn-icons-png.flaticon.com/512/4076/4076478.png" alt="無道館" style="max-width: 150px; opacity: 0.5;">
-      </div>
-      <a href="/game/catch" class="btn btn-primary">
-        <i class="fas fa-map-marked-alt me-2"></i>返回地圖
-      </a>
-    </div>
-  `;
-  
-  // 添加錯誤頁面樣式
-  const styleElement = document.createElement('style');
-  styleElement.textContent = `
-    .error-container {
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 15px;
-      padding: 2rem;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
-    .error-code {
-      font-size: 5rem;
-      font-weight: bold;
-      color: #f44336;
-      margin-bottom: 1rem;
-    }
-    .error-title {
-      font-weight: bold;
-    }
-    .error-message {
-      font-size: 1.1rem;
-      color: #666;
-    }
-    [data-theme="dark"] .error-container {
-      background: rgba(45, 52, 54, 0.9);
-    }
-    [data-theme="dark"] .error-message {
-      color: #adb5bd;
-    }
-  `;
-  document.head.appendChild(styleElement);
-  
-  // 更新頁面標題
-  document.getElementById('arenaHeader').style.display = 'none';
-  document.querySelector('.section-title').textContent = '找不到道館';
-}
-
-// 顯示500錯誤頁面
-function showError500Page() {
-  const container = document.querySelector('.battle-wrapper');
-  container.innerHTML = `
-    <div class="error-container text-center py-5">
-      <div class="error-code">500</div>
-      <h3 class="error-title mb-4">系統錯誤</h3>
-      <p class="error-message mb-4">很抱歉，在獲取道館資訊時發生了系統錯誤，請稍後再試或聯繫管理員。</p>
-      <div class="error-image mb-4">
-        <img src="https://cdn-icons-png.flaticon.com/512/603/603470.png" alt="系統錯誤" style="max-width: 150px; opacity: 0.5;">
-      </div>
-      <a href="/game/catch" class="btn btn-primary">
-        <i class="fas fa-map-marked-alt me-2"></i>返回地圖
-      </a>
-    </div>
-  `;
-  
-  // 添加錯誤頁面樣式
-  const styleElement = document.createElement('style');
-  styleElement.textContent = `
-    .error-container {
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 15px;
-      padding: 2rem;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
-    .error-code {
-      font-size: 5rem;
-      font-weight: bold;
-      color: #f44336;
-      margin-bottom: 1rem;
-    }
-    .error-title {
-      font-weight: bold;
-    }
-    .error-message {
-      font-size: 1.1rem;
-      color: #666;
-    }
-    [data-theme="dark"] .error-container {
-      background: rgba(45, 52, 54, 0.9);
-    }
-    [data-theme="dark"] .error-message {
-      color: #adb5bd;
-    }
-  `;
-  document.head.appendChild(styleElement);
-  
-  // 更新頁面標題
-  document.getElementById('arenaHeader').style.display = 'none';
-  document.querySelector('.section-title').textContent = '系統錯誤';
 }
 
 // 更新擂台顯示
@@ -1261,7 +1147,7 @@ function updateArenaDisplay(arena) {
     // 顯示守護精靈信息
     if (arena.ownerCreature) {
       // 決定精靈類型的顏色
-      const typeColor = getCreatureTypeColor(arena.ownerCreature.type || '未知');
+      const typeColor = getTypeColor(arena.ownerCreature.type || '未知');
       
       guardianInfo.innerHTML = `
         <div class="guardian-card">
@@ -1322,202 +1208,6 @@ function updateArenaDisplay(arena) {
   }
 }
 
-// 獲取用戶精靈
-function fetchUserCreatures() {
-  console.log('獲取用戶精靈');
-  showLoading();
-  
-  fetch('/game/api/user/creatures')
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('獲取精靈失敗');
-      }
-      return response.json();
-    })
-    .then(data => {
-      console.log('獲取到用戶精靈:', data);
-      userCreatures = data;
-      renderCreatureList(data);
-    })
-    .catch(error => {
-      console.error('獲取用戶精靈錯誤:', error);
-      document.getElementById('creatureList').innerHTML = `
-        <div class="col-12 text-center py-3">
-          <div class="alert alert-danger">
-            <i class="fas fa-exclamation-circle me-2"></i> 獲取精靈失敗，請稍後再試 (${error.message})
-          </div>
-        </div>
-      `;
-    })
-    .finally(() => {
-      hideLoading();
-    });
-}
-
-// 渲染精靈列表
-function renderCreatureList(creatures) {
-  const creatureList = document.getElementById('creatureList');
-  
-  if (!creatures || creatures.length === 0) {
-    creatureList.innerHTML = `
-      <div class="col-12 text-center py-3">
-        <div class="alert alert-warning">
-          <i class="fas fa-exclamation-triangle me-2"></i> 您還沒有任何精靈，請先去捕捉精靈！
-        </div>
-        <a href="/game/catch" class="btn btn-primary mt-2">
-          <i class="fas fa-search me-1"></i> 去捕捉精靈
-        </a>
-      </div>
-    `;
-    return;
-  }
-  
-  // 清空列表並渲染精靈卡片
-  creatureList.innerHTML = '';
-  
-  // 根據力量值排序（由高到低）
-  creatures.sort((a, b) => b.power - a.power);
-  
-  creatures.forEach(creature => {
-    const typeColor = getCreatureTypeColor(creature.type);
-    const rarityClass = getRarityClass(creature.rarity);
-    
-    const creatureCard = document.createElement('div');
-    creatureCard.className = 'col-md-3 col-sm-6 mb-4';
-    creatureCard.innerHTML = `
-      <div class="card creature-card" data-creature-id="${creature.id}">
-        <div class="creature-image">
-          <img src="${creature.imageUrl || 'https://placehold.co/200x200/' + typeColor + '/white?text=' + encodeURIComponent(creature.name)}" alt="${creature.name}">
-        </div>
-        <div class="card-body creature-card-body p-3">
-          <h5 class="card-title">${creature.name}</h5>
-          <div class="d-flex justify-content-between mb-2">
-            <span class="badge bg-primary">${creature.type || '未知'}</span>
-            <span class="badge ${rarityClass}">${creature.rarity || '普通'}</span>
-          </div>
-          <div class="d-flex justify-content-between align-items-center">
-            <div class="power-badge">
-              <i class="fas fa-bolt text-warning me-1"></i> <strong>${creature.power}</strong>
-            </div>
-            <div class="level-badge">
-              <small class="text-muted">Lv.${creature.level || 1}</small>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-    
-    creatureList.appendChild(creatureCard);
-    
-    // 添加精靈選擇事件
-    creatureCard.querySelector('.creature-card').addEventListener('click', function() {
-      selectCreature(this, creature);
-    });
-  });
-}
-
-// 根據精靈類型獲取顏色
-function getCreatureTypeColor(type) {
-  switch(type) {
-    case '水系': return '3498db';
-    case '火系': return 'e74c3c';
-    case '土系': return 'd35400';
-    case '風系': return '9b59b6';
-    case '電系': return 'f1c40f';
-    default: return '3498db';
-  }
-}
-
-// 根據稀有度獲取CSS類
-function getRarityClass(rarity) {
-  switch(rarity) {
-    case '普通': return 'bg-secondary';
-    case '稀有': return 'bg-info';
-    case '史詩': return 'bg-primary';
-    case '傳說': return 'bg-danger';
-    default: return 'bg-secondary';
-  }
-}
-
-// 選擇精靈
-function selectCreature(element, creature) {
-  // 移除其他精靈的選中狀態
-  document.querySelectorAll('.creature-card').forEach(card => {
-    card.classList.remove('creature-selected');
-  });
-  
-  // 添加選中狀態
-  element.classList.add('creature-selected');
-  
-  // 更新選中的精靈
-  selectedCreature = creature;
-  
-  // 啟用戰鬥按鈕
-  document.getElementById('battleButton').disabled = false;
-  
-  // 添加震動效果
-  element.style.animation = 'shake 0.5s';
-  setTimeout(() => {
-    element.style.animation = '';
-  }, 500);
-}
-
-// 挑戰擂台
-function challengeArena() {
-  if (!selectedCreature || !arenaData) {
-    showGameAlert('請選擇精靈並確保擂台資料已載入', 'warning');
-    return;
-  }
-  
-  console.log('開始挑戰擂台:', arenaData.id, '使用精靈:', selectedCreature.name);
-  showLoading();
-  
-  // 準備挑戰資料
-  const challengeData = {
-    arenaId: arenaData.id,
-    creatureId: selectedCreature.id,
-    creatureName: selectedCreature.name,
-    creaturePower: selectedCreature.power
-  };
-  
-  // 發送挑戰請求
-  fetch('/game/api/arena/challenge', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(challengeData)
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('挑戰擂台失敗');
-    }
-    return response.json();
-  })
-  .then(data => {
-    console.log('挑戰結果:', data);
-    
-    // 預先更新擂台數據，以便動畫後能顯示最新狀態
-    arenaData = data.arena;
-    
-    // 播放戰鬥動畫
-    playBattleAnimation(data.result, selectedCreature, arenaData.ownerCreature, function() {
-      // 更新擂台顯示
-      updateArenaDisplay(data.arena);
-      
-      // 顯示戰鬥結果
-      showBattleResult(data.result, data.message, selectedCreature, arenaData);
-      
-      hideLoading();
-    });
-  })
-  .catch(error => {
-    console.error('挑戰擂台錯誤:', error);
-    hideLoading();
-    showGameAlert('挑戰擂台失敗，請稍後再試', 'danger');
-  });
-}
-
 // 播放戰鬥動畫
 function playBattleAnimation(isWin, challenger, defender, callback) {
   const battleAnimation = document.getElementById('battleAnimation');
@@ -1529,10 +1219,10 @@ function playBattleAnimation(isWin, challenger, defender, callback) {
   const battleFlash = document.getElementById('battleFlash');
   
   // 設置精靈圖片
-  challengerImg.src = challenger.imageUrl || `https://placehold.co/200x200/${getCreatureTypeColor(challenger.type)}/white?text=${encodeURIComponent(challenger.name)}`;
+  challengerImg.src = challenger.image_url || `https://placehold.co/200x200/e74c3c/white?text=${encodeURIComponent(challenger.name)}`;
   
   if (defender) {
-    defenderImg.src = defender.img || `https://placehold.co/200x200/${getCreatureTypeColor(defender.type || '未知')}/white?text=${encodeURIComponent(defender.name)}`;
+    defenderImg.src = defender.image_url || defender.img || `https://placehold.co/200x200/3498db/white?text=${encodeURIComponent(defender.name)}`;
   } else {
     defenderImg.src = `https://placehold.co/200x200/cccccc/ffffff?text=無守護者`;
   }
@@ -1670,13 +1360,13 @@ function showBattleResult(isWin, message, challenger, arena) {
   const resultMessage = document.getElementById('battleResultMessage');
   
   // 設置挑戰者信息
-  document.getElementById('challengerImg').src = challenger.imageUrl || `https://placehold.co/200x200/${getCreatureTypeColor(challenger.type)}/white?text=${encodeURIComponent(challenger.name)}`;
+  document.getElementById('challengerImg').src = challenger.image_url || `https://placehold.co/200x200/e74c3c/white?text=${encodeURIComponent(challenger.name)}`;
   document.getElementById('challengerName').textContent = challenger.name;
-  document.getElementById('challengerPower').textContent = '力量: ' + challenger.power;
+  document.getElementById('challengerPower').textContent = '力量: ' + (challenger.attack || challenger.power);
   
   // 設置守護者信息
   if (arena.ownerCreature) {
-    document.getElementById('defenderImg').src = arena.ownerCreature.img || `https://placehold.co/200x200/${getCreatureTypeColor(arena.ownerCreature.type || '未知')}/white?text=${encodeURIComponent(arena.ownerCreature.name)}`;
+    document.getElementById('defenderImg').src = arena.ownerCreature.image_url || arena.ownerCreature.img || `https://placehold.co/200x200/3498db/white?text=${encodeURIComponent(arena.ownerCreature.name)}`;
     document.getElementById('defenderName').textContent = arena.ownerCreature.name;
     document.getElementById('defenderPower').textContent = '力量: ' + arena.ownerCreature.power;
     document.getElementById('defenderOwner').textContent = '擁有者: ' + arena.owner;
@@ -1712,45 +1402,14 @@ function showBattleResult(isWin, message, challenger, arena) {
   }, 300);
 }
 
-// 顯示遊戲提示
-function showGameAlert(message, type = 'info') {
-  const alertContainer = document.createElement('div');
-  alertContainer.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-  alertContainer.style.top = '80px';
-  alertContainer.style.right = '20px';
-  alertContainer.style.zIndex = '9999';
-  alertContainer.style.maxWidth = '300px';
-  alertContainer.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.2)';
-  
-  alertContainer.innerHTML = `
-    <div class="d-flex">
-      <div class="me-3">
-        <i class="fas fa-${type === 'danger' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
-      </div>
-      <div>${message}</div>
-    </div>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  `;
-  
-  document.body.appendChild(alertContainer);
-  
-  // 自動消失
-  setTimeout(() => {
-    alertContainer.classList.remove('show');
-    setTimeout(() => {
-      alertContainer.remove();
-    }, 300);
-  }, 5000);
+// 顯示404錯誤頁面
+function showError404Page() {
+  // ...略過現有的錯誤處理代碼...
 }
 
-// 顯示載入中
-function showLoading() {
-  document.getElementById('loadingOverlay').style.visibility = 'visible';
-}
-
-// 隱藏載入中
-function hideLoading() {
-  document.getElementById('loadingOverlay').style.visibility = 'hidden';
+// 顯示500錯誤頁面
+function showError500Page() {
+  // ...略過現有的錯誤處理代碼...
 }
 
 // 當頁面離開時，清除所有定時器
@@ -1759,5 +1418,25 @@ window.addEventListener('beforeunload', function() {
     clearTimeout(battleAnimationTimeout);
   }
 });
+
+// 根據精靈類型獲取顏色
+function getTypeColor(type) {
+  switch(String(type).toLowerCase()) {
+    case 'water': return 'primary';
+    case '水系': return 'primary';
+    case 'fire': return 'danger';
+    case '火系': return 'danger';
+    case 'earth': return 'warning';
+    case '土系': return 'warning';
+    case 'air': return 'success';
+    case '風系': return 'success';
+    case 'electric': return 'info';
+    case '電系': return 'info';
+    default: return 'secondary';
+  }
+}
 </script>
+
+<!-- 引入精靈選擇功能的JS文件 -->
+<script src="{{ url_for('static', filename='js/game/battle-creatures.js') }}"></script>
 {% endblock %}

@@ -172,8 +172,11 @@
         <div class="card shadow-lg">
             <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
                 <h4 class="mb-0"><i class="fas fa-trophy me-2"></i>我的擂台</h4>
-                <a href="{{ url_for('game.list_arenas') }}" class="btn btn-light btn-sm">
-                    <i class="fas fa-map-marker-alt me-1"></i>檢視擂台
+                <a href="{{ url_for('game.battle', arena_id='placeholder') }}" class="btn btn-light btn-sm arena-view-btn" style="display: none;">
+                    <i class="fas fa-map-marker-alt me-1"></i>查看我的擂台
+                </a>
+                <a href="{{ url_for('game.list_arenas') }}" class="btn btn-light btn-sm no-arena-btn">
+                    <i class="fas fa-map-marker-alt me-1"></i>查看所有擂台
                 </a>
             </div>
             <div class="card-body">
@@ -543,15 +546,32 @@
             .then(function(querySnapshot) {
                 const arenas = [];
                 querySnapshot.forEach(function(doc) {
-                    arenas.push(doc.data());
+                    const arenaData = doc.data();
+                    arenaData.id = doc.id; // 確保保存擂台ID
+                    arenas.push(arenaData);
                 });
                 
                 // 更新顯示擁有的擂台數量
                 document.getElementById('arena-count').textContent = arenas.length;
                 
-                // 如果有擂台，顯示擂台列表
+                // 更新擂台按鈕顯示
+                const arenaViewBtn = document.querySelector('.arena-view-btn');
+                const noArenaBtn = document.querySelector('.no-arena-btn');
+                
+                // 如果有擂台，顯示查看我的擂台按鈕，隱藏查看所有擂台按鈕
                 if (arenas.length > 0) {
+                    // 更新擂台按鈕的href屬性，指向第一個擂台
+                    const firstArenaId = arenas[0].id;
+                    arenaViewBtn.href = arenaViewBtn.href.replace('placeholder', firstArenaId);
+                    arenaViewBtn.style.display = '';
+                    noArenaBtn.style.display = 'none';
+                    
+                    // 顯示擂台列表
                     renderArenas(arenas);
+                } else {
+                    // 如果沒有擂台，隱藏查看我的擂台按鈕，顯示查看所有擂台按鈕
+                    arenaViewBtn.style.display = 'none';
+                    noArenaBtn.style.display = '';
                 }
             })
             .catch(function(error) {

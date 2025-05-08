@@ -409,28 +409,24 @@
    - 精靈進化路線設計
    - 進化條件與特殊技能
 
-## 使用技術
-- **前端框架**：Bootstrap 5 響應式佈局
-- **地圖技術**：OpenStreetMap + Leaflet.js
-- **後端框架**：Flask 2.3.0
-- **資料庫**：Firebase Realtime Database + Firestore + SQLAlchemy
-- **使用者認證**：Firebase Authentication + Flask-Login
-- **API 整合**：TDX 運輸資料 API + Firebase Cloud Functions
-- **部署環境**：Firebase Hosting + Cloud Functions
-- **自動化測試**：Pytest + pytest-cov
-- **程式碼品質工具**：Black + Ruff
-- **版本控制**：Git + GitHub
+## 最新進度更新 (2025年5月8日)
 
-## 前端架構說明
-本專案前端採用模組化設計，透過關注點分離原則提高代碼可維護性：
+### 導航與用戶體驗改進
+1. **道館導航優化**:
+   - 修復從捕捉頁面 (catch.html) 點擊道館時導航問題
+   - 現在從捕捉頁面點擊道館按鈕時會直接導向特定道館頁面 (`/game/battle?arena_id=arena-xxx`)，而不是道館列表頁面
+   - 統一所有地圖上道館標記的點擊行為，保持一致的用戶體驗
 
-1. **HTML模板**：採用Flask Jinja2模板引擎
-2. **CSS架構**：
-   - 遵循BEM命名約定
-   - 採用功能模組化組織
-   - 支援深色模式與響應式設計
-3. **JavaScript架構**：
-   - 功能模組化拆分
-   - 事件委派模式
-   - 非同步請求處理
-   - 錯誤捕獲與處理機制
+2. **關鍵檔案修改**:
+   - 修改 `stop-manager.js`：將彈出視窗中的按鈕事件從 `showArenaInfo` 更改為 `goToArena`
+   - 修改 `arena-manager.js`：新增 `goToArena` 函數，實現直接導航到特定道館頁面的功能
+   - 統一多個模組中的道館點擊行為，確保一致性
+
+3. **用戶體驗提升**:
+   - 精簡用戶導航路徑，減少頁面跳轉
+   - 確保所有地圖上的道館互動保持一致
+   - 優化道館訪問流程，提高用戶體驗
+
+### 進行中的工作與未來計畫
+
+// ...existing code...
