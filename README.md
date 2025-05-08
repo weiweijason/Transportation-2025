@@ -427,6 +427,28 @@
    - 確保所有地圖上的道館互動保持一致
    - 優化道館訪問流程，提高用戶體驗
 
-### 進行中的工作與未來計畫
+## 使用技術
+- **前端框架**：Bootstrap 5 響應式佈局
+- **地圖技術**：OpenStreetMap + Leaflet.js
+- **後端框架**：Flask 2.3.0
+- **資料庫**：Firebase Realtime Database + Firestore + SQLAlchemy
+- **使用者認證**：Firebase Authentication + Flask-Login
+- **API 整合**：TDX 運輸資料 API + Firebase Cloud Functions
+- **部署環境**：Firebase Hosting + Cloud Functions
+- **自動化測試**：Pytest + pytest-cov
+- **程式碼品質工具**：Black + Ruff
+- **版本控制**：Git + GitHub
 
-// ...existing code...
+## 前端架構說明
+本專案前端採用模組化設計，透過關注點分離原則提高代碼可維護性：
+
+1. **HTML模板**：採用Flask Jinja2模板引擎
+2. **CSS架構**：
+   - 遵循BEM命名約定
+   - 採用功能模組化組織
+   - 支援深色模式與響應式設計
+3. **JavaScript架構**：
+   - 功能模組化拆分
+   - 事件委派模式
+   - 非同步請求處理
+   - 錯誤捕獲與處理機制
