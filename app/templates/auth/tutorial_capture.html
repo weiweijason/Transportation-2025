@@ -1,0 +1,440 @@
+{% extends 'base.html' %}
+
+{% block title %}教學 - 精靈捕捉{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/game/capture_interactive.css') }}">
+<style>
+  /* 優化排版，調整 CSS 和 HTML 結構以避免元素重疊 */
+
+  /* CSS 調整：新增一些間距和對齊樣式 */
+  .capture-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .magic-container {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    margin: 20px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .creature-image {
+    max-width: 200px;
+    margin: 0 auto;
+    display: block;
+    position: relative;
+    z-index: 20; /* 較高的 z-index 確保圖片在魔法陣上方 */
+  }
+
+  .creature-info {
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  .action-buttons {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  /* 調整模態框內容的間距 */
+  .modal-body {
+    padding: 20px;
+  }
+
+  .creature-detail .card {
+    margin-top: 20px;
+  }
+    /* 魔法陣樣式 */
+  .magic-circle {
+    position: absolute;
+    width: 250px;
+    height: 250px;
+    background-size: cover;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 1s ease;
+  }
+  
+  .magic-circle.active {
+    opacity: 0.7;
+    transform: scale(1) rotate(180deg);
+  }
+  
+  .magic-circle-inner {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    background-size: cover;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 1s ease;
+  }
+  
+  .magic-circle-inner.active {
+    opacity: 0.5;
+    transform: scale(1) rotate(-90deg);
+  }
+  
+  .capture-effect {
+    position: absolute;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+    border-radius: 50%;
+    opacity: 0;
+    transition: all 0.5s ease;
+  }
+  
+  .capture-effect.active {
+    width: 300px;
+    height: 300px;
+    opacity: 1;
+  }
+  
+  .result-message {
+    position: absolute;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #4CAF50;
+    text-shadow: 0 0 10px rgba(255,255,255,0.7);
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.5s ease;
+  }
+  
+  .result-message.visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+  
+  .creature-image.captured {
+    animation: capture-animation 1s forwards;
+  }
+  
+  @keyframes capture-animation {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(0.5); opacity: 0.7; }
+    100% { transform: scale(0); opacity: 0; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  <div class="capture-container">
+    <div class="theme-toggle-container">
+      <button class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon" id="themeIcon"></i>
+      </button>
+    </div>    <div class="magic-container">
+      <div class="magic-circle" id="magicCircle" style="background-image: url('{{ url_for('static', filename='img/magic-circle.gif') }}'); display: none;"></div>
+      <div class="magic-circle-inner" id="magicCircleInner" style="background-image: url('{{ url_for('static', filename='img/magic-circle-inner.png') }}'); display: none;"></div>
+      
+      <!-- 將圖片放入魔法陣容器內 -->
+      <img src="{{ creature.image }}" alt="{{ creature.name }}" class="creature-image" id="creatureImage">
+      
+      <!-- 添加捕捉特效元素 -->
+      <div class="capture-effect" id="captureEffect"></div>
+      <div class="result-message" id="resultMessage"></div>
+    </div>
+
+    <div class="creature-info">
+      <h3 class="text-center mb-3">{{ creature.name }} <span class="badge bg-warning">初始精靈</span></h3>
+      <div class="creature-stats">
+        <div class="stat-item">
+          <div class="value">{{ creature.power }}</div>
+          <div class="label">攻擊</div>
+        </div>
+        <div class="stat-item">
+          <div class="value">100</div>
+          <div class="label">生命</div>
+        </div>
+        <div class="stat-item">
+          <div class="value">{{ creature.type }}</div>
+          <div class="label">屬性</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn btn-lg btn-success" id="captureBtn">開始捕捉</button>
+      <button class="btn btn-lg btn-outline-light dark-mode-button" id="cancelBtn">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 捕捉結果模態框 -->
+<div class="modal fade" id="captureResultModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header" id="resultModalHeader">
+        <h5 class="modal-title" id="resultModalTitle">捕捉結果</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <div id="resultContent">
+          <img id="resultImage" src="{{ creature.image }}" alt="{{ creature.name }}" class="mb-3" style="max-width: 150px;">
+          <h4 id="resultText">捕捉成功！</h4>
+          <p id="resultDescription" class="text-muted">恭喜您捕捉到了{{ creature.name }}！</p>
+          
+          <div class="creature-detail mt-4">
+            <div class="row justify-content-center">
+              <div class="col-md-8">
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title">{{ creature.name }} <span class="badge bg-warning">初始精靈</span></h5>
+                    <div class="d-flex justify-content-around mt-3">
+                      <div class="text-center">
+                        <div class="fw-bold">{{ creature.power }}</div>
+                        <small class="text-muted">攻擊</small>
+                      </div>
+                      <div class="text-center">
+                        <div class="fw-bold">100</div>
+                        <small class="text-muted">生命</small>
+                      </div>
+                      <div class="text-center">
+                        <div class="fw-bold">{{ creature.type }}</div>
+                        <small class="text-muted">屬性</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer justify-content-center">
+        <button id="continueButton" class="btn btn-primary">繼續教學</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>  document.addEventListener('DOMContentLoaded', function() {
+    const creatureId = '{{ creature.id }}';
+    const creatureName = '{{ creature.name }}';
+    const magicCircle = document.getElementById('magicCircle');
+    const magicCircleInner = document.getElementById('magicCircleInner');
+    const captureEffect = document.getElementById('captureEffect');
+    const creatureImage = document.getElementById('creatureImage');
+    const captureBtn = document.getElementById('captureBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const resultMessage = document.getElementById('resultMessage');
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const continueButton = document.getElementById('continueButton');
+    
+    // 初始隱藏魔法陣
+    magicCircle.style.display = 'none';
+    magicCircleInner.style.display = 'none';
+    
+    // 主題切換功能
+    function initTheme() {
+      // 檢查是否有保存的主題偏好
+      const savedTheme = localStorage.getItem('preferred-theme');
+      
+      // 檢查系統偏好
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      
+      if (savedTheme === 'dark' || (savedTheme === null && prefersDark)) {
+        document.body.classList.add('dark-theme');
+        themeIcon.className = 'fas fa-sun'; // 在深色模式顯示太陽圖標
+        adjustButtonStyles(true);
+      } else {
+        document.body.classList.add('light-theme');
+        themeIcon.className = 'fas fa-moon'; // 在淺色模式顯示月亮圖標
+        adjustButtonStyles(false);
+      }
+    }
+    
+    // 初始化主題
+    initTheme();
+    
+    // 切換主題
+    themeToggle.addEventListener('click', function() {
+      if (document.body.classList.contains('dark-theme')) {
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
+        localStorage.setItem('preferred-theme', 'light');
+        themeIcon.className = 'fas fa-moon';
+        adjustButtonStyles(false);
+      } else {
+        document.body.classList.remove('light-theme');
+        document.body.classList.add('dark-theme');
+        localStorage.setItem('preferred-theme', 'dark');
+        themeIcon.className = 'fas fa-sun';
+        adjustButtonStyles(true);
+      }
+    });
+    
+    // 調整按鈕樣式
+    function adjustButtonStyles(isDark) {
+      if (isDark) {
+        cancelBtn.classList.remove('btn-outline-dark');
+        cancelBtn.classList.add('btn-outline-light');
+      } else {
+        cancelBtn.classList.remove('btn-outline-light');
+        cancelBtn.classList.add('btn-outline-dark');
+      }
+    }
+    
+    // 創建粒子效果
+    function createParticles() {
+      const container = document.querySelector('.capture-container');
+      
+      for (let i = 0; i < 30; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'magic-particle';
+        
+        // 隨機位置
+        const x = Math.random() * 100;
+        const y = Math.random() * 100;
+        
+        particle.style.left = `${x}%`;
+        particle.style.top = `${y}%`;
+        
+        // 添加動畫
+        const delay = Math.random() * 5;
+        const duration = 3 + Math.random() * 3;
+        
+        particle.style.animation = `
+          fadeIn 0.5s ${delay}s forwards,
+          float ${duration}s ${delay}s infinite alternate
+        `;
+        
+        container.appendChild(particle);
+      }
+    }
+    
+    // 開始捕捉
+    let captureInProgress = false;
+      captureBtn.addEventListener('click', function() {
+      if (captureInProgress) return;
+      
+      captureInProgress = true;
+      captureBtn.disabled = true;
+      cancelBtn.disabled = true;
+      
+      // 顯示魔法陣
+      magicCircle.style.display = 'block';
+      magicCircleInner.style.display = 'block';
+      
+      // 啟動視覺效果
+      setTimeout(() => { magicCircle.classList.add('active'); }, 100);
+      setTimeout(() => { magicCircleInner.classList.add('active'); }, 500);
+      setTimeout(() => { captureEffect.classList.add('active'); }, 1000);
+      
+      // 創建粒子特效
+      createParticles();
+      
+      // 執行捕捉 API 請求
+      setTimeout(() => {
+        // 發送捕捉請求到後端
+        fetch(`/auth/tutorial/capture-creature/${creatureId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ creature_id: creatureId })
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log("捕捉成功，伺服器回應:", data);
+          if (data.success) {
+            // 捕捉成功
+            creatureImage.classList.add('captured');
+            resultMessage.textContent = '捕捉成功！';
+            
+            // 設置成功樣式
+            document.getElementById('resultModalHeader').className = 'modal-header bg-success text-white';
+            document.getElementById('resultModalTitle').textContent = '捕捉成功';
+            document.getElementById('resultText').textContent = '捕捉成功！';
+            document.getElementById('resultDescription').textContent = `恭喜您成功捕捉到了${creatureName}！`;
+          } else {
+            // 捕捉失敗
+            resultMessage.textContent = '捕捉失敗！';
+            resultMessage.style.color = '#dc3545';
+            
+            // 設置失敗樣式
+            document.getElementById('resultModalHeader').className = 'modal-header bg-danger text-white';
+            document.getElementById('resultModalTitle').textContent = '捕捉失敗';
+            document.getElementById('resultText').textContent = '捕捉失敗！';
+            document.getElementById('resultDescription').textContent = data.message || '很遺憾，這隻精靈逃脫了！';
+          }
+          
+          // 顯示結果
+          setTimeout(() => {
+            resultMessage.classList.add('visible');
+            
+            // 顯示結果模態框
+            setTimeout(() => {
+              const resultModal = new bootstrap.Modal(document.getElementById('captureResultModal'));
+              resultModal.show();
+            }, 2000);
+          }, 1000);
+        })
+        .catch(error => {
+          console.error('捕捉請求失敗:', error);
+          resultMessage.textContent = '發生錯誤！';
+          resultMessage.style.color = '#dc3545';
+          resultMessage.classList.add('visible');
+          
+          // 重置按鈕
+          captureBtn.disabled = false;
+          cancelBtn.disabled = false;
+          captureInProgress = false;
+        });
+      }, 3000);
+    });
+    
+    // 取消按鈕
+    cancelBtn.addEventListener('click', function() {
+      window.history.back();
+    });
+    
+    // 繼續按鈕
+    continueButton.addEventListener('click', function() {
+      window.location.href = '/auth/tutorial?capture_success=true';
+    });
+    
+    // 監聽系統主題變化
+    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    darkModeMediaQuery.addEventListener('change', (e) => {
+      // 只有在沒有手動設置主題時響應系統主題變化
+      if (!localStorage.getItem('preferred-theme')) {
+        if (e.matches) {
+          document.body.classList.remove('light-theme');
+          document.body.classList.add('dark-theme');
+          themeIcon.className = 'fas fa-sun';
+          adjustButtonStyles(true);
+        } else {
+          document.body.classList.remove('dark-theme');
+          document.body.classList.add('light-theme');
+          themeIcon.className = 'fas fa-moon';
+          adjustButtonStyles(false);
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

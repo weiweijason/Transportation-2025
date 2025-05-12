@@ -15,9 +15,8 @@
     <!-- 玩家資料卡 -->
     <div class="col-md-4 mb-4">
         <div class="card profile-card shadow-lg">
-            <div class="profile-banner" style="background-image: url('https://img.freepik.com/free-vector/gradient-mountain-landscape_23-2149162007.jpg?w=740&t=st=1711400000~exp=1711400600~hmac=0d7b12bc87e46f2ce2b8c5b2400c5fb8d0f9dab991a753e4a3cb3324354a7c47');">
-                <div class="profile-avatar-wrapper">
-                    <img src="{{ url_for('static', filename='img/avatar-default.png') }}" alt="玩家頭像" class="profile-avatar">
+            <div class="profile-banner" style="background-image: url('https://img.freepik.com/free-vector/gradient-mountain-landscape_23-2149162007.jpg?w=740&t=st=1711400000~exp=1711400600~hmac=0d7b12bc87e46f2ce2b8c5b2400c5fb8d0f9dab991a753e4a3cb3324354a7c47');">                <div class="profile-avatar-wrapper">
+                    <img src="{{ url_for('static', filename='img/avatar-default.png') }}" alt="玩家頭像" class="profile-avatar" id="user-avatar">
                     <div class="level-badge">
                         <span id="user-level">1</span>
                     </div>
@@ -447,8 +446,7 @@
     
     // 取得Firestore資料庫實例
     var db = firebase.firestore();
-    
-    // 從Firebase獲取用戶數據
+      // 從Firebase獲取用戶數據
     document.addEventListener('DOMContentLoaded', function() {
         const userId = "{{ session['user']['uid'] }}";
         
@@ -457,11 +455,23 @@
             return;
         }
         
+        console.log("正在從 Firebase 獲取用戶數據, 用戶ID:", userId);
+        
         // 從Firestore獲取用戶資料
         db.collection('users').doc(userId).get()
             .then(function(doc) {
                 if (doc.exists) {
                     const userData = doc.data();
+                    console.log("成功獲取用戶資料:", userData);
+                    
+                    // 檢查頭像資料
+                    if (userData.avatar) {
+                        console.log("用戶頭像 URL:", userData.avatar);
+                        console.log("頭像 URL 長度:", userData.avatar.length);
+                    } else {
+                        console.log("用戶資料中沒有頭像 URL");
+                    }
+                    
                     updateUserProfile(userData);
                     
                     // 獲取用戶已捕獲的精靈
@@ -477,9 +487,10 @@
                 console.error("獲取用戶資料錯誤:", error);
             });
     });
-    
-    // 更新用戶資料顯示
+      // 更新用戶資料顯示
     function updateUserProfile(userData) {
+        console.log("從 Firebase 獲取的用戶資料:", userData);
+        
         // 設定用戶等級
         const userLevel = userData.level || 1;
         document.getElementById('user-level').textContent = userLevel;
@@ -496,6 +507,15 @@
         // 更新戰鬥次數
         const battleCount = userData.fight_count || 0;
         document.getElementById('battle-count').textContent = battleCount;
+        
+        // 更新用戶頭像
+        const userAvatar = userData.avatar || null;
+        if (userAvatar && userAvatar !== 'default.png') {
+            console.log("設置用戶頭像:", userAvatar);
+            document.getElementById('user-avatar').src = userAvatar;
+        } else {
+            console.log("使用默認頭像");
+        }
     }
     
     // 加載用戶的精靈

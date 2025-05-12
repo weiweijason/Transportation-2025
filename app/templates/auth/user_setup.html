@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+
+{% block title %}設定您的角色 - 精靈公車{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card game-card shadow-lg">
+                <div class="card-header bg-success text-white text-center p-4">
+                    <div class="setup-icon pulse-animation">
+                        <i class="fas fa-user-cog fa-3x"></i>
+                    </div>
+                    <h3 class="mt-3">歡迎加入精靈公車世界！</h3>
+                    <p>{{ user_info.username }}，在開始冒險前，讓我們先設定您的角色</p>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" action="{{ url_for('auth.user_setup') }}" id="setupForm">
+                        <div class="mb-4">
+                            <h5 class="card-title text-center mb-4">
+                                <i class="fas fa-portrait me-2 text-success"></i>
+                                選擇您的頭像
+                            </h5>
+                            <div class="avatar-selection">
+                                <div class="row justify-content-center">
+                                    <!-- 使用Appwrite提供的頭像URL -->
+                                    <div class="col-4 col-md-3 mb-4">
+                                        <div class="avatar-option" data-avatar-id="1">
+                                            <img src="https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c769d000e8e2515f6/view?project=681c5c6b002355634f3c&mode=admin" class="img-fluid rounded-circle" alt="頭像 1">
+                                            <div class="avatar-check">
+                                                <i class="fas fa-check-circle fa-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4 col-md-3 mb-4">
+                                        <div class="avatar-option" data-avatar-id="2">
+                                            <img src="https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c76a2002589aa244a/view?project=681c5c6b002355634f3c&mode=admin" class="img-fluid rounded-circle" alt="頭像 2">
+                                            <div class="avatar-check">
+                                                <i class="fas fa-check-circle fa-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4 col-md-3 mb-4">
+                                        <div class="avatar-option" data-avatar-id="3">
+                                            <img src="https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c76aa0030f3d8e5f1/view?project=681c5c6b002355634f3c&mode=admin" class="img-fluid rounded-circle" alt="頭像 3">
+                                            <div class="avatar-check">
+                                                <i class="fas fa-check-circle fa-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4 col-md-3 mb-4">
+                                        <div class="avatar-option" data-avatar-id="4">
+                                            <img src="https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c76af001cac084ee3/view?project=681c5c6b002355634f3c&mode=admin" class="img-fluid rounded-circle" alt="頭像 4">
+                                            <div class="avatar-check">
+                                                <i class="fas fa-check-circle fa-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4 col-md-3 mb-4">
+                                        <div class="avatar-option" data-avatar-id="5">
+                                            <img src="https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c76b8000b6f6ff334/view?project=681c5c6b002355634f3c&mode=admin" class="img-fluid rounded-circle" alt="頭像 5">
+                                            <div class="avatar-check">
+                                                <i class="fas fa-check-circle fa-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4 col-md-3 mb-4">
+                                        <div class="avatar-option" data-avatar-id="6">
+                                            <img src="https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c76bc00200e74dfaa/view?project=681c5c6b002355634f3c&mode=admin" class="img-fluid rounded-circle" alt="頭像 6">
+                                            <div class="avatar-check">
+                                                <i class="fas fa-check-circle fa-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4 col-md-3 mb-4">
+                                        <div class="avatar-option" data-avatar-id="7">
+                                            <img src="https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c76c100023ff731b5/view?project=681c5c6b002355634f3c&mode=admin" class="img-fluid rounded-circle" alt="頭像 7">
+                                            <div class="avatar-check">
+                                                <i class="fas fa-check-circle fa-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4 col-md-3 mb-4">
+                                        <div class="avatar-option" data-avatar-id="8">
+                                            <img src="https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c76c60019ba53529d/view?project=681c5c6b002355634f3c&mode=admin" class="img-fluid rounded-circle" alt="頭像 8">
+                                            <div class="avatar-check">
+                                                <i class="fas fa-check-circle fa-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4 col-md-3 mb-4">
+                                        <div class="avatar-option" data-avatar-id="9">
+                                            <img src="https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c76cb0027c008c539/view?project=681c5c6b002355634f3c&mode=admin" class="img-fluid rounded-circle" alt="頭像 9">
+                                            <div class="avatar-check">
+                                                <i class="fas fa-check-circle fa-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4 col-md-3 mb-4">
+                                        <div class="avatar-option" data-avatar-id="10">
+                                            <img src="https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c76d000263718b58e/view?project=681c5c6b002355634f3c&mode=admin" class="img-fluid rounded-circle" alt="頭像 10">
+                                            <div class="avatar-check">
+                                                <i class="fas fa-check-circle fa-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="avatar_id" id="selectedAvatar" value="1">
+                            </div>
+                        </div>
+                        
+                        <div class="setup-intro mb-4">
+                            <div class="alert alert-info">
+                                <h5><i class="fas fa-info-circle me-2"></i>歡迎來到精靈公車世界！</h5>
+                                <p>在這個世界中，您將能夠：</p>
+                                <ul>
+                                    <li>探索現實世界中的公車路線</li>
+                                    <li>捕捉各種奇妙的精靈</li>
+                                    <li>競爭佔領道館</li>
+                                    <li>完成各種任務獲取獎勵</li>
+                                </ul>
+                                <p>準備好開始您的冒險了嗎？選擇您的頭像，然後點擊下方按鈕開始！</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-rocket me-2"></i>開始我的冒險
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .game-card {
+        border-radius: 20px;
+        overflow: hidden;
+        border: none;
+    }
+    
+    .setup-icon {
+        margin: 0 auto;
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .pulse-animation {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+        }
+        
+        70% {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+        }
+        
+        100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+        }
+    }
+    
+    .avatar-option {
+        position: relative;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 50%;
+        border: 3px solid transparent;
+        transition: all 0.3s;
+        max-width: 100px;
+        margin: 0 auto;
+    }
+    
+    .avatar-option:hover {
+        transform: translateY(-5px);
+        border-color: rgba(76, 175, 80, 0.5);
+    }
+    
+    .avatar-option.selected {
+        border-color: #4CAF50;
+        background-color: rgba(76, 175, 80, 0.1);
+    }
+    
+    .avatar-check {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        color: #4CAF50;
+        opacity: 0;
+        transition: all 0.3s;
+    }
+    
+    .avatar-option.selected .avatar-check {
+        opacity: 1;
+    }
+    
+    .float-animation {
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+        100% {
+            transform: translateY(0px);
+        }
+    }
+    
+    /* 深色模式適配 */
+    [data-theme="dark"] .game-card {
+        background-color: #2d3436;
+        border-color: #4d5656;
+    }
+    
+    [data-theme="dark"] .card-body {
+        color: #e0e0e0;
+    }
+    
+    [data-theme="dark"] .avatar-option {
+        background-color: #3d4852;
+    }
+    
+    [data-theme="dark"] .avatar-option.selected {
+        background-color: rgba(76, 175, 80, 0.3);
+    }
+    
+    [data-theme="dark"] .card-title {
+        color: #e0e0e0;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 頭像選擇功能
+        const avatarOptions = document.querySelectorAll('.avatar-option');
+        const selectedAvatarInput = document.getElementById('selectedAvatar');
+        
+        // 設置初始選中狀態
+        avatarOptions[0].classList.add('selected');
+        
+        // 為每個頭像選項添加點擊事件
+        avatarOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // 移除所有選中狀態
+                avatarOptions.forEach(opt => opt.classList.remove('selected'));
+                
+                // 為當前選中項添加選中狀態
+                this.classList.add('selected');
+                
+                // 更新隱藏輸入值
+                const avatarId = this.getAttribute('data-avatar-id');
+                selectedAvatarInput.value = avatarId;
+            });
+        });
+    });
+</script>
+{% endblock %}
