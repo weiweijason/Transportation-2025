@@ -1,0 +1,95 @@
+/* 針對遊戲捕捉頁面的深色背景樣式增強 */
+
+/* 確保在所有主題下保持深色背景 */
+body {
+  background-color: #121212 !important;
+}
+
+body.light-theme {
+  background-color: #121212 !important;
+  color: rgba(255, 255, 255, 0.87);
+}
+
+body.dark-theme {
+  background-color: #121212 !important;
+  color: rgba(255, 255, 255, 0.87);
+}
+
+/* 魔法陣選擇容器樣式調整 */
+.circle-selection-container {
+  background-color: rgba(40, 40, 40, 0.85) !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3) !important;
+}
+
+.circle-type-item {
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+}
+
+.circle-type-item:hover:not(.disabled) {
+  background-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.circle-type-item.active {
+  background-color: rgba(76, 175, 80, 0.2);
+}
+
+/* 精靈信息卡片樣式 */
+.creature-stats {
+  background-color: rgba(40, 40, 40, 0.85) !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3) !important;
+}
+
+.circle-name, .stat-item .label {
+  color: #ecf0f1 !important;
+}
+
+.circle-count {
+  color: #bdc3c7 !important;
+}
+
+/* 按鈕樣式調整 */
+.btn-success {
+  background-color: #16a085 !important;
+  border-color: #16a085 !important;
+}
+
+/* 模態框樣式 */
+.modal-content {
+  background-color: #1a1a1a;
+  color: rgba(255, 255, 255, 0.87);
+}
+
+.card {
+  background-color: #2c3e50 !important;
+  border: none !important;
+}
+
+.card-body {
+  background-color: #2c3e50 !important;
+  color: #ecf0f1 !important;
+}
+
+.stat-box {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 粒子和特效優化 */
+.firework-particle {
+  filter: brightness(1.2);
+}
+
+.magic-particle {
+  filter: brightness(1.2);
+}
+
+/* 文字和標題視覺增強 */
+h3, h4, h5 {
+  color: #ecf0f1 !important;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+.result-message {
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 3px 6px rgba(0, 0, 0, 0.3) !important;
+}

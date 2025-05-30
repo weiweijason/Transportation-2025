@@ -524,7 +524,7 @@ class FirebaseService:
             query = self.firestore_db.collection('route_creatures')
             
             # 如果指定了路線ID，添加路線過濾條件
-            if route_id:
+            if (route_id):
                 query = query.where('bus_route_id', '==', route_id)
             
             try:
@@ -547,7 +547,7 @@ class FirebaseService:
                             if player_id in player_list:
                                 continue
                         
-                        # 確保精靈數據包含必要的字段
+                        # 確保精靊數據包含必要的字段
                         if 'position' not in creature_data or not creature_data['position']:
                             creature_data['position'] = {
                                 'lat': 25.0330 + random.uniform(-0.01, 0.01),
@@ -821,17 +821,17 @@ class FirebaseService:
                     'captured_at': time.time()
                 }
                 
-                print(f">>> DEBUG: 精靈數據準備完成，即將添加到用戶收藏: {user_creature_data}")
+                print(f">>> DEBUG: 精靊數據準備完成，即將添加到用戶收藏: {user_creature_data}")
                 
                 # 儲存到用戶的 user_creatures 子集合中
                 user_ref.collection('user_creatures').document(user_creature_id).set(user_creature_data)
                 
-                # 同時保留在全局 user_creatures 集合中 (兼容現有程式碼)
-                self.firestore_db.collection('user_creatures').document(user_creature_id).set({
-                    **user_creature_data,
-                    'user_id': user_id,
-                    'player_id': player_id
-                })
+                # 同時保留在全局 user_creatures 集合中 (兼容現有程式碼) <--- 這部分將被移除或註解
+                # self.firestore_db.collection('user_creatures').document(user_creature_id).set({
+                #     **user_creature_data,
+                #     'user_id': user_id,
+                #     'player_id': player_id
+                # })
                 
                 print(f">>> DEBUG: 精靈已成功添加到用戶的收藏: {user_creature_id}")
             except Exception as e:
@@ -1017,7 +1017,7 @@ class FirebaseService:
         """
         try:
             # 驗證user_id是否為有效字符串
-            if not user_id or not isinstance(user_id, str) or user_id.strip() == "":
+            if not user_id or not isinstance(user_id, str) or user_id.strip() == "": # 修正：將 '或不' 改為 'or not'
                 return {
                     'status': 'error',
                     'message': '無效的用戶ID'
@@ -1228,22 +1228,12 @@ class FirebaseService:
             capture_data = {
                 'player_id': player_id,
                 'user_id': user_id,
+                'is_tutorial': True,
                 'captured_at': time.time()
             }
-            player_capture_ref.set(capture_data)
             
-            # 更新精靈的最後捕獲時間
-            creature_ref.update({
-                'last_captured_at': time.time()
-            })
-            
-            # 生成用戶精靊的唯一ID
-            user_creature_id = f"{creature_id}_{int(time.time())}_{player_id[:4]}"
-            
-            # 確保精靈有攻擊力值
-            attack_value = creature_data.get('attack', creature_data.get('power', 10))
-            
-            # 添加精靈到用戶的收藏中
+            # 儲存到用戶的 user_creatures 子集合中
+            user_creature_id = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=12))
             user_creature_data = {
                 'creature_id': creature_id,
                 'user_id': user_id,
@@ -1253,14 +1243,16 @@ class FirebaseService:
                 'element_type': creature_data.get('element_type', 'normal'),
                 'species': creature_data.get('species', '一般種'),
                 'hp': creature_data.get('hp', 100),
-                'attack': attack_value,
+                'attack': creature_data.get('attack', 10),
                 'defense': creature_data.get('defense', 5),
                 'is_tutorial': True,
                 'captured_at': time.time()
             }
-            
             # 儲存到用戶精靈集合
-            self.firestore_db.collection('user_creatures').document(user_creature_id).set(user_creature_data)
+            # self.firestore_db.collection('user_creatures').document(user_creature_id).set(user_creature_data) # 教學精靈只儲存到使用者的子集合
+            
+            # 同時儲存到用戶的 user_creatures 子集合中
+            user_ref.collection('user_creatures').document(user_creature_id).set(user_creature_data)
             
             return {
                 'status': 'success',

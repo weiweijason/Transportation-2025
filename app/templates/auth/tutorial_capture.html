@@ -7,14 +7,122 @@
 <style>
   /* 優化排版，調整 CSS 和 HTML 結構以避免元素重疊 */
 
-  /* CSS 調整：新增一些間距和對齊樣式 */
-  .capture-container {
+  /* 主題設定：確保深色背景在所有模式下 */
+  body {
+    background-color: #121212 !important;
+  }
+  
+  body.light-theme {
+    background-color: #121212 !important;
+    color: rgba(255, 255, 255, 0.87);
+  }
+  
+  body.dark-theme {
+    background-color: #121212 !important;
+    color: rgba(255, 255, 255, 0.87);
+  }
+
+  /* CSS 調整：新增一些間距和對齊樣式 */  .capture-container {
     padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 20px;
+  }
+
+  /* 魔法陣選擇樣式 */  .circle-selection-container {
+    width: 100%;
+    max-width: 500px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .circle-types {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .circle-type-item {
+    width: calc(33.333% - 10px);
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+    position: relative;
+  }
+
+  .circle-type-item.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .circle-type-item:hover:not(.disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .circle-type-item.active {
+    border-color: #4CAF50;
+    background-color: rgba(76, 175, 80, 0.1);
+  }
+
+  .circle-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    padding: 5px;
+  }
+
+  .circle-icon img {
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  .normal-circle {
+    background-color: rgba(104, 159, 56, 0.3);
+    border: 2px solid rgba(104, 159, 56, 0.7);
+  }
+
+  .advanced-circle {
+    background-color: rgba(3, 169, 244, 0.3);
+    border: 2px solid rgba(3, 169, 244, 0.7);
+  }
+
+  .premium-circle {
+    background-color: rgba(255, 193, 7, 0.3);
+    border: 2px solid rgba(255, 193, 7, 0.7);
+  }
+
+  .circle-name {
+    font-weight: 700;
+    margin-bottom: 2px;
+    font-size: 0.95rem;
+    color: #2c3e50;
+  }
+
+  .circle-rate {
+    color: #d35400;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .circle-count {
+    font-size: 0.85rem;
+    color: #34495e;
+    font-weight: 600;
   }
 
   .magic-container {
@@ -34,16 +142,42 @@
     position: relative;
     z-index: 20; /* 較高的 z-index 確保圖片在魔法陣上方 */
   }
-
   .creature-info {
     margin-top: 20px;
     text-align: center;
   }
 
-  .action-buttons {
-    margin-top: 20px;
+  .creature-stats {
     display: flex;
-    gap: 10px;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 15px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  }
+
+  .stat-item {
+    text-align: center;
+    min-width: 80px;
+  }
+
+  .stat-item .value {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+  }
+
+  .stat-item .label {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .action-buttons {
+    margin-top: 25px;
+    display: flex;
+    gap: 15px;
     justify-content: center;
   }
 
@@ -55,19 +189,21 @@
   .creature-detail .card {
     margin-top: 20px;
   }
-    /* 魔法陣樣式 */
+  /* 魔法陣樣式 */
   .magic-circle {
     position: absolute;
     width: 250px;
     height: 250px;
     background-size: cover;
+    background-position: center;
     opacity: 0;
     transform: scale(0.8);
     transition: all 1s ease;
+    z-index: 10;
   }
   
   .magic-circle.active {
-    opacity: 0.7;
+    opacity: 0.8;
     transform: scale(1) rotate(180deg);
   }
   
@@ -76,14 +212,29 @@
     width: 150px;
     height: 150px;
     background-size: cover;
+    background-position: center;
     opacity: 0;
     transform: scale(0.8);
     transition: all 1s ease;
+    z-index: 11;
   }
   
   .magic-circle-inner.active {
-    opacity: 0.5;
+    opacity: 0.7;
     transform: scale(1) rotate(-90deg);
+  }
+  
+  /* 不同等級魔法陣樣式 */
+  .magic-circle.normal {
+    filter: hue-rotate(90deg);
+  }
+  
+  .magic-circle.advanced {
+    filter: hue-rotate(180deg);
+  }
+  
+  .magic-circle.premium {
+    filter: hue-rotate(30deg) brightness(1.2);
   }
   
   .capture-effect {
@@ -94,6 +245,7 @@
     border-radius: 50%;
     opacity: 0;
     transition: all 0.5s ease;
+    z-index: 9;
   }
   
   .capture-effect.active {
@@ -101,31 +253,135 @@
     height: 300px;
     opacity: 1;
   }
-  
-  .result-message {
+    .result-message {
     position: absolute;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     font-weight: bold;
-    color: #4CAF50;
-    text-shadow: 0 0 10px rgba(255,255,255,0.7);
+    color: #2ecc71;
+    text-shadow: 0 0 15px rgba(255,255,255,0.9), 0 2px 5px rgba(0,0,0,0.2);
     opacity: 0;
     transform: scale(0.5);
     transition: all 0.5s ease;
+    z-index: 30;
   }
-  
+    
   .result-message.visible {
     opacity: 1;
     transform: scale(1);
+  }
+  
+  .result-message.success {
+    color: #2ecc71;
+  }
+  
+  .result-message.failure {
+    color: #e74c3c;
   }
   
   .creature-image.captured {
     animation: capture-animation 1s forwards;
   }
   
-  @keyframes capture-animation {
+  /* 不同類型魔法粒子 */
+  .magic-particle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.6);
+    pointer-events: none;
+    opacity: 0;
+    z-index: 8;
+  }
+  
+  .magic-particle.normal {
+    background-color: rgba(104, 159, 56, 0.6);
+    box-shadow: 0 0 10px rgba(104, 159, 56, 0.8);
+  }
+  
+  .magic-particle.advanced {
+    background-color: rgba(3, 169, 244, 0.6);
+    box-shadow: 0 0 10px rgba(3, 169, 244, 0.8);
+  }
+  
+  .magic-particle.premium {
+    background-color: rgba(255, 193, 7, 0.6);
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.8);
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+    /* 模態框樣式優化 */
+  .modal-content {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+  
+  .modal-header.bg-success {
+    background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%) !important;
+  }
+  
+  .modal-header.bg-danger {
+    background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%) !important;
+  }
+  
+  .stat-box {
+    padding: 10px 15px;
+    border-radius: 8px;
+    background-color: rgba(255,255,255,0.6);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    min-width: 80px;
+  }
+  
+  #continueButton {
+    background-color: #16a085;
+    border-color: #16a085;
+    padding: 10px 25px;
+    font-weight: 600;
+    border-radius: 30px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+  }
+  
+  #continueButton:hover {
+    background-color: #138a72;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  }
+  
+  @keyframes float {
+    from { transform: translateY(0) translateX(0); }
+    to { transform: translateY(-30px) translateX(10px); }
+  }
+    @keyframes capture-animation {
     0% { transform: scale(1); opacity: 1; }
     50% { transform: scale(0.5); opacity: 0.7; }
     100% { transform: scale(0); opacity: 0; }
+  }
+  
+  /* 煙花效果樣式 */
+  .firework-particle {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 100;
+    pointer-events: none;
+  }
+  
+  @keyframes fireworkFade {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  
+  @keyframes fireworkMove {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0.3); }
   }
 </style>
 {% endblock %}
@@ -133,14 +389,55 @@
 {% block content %}
 <div class="container-fluid p-0">
 
-  <div class="capture-container">
-    <div class="theme-toggle-container">
+  <div class="capture-container">    <div class="theme-toggle-container">
       <button class="theme-toggle" id="themeToggle">
         <i class="fas fa-moon" id="themeIcon"></i>
       </button>
-    </div>    <div class="magic-container">
-      <div class="magic-circle" id="magicCircle" style="background-image: url('{{ url_for('static', filename='img/magic-circle.gif') }}'); display: none;"></div>
-      <div class="magic-circle-inner" id="magicCircleInner" style="background-image: url('{{ url_for('static', filename='img/magic-circle-inner.png') }}'); display: none;"></div>
+    </div>    <!-- 魔法陣等級選擇 -->
+    <div class="circle-selection-container mb-3">
+      <h5 class="text-center mb-2" style="color: #16a085; font-weight: 700; text-shadow: 0 1px 1px rgba(0,0,0,0.1);">選擇魔法陣等級</h5>
+      <div class="circle-type-info text-center mb-2">
+        <div class="alert alert-info py-2" style="font-size: 0.9rem; background-color: rgba(52, 152, 219, 0.15); border-color: rgba(52, 152, 219, 0.3); color: #2980b9;">
+          <i class="fas fa-info-circle me-1"></i> 不同等級的魔法陣有不同的捕捉成功率
+        </div>
+      </div>
+      <div class="circle-types">
+        <div class="circle-type-item" data-type="normal">
+          <div class="circle-icon normal-circle">
+            <img src="{{ url_for('static', filename='img/circles/normal/magic-circle-inner.png') }}" alt="普通魔法陣">
+          </div>
+          <div class="circle-info">
+            <div class="circle-name">普通魔法陣</div>
+            <div class="circle-rate">成功率：60%</div>
+            <div class="circle-count">剩餘：0 個</div>
+          </div>
+        </div>
+        <div class="circle-type-item" data-type="advanced">
+          <div class="circle-icon advanced-circle">
+            <img src="{{ url_for('static', filename='img/circles/advanced/magic-circle-inner.png') }}" alt="進階魔法陣">
+          </div>
+          <div class="circle-info">
+            <div class="circle-name">進階魔法陣</div>
+            <div class="circle-rate">成功率：80%</div>
+            <div class="circle-count">剩餘：0 個</div>
+          </div>
+        </div>
+        <div class="circle-type-item active" data-type="premium">
+          <div class="circle-icon premium-circle">
+            <img src="{{ url_for('static', filename='img/circles/premium/magic-circle-inner.png') }}" alt="高級魔法陣">
+          </div>
+          <div class="circle-info">
+            <div class="circle-name">高級魔法陣</div>
+            <div class="circle-rate">成功率：100%</div>
+            <div class="circle-count">剩餘：1 個</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="magic-container">
+      <div class="magic-circle" id="magicCircle" style="display: none;"></div>
+      <div class="magic-circle-inner" id="magicCircleInner" style="display: none;"></div>
       
       <!-- 將圖片放入魔法陣容器內 -->
       <img src="{{ creature.image }}" alt="{{ creature.name }}" class="creature-image" id="creatureImage">
@@ -148,29 +445,29 @@
       <!-- 添加捕捉特效元素 -->
       <div class="capture-effect" id="captureEffect"></div>
       <div class="result-message" id="resultMessage"></div>
-    </div>
-
-    <div class="creature-info">
-      <h3 class="text-center mb-3">{{ creature.name }} <span class="badge bg-warning">初始精靈</span></h3>
+    </div>    <div class="creature-info">
+      <h3 class="text-center mb-3" style="color: #2c3e50; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">{{ creature.name }} <span class="badge bg-warning">初始精靈</span></h3>
       <div class="creature-stats">
         <div class="stat-item">
-          <div class="value">{{ creature.power }}</div>
-          <div class="label">攻擊</div>
+          <div class="value" style="color: #e74c3c; font-weight: 700;">{{ creature.power }}</div>
+          <div class="label" style="color: #34495e; font-weight: 600;">攻擊</div>
         </div>
         <div class="stat-item">
-          <div class="value">100</div>
-          <div class="label">生命</div>
+          <div class="value" style="color: #27ae60; font-weight: 700;">100</div>
+          <div class="label" style="color: #34495e; font-weight: 600;">生命</div>
         </div>
         <div class="stat-item">
-          <div class="value">{{ creature.type }}</div>
-          <div class="label">屬性</div>
+          <div class="value" style="color: #3498db; font-weight: 700;">{{ creature.type }}</div>
+          <div class="label" style="color: #34495e; font-weight: 600;">屬性</div>
         </div>
       </div>
     </div>
 
     <div class="action-buttons">
-      <button class="btn btn-lg btn-success" id="captureBtn">開始捕捉</button>
-      <button class="btn btn-lg btn-outline-light dark-mode-button" id="cancelBtn">取消</button>
+      <button class="btn btn-lg btn-success" id="captureBtn" style="background-color: #16a085; border-color: #16a085; font-weight: 600; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <i class="fas fa-magic me-2"></i>開始捕捉
+      </button>
+      <button class="btn btn-lg btn-outline-light dark-mode-button" id="cancelBtn" style="font-weight: 600;">取消</button>
     </div>
   </div>
 </div>
@@ -183,30 +480,31 @@
         <h5 class="modal-title" id="resultModalTitle">捕捉結果</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body text-center">
-        <div id="resultContent">
-          <img id="resultImage" src="{{ creature.image }}" alt="{{ creature.name }}" class="mb-3" style="max-width: 150px;">
-          <h4 id="resultText">捕捉成功！</h4>
-          <p id="resultDescription" class="text-muted">恭喜您捕捉到了{{ creature.name }}！</p>
+      <div class="modal-body text-center">        <div id="resultContent">
+          <img id="resultImage" src="{{ creature.image }}" alt="{{ creature.name }}" class="mb-3" style="max-width: 150px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+          <h4 id="resultText" style="font-weight: 700; color: #16a085; text-shadow: 0 1px 1px rgba(0,0,0,0.1);">捕捉成功！</h4>
+          <p id="resultDescription" style="color: #7f8c8d; font-size: 1.1rem;">恭喜您捕捉到了{{ creature.name }}！</p>
           
           <div class="creature-detail mt-4">
             <div class="row justify-content-center">
-              <div class="col-md-8">
-                <div class="card">
-                  <div class="card-body">
-                    <h5 class="card-title">{{ creature.name }} <span class="badge bg-warning">初始精靈</span></h5>
-                    <div class="d-flex justify-content-around mt-3">
-                      <div class="text-center">
-                        <div class="fw-bold">{{ creature.power }}</div>
-                        <small class="text-muted">攻擊</small>
+              <div class="col-md-10">
+                <div class="card" style="border-radius: 15px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
+                  <div class="card-header text-white" style="background: linear-gradient(135deg, #16a085 0%, #2980b9 100%); padding: 12px;">
+                    <h5 class="card-title mb-0" style="font-weight: 700;">{{ creature.name }} <span class="badge bg-warning ms-2">初始精靈</span></h5>
+                  </div>
+                  <div class="card-body" style="background-color: #f9fafb;">
+                    <div class="d-flex justify-content-around mt-2 mb-1">
+                      <div class="text-center stat-box">
+                        <div class="fw-bold stat-value" style="color: #e74c3c; font-size: 1.4rem;">{{ creature.power }}</div>
+                        <div class="stat-label" style="color: #34495e; font-weight: 600; font-size: 0.9rem; text-transform: uppercase;">攻擊</div>
                       </div>
-                      <div class="text-center">
-                        <div class="fw-bold">100</div>
-                        <small class="text-muted">生命</small>
+                      <div class="text-center stat-box">
+                        <div class="fw-bold stat-value" style="color: #27ae60; font-size: 1.4rem;">100</div>
+                        <div class="stat-label" style="color: #34495e; font-weight: 600; font-size: 0.9rem; text-transform: uppercase;">生命</div>
                       </div>
-                      <div class="text-center">
-                        <div class="fw-bold">{{ creature.type }}</div>
-                        <small class="text-muted">屬性</small>
+                      <div class="text-center stat-box">
+                        <div class="fw-bold stat-value" style="color: #3498db; font-size: 1.4rem;">{{ creature.type }}</div>
+                        <div class="stat-label" style="color: #34495e; font-weight: 600; font-size: 0.9rem; text-transform: uppercase;">屬性</div>
                       </div>
                     </div>
                   </div>
@@ -225,7 +523,13 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>  document.addEventListener('DOMContentLoaded', function() {
+<script>
+  // 獲取 CSRF Token
+  function getCsrfToken() {
+    return document.querySelector('meta[name=csrf-token]')?.getAttribute('content') || '';
+  }
+  
+  document.addEventListener('DOMContentLoaded', function() {
     const creatureId = '{{ creature.id }}';
     const creatureName = '{{ creature.name }}';
     const magicCircle = document.getElementById('magicCircle');
@@ -238,6 +542,65 @@
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
     const continueButton = document.getElementById('continueButton');
+    const circleTypeItems = document.querySelectorAll('.circle-type-item');
+    
+    // 魔法陣等級和剩餘數量
+    const circleCounts = {
+      normal: 0,
+      advanced: 0,
+      premium: 1
+    };
+    
+    // 魔法陣成功率
+    const circleRates = {
+      normal: 60,
+      advanced: 80,
+      premium: 100
+    };
+    
+    // 當前選擇的魔法陣類型
+    let selectedCircleType = 'premium';
+    
+    // 更新魔法陣選擇項顯示
+    function updateCircleItems() {
+      circleTypeItems.forEach(item => {
+        const type = item.getAttribute('data-type');
+        const countElement = item.querySelector('.circle-count');
+        
+        countElement.textContent = `剩餘：${circleCounts[type]} 個`;
+        
+        if (circleCounts[type] <= 0) {
+          item.classList.add('disabled');
+        } else {
+          item.classList.remove('disabled');
+        }
+        
+        if (type === selectedCircleType) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+    }
+    
+    // 初始化魔法陣選擇
+    updateCircleItems();
+    
+    // 點擊選擇魔法陣
+    circleTypeItems.forEach(item => {
+      item.addEventListener('click', function() {
+        const type = this.getAttribute('data-type');
+        
+        // 檢查是否有足夠的魔法陣
+        if (circleCounts[type] <= 0) {
+          return;
+        }
+        
+        // 更新選擇
+        selectedCircleType = type;
+        updateCircleItems();
+      });
+    });
     
     // 初始隱藏魔法陣
     magicCircle.style.display = 'none';
@@ -292,14 +655,17 @@
         cancelBtn.classList.add('btn-outline-dark');
       }
     }
-    
-    // 創建粒子效果
+      // 創建粒子效果
     function createParticles() {
       const container = document.querySelector('.capture-container');
       
+      // 清除之前的粒子
+      const oldParticles = document.querySelectorAll('.magic-particle');
+      oldParticles.forEach(p => p.remove());
+      
       for (let i = 0; i < 30; i++) {
         const particle = document.createElement('div');
-        particle.className = 'magic-particle';
+        particle.className = `magic-particle ${selectedCircleType}`;
         
         // 隨機位置
         const x = Math.random() * 100;
@@ -307,6 +673,11 @@
         
         particle.style.left = `${x}%`;
         particle.style.top = `${y}%`;
+        
+        // 隨機大小
+        const size = 3 + Math.random() * 7;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
         
         // 添加動畫
         const delay = Math.random() * 5;
@@ -321,18 +692,99 @@
       }
     }
     
+    // 煙花效果
+    function createFireworks() {
+      const container = document.querySelector('.capture-container');
+      
+      for (let i = 0; i < 50; i++) {
+        const firework = document.createElement('div');
+        firework.className = 'firework-particle';
+        
+        // 隨機顏色
+        const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f1c40f', '#9b59b6', '#1abc9c'];
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        firework.style.backgroundColor = randomColor;
+        firework.style.boxShadow = `0 0 8px ${randomColor}`;
+        
+        // 隨機位置 (中心附近)
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        const radius = 150;
+        const angle = Math.random() * Math.PI * 2;
+        
+        const x = centerX + Math.cos(angle) * radius * Math.random();
+        const y = centerY + Math.sin(angle) * radius * Math.random();
+        
+        firework.style.left = `${x}px`;
+        firework.style.top = `${y}px`;
+        
+        // 隨機大小
+        const size = 3 + Math.random() * 5;
+        firework.style.width = `${size}px`;
+        firework.style.height = `${size}px`;
+        
+        // 隨機飛行方向和距離
+        const tx = (Math.random() - 0.5) * 200;
+        const ty = (Math.random() - 0.5) * 200;
+        const duration = 0.5 + Math.random() * 1.5;
+        
+        firework.style.animation = `
+          fireworkFade ${duration}s forwards,
+          fireworkMove ${duration}s forwards
+        `;
+        
+        firework.style.setProperty('--tx', `${tx}px`);
+        firework.style.setProperty('--ty', `${ty}px`);
+        
+        container.appendChild(firework);
+        
+        // 自動移除煙花粒子
+        setTimeout(() => {
+          firework.remove();
+        }, duration * 1000);
+      }
+    }
+    
     // 開始捕捉
-    let captureInProgress = false;
-      captureBtn.addEventListener('click', function() {
+    let captureInProgress = false;    captureBtn.addEventListener('click', function() {
       if (captureInProgress) return;
+      
+      // 檢查是否有足夠的魔法陣
+      if (circleCounts[selectedCircleType] <= 0) {
+        alert('您沒有足夠的魔法陣！');
+        return;
+      }
       
       captureInProgress = true;
       captureBtn.disabled = true;
       cancelBtn.disabled = true;
       
+      // 減少魔法陣數量
+      circleCounts[selectedCircleType]--;
+      updateCircleItems();
+      
+      // 設置魔法陣圖片
+      magicCircle.style.backgroundImage = `url('{{ url_for('static', filename='img/circles/') }}${selectedCircleType}/magic-circle.png')`;
+      magicCircleInner.style.backgroundImage = `url('{{ url_for('static', filename='img/circles/') }}${selectedCircleType}/magic-circle-inner.png')`;
+      
       // 顯示魔法陣
       magicCircle.style.display = 'block';
       magicCircleInner.style.display = 'block';
+      
+      // 根據不同等級的魔法陣設置不同的視覺效果
+      let circleColor;
+      switch(selectedCircleType) {
+        case 'normal':
+          circleColor = 'rgba(104, 159, 56, 0.7)';
+          break;
+        case 'advanced':
+          circleColor = 'rgba(3, 169, 244, 0.7)';
+          break;
+        case 'premium':
+          circleColor = 'rgba(255, 193, 7, 0.7)';
+          break;
+      }
+      captureEffect.style.background = `radial-gradient(circle, ${circleColor} 0%, rgba(255,255,255,0) 70%)`;
       
       // 啟動視覺效果
       setTimeout(() => { magicCircle.classList.add('active'); }, 100);
@@ -341,45 +793,55 @@
       
       // 創建粒子特效
       createParticles();
-      
-      // 執行捕捉 API 請求
+        // 執行捕捉 API 請求
       setTimeout(() => {
-        // 發送捕捉請求到後端
+        // 模擬捕捉成功率，在教學模式中一般為成功
+        const successRate = circleRates[selectedCircleType];
+        const isSuccess = Math.random() * 100 < successRate;
+        
+        // 發送實際的捕捉請求到後端
         fetch(`/auth/tutorial/capture-creature/${creatureId}`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
           },
-          body: JSON.stringify({ creature_id: creatureId })
+          body: JSON.stringify({
+            magic_circle_type: selectedCircleType,
+            success_rate: successRate
+          })
         })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-          console.log("捕捉成功，伺服器回應:", data);
           if (data.success) {
             // 捕捉成功
             creatureImage.classList.add('captured');
             resultMessage.textContent = '捕捉成功！';
-            
+            resultMessage.classList.add('success');
+              
             // 設置成功樣式
             document.getElementById('resultModalHeader').className = 'modal-header bg-success text-white';
             document.getElementById('resultModalTitle').textContent = '捕捉成功';
             document.getElementById('resultText').textContent = '捕捉成功！';
-            document.getElementById('resultDescription').textContent = `恭喜您成功捕捉到了${creatureName}！`;
+            document.getElementById('resultDescription').textContent = `恭喜您使用${getCircleTypeName(selectedCircleType)}成功捕捉到了${creatureName}！該精靈已保存到 Firebase 的 users/{user_id}/user_creatures 子集合中。`;
+            
+            // 添加煙花效果
+            createFireworks();
+            
+            // 修改成功時的背景色
+            document.getElementById('resultContent').style.backgroundColor = 'rgba(46, 204, 113, 0.1)';
+            document.getElementById('resultContent').style.borderRadius = '10px';
+            document.getElementById('resultContent').style.padding = '20px';
           } else {
             // 捕捉失敗
             resultMessage.textContent = '捕捉失敗！';
-            resultMessage.style.color = '#dc3545';
+            resultMessage.classList.add('failure');
             
             // 設置失敗樣式
             document.getElementById('resultModalHeader').className = 'modal-header bg-danger text-white';
             document.getElementById('resultModalTitle').textContent = '捕捉失敗';
             document.getElementById('resultText').textContent = '捕捉失敗！';
-            document.getElementById('resultDescription').textContent = data.message || '很遺憾，這隻精靈逃脫了！';
+            document.getElementById('resultDescription').textContent = data.message || `很遺憾，儘管使用了${getCircleTypeName(selectedCircleType)}，這隻精靈還是逃脫了！`;
           }
           
           // 顯示結果
@@ -395,17 +857,36 @@
         })
         .catch(error => {
           console.error('捕捉請求失敗:', error);
-          resultMessage.textContent = '發生錯誤！';
-          resultMessage.style.color = '#dc3545';
-          resultMessage.classList.add('visible');
           
-          // 重置按鈕
-          captureBtn.disabled = false;
-          cancelBtn.disabled = false;
-          captureInProgress = false;
+          // 顯示錯誤
+          resultMessage.textContent = '系統錯誤！';
+          resultMessage.classList.add('failure');
+          
+          document.getElementById('resultModalHeader').className = 'modal-header bg-danger text-white';
+          document.getElementById('resultModalTitle').textContent = '系統錯誤';
+          document.getElementById('resultText').textContent = '系統錯誤！';
+          document.getElementById('resultDescription').textContent = '無法連接到伺服器，請稍後再試。';
+          
+          setTimeout(() => {
+            resultMessage.classList.add('visible');
+            setTimeout(() => {
+              const resultModal = new bootstrap.Modal(document.getElementById('captureResultModal'));
+              resultModal.show();
+            }, 2000);
+          }, 1000);
         });
       }, 3000);
     });
+    
+    // 取得魔法陣類型的中文名稱
+    function getCircleTypeName(type) {
+      switch(type) {
+        case 'normal': return '普通魔法陣';
+        case 'advanced': return '進階魔法陣';
+        case 'premium': return '高級魔法陣';
+        default: return '魔法陣';
+      }
+    }
     
     // 取消按鈕
     cancelBtn.addEventListener('click', function() {

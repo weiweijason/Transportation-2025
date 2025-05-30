@@ -660,6 +660,92 @@
    - 支援深色模式與響應式設計
 3. **📱 JavaScript架構**：
    - 功能模組化拆分
+     - 教學模式 (tutorial.html) 模組化為：
+       - `tutorial-config.js`：全局配置和初始化參數
+       - `tutorial-map.js`：地圖初始化和操作
+       - `tutorial-creature.js`：精靈捕捉相關功能
+       - `tutorial-gym.js`：道館選擇和佔領功能
+       - `tutorial-ui.js`：UI 交互和步驟控制
+       - `tutorial-main.js`：主入口文件
    - 事件委派模式
    - 非同步請求處理
    - 錯誤捕獲與處理機制
+
+## 📚 代碼結構與模組化實現
+
+### 🔄 教學模式 JavaScript 模組化
+
+為了提高代碼的可維護性和組織性，我們採用了模組化設計將教學模式的 JavaScript 代碼按功能拆分為獨立文件：
+
+#### 模組結構：
+
+1. **tutorial-config.js**
+   - 包含所有教學步驟定義
+   - 管理全局狀態和配置
+   - 初始化教學環境需要的參數
+
+2. **tutorial-map.js**
+   - 負責地圖初始化與配置
+   - 實現不同路線的顯示
+   - 管理玩家位置和道館標記
+
+3. **tutorial-creature.js**
+   - 處理精靈生成與顯示
+   - 實現精靈捕捉互動
+   - 管理捕捉成功後的處理邏輯
+
+4. **tutorial-gym.js**
+   - 處理道館選擇與互動
+   - 實現道館佔領功能
+   - 管理與伺服器的數據交換
+
+5. **tutorial-ui.js**
+   - 控制教學步驟與流程
+   - 管理 UI 元素的顯示和隱藏
+   - 實現教學對話框和按鈕交互
+
+6. **tutorial-main.js**
+   - 作為入口文件初始化整個教學流程
+   - 整合各模組功能
+
+#### 模組化的優勢：
+
+- **提高可維護性**：每個模組負責特定功能，方便定位和修改問題
+- **改善代碼組織**：清晰的文件結構使得代碼更容易理解
+- **促進協作開發**：不同開發者可以專注於不同模組
+- **降低複雜度**：將大型問題分解為小型的可管理單元
+- **提高可重用性**：模組化設計使功能組件可以在其他部分重用
+
+#### 模組間通信方式：
+
+每個模組透過全局命名空間進行通信，但保持清晰的職責分工：
+
+```javascript
+// 定義模組作為獨立對象
+const tutorialConfig = { ... };  // 全局配置對象
+const tutorialMap = { ... };     // 地圖功能對象
+const tutorialCreature = { ... }; // 精靈功能對象
+const tutorialGym = { ... };     // 道館功能對象
+const tutorialUI = { ... };      // UI控制對象
+
+// 將模組導出為全局變量以便其他模組使用
+window.tutorialConfig = tutorialConfig;
+window.tutorialMap = tutorialMap;
+// 其他模組導出...
+```
+
+#### 模組加載順序：
+
+在 HTML 中，我們確保按照依賴關係順序加載模組：
+
+```html
+<!-- 拆分的 JavaScript 模塊 -->
+<script src="{{ url_for('static', filename='js/tutorial/tutorial-config.js') }}"></script>
+<script src="{{ url_for('static', filename='js/tutorial/tutorial-map.js') }}"></script>
+<script src="{{ url_for('static', filename='js/tutorial/tutorial-creature.js') }}"></script>
+<script src="{{ url_for('static', filename='js/tutorial/tutorial-gym.js') }}"></script>
+<script src="{{ url_for('static', filename='js/tutorial/tutorial-ui.js') }}"></script>
+<script src="{{ url_for('static', filename='js/tutorial/tutorial-main.js') }}"></script>
+```
+
+這種模組化結構為後續的功能擴展和代碼維護提供了堅實的基礎。

@@ -4,6 +4,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/game/capture_interactive.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/game/capture_dark_theme.css') }}">
 <style>
   /* 優化排版，調整 CSS 和 HTML 結構以避免元素重疊 */
 
@@ -51,9 +52,29 @@
   .modal-body {
     padding: 20px;
   }
-
   .creature-detail .card {
     margin-top: 20px;
+  }
+  
+  /* 煙花效果樣式 */
+  .firework-particle {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 100;
+    pointer-events: none;
+  }
+  
+  @keyframes fireworkFade {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  
+  @keyframes fireworkMove {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0.3); }
   }
 </style>
 {% endblock %}
@@ -78,29 +99,29 @@
       <!-- 添加捕捉特效元素 -->
       <div class="capture-effect" id="captureEffect"></div>
       <div class="result-message" id="resultMessage"></div>
-    </div>
-
-    <div class="creature-info">
+    </div>    <div class="creature-info">
       <h3 class="text-center mb-3">{{ creature.name }} <span class="badge bg-warning">{{ creature.species }}</span></h3>
       <div class="creature-stats">
         <div class="stat-item">
-          <div class="value">{{ creature.attack }}</div>
-          <div class="label">攻擊</div>
+          <div class="value" style="color: #e74c3c; font-weight: 700;">{{ creature.attack }}</div>
+          <div class="label" style="font-weight: 600;">攻擊</div>
         </div>
         <div class="stat-item">
-          <div class="value">{{ creature.hp }}</div>
-          <div class="label">生命</div>
+          <div class="value" style="color: #27ae60; font-weight: 700;">{{ creature.hp }}</div>
+          <div class="label" style="font-weight: 600;">生命</div>
         </div>
         <div class="stat-item">
-          <div class="value">{{ element_types[creature.element_type] }}</div>
-          <div class="label">屬性</div>
+          <div class="value" style="color: #3498db; font-weight: 700;">{{ element_types[creature.element_type] }}</div>
+          <div class="label" style="font-weight: 600;">屬性</div>
         </div>
       </div>
     </div>
 
     <div class="action-buttons">
-      <button class="btn btn-lg btn-success" id="captureBtn">開始捕捉</button>
-      <button class="btn btn-lg btn-outline-light dark-mode-button" id="cancelBtn">取消</button>
+      <button class="btn btn-lg btn-success" id="captureBtn" style="font-weight: 600; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <i class="fas fa-magic me-2"></i>開始捕捉
+      </button>
+      <button class="btn btn-lg btn-outline-light dark-mode-button" id="cancelBtn" style="font-weight: 600;">取消</button>
     </div>
   </div>
 </div>
@@ -112,31 +133,32 @@
       <div class="modal-header" id="resultModalHeader">
         <h5 class="modal-title" id="resultModalTitle">捕捉結果</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body text-center">
+      </div>      <div class="modal-body text-center">
         <div id="resultContent">
-          <img id="resultImage" src="{{ creature.image_url }}" alt="{{ creature.name }}" class="mb-3" style="max-width: 150px;">
-          <h4 id="resultText">捕捉成功！</h4>
-          <p id="resultDescription" class="text-muted">恭喜您捕捉到了{{ creature.name }}！</p>
+          <img id="resultImage" src="{{ creature.image_url }}" alt="{{ creature.name }}" class="mb-3" style="max-width: 150px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+          <h4 id="resultText" style="font-weight: 700; text-shadow: 0 1px 1px rgba(0,0,0,0.1);">捕捉成功！</h4>
+          <p id="resultDescription" style="font-size: 1.1rem; color: #bdc3c7;">恭喜您捕捉到了{{ creature.name }}！</p>
           
           <div class="creature-detail mt-4">
             <div class="row justify-content-center">
-              <div class="col-md-8">
-                <div class="card">
+              <div class="col-md-10">
+                <div class="card" style="border-radius: 15px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.2);">
+                  <div class="card-header text-white" style="background: linear-gradient(135deg, #16a085 0%, #2980b9 100%); padding: 12px;">
+                    <h5 class="card-title mb-0" style="font-weight: 700;">{{ creature.name }} <span class="badge bg-warning ms-2">{{ creature.species }}</span></h5>
+                  </div>
                   <div class="card-body">
-                    <h5 class="card-title">{{ creature.name }} <span class="badge bg-warning">{{ creature.species }}</span></h5>
-                    <div class="d-flex justify-content-around mt-3">
-                      <div class="text-center">
-                        <div class="fw-bold">{{ creature.attack }}</div>
-                        <small class="text-muted">攻擊</small>
+                    <div class="d-flex justify-content-around mt-2 mb-1">
+                      <div class="text-center stat-box">
+                        <div class="fw-bold stat-value" style="color: #e74c3c; font-size: 1.4rem;">{{ creature.attack }}</div>
+                        <div class="stat-label" style="font-weight: 600; font-size: 0.9rem; text-transform: uppercase;">攻擊</div>
                       </div>
-                      <div class="text-center">
-                        <div class="fw-bold">{{ creature.hp }}</div>
-                        <small class="text-muted">生命</small>
+                      <div class="text-center stat-box">
+                        <div class="fw-bold stat-value" style="color: #27ae60; font-size: 1.4rem;">{{ creature.hp }}</div>
+                        <div class="stat-label" style="font-weight: 600; font-size: 0.9rem; text-transform: uppercase;">生命</div>
                       </div>
-                      <div class="text-center">
-                        <div class="fw-bold">{{ element_types[creature.element_type] }}</div>
-                        <small class="text-muted">屬性</small>
+                      <div class="text-center stat-box">
+                        <div class="fw-bold stat-value" style="color: #3498db; font-size: 1.4rem;">{{ element_types[creature.element_type] }}</div>
+                        <div class="stat-label" style="font-weight: 600; font-size: 0.9rem; text-transform: uppercase;">屬性</div>
                       </div>
                     </div>
                   </div>
@@ -221,8 +243,7 @@
         cancelBtn.classList.add('btn-outline-dark');
       }
     }
-    
-    // 創建粒子效果
+      // 創建粒子效果
     function createParticles() {
       const container = document.querySelector('.capture-container');
       
@@ -247,6 +268,59 @@
         `;
         
         container.appendChild(particle);
+      }
+    }
+    
+    // 創建煙花效果
+    function createFireworks() {
+      const container = document.querySelector('.capture-container');
+      
+      for (let i = 0; i < 50; i++) {
+        const firework = document.createElement('div');
+        firework.className = 'firework-particle';
+        
+        // 隨機顏色
+        const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f1c40f', '#9b59b6', '#1abc9c'];
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        firework.style.backgroundColor = randomColor;
+        firework.style.boxShadow = `0 0 8px ${randomColor}`;
+        
+        // 隨機位置 (中心附近)
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        const radius = 150;
+        const angle = Math.random() * Math.PI * 2;
+        
+        const x = centerX + Math.cos(angle) * radius * Math.random();
+        const y = centerY + Math.sin(angle) * radius * Math.random();
+        
+        firework.style.left = `${x}px`;
+        firework.style.top = `${y}px`;
+        
+        // 隨機大小
+        const size = 3 + Math.random() * 5;
+        firework.style.width = `${size}px`;
+        firework.style.height = `${size}px`;
+        
+        // 隨機飛行方向和距離
+        const tx = (Math.random() - 0.5) * 200;
+        const ty = (Math.random() - 0.5) * 200;
+        const duration = 0.5 + Math.random() * 1.5;
+        
+        firework.style.animation = `
+          fireworkFade ${duration}s forwards,
+          fireworkMove ${duration}s forwards
+        `;
+        
+        firework.style.setProperty('--tx', `${tx}px`);
+        firework.style.setProperty('--ty', `${ty}px`);
+        
+        container.appendChild(firework);
+        
+        // 自動移除煙花粒子
+        setTimeout(() => {
+          firework.remove();
+        }, duration * 1000);
       }
     }
     
@@ -276,26 +350,40 @@
         // 使用捕捉處理器來處理捕捉邏輯
         CaptureHandler.captureCreature(creatureId)
           .then(result => {
-            if (result.success) {
-              // 捕捉成功
+            if (result.success) {              // 捕捉成功
               creatureImage.classList.add('captured');
               resultMessage.textContent = '捕捉成功！';
+              resultMessage.classList.add('success');
               
               // 設置成功樣式
               document.getElementById('resultModalHeader').className = 'modal-header bg-success text-white';
               document.getElementById('resultModalTitle').textContent = '捕捉成功';
               document.getElementById('resultText').textContent = '捕捉成功！';
+              document.getElementById('resultText').style.color = '#2ecc71';
               document.getElementById('resultDescription').textContent = `恭喜您成功捕捉到了${creatureName}！`;
-            } else {
-              // 捕捉失敗
+              
+              // 添加成功背景效果              document.getElementById('resultContent').style.backgroundColor = 'rgba(46, 204, 113, 0.1)';
+              document.getElementById('resultContent').style.borderRadius = '10px';
+              document.getElementById('resultContent').style.padding = '20px';
+              
+              // 添加煙花特效
+              createFireworks();
+            } else {              // 捕捉失敗
               resultMessage.textContent = '捕捉失敗！';
-              resultMessage.style.color = '#dc3545';
+              resultMessage.style.color = '#e74c3c';
+              resultMessage.classList.add('failure');
               
               // 設置失敗樣式
               document.getElementById('resultModalHeader').className = 'modal-header bg-danger text-white';
               document.getElementById('resultModalTitle').textContent = '捕捉失敗';
               document.getElementById('resultText').textContent = '捕捉失敗！';
+              document.getElementById('resultText').style.color = '#e74c3c';
               document.getElementById('resultDescription').textContent = result.message || '很遺憾，這隻精靈逃脫了！';
+              
+              // 添加失敗背景效果
+              document.getElementById('resultContent').style.backgroundColor = 'rgba(231, 76, 60, 0.1)';
+              document.getElementById('resultContent').style.borderRadius = '10px';
+              document.getElementById('resultContent').style.padding = '20px';
             }
             
             // 顯示結果
