@@ -76,9 +76,9 @@
                 <div class="feature-icon mb-3 float-animation">
                     <i class="fas fa-trophy fa-3x text-danger"></i>
                 </div>
-                <h5 class="card-title">站點擂台</h5>
-                <p class="card-text">每個站點都設有擂台，派出你最強的精靈佔領擂台或挑戰他人！</p>
-                <a href="{{ url_for('game.catch') }}#arenas-tab" class="btn btn-sm btn-outline-danger mt-3">查看擂台</a>
+                <h5 class="card-title">好友列表</h5>
+                <p class="card-text">你的好友都在這邊，快來看看他又完成了甚麼目標吧！</p>
+                <a href="{{ url_for('game.catch') }}#arenas-tab" class="btn btn-sm btn-outline-danger mt-3">查看好友</a>
             </div>
         </div>
     </div>
@@ -96,12 +96,12 @@
     </div>
 </div>
 
-<!-- 精靈展示 -->
+<!-- 精靈圖鑑 -->
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-header bg-info text-white">
-                <h5 class="mb-0"><i class="fas fa-dragon me-2"></i>熱門精靈</h5>
+                <h5 class="mb-0"><i class="fas fa-dragon me-2"></i>精靈圖鑑</h5>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -110,9 +110,9 @@
                             <div class="creature-image-container mb-2 float-animation">
                                 <img src="https://cdn-icons-png.flaticon.com/512/1752/1752776.png" class="img-fluid" alt="水系精靈" style="max-height: 80px;">
                             </div>
-                            <h6>水精靈</h6>
+                            <h6>鯊奇馬</h6>
                             <span class="badge bg-primary">水系</span>
-                            <span class="badge bg-info">稀有</span>
+                            <span class="badge bg-info">SSR</span>
                         </div>
                     </div>
                     <div class="col-6 col-md-3 mb-3">
@@ -120,29 +120,39 @@
                             <div class="creature-image-container mb-2 float-animation">
                                 <img src="https://cdn-icons-png.flaticon.com/512/1752/1752778.png" class="img-fluid" alt="火系精靈" style="max-height: 80px;">
                             </div>
-                            <h6>火精靈</h6>
+                            <h6>狐焦炎</h6>
                             <span class="badge bg-danger">火系</span>
-                            <span class="badge bg-warning">普通</span>
+                            <span class="badge bg-warning">SSR</span>
                         </div>
                     </div>
                     <div class="col-6 col-md-3 mb-3">
                         <div class="creature-showcase text-center">
                             <div class="creature-image-container mb-2 float-animation">
-                                <img src="https://cdn-icons-png.flaticon.com/512/1752/1752780.png" class="img-fluid" alt="風系精靈" style="max-height: 80px;">
+                                <img src="https://cdn-icons-png.flaticon.com/512/1752/1752780.png" class="img-fluid" alt="木系精靈" style="max-height: 80px;">
                             </div>
-                            <h6>風精靈</h6>
-                            <span class="badge bg-success">風系</span>
-                            <span class="badge bg-secondary">史詩</span>
+                            <h6>精靈鐘</h6>
+                            <span class="badge bg-success">木系</span>
+                            <span class="badge bg-secondary">SSR</span>
                         </div>
                     </div>
                     <div class="col-6 col-md-3 mb-3">
                         <div class="creature-showcase text-center">
                             <div class="creature-image-container mb-2 float-animation">
-                                <img src="https://cdn-icons-png.flaticon.com/512/1752/1752822.png" class="img-fluid" alt="土系精靈" style="max-height: 80px;">
+                                <img src="https://cdn-icons-png.flaticon.com/512/1752/1752822.png" class="img-fluid" alt="光系精靈" style="max-height: 80px;">
                             </div>
-                            <h6>土精靈</h6>
-                            <span class="badge bg-warning">土系</span>
-                            <span class="badge bg-danger">傳說</span>
+                            <h6>八星之主</h6>
+                            <span class="badge bg-warning">光系</span>
+                            <span class="badge bg-danger">SSR</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="creature-showcase text-center">
+                            <div class="creature-image-container mb-2 float-animation">
+                                <img src="https://cdn-icons-png.flaticon.com/512/1752/1752822.png" class="img-fluid" alt="暗系精靈" style="max-height: 80px;">
+                            </div>
+                            <h6>蒙昧</h6>
+                            <span class="badge bg-warning">暗系</span>
+                            <span class="badge bg-danger">SSR</span>
                         </div>
                     </div>
                 </div>
