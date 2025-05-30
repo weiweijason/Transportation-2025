@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}加入擂台 - 精靈公車{% endblock %}
+
+{% block content %}
+<div class="container text-center">
+    <h1>加入擂台</h1>
+    <form method="post" action="{% url 'join_arena_submit' %}">
+        {% csrf_token %}
+        <label for="invite_code">輸入邀請碼：</label>
+        <input type="text" id="invite_code" name="invite_code" maxlength="6" required>
+        <button type="submit">進入擂台</button>
+    </form>
+</div>
+{% endblock %}
