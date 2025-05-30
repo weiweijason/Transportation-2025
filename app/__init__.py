@@ -76,16 +76,9 @@ def create_app(config_name='default', load_tdx=True):
     if app.config.get('SESSION_TYPE') == 'filesystem':
         from flask_session import Session
         Session(app)
-    
-    # 註冊藍圖
-    from app.routes import main, auth, game, admin
-    app.register_blueprint(main.main)
-    app.register_blueprint(auth.auth, url_prefix='/auth')
-    app.register_blueprint(game.game_bp, url_prefix='/game')
-    app.register_blueprint(admin.admin_bp, url_prefix='/admin')
-    
-    # 初始化遊戲模組的其他API藍圖
-    game.init_app(app)
+      # 註冊藍圖
+    from app.routes import init_routes
+    init_routes(app)
     
     # 設置 user_loader 回調
     from app.services.firebase_service import get_user_from_id

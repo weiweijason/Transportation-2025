@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}好友系統 - 精靈公車{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h2">
+                    <i class="fas fa-users me-2 text-primary"></i>好友系統
+                </h1>
+                <a href="{{ url_for('main.home') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>返回主頁
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增好友 -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>新增好友
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{{ url_for('community.add_friend') }}">
+                        <div class="mb-3">
+                            <label for="friend_username" class="form-label">好友名稱：</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="friend_username" 
+                                   name="friend_username" 
+                                   placeholder="輸入好友的用戶名" 
+                                   required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-2"></i>送出申請
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- 好友列表 -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users me-2"></i>我的好友
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if friends %}
+                        <div class="list-group">
+                            {% for friend in friends %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fas fa-user-circle me-2 text-primary"></i>
+                                        {{ friend.username }}
+                                    </div>
+                                    <form method="post" action="{{ url_for('community.remove_friend', friend_id=friend.id) }}" style="display:inline;">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash me-1"></i>刪除
+                                        </button>
+                                    </form>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-user-friends fa-3x mb-3"></i>
+                            <p>目前沒有好友。</p>
+                            <p class="small">新增一些好友來一起玩遊戲吧！</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 好友邀請 -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-envelope me-2"></i>好友邀請
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if friend_requests %}
+                        <div class="list-group">
+                            {% for req in friend_requests %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div>
+                                            <i class="fas fa-user-circle me-2 text-primary"></i>
+                                            <strong>{{ req.sender.username }}</strong>
+                                        </div>
+                                    </div>
+                                    <div class="btn-group w-100" role="group">
+                                        <form method="post" action="{{ url_for('community.accept_request', request_id=req.id) }}" style="flex: 1;">
+                                            <button type="submit" class="btn btn-success w-100">
+                                                <i class="fas fa-check me-1"></i>接受
+                                            </button>
+                                        </form>
+                                        <form method="post" action="{{ url_for('community.decline_request', request_id=req.id) }}" style="flex: 1;">
+                                            <button type="submit" class="btn btn-outline-danger w-100">
+                                                <i class="fas fa-times me-1"></i>拒絕
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-3x mb-3"></i>
+                            <p>目前沒有好友邀請。</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

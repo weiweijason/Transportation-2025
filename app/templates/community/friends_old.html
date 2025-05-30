@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}主頁 - 精靈公車{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>好友系統</h1>
+
+    <!-- 新增好友 -->
+    <section class="add-friend">
+        <h2>新增好友</h2>
+        <form method="post" action="{% url 'add_friend' %}">
+            {% csrf_token %}
+            <label for="friend_username">好友名稱：</label>
+            <input type="text" id="friend_username" name="friend_username" required>
+            <button type="submit">送出申請</button>
+        </form>
+    </section>
+
+    <hr>
+
+    <!-- 好友列表 -->
+    <section class="friend-list">
+        <h2>我的好友</h2>
+        {% if friends %}
+            <ul>
+                {% for friend in friends %}
+                    <li>
+                        {{ friend.username }}
+                        <form method="post" action="{% url 'remove_friend' friend.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit">刪除</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>目前沒有好友。</p>
+        {% endif %}
+    </section>
+
+    <hr>
+
+    <!-- 好友邀請 -->
+    <section class="friend-requests">
+        <h2>好友邀請</h2>
+        {% if friend_requests %}
+            <ul>
+                {% for req in friend_requests %}
+                    <li>
+                        {{ req.sender.username }}
+                        <form method="post" action="{% url 'accept_request' req.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit">接受</button>
+                        </form>
+                        <form method="post" action="{% url 'decline_request' req.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit">拒絕</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>沒有新的好友邀請。</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

@@ -1,68 +1,163 @@
 {% extends "base.html" %}
 
-{% block title %}主頁 - 精靈公車{% endblock %}
+{% block title %}好友管理 - 精靈公車{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container mt-4">
     <h1>好友系統</h1>
 
-    <!-- 新增好友 -->
-    <section class="add-friend">
-        <h2>新增好友</h2>
-        <form method="post" action="{% url 'add_friend' %}">
-            {% csrf_token %}
-            <label for="friend_username">好友名稱：</label>
-            <input type="text" id="friend_username" name="friend_username" required>
-            <button type="submit">送出申請</button>
-        </form>
-    </section>
+    <!-- 我的邀請碼 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>我的邀請碼</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <label for="my_invite_code">分享此邀請碼給朋友：</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="my_invite_code" 
+                                   value="{{ current_user.player_id if current_user.player_id else '載入中...' }}" readonly>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" onclick="copyInviteCode()">
+                                    <i class="fas fa-copy"></i> 複製
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <hr>
-
-    <!-- 好友列表 -->
-    <section class="friend-list">
-        <h2>我的好友</h2>
-        {% if friends %}
-            <ul>
+    <!-- 新增好友表單 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>新增好友</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('community.add_friend') }}" id="addFriendForm">
+                <div class="form-group">
+                    <label for="friend_invite_code">好友邀請碼：</label>
+                    <input type="text" class="form-control" id="friend_invite_code" name="friend_invite_code" 
+                           placeholder="輸入好友的邀請碼" required>
+                </div>
+                <button type="submit" class="btn btn-primary">送出好友申請</button>
+            </form>
+        </div>
+    </div>
+      <!-- 好友申請列表 -->
+    {% if friend_requests %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>好友申請</h5>
+        </div>
+        <div class="card-body">
+            {% for request in friend_requests %}
+            <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                <div>
+                    <strong>{{ request.username }}</strong>
+                    <small class="text-muted d-block">邀請碼: {{ request.player_id }}</small>
+                </div>
+                <div>
+                    <form method="POST" action="{{ url_for('community.accept_request', request_id=request.player_id) }}" class="d-inline">
+                        <button type="submit" class="btn btn-success btn-sm">接受</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('community.decline_request', request_id=request.player_id) }}" class="d-inline">
+                        <button type="submit" class="btn btn-danger btn-sm">拒絕</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>好友申請</h5>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">沒有新的好友申請。</p>
+        </div>
+    </div>
+    {% endif %}
+      <!-- 好友列表 -->
+    <div class="card">
+        <div class="card-header">
+            <h5>我的好友</h5>
+        </div>
+        <div class="card-body">
+            {% if friends %}
                 {% for friend in friends %}
-                    <li>
-                        {{ friend.username }}
-                        <form method="post" action="{% url 'remove_friend' friend.id %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit">刪除</button>
+                <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                    <div>
+                        <strong>{{ friend.username }}</strong>
+                        <small class="text-muted d-block">邀請碼: {{ friend.player_id }}</small>
+                        {% if friend.online %}
+                            <span class="badge badge-success">線上</span>
+                        {% else %}
+                            <span class="badge badge-secondary">離線</span>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <form method="POST" action="{{ url_for('community.remove_friend', friend_id=friend.player_id) }}" 
+                              class="d-inline" onsubmit="return confirm('確定要移除這個好友嗎？')">
+                            <button type="submit" class="btn btn-danger btn-sm">移除好友</button>
                         </form>
-                    </li>
+                    </div>
+                </div>
                 {% endfor %}
-            </ul>
-        {% else %}
-            <p>目前沒有好友。</p>
-        {% endif %}
-    </section>
-
-    <hr>
-
-    <!-- 好友邀請 -->
-    <section class="friend-requests">
-        <h2>好友邀請</h2>
-        {% if friend_requests %}
-            <ul>
-                {% for req in friend_requests %}
-                    <li>
-                        {{ req.sender.username }}
-                        <form method="post" action="{% url 'accept_request' req.id %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit">接受</button>
-                        </form>
-                        <form method="post" action="{% url 'decline_request' req.id %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit">拒絕</button>
-                        </form>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>沒有新的好友邀請。</p>
-        {% endif %}
-    </section>
+            {% else %}
+                <p class="text-muted">目前沒有好友。開始新增一些好友吧！</p>
+            {% endif %}
+        </div>
+    </div>
 </div>
+
+<script>
+// 複製邀請碼功能
+function copyInviteCode() {
+    const inviteCodeInput = document.getElementById('my_invite_code');
+    inviteCodeInput.select();
+    inviteCodeInput.setSelectionRange(0, 99999); // 對於移動設備
+    
+    try {
+        document.execCommand('copy');
+        // 顯示成功訊息
+        const button = event.target;
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check"></i> 已複製';
+        button.classList.add('btn-success');
+        button.classList.remove('btn-outline-secondary');
+        
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.classList.remove('btn-success');
+            button.classList.add('btn-outline-secondary');
+        }, 2000);
+    } catch (err) {
+        console.error('複製失敗:', err);
+        alert('複製失敗，請手動複製邀請碼');
+    }
+}
+
+// 表單驗證
+document.getElementById('addFriendForm').addEventListener('submit', function(e) {
+    const inviteCode = document.getElementById('friend_invite_code').value.trim();
+    const myInviteCode = document.getElementById('my_invite_code').value;
+    
+    if (inviteCode === myInviteCode) {
+        e.preventDefault();
+        alert('不能新增自己為好友！');
+        return false;
+    }
+    
+    if (inviteCode.length < 10) {
+        e.preventDefault();
+        alert('邀請碼格式不正確！');
+        return false;
+    }
+});
+</script>
 {% endblock %}

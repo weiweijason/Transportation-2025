@@ -135,9 +135,7 @@ const tutorialGym = {
                             type: tutorialConfig.defaultCreature.type,
                             power: tutorialConfig.defaultCreature.power
                         }
-                    };
-                    
-                    // 發送請求到後端
+                    };                    // 發送請求到後端
                     fetch(`/auth/tutorial/set-base-gym`, {
                         method: 'POST',
                         headers: {
@@ -150,9 +148,14 @@ const tutorialGym = {
                             throw new Error(`HTTP error! Status: ${response.status}`);
                         }
                         return response.json();
-                    })
-                    .then(data => {
+                    })                    .then(data => {
                         console.log("佔領成功，伺服器回應:", data);
+                        
+                        // 顯示保存到 Firebase 的確認訊息
+                        if (data.success) {
+                            console.log("✅ 道館資料已成功保存到 Firebase user_arenas 集合");
+                        }
+                        
                         // 繼續視覺效果和UI更新...
                         
                         // 3秒後停止閃爍
@@ -204,14 +207,13 @@ const tutorialGym = {
                 setTimeout(() => {
                     this.innerHTML = '<i class="fas fa-check-circle me-2"></i>占領成功！';
                     this.className = 'btn btn-success btn-block mt-3 w-100';
-                    
-                    // 顯示佔領成功訊息
+                      // 顯示佔領成功訊息
                     const occupationNotice = document.querySelector('.occupation-notice');
                     occupationNotice.classList.remove('alert-info');
                     occupationNotice.classList.add('alert-success');
                     occupationNotice.innerHTML = `
                         <i class="fas fa-check-circle me-2"></i>
-                        <small>太棒了！您已成功佔領 ${tutorialConfig.selectedGym.name}！您的精靈將守護此道館，直到被其他玩家挑戰成功。</small>
+                        <small>太棒了！您已成功佔領 ${tutorialConfig.selectedGym.name}！道館資料已保存到 Firebase，您的精靈將守護此道館。</small>
                     `;
                     
                     // 更新道館狀態指示

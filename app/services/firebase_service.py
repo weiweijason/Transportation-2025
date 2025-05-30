@@ -1142,8 +1142,7 @@ class FirebaseService:
                     'status': 'error',
                     'message': '找不到使用者資料'
                 }
-            
-            # 更新用戶的基地道館資訊
+              # 更新用戶的基地道館資訊
             user_ref.update({
                 'base_gym': gym_data,
                 'tutorial_completed': True,
@@ -1152,11 +1151,37 @@ class FirebaseService:
             
             # 同時將此資訊儲存在單獨的集合中，方便查詢
             base_gym_ref = self.firestore_db.collection('user_base_gyms').document(user_id)
-            gym_data.update({
+            gym_data_copy = gym_data.copy()
+            gym_data_copy.update({
                 'user_id': user_id,
                 'created_at': time.time()
             })
-            base_gym_ref.set(gym_data)
+            base_gym_ref.set(gym_data_copy)
+            
+            # 同時將道館信息保存到 user_arenas 集合中
+            arena_id = f"arena_{user_id}_{int(time.time())}"
+            arena_data = {
+                'arena_id': arena_id,
+                'gym_id': gym_data.get('gym_id'),
+                'gym_name': gym_data.get('gym_name'),
+                'gym_level': gym_data.get('gym_level'),
+                'lat': gym_data.get('lat'),
+                'lng': gym_data.get('lng'),
+                'owner_user_id': user_id,
+                'guardian_creature': gym_data.get('guardian_creature'),
+                'occupied_at': time.time(),
+                'is_tutorial': True,
+                'status': 'occupied'
+            }
+            
+            # 保存到 user_arenas 集合
+            arena_ref = self.firestore_db.collection('user_arenas').document(arena_id)
+            arena_ref.set(arena_data)
+            
+            # 同時保存到用戶的 user_arenas 子集合中
+            user_ref.collection('user_arenas').document(arena_id).set(arena_data)
+            
+            print(f"道館信息已保存到 user_arenas 集合，arena_id: {arena_id}")
             
             return {
                 'status': 'success',
