@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}好友對戰 - 精靈公車{% endblock %}
+
+{% block content %}
+<div class="container text-center">
+    <h1>好友對戰</h1>
+    <button onclick="window.location.href='{% url 'create_arena' %}'">創建擂台</button>
+    <button onclick="window.location.href='{% url 'join_arena' %}'">加入擂台</button>
+</div>
+{% endblock %}
