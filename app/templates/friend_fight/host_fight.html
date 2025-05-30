@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}創建擂台 - 精靈公車{% endblock %}
+
+{% block content %}
+<style>
+.arena-slot {
+    width: 300px;
+    height: 300px;
+    background-color: #f0f0f0;
+    border: 2px dashed #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 2rem auto;
+    cursor: pointer;
+}
+.arena-slot img {
+    max-height: 100%;
+    max-width: 100%;
+}
+.placeholder {
+    font-size: 5rem;
+    color: rgba(0, 0, 0, 0.3);
+}
+.invite-code {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    letter-spacing: 2px;
+}
+.modal, .modal-overlay {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+}
+.modal-overlay {
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 999;
+}
+.modal {
+    background: white;
+    padding: 1rem;
+    border: 1px solid #ccc;
+    max-height: 400px;
+    overflow-y: auto;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+}
+.modal .sprite-option {
+    margin: 5px 0;
+    cursor: pointer;
+}
+.modal .sprite-option img {
+    height: 50px;
+    vertical-align: middle;
+    margin-right: 10px;
+}
+</style>
+
+<div class="container text-center">
+    <h1>創建擂台</h1>
+    <div class="invite-code">邀請碼：{{ invite_code }}</div>
+
+    <div class="arena-slot" id="player-slot" onclick="openModal()">
+        {% if player_sprite_url %}
+            <img src="{{ player_sprite_url }}" alt="你的精靈">
+        {% else %}
+            <span class="placeholder">＋</span>
+        {% endif %}
+    </div>
+
+    <button id="ready-button" style="display:none;" onclick="markReady()">準備好了</button>
+</div>
+
+<!-- 精靈選擇彈窗 -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal()"></div>
+<div class="modal" id="sprite-modal">
+    <h3>選擇精靈上場</h3>
+    {% for sprite in user_sprites %}
+        <div class="sprite-option" onclick="selectSprite('{{ sprite.id }}', '{{ sprite.image_url }}')">
+            <img src="{{ sprite.image_url }}" alt="{{ sprite.name }}"> {{ sprite.name }}
+        </div>
+    {% endfor %}
+</div>
+
+<script>
+let selectedSpriteId = null;
+
+function openModal() {
+    document.getElementById('sprite-modal').style.display = 'block';
+    document.getElementById('modal-overlay').style.display = 'block';
+}
+function closeModal() {
+    document.getElementById('sprite-modal').style.display = 'none';
+    document.getElementById('modal-overlay').style.display = 'none';
+}
+function selectSprite(spriteId, imageUrl) {
+    document.getElementById('player-slot').innerHTML = '<img src="' + imageUrl + '" alt="精靈">';
+    selectedSpriteId = spriteId;
+    closeModal();
+    document.getElementById('ready-button').style.display = 'inline-block';
+}
+function markReady() {
+    fetch("{% url 'arena_ready_ajax' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            invite_code: '{{ invite_code }}',
+            sprite_id: selectedSpriteId
+        })
+    }).then(response => response.json())
+      .then(data => {
+        if (data.result === 'waiting') {
+            alert('你已準備好，請等待對手...');
+        } else if (data.result === 'win') {
+            alert('你贏了！');
+        } else if (data.result === 'lose') {
+            alert('你輸了。');
+        } else {
+            alert('戰鬥錯誤或尚未準備完畢');
+        }
+    });
+}
+</script>
+{% endblock %}
