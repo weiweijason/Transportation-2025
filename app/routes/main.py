@@ -26,9 +26,4 @@ def profile():
     # 從配置獲取Firebase前端配置
     from app.config.firebase_config import FIREBASE_CONFIG
     
-    # 確保用戶已登入
-    if 'user' not in session:
-        flash('請先登入', 'warning')
-        return redirect(url_for('auth.login'))
-    
     return render_template('main/profile.html', firebase_config=FIREBASE_CONFIG)

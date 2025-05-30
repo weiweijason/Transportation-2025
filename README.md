@@ -749,3 +749,5 @@ window.tutorialMap = tutorialMap;
 ```
 
 這種模組化結構為後續的功能擴展和代碼維護提供了堅實的基礎。
+
+好友對戰沒有加分

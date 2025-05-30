@@ -13,13 +13,6 @@ community_bp = Blueprint('community', __name__, url_prefix='/community')
 # 實例化Firebase服務
 firebase_service = FirebaseService()
 
-def get_user_by_player_id(player_id):
-    """根據 player_id 查詢用戶文件"""
-    users_query = firebase_service.firestore_db.collection('users').where('player_id', '==', player_id).limit(1).get()
-    if users_query:
-        return users_query[0], users_query[0].id
-    return None, None
-
 @community_bp.route('/friends')
 @login_required
 def friends():
@@ -30,44 +23,36 @@ def friends():
             flash('用戶資料不完整，請重新登錄', 'danger')
             return redirect(url_for('auth.login'))
         
-        # 獲取當前用戶的資料（根據 player_id 查詢）
-        user_doc, user_doc_id = get_user_by_player_id(current_player_id)
-        
-        if not user_doc:
-            flash('找不到用戶資料，請重新登錄', 'danger')
-            return redirect(url_for('auth.login'))
+        # 獲取當前用戶的資料
+        user_doc = firebase_service.firestore_db.collection('users').document(current_player_id).get()
         
         friends_list = []
         friend_requests_list = []
         
-        user_data = user_doc.to_dict()
-        
-        # 處理好友列表（從好友子集合查詢）
-        friends_refs = firebase_service.firestore_db.collection('users').document(user_doc_id).collection('friends').get()
-        for friend_ref in friends_refs:
-            friend_data_from_collection = friend_ref.to_dict()
-            friend_player_id = friend_data_from_collection.get('friend_player_id')
-            friend_username = friend_data_from_collection.get('friend_username', '未知用戶')
-            friends_list.append({
-                'player_id': friend_player_id,
-                'username': friend_username,
-                'online': False  # TODO: 實現線上狀態檢查
-            })
-        
-        # 處理好友申請列表（從 friends_pending 子集合查詢）
-        pending_requests = firebase_service.firestore_db.collection('users').document(user_doc_id).collection('friends_pending').get()
-        for pending_doc in pending_requests:
-            pending_data = pending_doc.to_dict()
-            requester_player_id = pending_data.get('requester_player_id')
-            if requester_player_id:
-                requester_doc, _ = get_user_by_player_id(requester_player_id)
-                if requester_doc:
-                    requester_data = requester_doc.to_dict()
+        if user_doc.exists:
+            user_data = user_doc.to_dict()
+            
+            # 處理好友列表
+            friends_ids = user_data.get('friends', [])
+            for friend_id in friends_ids:
+                friend_doc = firebase_service.firestore_db.collection('users').document(friend_id).get()
+                if friend_doc.exists:
+                    friend_data = friend_doc.to_dict()
+                    friends_list.append({
+                        'player_id': friend_id,
+                        'username': friend_data.get('username', '未知用戶'),
+                        'online': False  # TODO: 實現線上狀態檢查
+                    })
+            
+            # 處理好友申請列表
+            friends_pending = user_data.get('friends_pending', [])
+            for pending_id in friends_pending:
+                pending_doc = firebase_service.firestore_db.collection('users').document(pending_id).get()
+                if pending_doc.exists:
+                    pending_data = pending_doc.to_dict()
                     friend_requests_list.append({
-                        'player_id': requester_player_id,
-                        'username': requester_data.get('username', '未知用戶'),
-                        'requested_at': pending_data.get('requested_at'),
-                        'request_id': pending_doc.id
+                        'player_id': pending_id,
+                        'username': pending_data.get('username', '未知用戶')
                     })
         
         return render_template('community/friends.html', 
@@ -105,20 +90,18 @@ def add_friend():
             flash('不能新增自己為好友', 'danger')
             return redirect(url_for('community.friends'))
         
-        # 搜尋目標用戶（根據 player_id 欄位查詢）
+        # 搜尋目標用戶
         logger.info(f"搜尋目標用戶: {friend_invite_code}")
-        target_user_doc, target_user_doc_id = get_user_by_player_id(friend_invite_code)
-        
-        if not target_user_doc:
+        target_user_doc = firebase_service.firestore_db.collection('users').document(friend_invite_code).get()
+        if not target_user_doc.exists:
             logger.warning(f"目標用戶不存在: {friend_invite_code}")
             flash('找不到該邀請碼對應的用戶', 'danger')
             return redirect(url_for('community.friends'))
         
-        # 獲取當前用戶資料（根據 player_id 查詢）
+        # 獲取當前用戶資料
         logger.info(f"獲取申請者資料: {current_player_id}")
-        current_user_doc, current_user_doc_id = get_user_by_player_id(current_player_id)
-        
-        if not current_user_doc:
+        current_user_doc = firebase_service.firestore_db.collection('users').document(current_player_id).get()
+        if not current_user_doc.exists:
             logger.warning(f"申請者資料不存在: {current_player_id}")
             flash('當前用戶資料異常', 'danger')
             return redirect(url_for('community.friends'))
@@ -128,36 +111,28 @@ def add_friend():
         
         logger.info(f"目標用戶名稱: {target_user_data.get('username', '未知用戶')}")
         
-        # 檢查是否已經是好友（檢查 friends 子集合）
-        existing_friend = firebase_service.firestore_db.collection('users').document(current_user_doc_id)\
-            .collection('friends').document(friend_invite_code).get()
-        
-        if existing_friend.exists:
+        # 檢查是否已經是好友
+        current_friends = current_user_data.get('friends', [])
+        if friend_invite_code in current_friends:
             logger.warning(f"已經是好友: {friend_invite_code}")
             flash('該用戶已經是您的好友', 'warning')
             return redirect(url_for('community.friends'))
         
-        # 檢查是否已經發送過申請（檢查 friends_pending 子集合）
-        existing_request = firebase_service.firestore_db.collection('users').document(target_user_doc_id)\
-            .collection('friends_pending').where('requester_player_id', '==', current_player_id).limit(1).get()
-        
-        if existing_request:
+        # 檢查是否已經發送過申請
+        target_pending = target_user_data.get('friends_pending', [])
+        if current_player_id in target_pending:
             logger.warning(f"已經發送過申請: {current_player_id} -> {friend_invite_code}")
             flash('已經向該用戶發送過好友申請', 'warning')
             return redirect(url_for('community.friends'))
         
-        # 在目標用戶的 friends_pending 子集合中新增申請
-        from datetime import datetime
-        import firebase_admin.firestore
+        # 將當前用戶ID加入目標用戶的friends_pending列表
+        logger.info(f"添加到待處理列表: {current_player_id} -> {friend_invite_code}")
+        target_pending.append(current_player_id)
         
-        logger.info(f"添加到待處理子集合: {current_player_id} -> {friend_invite_code}")
-        firebase_service.firestore_db.collection('users').document(target_user_doc_id)\
-            .collection('friends_pending').add({
-                'requester_player_id': current_player_id,
-                'requester_username': current_user_data.get('username', '未知用戶'),
-                'requested_at': firebase_admin.firestore.SERVER_TIMESTAMP,
-                'status': 'pending'
-            })
+        logger.info(f"更新目標用戶待處理列表: {target_pending}")
+        firebase_service.firestore_db.collection('users').document(friend_invite_code).update({
+            'friends_pending': target_pending
+        })
         
         target_username = target_user_data.get('username', '未知用戶')
         logger.info(f"好友申請發送成功: {current_player_id} -> {friend_invite_code} ({target_username})")
@@ -180,25 +155,38 @@ def remove_friend(friend_id):
             return redirect(url_for('auth.login'))
         
         # 獲取當前用戶資料
-        current_user_doc, current_user_doc_id = get_user_by_player_id(current_player_id)
-        if not current_user_doc:
+        current_user_doc = firebase_service.firestore_db.collection('users').document(current_player_id).get()
+        if not current_user_doc.exists:
             flash('當前用戶資料異常', 'danger')
             return redirect(url_for('community.friends'))
         
         # 獲取好友資料
-        friend_doc, friend_doc_id = get_user_by_player_id(friend_id)
-        if not friend_doc:
+        friend_doc = firebase_service.firestore_db.collection('users').document(friend_id).get()
+        if not friend_doc.exists:
             flash('好友資料不存在', 'danger')
             return redirect(url_for('community.friends'))
         
-        # 從雙方的好友子集合中移除
-        firebase_service.firestore_db.collection('users').document(current_user_doc_id)\
-            .collection('friends').document(friend_id).delete()
-        
-        firebase_service.firestore_db.collection('users').document(friend_doc_id)\
-            .collection('friends').document(current_player_id).delete()
-        
+        current_user_data = current_user_doc.to_dict()
         friend_data = friend_doc.to_dict()
+        
+        # 從雙方好友列表中移除
+        current_friends = current_user_data.get('friends', [])
+        friend_friends = friend_data.get('friends', [])
+        
+        if friend_id in current_friends:
+            current_friends.remove(friend_id)
+        if current_player_id in friend_friends:
+            friend_friends.remove(current_player_id)
+        
+        # 更新雙方資料
+        firebase_service.firestore_db.collection('users').document(current_player_id).update({
+            'friends': current_friends
+        })
+        
+        firebase_service.firestore_db.collection('users').document(friend_id).update({
+            'friends': friend_friends
+        })
+        
         friend_username = friend_data.get('username', '未知用戶')
         flash(f'已移除好友 {friend_username}', 'success')
         return redirect(url_for('community.friends'))
@@ -218,56 +206,49 @@ def accept_request(request_id):
             return redirect(url_for('auth.login'))
         
         # 獲取當前用戶資料
-        current_user_doc, current_user_doc_id = get_user_by_player_id(current_player_id)
-        if not current_user_doc:
+        current_user_doc = firebase_service.firestore_db.collection('users').document(current_player_id).get()
+        if not current_user_doc.exists:
             flash('當前用戶資料異常', 'danger')
             return redirect(url_for('community.friends'))
         
-        # 檢查好友申請是否存在（從子集合中獲取）
-        request_doc_ref = firebase_service.firestore_db.collection('users').document(current_user_doc_id)\
-            .collection('friends_pending').document(request_id)
-        request_doc = request_doc_ref.get()
+        current_user_data = current_user_doc.to_dict()
+        friends_pending = current_user_data.get('friends_pending', [])
         
-        if not request_doc.exists:
+        # 檢查申請是否存在
+        if request_id not in friends_pending:
             flash('找不到該好友申請', 'danger')
             return redirect(url_for('community.friends'))
         
-        request_data = request_doc.to_dict()
-        requester_player_id = request_data.get('requester_player_id')
-        
         # 獲取申請者資料
-        requester_doc, requester_doc_id = get_user_by_player_id(requester_player_id)
-        if not requester_doc:
+        requester_doc = firebase_service.firestore_db.collection('users').document(request_id).get()
+        if not requester_doc.exists:
             flash('申請者資料不存在', 'danger')
             return redirect(url_for('community.friends'))
         
         requester_data = requester_doc.to_dict()
-        current_user_data = current_user_doc.to_dict()
         
-        # 雙方互相在好友子集合中加為好友
-        from datetime import datetime
-        import firebase_admin.firestore
+        # 移除申請記錄
+        friends_pending.remove(request_id)
         
-        # 在當前用戶的 friends 子集合中加入好友
-        firebase_service.firestore_db.collection('users').document(current_user_doc_id)\
-            .collection('friends').document(requester_player_id).set({
-                'friend_player_id': requester_player_id,
-                'friend_username': requester_data.get('username', '未知用戶'),
-                'added_at': firebase_admin.firestore.SERVER_TIMESTAMP,
-                'status': 'active'
-            })
+        # 雙方互相加為好友
+        current_friends = current_user_data.get('friends', [])
+        requester_friends = requester_data.get('friends', [])
         
-        # 在申請者的 friends 子集合中加入好友
-        firebase_service.firestore_db.collection('users').document(requester_doc_id)\
-            .collection('friends').document(current_player_id).set({
-                'friend_player_id': current_player_id,
-                'friend_username': current_user_data.get('username', '未知用戶'),
-                'added_at': firebase_admin.firestore.SERVER_TIMESTAMP,
-                'status': 'active'
-            })
+        if request_id not in current_friends:
+            current_friends.append(request_id)
+        if current_player_id not in requester_friends:
+            requester_friends.append(current_player_id)
         
-        # 刪除好友申請記錄（從子集合中移除）
-        request_doc_ref.delete()
+        # 更新當前用戶資料
+        firebase_service.firestore_db.collection('users').document(current_player_id).update({
+            'friends_pending': friends_pending,
+            'friends': current_friends
+        })
+        
+        # 更新申請者資料
+        firebase_service.firestore_db.collection('users').document(request_id).update({
+            'friends': requester_friends
+        })
         
         requester_username = requester_data.get('username', '未知用戶')
         flash(f'已接受 {requester_username} 的好友申請', 'success')
@@ -288,22 +269,26 @@ def decline_request(request_id):
             return redirect(url_for('auth.login'))
         
         # 獲取當前用戶資料
-        current_user_doc, current_user_doc_id = get_user_by_player_id(current_player_id)
-        if not current_user_doc:
+        current_user_doc = firebase_service.firestore_db.collection('users').document(current_player_id).get()
+        if not current_user_doc.exists:
             flash('當前用戶資料異常', 'danger')
             return redirect(url_for('community.friends'))
         
-        # 檢查好友申請是否存在（從子集合中獲取）
-        request_doc_ref = firebase_service.firestore_db.collection('users').document(current_user_doc_id)\
-            .collection('friends_pending').document(request_id)
-        request_doc = request_doc_ref.get()
+        current_user_data = current_user_doc.to_dict()
+        friends_pending = current_user_data.get('friends_pending', [])
         
-        if not request_doc.exists:
+        # 檢查申請是否存在
+        if request_id not in friends_pending:
             flash('找不到該好友申請', 'danger')
             return redirect(url_for('community.friends'))
         
-        # 移除申請記錄（刪除子集合中的文件）
-        request_doc_ref.delete()
+        # 移除申請記錄
+        friends_pending.remove(request_id)
+        
+        # 更新用戶資料
+        firebase_service.firestore_db.collection('users').document(current_player_id).update({
+            'friends_pending': friends_pending
+        })
         
         flash('已拒絕好友申請', 'success')
         return redirect(url_for('community.friends'))

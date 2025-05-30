@@ -1132,8 +1132,7 @@ class FirebaseService:
                     'status': 'error',
                     'message': '使用者 ID 不能為空'
                 }
-            
-            # 獲取用戶文檔
+              # 獲取用戶文檔
             user_ref = self.firestore_db.collection('users').document(user_id)
             user_doc = user_ref.get()
             
@@ -1142,23 +1141,14 @@ class FirebaseService:
                     'status': 'error',
                     'message': '找不到使用者資料'
                 }
-              # 更新用戶的基地道館資訊
+            
+            # 標記教學完成但不保存 base_gym 字段，只保存到子集合
             user_ref.update({
-                'base_gym': gym_data,
                 'tutorial_completed': True,
                 'updated_at': time.time()
             })
             
-            # 同時將此資訊儲存在單獨的集合中，方便查詢
-            base_gym_ref = self.firestore_db.collection('user_base_gyms').document(user_id)
-            gym_data_copy = gym_data.copy()
-            gym_data_copy.update({
-                'user_id': user_id,
-                'created_at': time.time()
-            })
-            base_gym_ref.set(gym_data_copy)
-            
-            # 同時將道館信息保存到 user_arenas 集合中
+            # 將道館信息保存到用戶的 user_arenas 子集合中（不再使用獨立的 user_base_gyms 集合）
             arena_id = f"arena_{user_id}_{int(time.time())}"
             arena_data = {
                 'arena_id': arena_id,
@@ -1173,15 +1163,10 @@ class FirebaseService:
                 'is_tutorial': True,
                 'status': 'occupied'
             }
-            
-            # 保存到 user_arenas 集合
-            arena_ref = self.firestore_db.collection('user_arenas').document(arena_id)
-            arena_ref.set(arena_data)
-            
-            # 同時保存到用戶的 user_arenas 子集合中
+              # 保存到用戶的 user_arenas 子集合中（不再使用獨立的 user_arenas 集合）
             user_ref.collection('user_arenas').document(arena_id).set(arena_data)
             
-            print(f"道館信息已保存到 user_arenas 集合，arena_id: {arena_id}")
+            print(f"道館信息已保存到用戶子集合 user_arenas，arena_id: {arena_id}")
             
             return {
                 'status': 'success',
@@ -1275,8 +1260,7 @@ class FirebaseService:
             }
             # 儲存到用戶精靈集合
             # self.firestore_db.collection('user_creatures').document(user_creature_id).set(user_creature_data) # 教學精靈只儲存到使用者的子集合
-            
-            # 同時儲存到用戶的 user_creatures 子集合中
+              # 同時儲存到用戶的 user_creatures 子集合中
             user_ref.collection('user_creatures').document(user_creature_id).set(user_creature_data)
             
             return {
@@ -1290,12 +1274,3 @@ class FirebaseService:
                 'status': 'error',
                 'message': f'捕捉精靈失敗: {str(e)}'
             }
-
-# 創建裝飾器，用於路由保護
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user' not in session:
-            return redirect(url_for('auth.login'))
-        return f(*args, **kwargs)
-    return decorated_function

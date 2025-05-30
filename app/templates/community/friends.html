@@ -59,12 +59,11 @@
                 <div>
                     <strong>{{ request.username }}</strong>
                     <small class="text-muted d-block">邀請碼: {{ request.player_id }}</small>
-                </div>
-                <div>
-                    <form method="POST" action="{{ url_for('community.accept_request', request_id=request.player_id) }}" class="d-inline">
+                </div>                <div>
+                    <form method="POST" action="{{ url_for('community.accept_request', request_id=request.request_id) }}" class="d-inline">
                         <button type="submit" class="btn btn-success btn-sm">接受</button>
                     </form>
-                    <form method="POST" action="{{ url_for('community.decline_request', request_id=request.player_id) }}" class="d-inline">
+                    <form method="POST" action="{{ url_for('community.decline_request', request_id=request.request_id) }}" class="d-inline">
                         <button type="submit" class="btn btn-danger btn-sm">拒絕</button>
                     </form>
                 </div>
@@ -152,10 +151,9 @@ document.getElementById('addFriendForm').addEventListener('submit', function(e) 
         alert('不能新增自己為好友！');
         return false;
     }
-    
-    if (inviteCode.length < 10) {
+      if (inviteCode.length !== 8) {
         e.preventDefault();
-        alert('邀請碼格式不正確！');
+        alert('邀請碼格式不正確！邀請碼應為8位英數字元。');
         return false;
     }
 });

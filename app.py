@@ -4,6 +4,7 @@ import time
 from app import create_app, db
 from flask_migrate import Migrate
 from flask import session, redirect, url_for, request
+from flask_login import current_user
 from app.services.firebase_service import FirebaseService
 
 # 創建應用實例
@@ -44,10 +45,28 @@ def before_request():
     """
     # 獲取當前路徑
     path = request.path
+      # 定義不需要認證的路徑
+    public_paths = [
+        '/static/', 
+        '/favicon.ico',
+        '/auth/login',
+        '/auth/login-for-setup', 
+        '/auth/register',
+        '/auth/user-setup',
+        '/auth/logout',
+        '/auth/get-custom-token',
+        '/auth/tutorial'
+    ]
     
-    # 如果用戶未登入且不在登入/註冊/靜態資源頁面，則重定向到登入頁面
-    if 'user' not in session and not path.startswith('/auth/') and not path.startswith('/static/'):
-        if path != '/' and not path.startswith('/auth/login') and not path.startswith('/auth/register'):
+    # 檢查是否為公開路徑
+    is_public_path = any(path.startswith(public_path) for public_path in public_paths)
+    
+    # 如果用戶未登入且不在公開路徑，則重定向到登入頁面
+    if not current_user.is_authenticated and not is_public_path:
+        # 避免重導向循環 - 如果已經在前往登入頁面，就不要再重導向
+        if path != '/':
+            return redirect(url_for('auth.login', next=path))
+        else:
             return redirect(url_for('auth.login'))
 
 def start_periodic_cache():
@@ -66,4 +85,4 @@ if __name__ == '__main__':
     start_periodic_cache()
 
     # 啟動伺服器
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

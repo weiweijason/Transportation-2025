@@ -5,7 +5,7 @@ import time  # 新增這個導入，用於記錄登入時間戳
 import random  # 新增這個導入，用於隨機選擇初始精靈
 
 # 創建認證藍圖
-auth = Blueprint('auth', __name__)
+auth = Blueprint('auth', __name__, url_prefix='/auth')
 
 # 實例化Firebase服務
 firebase_service = FirebaseService()
