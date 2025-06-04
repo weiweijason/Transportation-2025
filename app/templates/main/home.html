@@ -78,7 +78,7 @@
                 </div>
                 <h5 class="card-title">玩家對戰</h5>
                 <p class="card-text">與其他玩家進行精靈PVP對戰，提升你的等級和聲望！</p>
-                <a href="{{ url_for('community.friends') }}" class="btn btn-sm btn-outline-danger mt-3">查看好友</a>
+                <a href="{{ url_for('game.game_home') }}" class="btn btn-sm btn-outline-success mt-3">開始對戰</a>
             </div>
         </div>
     </div>
@@ -90,7 +90,7 @@
                 </div>
                 <h5 class="card-title">好友列表</h5>
                 <p class="card-text">你的好友都在這邊，快來看看他又完成了甚麼目標吧！</p>
-                <a href="{{ url_for('game.game_home') }}" class="btn btn-sm btn-outline-success mt-3">開始對戰</a>
+                <a href="{{ url_for('community.friends') }}" class="btn btn-sm btn-outline-danger mt-3">查看好友</a>
             </div>
         </div>
     </div>

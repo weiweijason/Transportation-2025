@@ -13,6 +13,43 @@ community_bp = Blueprint('community', __name__, url_prefix='/community')
 # 實例化Firebase服務
 firebase_service = FirebaseService()
 
+def get_avatar_url(avatar_id):
+    """將頭像ID映射為實際的URL"""
+    avatar_mapping = {
+        "1": "https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c769d000e8e2515f6/view?project=681c5c6b002355634f3c&mode=admin",
+        "2": "https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c76a2002589aa244a/view?project=681c5c6b002355634f3c&mode=admin",
+        "3": "https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c76aa0030f3d8e5f1/view?project=681c5c6b002355634f3c&mode=admin",
+        "4": "https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c76af001cac084ee3/view?project=681c5c6b002355634f3c&mode=admin",
+        "5": "https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c76b8000b6f6ff334/view?project=681c5c6b002355634f3c&mode=admin",
+        "6": "https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c76bc00200e74dfaa/view?project=681c5c6b002355634f3c&mode=admin",
+        "7": "https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c76c100023ff731b5/view?project=681c5c6b002355634f3c&mode=admin",
+        "8": "https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c76c60019ba53529d/view?project=681c5c6b002355634f3c&mode=admin",
+        "9": "https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c76cb0027c008c539/view?project=681c5c6b002355634f3c&mode=admin",
+        "10": "https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c76d000263718b58e/view?project=681c5c6b002355634f3c&mode=admin"
+    }
+    
+    # 如果avatar_id是avatar URL，也查找對應映射
+    url_to_id_mapping = {
+        "avatar_url_1": "1", "avatar_url_2": "2", "avatar_url_3": "3", "avatar_url_4": "4", "avatar_url_5": "5",
+        "avatar_url_6": "6", "avatar_url_7": "7", "avatar_url_8": "8", "avatar_url_9": "9", "avatar_url_10": "10"
+    }
+    
+    # 處理avatar_url_x格式
+    if avatar_id in url_to_id_mapping:
+        actual_id = url_to_id_mapping[avatar_id]
+        return avatar_mapping.get(actual_id, avatar_mapping["1"])
+    
+    # 處理直接的ID或已經是完整URL的情況
+    if avatar_id in avatar_mapping:
+        return avatar_mapping[avatar_id]
+    
+    # 如果已經是完整URL，直接返回
+    if avatar_id and (avatar_id.startswith('http') or avatar_id.startswith('https')):
+        return avatar_id
+        
+    # 默認返回頭像1
+    return avatar_mapping["1"]
+
 def get_user_by_player_id(player_id):
     """根據 player_id 查詢用戶文件"""
     users_query = firebase_service.firestore_db.collection('users').where('player_id', '==', player_id).limit(1).get()
@@ -41,20 +78,36 @@ def friends():
         friend_requests_list = []
         
         user_data = user_doc.to_dict()
-        
-        # 處理好友列表（從好友子集合查詢）
+          # 處理好友列表（從好友子集合查詢）
         friends_refs = firebase_service.firestore_db.collection('users').document(user_doc_id).collection('friends').get()
         for friend_ref in friends_refs:
             friend_data_from_collection = friend_ref.to_dict()
             friend_player_id = friend_data_from_collection.get('friend_player_id')
             friend_username = friend_data_from_collection.get('friend_username', '未知用戶')
+            
+            # 通過player_id獲取好友的完整用戶資料
+            friend_doc, _ = get_user_by_player_id(friend_player_id) if friend_player_id else (None, None)
+            friend_avatar_url = ""
+            friend_level = 1
+            
+            if friend_doc:
+                friend_full_data = friend_doc.to_dict()
+                # 獲取頭像URL
+                avatar_id = friend_full_data.get('avatar_id', '1')
+                friend_avatar_url = get_avatar_url(avatar_id)
+                # 獲取等級
+                friend_level = friend_full_data.get('level', 1)
+                # 更新用戶名（以防有變更）
+                friend_username = friend_full_data.get('username', friend_username)
+            
             friends_list.append({
                 'player_id': friend_player_id,
                 'username': friend_username,
+                'avatar_url': friend_avatar_url,
+                'level': friend_level,
                 'online': False  # TODO: 實現線上狀態檢查
             })
-        
-        # 處理好友申請列表（從 friends_pending 子集合查詢）
+          # 處理好友申請列表（從 friends_pending 子集合查詢）
         pending_requests = firebase_service.firestore_db.collection('users').document(user_doc_id).collection('friends_pending').get()
         for pending_doc in pending_requests:
             pending_data = pending_doc.to_dict()
@@ -63,9 +116,16 @@ def friends():
                 requester_doc, _ = get_user_by_player_id(requester_player_id)
                 if requester_doc:
                     requester_data = requester_doc.to_dict()
+                    # 獲取申請者的頭像和等級
+                    avatar_id = requester_data.get('avatar_id', '1')
+                    requester_avatar_url = get_avatar_url(avatar_id)
+                    requester_level = requester_data.get('level', 1)
+                    
                     friend_requests_list.append({
                         'player_id': requester_player_id,
                         'username': requester_data.get('username', '未知用戶'),
+                        'avatar_url': requester_avatar_url,
+                        'level': requester_level,
                         'requested_at': pending_data.get('requested_at'),
                         'request_id': pending_doc.id
                     })

@@ -18,7 +18,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670027
+    "updatedAt": 1748591234206
   },
   "arena-200269": {
     "id": "arena-200269",
@@ -39,17 +39,17 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670026
+    "updatedAt": 1748591234206
   },
   "arena-58815": {
     "id": "arena-58815",
     "name": "圓山道館",
     "position": [
-      24.970251,
-      121.600402
+      24.970103,
+      121.60048
     ],
     "stopIds": [
-      "58909"
+      "58815"
     ],
     "stopName": "圓山",
     "routes": [
@@ -61,7 +61,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483671388
+    "updatedAt": 1748591234206
   },
   "arena-197399": {
     "id": "arena-197399",
@@ -82,7 +82,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745892060726
+    "updatedAt": 1748591234206
   },
   "arena-58822": {
     "id": "arena-58822",
@@ -103,10 +103,10 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670097
+    "updatedAt": 1748591234206
   },
-  "arena-219836": {
-    "id": "arena-219836",
+  "arena-58811": {
+    "id": "arena-58811",
     "name": "天恩宮道館",
     "position": [
       24.970627,
@@ -125,7 +125,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483671386
+    "updatedAt": 1748591234206
   },
   "arena-216113": {
     "id": "arena-216113",
@@ -146,7 +146,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670033
+    "updatedAt": 1748591234207
   },
   "arena-200268": {
     "id": "arena-200268",
@@ -167,10 +167,10 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670025
+    "updatedAt": 1748591234207
   },
-  "arena-214295": {
-    "id": "arena-214295",
+  "arena-214296": {
+    "id": "arena-214296",
     "name": "岐山道館",
     "position": [
       24.972478,
@@ -189,7 +189,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483671384
+    "updatedAt": 1748591234207
   },
   "arena-200273": {
     "id": "arena-200273",
@@ -210,7 +210,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670028
+    "updatedAt": 1748591234207
   },
   "arena-200262": {
     "id": "arena-200262",
@@ -231,7 +231,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670016
+    "updatedAt": 1748591234207
   },
   "arena-58820": {
     "id": "arena-58820",
@@ -252,7 +252,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670085
+    "updatedAt": 1748591234207
   },
   "arena-200267": {
     "id": "arena-200267",
@@ -273,7 +273,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670023
+    "updatedAt": 1748591234207
   },
   "arena-200271": {
     "id": "arena-200271",
@@ -294,7 +294,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670028
+    "updatedAt": 1748591234207
   },
   "arena-180071": {
     "id": "arena-180071",
@@ -315,7 +315,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670015
+    "updatedAt": 1748591234207
   },
   "arena-45829": {
     "id": "arena-45829",
@@ -336,7 +336,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670064
+    "updatedAt": 1748591234208
   },
   "arena-45828": {
     "id": "arena-45828",
@@ -357,7 +357,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670064
+    "updatedAt": 1748591234208
   },
   "arena-200274": {
     "id": "arena-200274",
@@ -378,10 +378,10 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670028
+    "updatedAt": 1748591234208
   },
-  "arena-200275": {
-    "id": "arena-200275",
+  "arena-45827": {
+    "id": "arena-45827",
     "name": "樟樹步道北口道館",
     "position": [
       24.968542,
@@ -392,15 +392,15 @@
     ],
     "stopName": "樟樹步道北口",
     "routes": [
-      "貓空右線",
-      "貓空左線(動物園)"
+      "貓空左線(動物園)",
+      "貓空右線"
     ],
     "level": 2,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483671386
+    "updatedAt": 1748591234208
   },
   "arena-45830": {
     "id": "arena-45830",
@@ -421,7 +421,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670065
+    "updatedAt": 1748591234208
   },
   "arena-45831": {
     "id": "arena-45831",
@@ -442,7 +442,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670065
+    "updatedAt": 1748591234208
   },
   "arena-200272": {
     "id": "arena-200272",
@@ -463,17 +463,17 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670028
+    "updatedAt": 1748591234208
   },
   "arena-58814": {
     "id": "arena-58814",
     "name": "涼亭站道館",
     "position": [
-      24.96603131,
-      121.5972576
+      24.96582,
+      121.59729
     ],
     "stopIds": [
-      "58910"
+      "58814"
     ],
     "stopName": "涼亭站",
     "routes": [
@@ -485,7 +485,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483671388
+    "updatedAt": 1748591234208
   },
   "arena-215393": {
     "id": "arena-215393",
@@ -506,10 +506,10 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670031
+    "updatedAt": 1748591234208
   },
-  "arena-200276": {
-    "id": "arena-200276",
+  "arena-45826": {
+    "id": "arena-45826",
     "name": "田寮橋道館",
     "position": [
       24.97012,
@@ -520,18 +520,18 @@
     ],
     "stopName": "田寮橋",
     "routes": [
-      "貓空右線",
-      "貓空左線(動物園)"
+      "貓空左線(動物園)",
+      "貓空右線"
     ],
     "level": 2,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483671385
+    "updatedAt": 1748591234208
   },
-  "arena-219835": {
-    "id": "arena-219835",
+  "arena-58812": {
+    "id": "arena-58812",
     "name": "茶推廣中心道館",
     "position": [
       24.969327396833,
@@ -550,17 +550,17 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483671387
+    "updatedAt": 1748591234208
   },
   "arena-58816": {
     "id": "arena-58816",
     "name": "草湳道館",
     "position": [
-      24.97038815,
-      121.6054195
+      24.970449,
+      121.605524
     ],
     "stopIds": [
-      "58908"
+      "58816"
     ],
     "stopName": "草湳",
     "routes": [
@@ -572,7 +572,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483671388
+    "updatedAt": 1748591234208
   },
   "arena-200264": {
     "id": "arena-200264",
@@ -593,7 +593,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670017
+    "updatedAt": 1748591234209
   },
   "arena-200265": {
     "id": "arena-200265",
@@ -614,7 +614,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670017
+    "updatedAt": 1748591234209
   },
   "arena-216115": {
     "id": "arena-216115",
@@ -635,7 +635,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670039
+    "updatedAt": 1748591234209
   },
   "arena-200266": {
     "id": "arena-200266",
@@ -656,7 +656,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670018
+    "updatedAt": 1748591234209
   },
   "arena-58821": {
     "id": "arena-58821",
@@ -677,7 +677,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670089
+    "updatedAt": 1748591234209
   },
   "arena-216114": {
     "id": "arena-216114",
@@ -698,7 +698,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670036
+    "updatedAt": 1748591234209
   },
   "arena-58827": {
     "id": "arena-58827",
@@ -720,17 +720,17 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745892060728
+    "updatedAt": 1748591234209
   },
   "arena-58813": {
     "id": "arena-58813",
     "name": "貓空站(小天空步道)道館",
     "position": [
-      24.96796,
-      121.59539
+      24.96784,
+      121.59534
     ],
     "stopIds": [
-      "58911"
+      "58813"
     ],
     "stopName": "貓空站(小天空步道)",
     "routes": [
@@ -742,7 +742,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483671388
+    "updatedAt": 1748591234209
   },
   "arena-45825": {
     "id": "arena-45825",
@@ -756,8 +756,8 @@
     ],
     "stopName": "貓空纜車站",
     "routes": [
-      "貓空左線(指南宮)",
       "貓空左線(動物園)",
+      "貓空左線(指南宮)",
       "貓空右線"
     ],
     "level": 3,
@@ -765,7 +765,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745892060728
+    "updatedAt": 1748591234209
   },
   "arena-200263": {
     "id": "arena-200263",
@@ -786,7 +786,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745483670017
+    "updatedAt": 1748591234209
   },
   "arena-58907": {
     "id": "arena-58907",
@@ -807,6 +807,6 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1745828637547
+    "updatedAt": 1748591234209
   }
 }

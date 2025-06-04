@@ -2,29 +2,272 @@
 
 {% block title %}好友管理 - 精靈公車{% endblock %}
 
+{% block extra_css %}
+<style>
+    .friend-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 20px;
+        color: white;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .friend-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .friend-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+        z-index: 1;
+    }
+
+    .friend-card-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .friend-avatar {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .friend-avatar:hover {
+        transform: scale(1.1);
+    }
+
+    .level-badge {
+        background: linear-gradient(45deg, #ff6b6b, #feca57);
+        color: white;
+        border: 2px solid white;
+        border-radius: 20px;
+        padding: 4px 12px;
+        font-size: 0.85rem;
+        font-weight: bold;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }    /* 移除線上/離線狀態相關樣式 */
+
+    .invite-code-card {
+        background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+        border: none;
+        border-radius: 20px;
+        color: white;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .add-friend-card {
+        background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+        border: none;
+        border-radius: 20px;
+        color: white;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .request-card {
+        background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+        border: none;
+        border-radius: 20px;
+        color: white;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .request-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .btn-glass {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        border-radius: 25px;
+        padding: 8px 20px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .btn-glass:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .btn-accept {
+        background: linear-gradient(45deg, #00b894, #00cec9);
+        border: none;
+        color: white;
+        border-radius: 25px;
+        padding: 8px 20px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-accept:hover {
+        background: linear-gradient(45deg, #00a085, #00b7b5);
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .btn-decline {
+        background: linear-gradient(45deg, #e17055, #d63031);
+        border: none;
+        color: white;
+        border-radius: 25px;
+        padding: 8px 20px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-decline:hover {
+        background: linear-gradient(45deg, #d2644a, #c92b2b);
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .btn-remove {
+        background: linear-gradient(45deg, #a29bfe, #6c5ce7);
+        border: none;
+        color: white;
+        border-radius: 25px;
+        padding: 6px 16px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-remove:hover {
+        background: linear-gradient(45deg, #968ffd, #5f4dd1);
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .form-control-glass {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        border-radius: 15px;
+        padding: 12px 20px;
+        backdrop-filter: blur(10px);
+    }
+
+    .form-control-glass::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .form-control-glass:focus {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+        color: white;
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    }
+
+    .page-title {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: bold;
+        font-size: 2.5rem;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .friend-username {
+        font-size: 1.2rem;
+        font-weight: 600;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    .copy-animation {
+        animation: copySuccess 0.6s ease-in-out;
+    }
+
+    @keyframes copySuccess {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    .no-friends-message {
+        text-align: center;
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 20px;
+        margin: 20px 0;
+    }
+
+    .no-friends-icon {
+        font-size: 4rem;
+        color: #6c757d;
+        margin-bottom: 20px;
+    }
+
+    .card-glass {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(102, 126, 234, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0); }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
-    <h1>好友系統</h1>
+    <h1 class="page-title">
+        <i class="fas fa-users"></i> 好友系統
+    </h1>
 
     <!-- 我的邀請碼 -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5>我的邀請碼</h5>
-        </div>
-        <div class="card-body">
-            <div class="row">
+    <div class="card invite-code-card mb-4">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
                 <div class="col-md-8">
-                    <div class="form-group">
-                        <label for="my_invite_code">分享此邀請碼給朋友：</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="my_invite_code" 
-                                   value="{{ current_user.player_id if current_user.player_id else '載入中...' }}" readonly>
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-secondary" type="button" onclick="copyInviteCode()">
-                                    <i class="fas fa-copy"></i> 複製
-                                </button>
-                            </div>
+                    <h5 class="mb-3">
+                        <i class="fas fa-id-card me-2"></i> 我的邀請碼
+                    </h5>
+                    <div class="input-group">
+                        <input type="text" class="form-control form-control-glass" id="my_invite_code" 
+                               value="{{ current_user.player_id if current_user.player_id else '載入中...' }}" readonly>
+                        <div class="input-group-append">
+                            <button class="btn btn-glass" type="button" onclick="copyInviteCode()" id="copyBtn">
+                                <i class="fas fa-copy"></i> 複製
+                            </button>
                         </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="mt-3 mt-md-0">
+                        <i class="fas fa-share-alt fa-3x mb-2" style="opacity: 0.7;"></i>
+                        <p class="mb-0 small" style="opacity: 0.8;">分享給朋友</p>
                     </div>
                 </div>
             </div>
@@ -32,85 +275,127 @@
     </div>
 
     <!-- 新增好友表單 -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5>新增好友</h5>
-        </div>
-        <div class="card-body">
+    <div class="card add-friend-card mb-4">
+        <div class="card-body p-4">
+            <h5 class="mb-3">
+                <i class="fas fa-user-plus me-2"></i> 新增好友
+            </h5>
             <form method="POST" action="{{ url_for('community.add_friend') }}" id="addFriendForm">
-                <div class="form-group">
-                    <label for="friend_invite_code">好友邀請碼：</label>
-                    <input type="text" class="form-control" id="friend_invite_code" name="friend_invite_code" 
-                           placeholder="輸入好友的邀請碼" required>
+                <div class="row">
+                    <div class="col-md-8">
+                        <input type="text" class="form-control form-control-glass" id="friend_invite_code" 
+                               name="friend_invite_code" placeholder="輸入好友的邀請碼" required>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-glass w-100 mt-2 mt-md-0">
+                            <i class="fas fa-paper-plane me-2"></i> 送出申請
+                        </button>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary">送出好友申請</button>
             </form>
         </div>
     </div>
-      <!-- 好友申請列表 -->
+
+    <!-- 好友申請列表 -->
     {% if friend_requests %}
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5>好友申請</h5>
-        </div>
-        <div class="card-body">
-            {% for request in friend_requests %}
-            <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
-                <div>
-                    <strong>{{ request.username }}</strong>
-                    <small class="text-muted d-block">邀請碼: {{ request.player_id }}</small>
-                </div>                <div>
-                    <form method="POST" action="{{ url_for('community.accept_request', request_id=request.request_id) }}" class="d-inline">
-                        <button type="submit" class="btn btn-success btn-sm">接受</button>
-                    </form>
-                    <form method="POST" action="{{ url_for('community.decline_request', request_id=request.request_id) }}" class="d-inline">
-                        <button type="submit" class="btn btn-danger btn-sm">拒絕</button>
-                    </form>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% else %}
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5>好友申請</h5>
-        </div>
-        <div class="card-body">
-            <p class="text-muted">沒有新的好友申請。</p>
-        </div>
-    </div>
-    {% endif %}
-      <!-- 好友列表 -->
-    <div class="card">
-        <div class="card-header">
-            <h5>我的好友</h5>
-        </div>
-        <div class="card-body">
-            {% if friends %}
-                {% for friend in friends %}
-                <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
-                    <div>
-                        <strong>{{ friend.username }}</strong>
-                        <small class="text-muted d-block">邀請碼: {{ friend.player_id }}</small>
-                        {% if friend.online %}
-                            <span class="badge badge-success">線上</span>
-                        {% else %}
-                            <span class="badge badge-secondary">離線</span>
-                        {% endif %}
+    <div class="mb-4">
+        <h5 class="mb-3">
+            <i class="fas fa-bell text-warning me-2"></i> 好友申請
+            <span class="badge bg-warning">{{ friend_requests|length }}</span>
+        </h5>
+        {% for request in friend_requests %}
+        <div class="request-card">
+            <div class="card-body p-3">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="d-flex align-items-center">
+                            <img src="{{ request.avatar_url }}" alt="頭像" class="friend-avatar me-3">
+                            <div>
+                                <div class="friend-username">{{ request.username }}</div>
+                                <div class="d-flex align-items-center mt-2">
+                                    <span class="level-badge me-2">LV.{{ request.level }}</span>
+                                    <small style="opacity: 0.8;">
+                                        <i class="fas fa-clock me-1"></i>
+                                        {% if request.requested_at %}
+                                            {{ request.requested_at.strftime('%m/%d %H:%M') if request.requested_at else '剛剛' }}
+                                        {% else %}
+                                            剛剛
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <form method="POST" action="{{ url_for('community.remove_friend', friend_id=friend.player_id) }}" 
-                              class="d-inline" onsubmit="return confirm('確定要移除這個好友嗎？')">
-                            <button type="submit" class="btn btn-danger btn-sm">移除好友</button>
+                    <div class="col-md-4 text-end">
+                        <form method="POST" action="{{ url_for('community.accept_request', request_id=request.request_id) }}" class="d-inline">
+                            <button type="submit" class="btn btn-accept btn-sm me-2">
+                                <i class="fas fa-check me-1"></i> 接受
+                            </button>
+                        </form>
+                        <form method="POST" action="{{ url_for('community.decline_request', request_id=request.request_id) }}" class="d-inline">
+                            <button type="submit" class="btn btn-decline btn-sm">
+                                <i class="fas fa-times me-1"></i> 拒絕
+                            </button>
                         </form>
                     </div>
                 </div>
-                {% endfor %}
-            {% else %}
-                <p class="text-muted">目前沒有好友。開始新增一些好友吧！</p>
-            {% endif %}
+            </div>
         </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- 好友列表 -->
+    <div class="mb-4">
+        <h5 class="mb-3">
+            <i class="fas fa-heart text-danger me-2"></i> 我的好友
+            {% if friends %}
+                <span class="badge bg-primary">{{ friends|length }}</span>
+            {% endif %}
+        </h5>
+        
+        {% if friends %}
+            <div class="row">
+                {% for friend in friends %}
+                <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
+                    <div class="friend-card">
+                        <div class="card-body p-4 friend-card-content">
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="{{ friend.avatar_url }}" alt="{{ friend.username }}的頭像" class="friend-avatar me-3">                                <div class="flex-grow-1">
+                                    <div class="friend-username">{{ friend.username }}</div>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <span class="level-badge">LV.{{ friend.level }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small style="opacity: 0.8;">
+                                    <i class="fas fa-gamepad me-1"></i> 一起玩精靈公車
+                                </small>
+                                <form method="POST" action="{{ url_for('community.remove_friend', friend_id=friend.player_id) }}" 
+                                      class="d-inline" onsubmit="return confirm('確定要移除好友 {{ friend.username }} 嗎？')">
+                                    <button type="submit" class="btn btn-remove btn-sm">
+                                        <i class="fas fa-user-times"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-friends-message">
+                <div class="no-friends-icon">
+                    <i class="fas fa-user-friends"></i>
+                </div>
+                <h4 class="text-muted mb-3">還沒有好友</h4>
+                <p class="text-muted mb-4">開始新增一些好友，一起在精靈公車世界中冒險吧！</p>
+                <button class="btn btn-primary btn-lg" onclick="document.getElementById('friend_invite_code').focus()">
+                    <i class="fas fa-plus me-2"></i> 立即新增好友
+                </button>
+            </div>
+        {% endif %}
     </div>
 </div>
 
@@ -118,26 +403,49 @@
 // 複製邀請碼功能
 function copyInviteCode() {
     const inviteCodeInput = document.getElementById('my_invite_code');
+    const copyBtn = document.getElementById('copyBtn');
+    
+    // 選中文字
     inviteCodeInput.select();
-    inviteCodeInput.setSelectionRange(0, 99999); // 對於移動設備
+    inviteCodeInput.setSelectionRange(0, 99999);
     
     try {
-        document.execCommand('copy');
-        // 顯示成功訊息
-        const button = event.target;
-        const originalText = button.innerHTML;
-        button.innerHTML = '<i class="fas fa-check"></i> 已複製';
-        button.classList.add('btn-success');
-        button.classList.remove('btn-outline-secondary');
+        // 嘗試使用現代API
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(inviteCodeInput.value).then(() => {
+                showCopySuccess();
+            }).catch(() => {
+                // 回退到舊方法
+                fallbackCopy();
+            });
+        } else {
+            fallbackCopy();
+        }
         
-        setTimeout(() => {
-            button.innerHTML = originalText;
-            button.classList.remove('btn-success');
-            button.classList.add('btn-outline-secondary');
-        }, 2000);
+        function fallbackCopy() {
+            document.execCommand('copy');
+            showCopySuccess();
+        }
+        
+        function showCopySuccess() {
+            // 顯示成功效果
+            const originalHTML = copyBtn.innerHTML;
+            copyBtn.innerHTML = '<i class="fas fa-check"></i> 已複製';
+            copyBtn.classList.add('copy-animation');
+            
+            // 添加脈沖效果
+            copyBtn.classList.add('pulse');
+            
+            setTimeout(() => {
+                copyBtn.innerHTML = originalHTML;
+                copyBtn.classList.remove('copy-animation', 'pulse');
+            }, 2000);
+        }
+        
     } catch (err) {
         console.error('複製失敗:', err);
-        alert('複製失敗，請手動複製邀請碼');
+        // 顯示錯誤提示
+        alert('複製失敗，請手動複製邀請碼：' + inviteCodeInput.value);
     }
 }
 
@@ -148,14 +456,51 @@ document.getElementById('addFriendForm').addEventListener('submit', function(e) 
     
     if (inviteCode === myInviteCode) {
         e.preventDefault();
-        alert('不能新增自己為好友！');
+        showAlert('不能新增自己為好友！', 'warning');
         return false;
     }
-      if (inviteCode.length !== 8) {
+    
+    if (inviteCode.length !== 8) {
         e.preventDefault();
-        alert('邀請碼格式不正確！邀請碼應為8位英數字元。');
+        showAlert('邀請碼格式不正確！邀請碼應為8位英數字元。', 'danger');
         return false;
     }
+});
+
+// 自定義警告提示
+function showAlert(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    // 自動移除
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+
+// 頁面載入動畫
+document.addEventListener('DOMContentLoaded', function() {
+    // 為卡片添加進入動畫
+    const cards = document.querySelectorAll('.friend-card, .request-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'all 0.6s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
 });
 </script>
 {% endblock %}
