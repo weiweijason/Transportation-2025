@@ -1,0 +1,1057 @@
+/* 精靈公車主頁樣式 */
+
+/* 主視覺區域 */
+.game-hero {
+    overflow: hidden;
+    border-radius: 15px;
+    position: relative;
+}
+
+.game-hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.game-title {
+    font-family: 'Baloo 2', cursive;
+    font-weight: 800;
+    text-shadow: 3px 3px 5px rgba(0,0,0,0.5);
+}
+
+.section-title {
+    font-family: 'Baloo 2', cursive;
+    font-weight: 600;
+    color: var(--text-color);
+    position: relative;
+    display: inline-block;
+}
+
+.section-title:after {
+    content: '';
+    position: absolute;
+    width: 50%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), transparent);
+    bottom: -10px;
+    left: 25%;
+}
+
+/* 遊戲特色卡片 */
+.game-feature-card {
+    transition: all 0.3s;
+    border-radius: 15px;
+}
+
+.game-feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.feature-icon {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 精靈圖鑑區域 */
+.creature-showcase {
+    transition: all 0.3s;
+}
+
+.creature-showcase:hover {
+    transform: scale(1.05);
+}
+
+.creature-image-container {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 新版精靈圖鑑樣式 */
+.creature-gallery {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.bg-gradient-info {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+/* 精靈圖鑑容器優化 */
+.creature-gallery .card-body {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* 精靈卡片行容器 */
+.creature-gallery .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.creature-gallery .row.justify-content-center {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+}
+
+.creature-showcase-card {
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    border-radius: 20px;
+    padding: 25px 20px;
+    text-align: center;
+    position: relative;
+    transition: all 0.4s ease;
+    border: 2px solid transparent;
+    height: 100%;
+    overflow: hidden;
+    min-height: 420px;
+    width: 100%;
+    max-width: 100%;
+}
+
+.creature-showcase-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+    z-index: 1;
+}
+
+.creature-showcase-card:hover::before {
+    transform: translateX(100%);
+}
+
+.creature-showcase-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* 新版 Bootstrap 5 精靈卡片樣式 */
+.card.shadow.rounded-4 {
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    border: none;
+    overflow: hidden;
+}
+
+.card.shadow.rounded-4:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* 新版精靈圖片樣式 */
+.creature-img {
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+.card:hover .creature-img {
+    transform: scale(1.05) translateY(-2px);
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15));
+}
+
+/* 新版徽章樣式 */
+.position-absolute.badge {
+    transition: all 0.3s ease;
+    font-size: 0.75rem;
+    padding: 6px 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.card:hover .position-absolute.badge {
+    transform: scale(1.05);
+}
+
+/* 新版進度條樣式 */
+.progress {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    transition: width 0.6s ease-in-out;
+    border-radius: 4px;
+}
+
+/* 卡片標題樣式 */
+.card-title.fw-bold {
+    font-family: 'Baloo 2', cursive;
+    color: #2c3e50;
+    transition: color 0.3s ease;
+}
+
+.card:hover .card-title.fw-bold {
+    color: #3498db;
+}
+
+/* 精靈圖鑑容器優化 */
+.creature-gallery .card-body {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* 精靈卡片行容器 */
+.creature-gallery .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.creature-gallery .row.justify-content-center {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+}
+
+.creature-showcase-card {
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    border-radius: 20px;
+    padding: 25px 20px;
+    text-align: center;
+    position: relative;
+    transition: all 0.4s ease;
+    border: 2px solid transparent;
+    height: 100%;
+    overflow: hidden;
+    min-height: 420px;
+    width: 100%;
+    max-width: 100%;
+}
+
+.creature-showcase-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+    z-index: 1;
+}
+
+.creature-showcase-card:hover::before {
+    transform: translateX(100%);
+}
+
+.creature-showcase-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* 屬性特色邊框 */
+.water-type:hover { 
+    border-color: #3498db; 
+    box-shadow: 0 20px 40px rgba(52, 152, 219, 0.3); 
+}
+
+.fire-type:hover { 
+    border-color: #e74c3c; 
+    box-shadow: 0 20px 40px rgba(231, 76, 60, 0.3); 
+}
+
+.nature-type:hover { 
+    border-color: #27ae60; 
+    box-shadow: 0 20px 40px rgba(39, 174, 96, 0.3); 
+}
+
+.light-type:hover { 
+    border-color: #f39c12; 
+    box-shadow: 0 20px 40px rgba(243, 156, 18, 0.3); 
+}
+
+.dark-type:hover { 
+    border-color: #8e44ad; 
+    box-shadow: 0 20px 40px rgba(142, 68, 173, 0.3); 
+}
+
+.normal-type:hover { 
+    border-color: #95a5a6; 
+    box-shadow: 0 20px 40px rgba(149, 165, 166, 0.3); 
+}
+
+/* 稀有度徽章 */
+.creature-rarity-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: linear-gradient(135deg, #ffd700, #ffb700);
+    color: #8B4513;
+    border-radius: 20px;
+    padding: 5px 10px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    animation: sparkle 2s ease-in-out infinite alternate;
+}
+
+@keyframes sparkle {
+    0% { 
+        transform: scale(1) rotate(0deg); 
+    }
+    100% { 
+        transform: scale(1.1) rotate(5deg); 
+    }
+}
+
+/* 不同稀有度的徽章樣式 */
+.ssr-badge {
+    background: linear-gradient(135deg, #ffd700, #ffb700) !important;
+    color: #8B4513 !important;
+}
+
+.sr-badge {
+    background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+    color: white !important;
+}
+
+.r-badge {
+    background: linear-gradient(135deg, #3498db, #2980b9) !important;
+    color: white !important;
+}
+
+.n-badge {
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d) !important;
+    color: white !important;
+}
+
+/* 精靈圖片 */
+.creature-image-container {
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.creature-img {
+    max-height: 130px;
+    max-width: 100%;
+    object-fit: contain;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 8px 15px rgba(0,0,0,0.15));
+}
+
+.creature-showcase-card:hover .creature-img {
+    transform: scale(1.1) translateY(-5px);
+}
+
+/* 精靈名稱 */
+.creature-name {
+    font-family: 'Baloo 2', cursive;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+/* 屬性徽章 */
+.type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 25px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+
+.water-badge { 
+    background: linear-gradient(135deg, #3498db, #2980b9); 
+}
+
+.fire-badge { 
+    background: linear-gradient(135deg, #e74c3c, #c0392b); 
+}
+
+.nature-badge { 
+    background: linear-gradient(135deg, #27ae60, #229954); 
+}
+
+.light-badge { 
+    background: linear-gradient(135deg, #f39c12, #e67e22); 
+}
+
+.dark-badge { 
+    background: linear-gradient(135deg, #8e44ad, #7d3c98); 
+}
+
+.normal-badge { 
+    background: linear-gradient(135deg, #bdc3c7, #95a5a6);
+    color: #2c3e50 !important;
+    text-shadow: none;
+}
+
+/* 精靈屬性值 */
+.creature-stats {
+    margin-top: 25px;
+    padding: 0 5px;
+}
+
+/* 新版進度條容器 */
+.stat-bar-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+}
+
+/* 單個進度條 */
+.stat-bar {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    padding: 12px 15px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(52, 152, 219, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.stat-bar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(52, 152, 219, 0.15);
+    border-color: rgba(52, 152, 219, 0.2);
+}
+
+/* 進度條信息區域 */
+.stat-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+/* 進度條圖標 */
+.stat-icon {
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
+}
+
+/* ATK 和 HP 專用樣式 */
+.stat-bar.atk {
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.08), rgba(192, 57, 43, 0.05));
+    border-color: rgba(231, 76, 60, 0.15);
+}
+
+.stat-bar.atk:hover {
+    box-shadow: 0 8px 20px rgba(231, 76, 60, 0.2);
+    border-color: rgba(231, 76, 60, 0.3);
+}
+
+.stat-bar.hp {
+    background: linear-gradient(135deg, rgba(39, 174, 96, 0.08), rgba(34, 153, 84, 0.05));
+    border-color: rgba(39, 174, 96, 0.15);
+}
+
+.stat-bar.hp:hover {
+    box-shadow: 0 8px 20px rgba(39, 174, 96, 0.2);
+    border-color: rgba(39, 174, 96, 0.3);
+}
+
+/* 進度條圖標樣式 */
+.stat-icon i {
+    font-size: 1.1rem;
+    margin-right: 6px;
+    transition: all 0.3s ease;
+}
+
+.stat-bar.atk .stat-icon i { 
+    color: #e74c3c; 
+}
+
+.stat-bar.hp .stat-icon i { 
+    color: #27ae60; 
+}
+
+.stat-bar:hover .stat-icon i {
+    transform: scale(1.1);
+}
+
+/* 進度條樣式 */
+.stat-progress-container {
+    width: 100%;
+    margin: 6px 0;
+}
+
+.stat-progress-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.stat-progress-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-progress-fill::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* ATK 進度條 - 紅色漸變 */
+.stat-progress-fill.atk {
+    background: linear-gradient(90deg, #e74c3c, #c0392b);
+    box-shadow: 0 2px 4px rgba(231, 76, 60, 0.3);
+}
+
+/* HP 進度條 - 綠色漸變 */
+.stat-progress-fill.hp {
+    background: linear-gradient(90deg, #27ae60, #229954);
+    box-shadow: 0 2px 4px rgba(39, 174, 96, 0.3);
+}
+
+/* 進度條標籤和數值樣式 */
+.stat-label {
+    font-size: 0.7rem;
+    color: #7f8c8d;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin: 0 8px;
+    opacity: 0.9;
+}
+
+.stat-value {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #2c3e50;
+    letter-spacing: -0.3px;
+    white-space: nowrap;
+}
+
+/* ATK 和 HP 專用顏色 */
+.stat-bar.atk .stat-value {
+    color: #e74c3c;
+}
+
+.stat-bar.hp .stat-value {
+    color: #27ae60;
+}
+
+.stat-bar.atk .stat-label {
+    color: #c0392b;
+}
+
+.stat-bar.hp .stat-label {
+    color: #229954;
+}
+
+/* 一般系說明卡片 */
+.normal-type-info {
+    background: linear-gradient(145deg, #ecf0f1, #bdc3c7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #95a5a6;
+}
+
+.normal-type-placeholder {
+    text-align: center;
+    padding: 20px;
+}
+
+.placeholder-icon {
+    font-size: 2.5rem;
+    color: #95a5a6;
+    margin-bottom: 10px;
+}
+
+.placeholder-title {
+    color: #7f8c8d;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.placeholder-text {
+    font-size: 0.8rem;
+    color: #95a5a6;
+    line-height: 1.3;
+    margin-bottom: 10px;
+}
+
+/* 稀有度指南 */
+.rarity-guide {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 15px;
+    padding: 25px;
+    border: 1px solid #dee2e6;
+    margin-top: 10px;
+}
+
+.guide-title {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.rarity-levels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    justify-items: center;
+}
+
+.rarity-level {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 180px;
+}
+
+.rarity-level:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.rarity-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 15px;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 10px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.rarity-level:hover .rarity-badge {
+    transform: scale(1.05);
+}
+
+.ssr-mini { 
+    background: linear-gradient(135deg, #ffd700, #ffb700); 
+    color: #8B4513; 
+}
+
+.sr-mini { 
+    background: linear-gradient(135deg, #e74c3c, #c0392b); 
+}
+
+.r-mini { 
+    background: linear-gradient(135deg, #3498db, #2980b9); 
+}
+
+.n-mini { 
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d); 
+}
+
+.rarity-desc {
+    font-size: 0.85rem;
+    color: #6c757d;
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+/* 動畫效果 */
+.float-animation {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { 
+        transform: translateY(0px); 
+    }
+    50% { 
+        transform: translateY(-10px); 
+    }
+}
+
+.pulse-animation {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { 
+        transform: scale(1); 
+    }
+    50% { 
+        transform: scale(1.05); 
+    }
+    100% { 
+        transform: scale(1); 
+    }
+}
+
+/* 深色模式適配 */
+[data-theme="dark"] .news-date,
+[data-theme="dark"] .text-muted {
+    color: #adb5bd !important;
+}
+
+[data-theme="dark"] .border-bottom {
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .btn-outline-primary {
+    color: var(--link-color);
+    border-color: var(--link-color);
+}
+
+[data-theme="dark"] .btn-outline-primary:hover {
+    background-color: var(--link-color);
+    color: #fff;
+}
+
+[data-theme="dark"] .btn-outline-danger {
+    color: #e74c3c;
+    border-color: #e74c3c;
+}
+
+[data-theme="dark"] .btn-outline-danger:hover {
+    background-color: #e74c3c;
+    color: #fff;
+}
+
+[data-theme="dark"] .btn-outline-success {
+    color: #2ecc71;
+    border-color: #2ecc71;
+}
+
+[data-theme="dark"] .btn-outline-success:hover {
+    background-color: #2ecc71;
+    color: #fff;
+}
+
+/* 修正深色模式下的文字顯示問題 */
+[data-theme="dark"] .card-body p,
+[data-theme="dark"] .card-body .small,
+[data-theme="dark"] .card-body h6,
+[data-theme="dark"] .card-text,
+[data-theme="dark"] .news-item p,
+[data-theme="dark"] .news-item h6 {
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .creature-showcase h6 {
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .card-header h5 {
+    color: white;
+}
+
+/* 深色模式下的精靈圖鑑適配 */
+[data-theme="dark"] .creature-showcase-card {
+    background: linear-gradient(145deg, #2d3436, #636e72);
+    border-color: #4d5656;
+}
+
+[data-theme="dark"] .creature-name {
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .stat-value {
+    color: #f0f0f0;
+}
+
+[data-theme="dark"] .stat-label {
+    color: #b0b0b0;
+}
+
+[data-theme="dark"] .stat-progress-bar {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* 深色模式下的進度條顏色增強 */
+[data-theme="dark"] .stat-progress-fill.atk {
+    background: linear-gradient(90deg, #e74c3c, #ff6b6b);
+    box-shadow: 0 2px 6px rgba(231, 76, 60, 0.4);
+}
+
+[data-theme="dark"] .stat-progress-fill.hp {
+    background: linear-gradient(90deg, #27ae60, #2ecc71);
+    box-shadow: 0 2px 6px rgba(39, 174, 96, 0.4);
+}
+
+[data-theme="dark"] .stat-item {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] .stat-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .normal-type-info {
+    background: linear-gradient(145deg, #3d4852, #2d3436);
+    border-color: #5a6268;
+}
+
+[data-theme="dark"] .normal-badge {
+    background: linear-gradient(135deg, #4a5568, #2d3748);
+    color: #e2e8f0 !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+[data-theme="dark"] .placeholder-title {
+    color: #adb5bd;
+}
+
+[data-theme="dark"] .placeholder-text {
+    color: #868e96;
+}
+
+[data-theme="dark"] .placeholder-icon {
+    color: #868e96;
+}
+
+[data-theme="dark"] .rarity-guide {
+    background: linear-gradient(135deg, #2d3436, #3d4852);
+    border-color: #5a6268;
+}
+
+[data-theme="dark"] .rarity-level {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .rarity-level:hover {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .guide-title {
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .rarity-desc {
+    color: #adb5bd;
+}
+
+/* 響應式設計 */
+@media (max-width: 1199.98px) {
+    /* 大平板 - 顯示 3 列，置中 */
+    .creature-showcase-card {
+        min-height: 380px;
+    }
+    
+    .creature-image-container {
+        height: 130px;
+    }
+    
+    .creature-img {
+        max-height: 110px;
+    }
+}
+
+@media (max-width: 991.98px) {
+    /* 中等屏幕 - 顯示 2 列，置中 */
+    .creature-showcase-card {
+        min-height: 360px;
+        padding: 20px 15px;
+    }
+    
+    .creature-gallery .row.justify-content-center [class*="col-"] {
+        max-width: 400px;
+        flex: 0 0 auto;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .game-hero-overlay {
+        padding: 15px !important;
+    }
+    
+    .game-title {
+        font-size: 1.8rem;
+    }
+    
+    .lead {
+        font-size: 1rem;
+    }
+    
+    .btn-lg {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+    }
+    
+    /* 移動端 - 顯示 1 列，完全置中 */
+    .creature-gallery .row.justify-content-center [class*="col-"] {
+        max-width: 350px;
+        flex: 0 0 auto;
+        width: 100%;
+    }
+    
+    .creature-showcase-card {
+        padding: 18px 15px;
+        min-height: 340px;
+        margin: 0 auto;
+    }
+    
+    .creature-image-container {
+        height: 120px;
+        margin-bottom: 15px;
+    }
+    
+    .creature-img {
+        max-height: 100px;
+    }
+    
+    .creature-name {
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+    }
+    
+    .stat-item {
+        padding: 12px 8px;
+        min-height: 75px;
+    }
+    
+    .stat-item i {
+        font-size: 1.1rem;
+        margin-bottom: 6px;
+    }
+    
+    .stat-value {
+        font-size: 0.9rem;
+        margin: 4px 0;
+    }
+    
+    .stat-label {
+        font-size: 0.6rem;
+        letter-spacing: 0.6px;
+    }
+    
+    .stat-progress-bar {
+        height: 7px;
+    }
+    
+    .type-badge {
+        font-size: 0.75rem;
+        padding: 5px 10px;
+    }
+    
+    .stat-group {
+        gap: 12px;
+        margin: 0 -1px;
+    }
+      .rarity-levels {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .rarity-level {
+        max-width: none;
+        padding: 12px;
+    }
+    
+    .creature-rarity-badge {
+        top: -3px;
+        right: -3px;
+        padding: 4px 8px;
+        font-size: 0.65rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    /* 小手機 */
+    .creature-showcase-card {
+        min-height: 320px;
+        padding: 15px 12px;
+    }
+    
+    .stat-group {
+        gap: 8px;
+    }
+    
+    .stat-item {
+        padding: 10px 6px;
+        min-height: 70px;
+    }
+    
+    .stat-value {
+        font-size: 0.85rem;
+    }
+    
+    .creature-name {
+        font-size: 1rem;
+    }
+    
+    .placeholder-text {
+        font-size: 0.75rem;
+    }
+    
+    .rarity-levels {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .rarity-level {
+        flex-direction: row;
+        justify-content: space-between;
+        text-align: left;
+        padding: 10px 15px;
+    }
+    
+    .rarity-badge {
+        margin-bottom: 0;
+        margin-right: 10px;
+    }
+}

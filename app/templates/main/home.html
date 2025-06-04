@@ -2,6 +2,10 @@
 
 {% block title %}主頁 - 精靈公車{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+{% endblock %}
+
 {% block content %}
 <div class="row">
     <!-- 遊戲主視覺 -->
@@ -97,200 +101,258 @@
 <!-- 精靈圖鑑 -->
 <div class="row">
     <div class="col-12">
-        <div class="card creature-gallery">
-            <div class="card-header bg-gradient-info text-white">
+        <div class="card creature-gallery">            <div class="card-header bg-gradient-info text-white">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-dragon me-2"></i>精靈圖鑑 - SSR 系列</h5>
-                    <small class="opacity-75">六大屬性頂級精靈</small>
+                    <h5 class="mb-0"><i class="fas fa-dragon me-2"></i>精靈圖鑑 - 頂級精靈展示</h5>
+                    <small class="opacity-75">六大屬性 SSR/SR 精靈</small>
                 </div>
-            </div>
-            <div class="card-body p-4">
-                <div class="row g-4">
-                    <!-- 水系 SSR -->
-                    <div class="col-6 col-md-4 col-lg-2 mb-4">
-                        <div class="creature-showcase-card water-type">
-                            <div class="creature-rarity-badge ssr-badge">
-                                <i class="fas fa-crown"></i>
-                                <span>SSR</span>
+            </div><div class="card-body p-4">                <!-- 第一行：水系、火系、木系 SSR -->
+                <div class="row g-3 mb-4 justify-content-center">                    <!-- 水系 SSR -->
+                    <div class="col-12 col-md-6 col-lg-4 mb-4">
+                        <div class="card creature-showcase-card water-type shadow rounded-4 h-100">
+                            
+                            <!-- 稀有度徽章 -->
+                            <div class="position-absolute top-0 end-0 m-2 badge bg-warning text-dark ssr-badge shadow-sm">
+                                <i class="fas fa-crown me-1"></i> SSR
                             </div>
-                            <div class="creature-image-container float-animation">
-                                <img src="https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c63780029634ce388/view?project=681c5c6b002355634f3c&mode=admin" class="creature-img" alt="水系精靈">
+                              <!-- 精靈圖片（不裁切、保留完整圖片） -->
+                            <div class="text-center p-3 d-flex align-items-center justify-content-center" style="min-height: 260px;">
+                                <img src="https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c63780029634ce388/view?project=681c5c6b002355634f3c&mode=admin"
+                                     alt="水系精靈"
+                                     class="img-fluid creature-img rounded"
+                                     style="max-height: 220px; object-fit: contain;">
                             </div>
-                            <div class="creature-info">
-                                <h6 class="creature-name">鯊奇馬</h6>
-                                <div class="creature-attributes mb-2">
-                                    <span class="type-badge water-badge">
-                                        <i class="fas fa-tint"></i> 水系
-                                    </span>
+
+                            <!-- 精靈資訊 -->
+                            <div class="card-body text-center px-3 pb-4">
+                                <h5 class="fw-bold mb-2">鯊奇馬</h5>
+                                
+                                <!-- 屬性 -->
+                                <div class="mb-3">
+                                    <span class="badge bg-info text-white px-3 py-1"><i class="fas fa-tint me-1"></i>水系</span>
                                 </div>
-                                <div class="creature-stats">
-                                    <div class="stat-group">
-                                        <div class="stat-item atk">
-                                            <i class="fas fa-sword"></i>
-                                            <span class="stat-value">285</span>
-                                            <span class="stat-label">ATK</span>
-                                        </div>
-                                        <div class="stat-item hp">
-                                            <i class="fas fa-heart"></i>
-                                            <span class="stat-value">380</span>
-                                            <span class="stat-label">HP</span>
-                                        </div>
+                                  <!-- ATK -->
+                                <div class="text-start mb-2">
+                                    <small class="text-muted d-block mb-1"><i class="fas fa-fist-raised me-1"></i>ATK：<strong>400–600</strong></small>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" style="width: 75%;"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- HP -->
+                                <div class="text-start">
+                                    <small class="text-muted d-block mb-1"><i class="fas fa-heart me-1"></i>HP：<strong>2500–3500</strong></small>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-success" style="width: 85%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                    <!-- 火系 SSR -->
+                    <div class="col-12 col-md-6 col-lg-4 mb-4">
+                        <div class="card creature-showcase-card fire-type shadow rounded-4 h-100">
+                            
+                            <!-- 稀有度徽章 -->
+                            <div class="position-absolute top-0 end-0 m-2 badge bg-warning text-dark ssr-badge shadow-sm">
+                                <i class="fas fa-crown me-1"></i> SSR
+                            </div>
+                              <!-- 精靈圖片（不裁切、保留完整圖片） -->
+                            <div class="text-center p-3 d-flex align-items-center justify-content-center" style="min-height: 260px;">
+                                <img src="https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c632000345e069128/view?project=681c5c6b002355634f3c&mode=admin"
+                                     alt="火系精靈"
+                                     class="img-fluid creature-img rounded"
+                                     style="max-height: 220px; object-fit: contain;">
+                            </div>
+
+                            <!-- 精靈資訊 -->
+                            <div class="card-body text-center px-3 pb-4">
+                                <h5 class="fw-bold mb-2">狐焦炎</h5>
+                                
+                                <!-- 屬性 -->
+                                <div class="mb-3">
+                                    <span class="badge bg-danger text-white px-3 py-1"><i class="fas fa-fire me-1"></i>火系</span>
+                                </div>
+                                  <!-- ATK -->
+                                <div class="text-start mb-2">
+                                    <small class="text-muted d-block mb-1"><i class="fas fa-fist-raised me-1"></i>ATK：<strong>500–700</strong></small>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-danger" style="width: 85%;"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- HP -->
+                                <div class="text-start">
+                                    <small class="text-muted d-block mb-1"><i class="fas fa-heart me-1"></i>HP：<strong>2000–3000</strong></small>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-success" style="width: 70%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                    <!-- 木系 SSR -->
+                    <div class="col-12 col-md-6 col-lg-4 mb-4">
+                        <div class="card creature-showcase-card nature-type shadow rounded-4 h-100">
+                            
+                            <!-- 稀有度徽章 -->
+                            <div class="position-absolute top-0 end-0 m-2 badge bg-warning text-dark ssr-badge shadow-sm">
+                                <i class="fas fa-crown me-1"></i> SSR
+                            </div>
+                              <!-- 精靈圖片（不裁切、保留完整圖片） -->
+                            <div class="text-center p-3 d-flex align-items-center justify-content-center" style="min-height: 260px;">
+                                <img src="https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c636f00198e9782d2/view?project=681c5c6b002355634f3c&mode=admin"
+                                     alt="木系精靈"
+                                     class="img-fluid creature-img rounded"
+                                     style="max-height: 220px; object-fit: contain;">
+                            </div>
+
+                            <!-- 精靈資訊 -->
+                            <div class="card-body text-center px-3 pb-4">
+                                <h5 class="fw-bold mb-2">精靈鐘</h5>
+                                
+                                <!-- 屬性 -->
+                                <div class="mb-3">
+                                    <span class="badge bg-success text-white px-3 py-1"><i class="fas fa-leaf me-1"></i>木系</span>
+                                </div>
+                                  <!-- ATK -->
+                                <div class="text-start mb-2">
+                                    <small class="text-muted d-block mb-1"><i class="fas fa-fist-raised me-1"></i>ATK：<strong>350–550</strong></small>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" style="width: 65%;"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- HP -->
+                                <div class="text-start">
+                                    <small class="text-muted d-block mb-1"><i class="fas fa-heart me-1"></i>HP：<strong>2750–3750</strong></small>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-success" style="width: 90%;"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- 火系 SSR -->
-                    <div class="col-6 col-md-4 col-lg-2 mb-4">
-                        <div class="creature-showcase-card fire-type">
-                            <div class="creature-rarity-badge ssr-badge">
-                                <i class="fas fa-crown"></i>
-                                <span>SSR</span>
+                </div><!-- 第二行：光系、暗系 SSR 和一般系 SR -->
+                <div class="row g-3 mb-4 justify-content-center">                    <!-- 光系 SSR -->
+                    <div class="col-12 col-md-6 col-lg-4 mb-4">
+                        <div class="card creature-showcase-card light-type shadow rounded-4 h-100">
+                            
+                            <!-- 稀有度徽章 -->
+                            <div class="position-absolute top-0 end-0 m-2 badge bg-warning text-dark ssr-badge shadow-sm">
+                                <i class="fas fa-crown me-1"></i> SSR
                             </div>
-                            <div class="creature-image-container float-animation">
-                                <img src="https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c632000345e069128/view?project=681c5c6b002355634f3c&mode=admin" class="creature-img" alt="火系精靈">
+                              <!-- 精靈圖片（不裁切、保留完整圖片） -->
+                            <div class="text-center p-3 d-flex align-items-center justify-content-center" style="min-height: 260px;">
+                                <img src="https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/68390f030031f1f20a85/view?project=681c5c6b002355634f3c&mode=admin"
+                                     alt="光系精靈"
+                                     class="img-fluid creature-img rounded"
+                                     style="max-height: 220px; object-fit: contain;">
                             </div>
-                            <div class="creature-info">
-                                <h6 class="creature-name">狐焦炎</h6>
-                                <div class="creature-attributes mb-2">
-                                    <span class="type-badge fire-badge">
-                                        <i class="fas fa-fire"></i> 火系
-                                    </span>
+
+                            <!-- 精靈資訊 -->
+                            <div class="card-body text-center px-3 pb-4">
+                                <h5 class="fw-bold mb-2">八星之主</h5>
+                                
+                                <!-- 屬性 -->
+                                <div class="mb-3">
+                                    <span class="badge bg-warning text-dark px-3 py-1"><i class="fas fa-sun me-1"></i>光系</span>
                                 </div>
-                                <div class="creature-stats">
-                                    <div class="stat-group">
-                                        <div class="stat-item atk">
-                                            <i class="fas fa-sword"></i>
-                                            <span class="stat-value">310</span>
-                                            <span class="stat-label">ATK</span>
-                                        </div>
-                                        <div class="stat-item hp">
-                                            <i class="fas fa-heart"></i>
-                                            <span class="stat-value">350</span>
-                                            <span class="stat-label">HP</span>
-                                        </div>
+                                  <!-- ATK -->
+                                <div class="text-start mb-2">
+                                    <small class="text-muted d-block mb-1"><i class="fas fa-fist-raised me-1"></i>ATK：<strong>550–750</strong></small>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-info" style="width: 90%;"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- HP -->
+                                <div class="text-start">
+                                    <small class="text-muted d-block mb-1"><i class="fas fa-heart me-1"></i>HP：<strong>1800–2800</strong></small>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-success" style="width: 60%;"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- 木系 SSR -->
-                    <div class="col-6 col-md-4 col-lg-2 mb-4">
-                        <div class="creature-showcase-card nature-type">
-                            <div class="creature-rarity-badge ssr-badge">
-                                <i class="fas fa-crown"></i>
-                                <span>SSR</span>
+                    </div>                    <!-- 暗系 SSR -->
+                    <div class="col-12 col-md-6 col-lg-4 mb-4">
+                        <div class="card creature-showcase-card dark-type shadow rounded-4 h-100">
+                            
+                            <!-- 稀有度徽章 -->
+                            <div class="position-absolute top-0 end-0 m-2 badge bg-warning text-dark ssr-badge shadow-sm">
+                                <i class="fas fa-crown me-1"></i> SSR
                             </div>
-                            <div class="creature-image-container float-animation">
-                                <img src="https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/681c636f00198e9782d2/view?project=681c5c6b002355634f3c&mode=admin" class="creature-img" alt="木系精靈">
+                              <!-- 精靈圖片（不裁切、保留完整圖片） -->
+                            <div class="text-center p-3 d-flex align-items-center justify-content-center" style="min-height: 260px;">
+                                <img src="https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/68390f3c001270e4def2/view?project=681c5c6b002355634f3c&mode=admin"
+                                     alt="暗系精靈"
+                                     class="img-fluid creature-img rounded"
+                                     style="max-height: 220px; object-fit: contain;">
                             </div>
-                            <div class="creature-info">
-                                <h6 class="creature-name">精靈鐘</h6>
-                                <div class="creature-attributes mb-2">
-                                    <span class="type-badge nature-badge">
-                                        <i class="fas fa-leaf"></i> 木系
-                                    </span>
+
+                            <!-- 精靈資訊 -->
+                            <div class="card-body text-center px-3 pb-4">
+                                <h5 class="fw-bold mb-2">蒙昧</h5>
+                                
+                                <!-- 屬性 -->
+                                <div class="mb-3">
+                                    <span class="badge bg-dark text-white px-3 py-1"><i class="fas fa-moon me-1"></i>暗系</span>
                                 </div>
-                                <div class="creature-stats">
-                                    <div class="stat-group">
-                                        <div class="stat-item atk">
-                                            <i class="fas fa-sword"></i>
-                                            <span class="stat-value">270</span>
-                                            <span class="stat-label">ATK</span>
-                                        </div>
-                                        <div class="stat-item hp">
-                                            <i class="fas fa-heart"></i>
-                                            <span class="stat-value">420</span>
-                                            <span class="stat-label">HP</span>
-                                        </div>
+                                  <!-- ATK -->
+                                <div class="text-start mb-2">
+                                    <small class="text-muted d-block mb-1"><i class="fas fa-fist-raised me-1"></i>ATK：<strong>600–800</strong></small>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-dark" style="width: 95%;"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- HP -->
+                                <div class="text-start">
+                                    <small class="text-muted d-block mb-1"><i class="fas fa-heart me-1"></i>HP：<strong>1500–2500</strong></small>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-success" style="width: 50%;"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- 光系 SSR -->
-                    <div class="col-6 col-md-4 col-lg-2 mb-4">
-                        <div class="creature-showcase-card light-type">
-                            <div class="creature-rarity-badge ssr-badge">
-                                <i class="fas fa-crown"></i>
-                                <span>SSR</span>
+                    </div>                    <!-- 一般系 SR - 青鬼 -->
+                    <div class="col-12 col-md-6 col-lg-4 mb-4">
+                        <div class="card creature-showcase-card normal-type shadow rounded-4 h-100">
+                            
+                            <!-- 稀有度徽章 -->
+                            <div class="position-absolute top-0 end-0 m-2 badge bg-secondary text-white sr-badge shadow-sm">
+                                <i class="fas fa-gem me-1"></i> SR
                             </div>
-                            <div class="creature-image-container float-animation">
-                                <img src="https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/68390f030031f1f20a85/view?project=681c5c6b002355634f3c&mode=admin" class="creature-img" alt="光系精靈">
+                            
+                            <!-- 精靈圖片（不裁切、保留完整圖片） -->
+                            <div class="text-center p-3 d-flex align-items-center justify-content-center" style="min-height: 260px;">
+                                <img src="https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/683fdf5e0019b993c987/view?project=681c5c6b002355634f3c&mode=admin"
+                                     alt="一般系精靈"
+                                     class="img-fluid creature-img rounded"
+                                     style="max-height: 220px; object-fit: contain;">
                             </div>
-                            <div class="creature-info">
-                                <h6 class="creature-name">八星之主</h6>
-                                <div class="creature-attributes mb-2">
-                                    <span class="type-badge light-badge">
-                                        <i class="fas fa-sun"></i> 光系
-                                    </span>
+
+                            <!-- 精靈資訊 -->
+                            <div class="card-body text-center px-3 pb-4">
+                                <h5 class="fw-bold mb-2">青鬼</h5>
+                                
+                                <!-- 屬性 -->
+                                <div class="mb-3">
+                                    <span class="badge bg-secondary text-white px-3 py-1"><i class="fas fa-star me-1"></i>一般</span>
                                 </div>
-                                <div class="creature-stats">
-                                    <div class="stat-group">
-                                        <div class="stat-item atk">
-                                            <i class="fas fa-sword"></i>
-                                            <span class="stat-value">320</span>
-                                            <span class="stat-label">ATK</span>
-                                        </div>
-                                        <div class="stat-item hp">
-                                            <i class="fas fa-heart"></i>
-                                            <span class="stat-value">340</span>
-                                            <span class="stat-label">HP</span>
-                                        </div>
+                                  <!-- ATK -->
+                                <div class="text-start mb-2">
+                                    <small class="text-muted d-block mb-1"><i class="fas fa-fist-raised me-1"></i>ATK：<strong>350–500</strong></small>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-secondary" style="width: 60%;"></div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 暗系 SSR -->
-                    <div class="col-6 col-md-4 col-lg-2 mb-4">
-                        <div class="creature-showcase-card dark-type">
-                            <div class="creature-rarity-badge ssr-badge">
-                                <i class="fas fa-crown"></i>
-                                <span>SSR</span>
-                            </div>
-                            <div class="creature-image-container float-animation">
-                                <img src="https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/68390f3c001270e4def2/view?project=681c5c6b002355634f3c&mode=admin" class="creature-img" alt="暗系精靈">
-                            </div>
-                            <div class="creature-info">
-                                <h6 class="creature-name">蒙昧</h6>
-                                <div class="creature-attributes mb-2">
-                                    <span class="type-badge dark-badge">
-                                        <i class="fas fa-moon"></i> 暗系
-                                    </span>
-                                </div>                                <div class="creature-stats">
-                                    <div class="stat-group">
-                                        <div class="stat-item atk">
-                                            <i class="fas fa-sword"></i>
-                                            <span class="stat-value">295</span>
-                                            <span class="stat-label">ATK</span>
-                                        </div>
-                                        <div class="stat-item hp">
-                                            <i class="fas fa-heart"></i>
-                                            <span class="stat-value">375</span>
-                                            <span class="stat-label">HP</span>
-                                        </div>
+                                
+                                <!-- HP -->
+                                <div class="text-start">
+                                    <small class="text-muted d-block mb-1"><i class="fas fa-heart me-1"></i>HP：<strong>2200–3000</strong></small>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-success" style="width: 75%;"></div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 一般系說明 -->
-                    <div class="col-6 col-md-4 col-lg-2 mb-4">
-                        <div class="creature-showcase-card normal-type-info">
-                            <div class="normal-type-placeholder">
-                                <div class="placeholder-icon">
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <h6 class="placeholder-title">一般系</h6>
-                                <p class="placeholder-text">一般屬性精靈最高稀有度為 SR，適合新手訓練師培養</p>
-                                <div class="rarity-indicator">
-                                    <span class="badge bg-info">最高 SR</span>
                                 </div>
                             </div>
                         </div>
@@ -329,545 +391,9 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </div>                </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .game-hero {
-        overflow: hidden;
-        border-radius: 15px;
-        position: relative;
-    }
-    
-    .game-hero-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 100%);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-    
-    .game-title {
-        font-family: 'Baloo 2', cursive;
-        font-weight: 800;
-        text-shadow: 3px 3px 5px rgba(0,0,0,0.5);
-    }
-    
-    .section-title {
-        font-family: 'Baloo 2', cursive;
-        font-weight: 600;
-        color: var(--text-color);
-        position: relative;
-        display: inline-block;
-    }
-    
-    .section-title:after {
-        content: '';
-        position: absolute;
-        width: 50%;
-        height: 4px;
-        background: linear-gradient(90deg, var(--primary-color), transparent);
-        bottom: -10px;
-        left: 25%;
-    }
-    
-    .game-feature-card {
-        transition: all 0.3s;
-        border-radius: 15px;
-    }
-    
-    .game-feature-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    }
-    
-    .feature-icon {
-        height: 80px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-      .creature-showcase {
-        transition: all 0.3s;
-    }
-    
-    .creature-showcase:hover {
-        transform: scale(1.05);
-    }
-    
-    .creature-image-container {
-        height: 100px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    /* 新版精靈圖鑑樣式 */
-    .creature-gallery {
-        border-radius: 20px;
-        overflow: hidden;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-    }
-    
-    .bg-gradient-info {
-        background: linear-gradient(135deg, #3498db, #2980b9);
-    }
-    
-    .creature-showcase-card {
-        background: linear-gradient(145deg, #ffffff, #f8f9fa);
-        border-radius: 20px;
-        padding: 20px;
-        text-align: center;
-        position: relative;
-        transition: all 0.4s ease;
-        border: 2px solid transparent;
-        height: 100%;
-        overflow: hidden;
-    }
-    
-    .creature-showcase-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
-        transform: translateX(-100%);
-        transition: transform 0.6s ease;
-        z-index: 1;
-    }
-    
-    .creature-showcase-card:hover::before {
-        transform: translateX(100%);
-    }
-    
-    .creature-showcase-card:hover {
-        transform: translateY(-10px) scale(1.02);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-    }
-    
-    /* 屬性特色邊框 */
-    .water-type:hover { border-color: #3498db; box-shadow: 0 20px 40px rgba(52, 152, 219, 0.3); }
-    .fire-type:hover { border-color: #e74c3c; box-shadow: 0 20px 40px rgba(231, 76, 60, 0.3); }
-    .nature-type:hover { border-color: #27ae60; box-shadow: 0 20px 40px rgba(39, 174, 96, 0.3); }
-    .light-type:hover { border-color: #f39c12; box-shadow: 0 20px 40px rgba(243, 156, 18, 0.3); }
-    .dark-type:hover { border-color: #8e44ad; box-shadow: 0 20px 40px rgba(142, 68, 173, 0.3); }
-    
-    .creature-rarity-badge {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        background: linear-gradient(135deg, #ffd700, #ffb700);
-        color: #8B4513;
-        border-radius: 20px;
-        padding: 5px 10px;
-        font-size: 0.7rem;
-        font-weight: bold;
-        box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
-        z-index: 2;
-        display: flex;
-        align-items: center;
-        gap: 3px;
-        animation: sparkle 2s ease-in-out infinite alternate;
-    }
-    
-    @keyframes sparkle {
-        0% { transform: scale(1) rotate(0deg); }
-        100% { transform: scale(1.1) rotate(5deg); }
-    }
-    
-    .creature-image-container {
-        height: 120px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 15px;
-        position: relative;
-        z-index: 1;
-    }
-    
-    .creature-img {
-        max-height: 100px;
-        max-width: 100%;
-        object-fit: contain;
-        transition: all 0.3s ease;
-        filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1));
-    }
-    
-    .creature-showcase-card:hover .creature-img {
-        transform: scale(1.1) translateY(-5px);
-    }
-    
-    .creature-name {
-        font-family: 'Baloo 2', cursive;
-        font-weight: 600;
-        color: #2c3e50;
-        margin-bottom: 10px;
-        font-size: 1.1rem;
-    }
-    
-    .type-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        padding: 6px 12px;
-        border-radius: 25px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: white;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-    }
-    
-    .water-badge { background: linear-gradient(135deg, #3498db, #2980b9); }
-    .fire-badge { background: linear-gradient(135deg, #e74c3c, #c0392b); }
-    .nature-badge { background: linear-gradient(135deg, #27ae60, #229954); }
-    .light-badge { background: linear-gradient(135deg, #f39c12, #e67e22); }
-    .dark-badge { background: linear-gradient(135deg, #8e44ad, #7d3c98); }
-    
-    .creature-stats {
-        margin-top: 15px;
-    }
-    
-    .stat-group {
-        display: flex;
-        justify-content: space-around;
-        gap: 10px;
-    }
-    
-    .stat-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        background: rgba(52, 152, 219, 0.1);
-        border-radius: 12px;
-        padding: 8px 12px;
-        flex: 1;
-        transition: all 0.3s ease;
-    }
-    
-    .stat-item:hover {
-        background: rgba(52, 152, 219, 0.2);
-        transform: translateY(-2px);
-    }
-    
-    .stat-item i {
-        font-size: 1rem;
-        margin-bottom: 3px;
-        color: #3498db;
-    }
-    
-    .stat-item.atk i { color: #e74c3c; }
-    .stat-item.hp i { color: #27ae60; }
-    
-    .stat-value {
-        font-weight: 700;
-        font-size: 1.1rem;
-        color: #2c3e50;
-        line-height: 1;
-    }
-    
-    .stat-label {
-        font-size: 0.7rem;
-        color: #7f8c8d;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    /* 一般系說明卡片 */
-    .normal-type-info {
-        background: linear-gradient(145deg, #ecf0f1, #bdc3c7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 2px dashed #95a5a6;
-    }
-    
-    .normal-type-placeholder {
-        text-align: center;
-        padding: 20px;
-    }
-    
-    .placeholder-icon {
-        font-size: 2.5rem;
-        color: #95a5a6;
-        margin-bottom: 10px;
-    }
-    
-    .placeholder-title {
-        color: #7f8c8d;
-        font-weight: 600;
-        margin-bottom: 8px;
-    }
-    
-    .placeholder-text {
-        font-size: 0.8rem;
-        color: #95a5a6;
-        line-height: 1.3;
-        margin-bottom: 10px;
-    }
-    
-    /* 稀有度指南 */
-    .rarity-guide {
-        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-        border-radius: 15px;
-        padding: 20px;
-        border: 1px solid #dee2e6;
-    }
-    
-    .guide-title {
-        color: #495057;
-        font-weight: 600;
-        margin-bottom: 15px;
-    }
-    
-    .rarity-levels {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-        justify-content: space-around;
-    }
-    
-    .rarity-level {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        flex: 1;
-        min-width: 120px;
-    }
-    
-    .rarity-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        padding: 8px 15px;
-        border-radius: 25px;
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: white;
-        margin-bottom: 8px;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-    
-    .ssr-mini { background: linear-gradient(135deg, #ffd700, #ffb700); color: #8B4513; }
-    .sr-mini { background: linear-gradient(135deg, #e74c3c, #c0392b); }
-    .r-mini { background: linear-gradient(135deg, #3498db, #2980b9); }
-    .n-mini { background: linear-gradient(135deg, #95a5a6, #7f8c8d); }
-    
-    .rarity-desc {
-        font-size: 0.8rem;
-        color: #6c757d;
-        font-weight: 500;
-    }    
-    /* 深色模式適配 */
-    [data-theme="dark"] .news-date,
-    [data-theme="dark"] .text-muted {
-        color: #adb5bd !important;
-    }
-    
-    [data-theme="dark"] .border-bottom {
-        border-color: var(--border-color) !important;
-    }
-    
-    [data-theme="dark"] .btn-outline-primary {
-        color: var(--link-color);
-        border-color: var(--link-color);
-    }
-    
-    [data-theme="dark"] .btn-outline-primary:hover {
-        background-color: var(--link-color);
-        color: #fff;
-    }
-    
-    [data-theme="dark"] .btn-outline-danger {
-        color: #e74c3c;
-        border-color: #e74c3c;
-    }
-    
-    [data-theme="dark"] .btn-outline-danger:hover {
-        background-color: #e74c3c;
-        color: #fff;
-    }
-    
-    [data-theme="dark"] .btn-outline-success {
-        color: #2ecc71;
-        border-color: #2ecc71;
-    }
-    
-    [data-theme="dark"] .btn-outline-success:hover {
-        background-color: #2ecc71;
-        color: #fff;
-    }
-    
-    /* 修正深色模式下的文字顯示問題 */
-    [data-theme="dark"] .card-body p,
-    [data-theme="dark"] .card-body .small,
-    [data-theme="dark"] .card-body h6,
-    [data-theme="dark"] .card-text,
-    [data-theme="dark"] .news-item p,
-    [data-theme="dark"] .news-item h6 {
-        color: var(--text-color);
-    }
-    
-    [data-theme="dark"] .creature-showcase h6 {
-        color: var(--text-color);
-    }
-    
-    [data-theme="dark"] .card-header h5 {
-        color: white;
-    }
-    
-    /* 深色模式下的精靈圖鑑適配 */
-    [data-theme="dark"] .creature-showcase-card {
-        background: linear-gradient(145deg, #2d3436, #636e72);
-        border-color: #4d5656;
-    }
-    
-    [data-theme="dark"] .creature-name {
-        color: #e0e0e0;
-    }
-    
-    [data-theme="dark"] .stat-value {
-        color: #f0f0f0;
-    }
-    
-    [data-theme="dark"] .stat-label {
-        color: #b0b0b0;
-    }
-    
-    [data-theme="dark"] .stat-item {
-        background: rgba(255, 255, 255, 0.1);
-    }
-    
-    [data-theme="dark"] .stat-item:hover {
-        background: rgba(255, 255, 255, 0.15);
-    }
-    
-    [data-theme="dark"] .normal-type-info {
-        background: linear-gradient(145deg, #3d4852, #2d3436);
-        border-color: #5a6268;
-    }
-    
-    [data-theme="dark"] .placeholder-title {
-        color: #adb5bd;
-    }
-    
-    [data-theme="dark"] .placeholder-text {
-        color: #868e96;
-    }
-    
-    [data-theme="dark"] .placeholder-icon {
-        color: #868e96;
-    }
-    
-    [data-theme="dark"] .rarity-guide {
-        background: linear-gradient(135deg, #2d3436, #3d4852);
-        border-color: #5a6268;
-    }
-    
-    [data-theme="dark"] .guide-title {
-        color: #e0e0e0;
-    }
-    
-    [data-theme="dark"] .rarity-desc {
-        color: #adb5bd;
-    }
-    
-    /* 響應式設計 */
-    @media (max-width: 767.98px) {
-        .game-hero-overlay {
-            padding: 15px !important;
-        }
-        
-        .game-title {
-            font-size: 1.8rem;
-        }
-        
-        .lead {
-            font-size: 1rem;
-        }
-        
-        .btn-lg {
-            padding: 0.5rem 1rem;
-            font-size: 1rem;
-        }
-        
-        /* 移動端精靈圖鑑適配 */
-        .creature-showcase-card {
-            padding: 15px;
-        }
-        
-        .creature-image-container {
-            height: 100px;
-        }
-        
-        .creature-img {
-            max-height: 80px;
-        }
-        
-        .creature-name {
-            font-size: 1rem;
-        }
-        
-        .type-badge {
-            font-size: 0.75rem;
-            padding: 4px 8px;
-        }
-        
-        .stat-item {
-            padding: 6px 8px;
-        }
-        
-        .stat-value {
-            font-size: 1rem;
-        }
-        
-        .rarity-levels {
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .rarity-level {
-            flex-direction: row;
-            justify-content: center;
-            gap: 10px;
-            min-width: auto;
-        }
-        
-        .creature-rarity-badge {
-            top: -3px;
-            right: -3px;
-            padding: 3px 8px;
-            font-size: 0.65rem;
-        }
-    }
-    
-    @media (max-width: 575.98px) {
-        .creature-gallery .row.g-4 {
-            gap: 1rem;
-        }
-        
-        .stat-group {
-            gap: 5px;
-        }
-        
-        .placeholder-text {
-            font-size: 0.75rem;
-        }
-    }
-</style>
 {% endblock %}
