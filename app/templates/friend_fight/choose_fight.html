@@ -3,9 +3,77 @@
 {% block title %}好友對戰 - 精靈公車{% endblock %}
 
 {% block content %}
-<div class="container text-center">
-    <h1>好友對戰</h1>
-    <button onclick="window.location.href='{% url 'create_arena' %}'">創建擂台</button>
-    <button onclick="window.location.href='{% url 'join_arena' %}'">加入擂台</button>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3><i class="fas fa-sword-cross me-2"></i>好友對戰</h3>
+                    <p class="mb-0">選擇你想要的對戰模式</p>
+                </div>
+                <div class="card-body p-5">
+                    <div class="row text-center">
+                        <div class="col-md-6 mb-4">
+                            <div class="battle-mode-card p-4 border rounded">
+                                <div class="battle-icon mb-3">
+                                    <i class="fas fa-plus-circle fa-4x text-success"></i>
+                                </div>
+                                <h4>創建對戰</h4>                                <p class="text-muted">創建一個新的戰鬥房間，邀請好友加入對戰</p>                                <a href="{{ url_for('friend_fight.host_fight') }}" class="btn btn-success btn-lg">
+                                    <i class="fas fa-plus me-2"></i>創建房間
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="battle-mode-card p-4 border rounded">
+                                <div class="battle-icon mb-3">
+                                    <i class="fas fa-sign-in-alt fa-4x text-primary"></i>
+                                </div>
+                                <h4>加入對戰</h4>                                <p class="text-muted">輸入房間ID加入朋友的戰鬥房間</p>
+                                <a href="{{ url_for('friend_fight.join_fight') }}" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-sign-in-alt me-2"></i>加入房間
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('main.home') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>返回主頁
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .battle-mode-card {
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .battle-mode-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        border-color: var(--primary-color) !important;
+    }
+    
+    .battle-icon {
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    [data-theme="dark"] .battle-mode-card {
+        border-color: var(--border-color) !important;
+        background-color: var(--card-bg);
+    }
+    
+    [data-theme="dark"] .battle-mode-card:hover {
+        border-color: var(--primary-color) !important;
+    }
+</style>
 {% endblock %}

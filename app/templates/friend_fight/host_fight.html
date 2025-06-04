@@ -1,131 +1,484 @@
 {% extends "base.html" %}
 
-{% block title %}創建擂台 - 精靈公車{% endblock %}
+{% block title %}創建對戰房間 - 精靈公車{% endblock %}
 
 {% block content %}
-<style>
-.arena-slot {
-    width: 300px;
-    height: 300px;
-    background-color: #f0f0f0;
-    border: 2px dashed #ccc;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 2rem auto;
-    cursor: pointer;
-}
-.arena-slot img {
-    max-height: 100%;
-    max-width: 100%;
-}
-.placeholder {
-    font-size: 5rem;
-    color: rgba(0, 0, 0, 0.3);
-}
-.invite-code {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-bottom: 1rem;
-    letter-spacing: 2px;
-}
-.modal, .modal-overlay {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-}
-.modal-overlay {
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.3);
-    z-index: 999;
-}
-.modal {
-    background: white;
-    padding: 1rem;
-    border: 1px solid #ccc;
-    max-height: 400px;
-    overflow-y: auto;
-    left: 50%; top: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 0 20px rgba(0,0,0,0.3);
-}
-.modal .sprite-option {
-    margin: 5px 0;
-    cursor: pointer;
-}
-.modal .sprite-option img {
-    height: 50px;
-    vertical-align: middle;
-    margin-right: 10px;
-}
-</style>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-success text-white text-center">
+                    <h3><i class="fas fa-plus-circle me-2"></i>創建對戰房間</h3>
+                </div>
+                <div class="card-body">                    <div class="text-center mb-4">
+                        <div class="invite-code-container p-3 bg-light rounded">
+                            <h5>房間ID：</h5>
+                            <div class="invite-code" id="room-id">請先選擇精靈</div>
+                            <small class="text-muted" id="room-hint">選擇精靈後將生成房間ID供朋友加入</small>
+                        </div>
+                    </div>
 
-<div class="container text-center">
-    <h1>創建擂台</h1>
-    <div class="invite-code">邀請碼：{{ invite_code }}</div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="text-center mb-3">你的精靈</h5>
+                            <div class="arena-slot" id="player-slot" onclick="openModal()">
+                                <span class="placeholder">
+                                    <i class="fas fa-plus fa-3x"></i>
+                                    <div>選擇精靈</div>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="text-center mb-3">對手精靈</h5>
+                            <div class="arena-slot opponent-slot">
+                                <span class="placeholder">
+                                    <i class="fas fa-hourglass-half fa-3x"></i>
+                                    <div>等待對手加入</div>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
 
-    <div class="arena-slot" id="player-slot" onclick="openModal()">
-        {% if player_sprite_url %}
-            <img src="{{ player_sprite_url }}" alt="你的精靈">
-        {% else %}
-            <span class="placeholder">＋</span>
-        {% endif %}
-    </div>
+                    <div class="text-center mt-4">                        <button id="ready-button" class="btn btn-success btn-lg" style="display:none;" onclick="createRoom()">
+                            <i class="fas fa-check me-2"></i>創建房間並等待對手
+                        </button>
+                        <button class="btn btn-outline-secondary ms-2" onclick="goBackWithCleanup()">
+                            <i class="fas fa-arrow-left me-2"></i>返回
+                        </button>
+                    </div>
 
-    <button id="ready-button" style="display:none;" onclick="markReady()">準備好了</button>
-</div>
-
-<!-- 精靈選擇彈窗 -->
-<div class="modal-overlay" id="modal-overlay" onclick="closeModal()"></div>
-<div class="modal" id="sprite-modal">
-    <h3>選擇精靈上場</h3>
-    {% for sprite in user_sprites %}
-        <div class="sprite-option" onclick="selectSprite('{{ sprite.id }}', '{{ sprite.image_url }}')">
-            <img src="{{ sprite.image_url }}" alt="{{ sprite.name }}"> {{ sprite.name }}
+                    <div id="status-message" class="alert alert-info mt-3" style="display:none;">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span id="status-text"></span>
+                    </div>
+                </div>
+            </div>
         </div>
-    {% endfor %}
+    </div>
 </div>
 
+<!-- 精靈選擇模態窗口 -->
+<div class="modal fade" id="spriteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">選擇你的精靈</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="creature-list">
+                    <!-- 精靈列表將通過JavaScript動態加載 -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .arena-slot {
+        width: 250px;
+        height: 250px;
+        background-color: var(--card-bg);
+        border: 3px dashed var(--border-color);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto;
+        cursor: pointer;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .arena-slot:hover {
+        border-color: var(--primary-color);
+        background-color: rgba(var(--primary-color-rgb), 0.1);
+    }
+    
+    .arena-slot img {
+        max-height: 200px;
+        max-width: 200px;
+        border-radius: 10px;
+    }
+    
+    .placeholder {
+        color: var(--text-muted);
+        text-align: center;
+    }
+    
+    .opponent-slot {
+        cursor: default;
+    }
+    
+    .opponent-slot:hover {
+        border-color: var(--border-color);
+        background-color: var(--card-bg);
+    }
+    
+    .invite-code {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--success-color);
+        font-family: 'Courier New', monospace;
+        letter-spacing: 3px;
+    }
+    
+    .invite-code-container {
+        border: 2px solid var(--success-color);
+    }
+    
+    .creature-card {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .creature-card:hover {
+        border-color: var(--primary-color);
+        transform: translateY(-5px);
+    }
+    
+    .creature-card.selected {
+        border-color: var(--success-color);
+        background-color: rgba(var(--success-color-rgb), 0.1);
+    }
+    
+    [data-theme="dark"] .invite-code-container {
+        background-color: var(--card-bg) !important;
+        border-color: var(--success-color) !important;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
 <script>
-let selectedSpriteId = null;
+let selectedCreatureId = null;
+let roomId = null;
+let statusCheckInterval = null;
 
 function openModal() {
-    document.getElementById('sprite-modal').style.display = 'block';
-    document.getElementById('modal-overlay').style.display = 'block';
+    loadUserCreatures();
+    new bootstrap.Modal(document.getElementById('spriteModal')).show();
 }
-function closeModal() {
-    document.getElementById('sprite-modal').style.display = 'none';
-    document.getElementById('modal-overlay').style.display = 'none';
+
+function loadUserCreatures() {
+    fetch('/game/api/user/creatures')
+        .then(response => response.json())        .then(data => {
+            const creatureList = document.getElementById('creature-list');
+            creatureList.innerHTML = '';
+            
+            if (Array.isArray(data) && data.length > 0) {
+                data.forEach(creature => {
+                    const creatureCard = createCreatureCard(creature);
+                    creatureList.appendChild(creatureCard);
+                });
+            } else if (data.error) {
+                creatureList.innerHTML = `<div class="col-12 text-center"><p class="text-danger">載入錯誤：${data.error}</p></div>`;
+            } else {
+                creatureList.innerHTML = '<div class="col-12 text-center"><p class="text-muted">你還沒有捕捉到任何精靈！<br><a href="{{ url_for("game.catch") }}">立即去捕捉</a></p></div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading creatures:', error);
+            showStatus('載入精靈失敗', 'danger');
+        });
 }
-function selectSprite(spriteId, imageUrl) {
-    document.getElementById('player-slot').innerHTML = '<img src="' + imageUrl + '" alt="精靈">';
-    selectedSpriteId = spriteId;
-    closeModal();
+
+function createCreatureCard(creature) {
+    const div = document.createElement('div');
+    div.className = 'col-md-4 col-sm-6 mb-3';
+    div.innerHTML = `
+        <div class="card creature-card h-100" onclick="selectCreature('${creature.id}', '${creature.name}', '${creature.image_url}')">
+            <img src="${creature.image_url}" class="card-img-top" alt="${creature.name}" style="height: 150px; object-fit: cover;">
+            <div class="card-body text-center">
+                <h6 class="card-title">${creature.name}</h6>
+                <span class="badge bg-${getElementColor(creature.element)}">${creature.element}</span>
+                <div class="mt-2">
+                    <small class="text-muted">力量: ${creature.power}</small>
+                </div>
+            </div>
+        </div>
+    `;
+    return div;
+}
+
+function getElementColor(element) {
+    const colors = {
+        '火': 'danger',
+        '水': 'primary', 
+        '木': 'success',
+        '光': 'warning',
+        '暗': 'dark'
+    };
+    return colors[element] || 'secondary';
+}
+
+function selectCreature(creatureId, creatureName, imageUrl) {
+    selectedCreatureId = creatureId;
+    
+    // 清除之前的選擇狀態
+    document.querySelectorAll('.creature-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    // 標記當前選擇
+    event.currentTarget.classList.add('selected');
+    
+    // 更新顯示
+    document.getElementById('player-slot').innerHTML = `
+        <img src="${imageUrl}" alt="${creatureName}">
+        <div class="mt-2"><strong>${creatureName}</strong></div>
+    `;
+    
+    // 顯示創建按鈕
     document.getElementById('ready-button').style.display = 'inline-block';
+    
+    // 關閉模態窗口
+    bootstrap.Modal.getInstance(document.getElementById('spriteModal')).hide();
 }
-function markReady() {
-    fetch("{% url 'arena_ready_ajax' %}", {
+
+function createRoom() {
+    if (!selectedCreatureId) {
+        showStatus('請先選擇一個精靈', 'warning');
+        return;
+    }
+    
+    const button = document.getElementById('ready-button');
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>創建中...';
+    
+    fetch('{{ url_for("friend_fight.create_room") }}', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
         },
         body: JSON.stringify({
-            invite_code: '{{ invite_code }}',
-            sprite_id: selectedSpriteId
+            creature_id: selectedCreatureId
         })
-    }).then(response => response.json())
-      .then(data => {
-        if (data.result === 'waiting') {
-            alert('你已準備好，請等待對手...');
-        } else if (data.result === 'win') {
-            alert('你贏了！');
-        } else if (data.result === 'lose') {
-            alert('你輸了。');
+    })
+    .then(response => response.json())    .then(data => {
+        if (data.success) {
+            roomId = data.room_id;
+            document.getElementById('room-id').textContent = roomId;
+            document.getElementById('room-hint').textContent = '請將此ID分享給你的朋友';
+            showStatus('房間創建成功！等待對手加入...', 'success');
+            
+            // 開始檢查房間狀態
+            startStatusCheck();
+            
+            button.innerHTML = '<i class="fas fa-clock me-2"></i>等待對手中...';
         } else {
-            alert('戰鬥錯誤或尚未準備完畢');
+            showStatus(data.message || '創建房間失敗', 'danger');
+            button.disabled = false;
+            button.innerHTML = '<i class="fas fa-check me-2"></i>創建房間並等待對手';
         }
+    })
+    .catch(error => {
+        console.error('Error creating room:', error);
+        showStatus('創建房間時發生錯誤', 'danger');
+        button.disabled = false;
+        button.innerHTML = '<i class="fas fa-check me-2"></i>創建房間並等待對手';
     });
 }
+
+function startStatusCheck() {
+    if (statusCheckInterval) {
+        clearInterval(statusCheckInterval);
+    }
+    
+    statusCheckInterval = setInterval(() => {
+        if (roomId) {
+            checkRoomStatus();
+        }
+    }, 2000);
+}
+
+function checkRoomStatus() {
+    fetch(`{{ url_for("friend_fight.room_status", room_id="ROOM_ID") }}`.replace('ROOM_ID', roomId))
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.room_data) {
+                const roomData = data.room_data;
+                const status = roomData.status;
+                
+                if (status === 'ready') {
+                    clearInterval(statusCheckInterval);
+                    showStatus('對手已加入！正在跳轉到對戰頁面...', 'success');
+                    
+                    // 跳轉到對戰頁面（房主視角）
+                    setTimeout(() => {
+                        window.location.href = `{{ url_for("friend_fight.visitor_fight", room_id="ROOM_ID") }}`.replace('ROOM_ID', roomId);
+                    }, 1500);
+                    
+                } else if (status === 'fighting') {
+                    showStatus('戰鬥進行中...', 'warning');
+                    
+                } else if (status === 'finished') {
+                    clearInterval(statusCheckInterval);
+                    if (roomData.battle_result) {
+                        showBattleResult(roomData.battle_result);
+                    }
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error checking room status:', error);
+        });
+}
+
+function startBattle() {
+    showStatus('戰鬥開始！', 'primary');
+    
+    fetch('{{ url_for("friend_fight.start_battle") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            room_id: roomId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showBattleResult(data.battle_result);
+        } else {
+            showStatus('戰鬥開始失敗：' + (data.message || '未知錯誤'), 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error starting battle:', error);
+        showStatus('戰鬥開始時發生錯誤', 'danger');
+    });
+}
+
+function showBattleResult(result) {
+    clearInterval(statusCheckInterval);
+    
+    const isWinner = result.winner === '{{ session.user.uid }}';
+    const message = isWinner ? 
+        `🎉 恭喜獲勝！你的 ${result.winner_creature.name} 擊敗了對手的 ${result.loser_creature.name}！` :
+        `😢 很遺憾落敗！對手的 ${result.winner_creature.name} 擊敗了你的 ${result.loser_creature.name}。`;
+    
+    showStatus(message, isWinner ? 'success' : 'danger');
+      // 更新按鈕
+    document.getElementById('ready-button').innerHTML = `
+        <button class="btn btn-primary me-2" onclick="cleanupAndRedirect('{{ url_for('friend_fight.choose_fight') }}')">
+            <i class="fas fa-redo me-2"></i>再來一戰
+        </button>
+        <button class="btn btn-success me-2" onclick="cleanupAndRedirect('{{ url_for('main.home') }}')">
+            <i class="fas fa-home me-2"></i>返回主頁
+        </button>
+        <div class="mt-3">
+            <div class="alert alert-warning" id="countdown-alert">
+                <i class="fas fa-clock me-2"></i>
+                <span id="countdown-text">10秒後自動返回主頁並清理房間...</span>
+            </div>
+        </div>
+    `;
+    
+    // 開始倒數計時
+    startCountdown();
+}
+
+function showStatus(message, type) {
+    const statusDiv = document.getElementById('status-message');
+    const statusText = document.getElementById('status-text');
+    
+    statusDiv.className = `alert alert-${type} mt-3`;
+    statusText.textContent = message;
+    statusDiv.style.display = 'block';
+}
+
+let countdownTimer = null;
+
+function startCountdown() {
+    let seconds = 10;
+    const countdownText = document.getElementById('countdown-text');
+    
+    countdownTimer = setInterval(() => {
+        seconds--;
+        if (countdownText) {
+            countdownText.textContent = `${seconds}秒後自動返回主頁並清理房間...`;
+        }
+        
+        if (seconds <= 0) {
+            clearInterval(countdownTimer);
+            // 自動執行房間清理並跳轉
+            cleanupAndRedirect('{{ url_for("main.home") }}');
+        }
+    }, 1000);
+}
+
+function cleanupAndRedirect(url) {
+    // 清除倒數計時器
+    if (countdownTimer) {
+        clearInterval(countdownTimer);
+    }
+    
+    // 房主負責清理房間
+    deleteRoom().then(() => {
+        window.location.href = url;
+    }).catch(error => {
+        console.error('清理房間失敗:', error);
+        // 即使清理失敗也要跳轉，避免用戶卡住
+        window.location.href = url;
+    });
+}
+
+function deleteRoom() {
+    if (!roomId) {
+        return Promise.resolve();
+    }
+    
+    return fetch(`{{ url_for("friend_fight.delete_room", room_id="ROOM_ID") }}`.replace('ROOM_ID', roomId), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('房間已成功清理');
+        } else {
+            console.warn('房間清理失敗:', data.message);
+        }
+        return data;
+    });
+}
+
+function goBackWithCleanup() {
+    // 如果已經創建了房間，先清理再返回
+    if (roomId) {
+        showStatus('正在清理房間...', 'info');
+        deleteRoom().then(() => {
+            window.location.href = '{{ url_for("friend_fight.choose_fight") }}';
+        }).catch(error => {
+            console.error('清理房間失敗:', error);
+            // 即使清理失敗也要返回
+            window.location.href = '{{ url_for("friend_fight.choose_fight") }}';
+        });
+    } else {
+        // 沒有創建房間，直接返回
+        window.location.href = '{{ url_for("friend_fight.choose_fight") }}';
+    }
+}
+
+// 頁面卸載時清理
+window.addEventListener('beforeunload', function() {
+    if (statusCheckInterval) {
+        clearInterval(statusCheckInterval);
+    }
+    
+    // 如果房間還在等待狀態且房間ID存在，清理房間
+    if (roomId && currentRoomData && currentRoomData.status === 'waiting') {
+        // 使用 navigator.sendBeacon 進行異步清理，不阻塞頁面卸載
+        const deleteUrl = `{{ url_for("friend_fight.delete_room", room_id="ROOM_ID") }}`.replace('ROOM_ID', roomId);
+        navigator.sendBeacon(deleteUrl);
+    }
+});
 </script>
 {% endblock %}

@@ -21,9 +21,33 @@ def get_current_user():
 @user_bp.route('/creatures')
 @login_required
 def get_user_creatures():
-    """獲取當前用戶的所有精靈"""
-    creatures = Creature.get_by_user(current_user.id)
-    return jsonify([creature.to_dict() for creature in creatures])
+    """獲取當前用戶的所有精靈（從Firebase）"""
+    try:
+        firebase_service = FirebaseService()
+        
+        # 獲取用戶的精靈子集合
+        user_ref = firebase_service.firestore_db.collection('users').document(current_user.id)
+        user_creatures_ref = user_ref.collection('user_creatures').get()
+        
+        creatures_list = []
+        for creature_doc in user_creatures_ref:
+            creature_data = creature_doc.to_dict()
+            creatures_list.append({
+                'id': creature_doc.id,
+                'name': creature_data.get('name', '未知精靈'),
+                'element': creature_data.get('element', 'Normal'),
+                'power': creature_data.get('power', 100),
+                'image_url': creature_data.get('image_url', ''),
+                'level': creature_data.get('level', 1),
+                'captured_at': creature_data.get('captured_at', ''),
+                'original_creature_id': creature_data.get('original_creature_id', '')
+            })
+        
+        return jsonify(creatures_list)
+    
+    except Exception as e:
+        current_app.logger.error(f"獲取用戶精靈失敗: {e}")
+        return jsonify({'error': f'獲取精靈資料失敗: {str(e)}'}), 500
 
 @user_bp.route('/verify-auth-status', methods=['POST'])
 @jwt_or_session_required

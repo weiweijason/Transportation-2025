@@ -1,124 +1,462 @@
 {% extends "base.html" %}
 
-{% block title %}擂台對戰 - 精靈公車{% endblock %}
+{% block title %}對戰房間 - 精靈公車{% endblock %}
 
 {% block content %}
-<style>
-.arena-slot {
-    width: 300px;
-    height: 300px;
-    background-color: #f0f0f0;
-    border: 2px dashed #ccc;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 2rem auto;
-    cursor: pointer;
-}
-.arena-slot img {
-    max-height: 100%;
-    max-width: 100%;
-}
-.placeholder {
-    font-size: 5rem;
-    color: rgba(0, 0, 0, 0.3);
-}
-.modal, .modal-overlay {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-}
-.modal-overlay {
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.3);
-    z-index: 999;
-}
-.modal {
-    background: white;
-    padding: 1rem;
-    border: 1px solid #ccc;
-    max-height: 400px;
-    overflow-y: auto;
-    left: 50%; top: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 0 20px rgba(0,0,0,0.3);
-}
-.modal .sprite-option {
-    margin: 5px 0;
-    cursor: pointer;
-}
-.modal .sprite-option img {
-    height: 50px;
-    vertical-align: middle;
-    margin-right: 10px;
-}
-</style>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card">
+                <div class="card-header bg-info text-white text-center">
+                    <h3><i class="fas fa-fist-raised me-2"></i>對戰房間</h3>
+                    <p class="mb-0">房間ID: <strong>{{ room_id }}</strong></p>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <h5 class="text-center mb-3">你的精靈</h5>
+                            <div class="arena-slot visitor-slot" id="visitor-slot">
+                                <div id="visitor-creature-display">
+                                    <span class="placeholder">
+                                        <i class="fas fa-user fa-2x"></i>
+                                        <div class="mt-2">你的精靈</div>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-2 d-flex align-items-center justify-content-center">
+                            <div class="vs-indicator">
+                                <i class="fas fa-bolt fa-3x text-warning"></i>
+                                <div class="text-center mt-2"><strong>VS</strong></div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-5">
+                            <h5 class="text-center mb-3">對手精靈</h5>
+                            <div class="arena-slot host-slot" id="host-slot">
+                                <div id="host-creature-display">
+                                    <span class="placeholder">
+                                        <i class="fas fa-user fa-2x"></i>
+                                        <div class="mt-2">對手精靈</div>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-<div class="container text-center">
-    <h1>擂台對戰</h1>
-
-    <div class="arena-slot" id="player-slot" onclick="openModal()">
-        {% if player_sprite_url %}
-            <img src="{{ player_sprite_url }}" alt="你的精靈">
-        {% else %}
-            <span class="placeholder">＋</span>
-        {% endif %}
-    </div>
-
-    <button id="ready-button" style="display:none;" onclick="markReady()">準備好了</button>
-</div>
-
-<!-- 精靈選擇彈窗 -->
-<div class="modal-overlay" id="modal-overlay" onclick="closeModal()"></div>
-<div class="modal" id="sprite-modal">
-    <h3>選擇精靈上場</h3>
-    {% for sprite in user_sprites %}
-        <div class="sprite-option" onclick="selectSprite('{{ sprite.id }}', '{{ sprite.image_url }}')">
-            <img src="{{ sprite.image_url }}" alt="{{ sprite.name }}"> {{ sprite.name }}
+                    <div class="text-center mt-4">
+                        <div id="status-message" class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <span id="status-text">正在載入房間信息...</span>
+                        </div>
+                          <div id="action-buttons">
+                            <button class="btn btn-outline-secondary" onclick="goBackWithCleanup()">
+                                <i class="fas fa-arrow-left me-2"></i>返回
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    {% endfor %}
+    </div>
 </div>
+{% endblock %}
 
+{% block extra_css %}
+<style>
+    .arena-slot {
+        width: 250px;
+        height: 250px;
+        background-color: var(--card-bg);
+        border: 3px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .visitor-slot {
+        border-color: var(--primary-color);
+    }
+    
+    .host-slot {
+        border-color: var(--danger-color);
+    }
+    
+    .arena-slot img {
+        max-height: 200px;
+        max-width: 200px;
+        border-radius: 10px;
+    }
+    
+    .placeholder {
+        color: var(--text-muted);
+        text-align: center;
+    }
+    
+    .vs-indicator {
+        text-align: center;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+    
+    .battle-animation {
+        animation: shake 0.5s ease-in-out;
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+    
+    .winner-glow {
+        box-shadow: 0 0 20px var(--success-color);
+        border-color: var(--success-color) !important;
+    }
+    
+    .loser-fade {
+        opacity: 0.5;
+        filter: grayscale(50%);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
 <script>
-let selectedSpriteId = null;
+let roomId = '{{ room_id }}';
+let userRole = '{{ user_role }}'; // 'host' 或 'visitor'
+let statusCheckInterval = null;
+let currentRoomData = null;
+let countdownTimer = null;
 
-function openModal() {
-    document.getElementById('sprite-modal').style.display = 'block';
-    document.getElementById('modal-overlay').style.display = 'block';
+// 頁面載入時開始檢查房間狀態
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('頁面載入，房間ID:', roomId, '用戶角色:', userRole);
+    loadRoomInfo();
+    startStatusCheck();
+});
+
+function loadRoomInfo() {
+    fetch(`{{ url_for("friend_fight.room_status", room_id="ROOM_ID") }}`.replace('ROOM_ID', roomId))
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.room_data) {
+                currentRoomData = data.room_data;
+                updateRoomDisplay(data.room_data);
+            } else {
+                showStatus('房間不存在或已過期', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading room info:', error);
+            showStatus('載入房間信息失敗', 'danger');
+        });
 }
-function closeModal() {
-    document.getElementById('sprite-modal').style.display = 'none';
-    document.getElementById('modal-overlay').style.display = 'none';
+
+function updateRoomDisplay(roomData) {
+    // 更新房主精靈顯示
+    if (roomData.host_creature) {
+        document.getElementById('host-creature-display').innerHTML = `
+            <img src="${roomData.host_creature.image_url}" alt="${roomData.host_creature.name}">
+            <div class="mt-2"><strong>${roomData.host_creature.name}</strong></div>
+            <small class="text-muted">${roomData.host_creature.element} | 力量: ${roomData.host_creature.power}</small>
+        `;
+    }
+    
+    // 更新訪客精靈顯示（自己的精靈）
+    if (roomData.visitor_creature) {
+        document.getElementById('visitor-creature-display').innerHTML = `
+            <img src="${roomData.visitor_creature.image_url}" alt="${roomData.visitor_creature.name}">
+            <div class="mt-2"><strong>${roomData.visitor_creature.name}</strong></div>
+            <small class="text-muted">${roomData.visitor_creature.element} | 力量: ${roomData.visitor_creature.power}</small>
+        `;
+    }
+    
+    // 根據房間狀態更新界面
+    updateStatusByRoomState(roomData.status, roomData);
 }
-function selectSprite(spriteId, imageUrl) {
-    document.getElementById('player-slot').innerHTML = '<img src="' + imageUrl + '" alt="精靈">';
-    selectedSpriteId = spriteId;
-    closeModal();
-    document.getElementById('ready-button').style.display = 'inline-block';
+
+function updateStatusByRoomState(status, roomData) {
+    switch(status) {
+        case 'waiting':
+            if (userRole === 'host') {
+                showStatus('等待對手加入房間...', 'info');
+            } else {
+                showStatus('已成功加入房間，等待房主開始戰鬥...', 'info');
+            }
+            break;
+            
+        case 'ready':
+            if (userRole === 'host') {
+                showStatus('對手已加入！可以開始戰鬥了', 'success');                // 顯示開始戰鬥按鈕
+                document.getElementById('action-buttons').innerHTML = `
+                    <button class="btn btn-success btn-lg me-2" onclick="startBattle()">
+                        <i class="fas fa-sword-cross me-2"></i>開始戰鬥
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="goBackWithCleanup()">
+                        <i class="fas fa-arrow-left me-2"></i>返回
+                    </button>
+                `;
+            } else {
+                showStatus('雙方都已準備好！等待房主開始戰鬥...', 'warning');
+            }
+            break;
+            
+        case 'fighting':
+            showStatus('戰鬥進行中...', 'primary');
+            // 添加戰鬥動畫
+            document.querySelectorAll('.arena-slot').forEach(slot => {
+                slot.classList.add('battle-animation');
+            });
+            break;
+            
+        case 'finished':
+            clearInterval(statusCheckInterval);
+            showBattleResult(roomData.battle_result);
+            break;
+            
+        default:
+            showStatus('房間狀態未知', 'secondary');
+    }
 }
-function markReady() {
-    fetch("{% url 'arena_ready_ajax' %}", {
+
+function startStatusCheck() {
+    if (statusCheckInterval) {
+        clearInterval(statusCheckInterval);
+    }
+    
+    statusCheckInterval = setInterval(() => {
+        if (roomId) {
+            checkRoomStatus();
+        }
+    }, 2000);
+}
+
+function checkRoomStatus() {
+    fetch(`{{ url_for("friend_fight.room_status", room_id="ROOM_ID") }}`.replace('ROOM_ID', roomId))
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.room_data) {
+                currentRoomData = data.room_data;
+                updateStatusByRoomState(data.room_data.status, data.room_data);
+                
+                // 如果房間狀態有變化，更新顯示
+                if (data.room_data.host_creature || data.room_data.visitor_creature) {
+                    updateRoomDisplay(data.room_data);
+                }
+            } else {
+                showStatus('房間連接中斷', 'danger');
+                clearInterval(statusCheckInterval);
+            }
+        })
+        .catch(error => {
+            console.error('Error checking room status:', error);        });
+}
+
+function startBattle() {
+    if (userRole !== 'host') {
+        showStatus('只有房主可以開始戰鬥', 'warning');
+        return;
+    }
+    
+    showStatus('正在開始戰鬥...', 'info');
+    
+    fetch('{{ url_for("friend_fight.start_battle") }}', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
         },
         body: JSON.stringify({
-            invite_code: '{{ invite_code }}',
-            sprite_id: selectedSpriteId
+            room_id: roomId
         })
-    }).then(response => response.json())
-      .then(data => {
-        if (data.result === 'waiting') {
-            alert('你已準備好，請等待對手...');
-        } else if (data.result === 'win') {
-            alert('你贏了！');
-        } else if (data.result === 'lose') {
-            alert('你輸了。');
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showStatus('戰鬥開始！', 'primary');
+            // 戰鬥結果會通過房間狀態檢查自動更新
         } else {
-            alert('戰鬥錯誤或尚未準備完畢');
+            showStatus('戰鬥開始失敗：' + (data.message || '未知錯誤'), 'danger');
         }
+    })
+    .catch(error => {
+        console.error('Error starting battle:', error);
+        showStatus('戰鬥開始時發生錯誤', 'danger');
     });
 }
+
+function showBattleResult(result) {
+    // 移除戰鬥動畫
+    document.querySelectorAll('.arena-slot').forEach(slot => {
+        slot.classList.remove('battle-animation');
+    });
+    
+    let message = '';
+    let isWinner = false;
+    
+    if (result.winner === 'draw') {
+        message = `🤝 平局！雙方實力相當，這是一場精彩的對戰！`;
+        showStatus(message, 'info');
+    } else {
+        // 判斷當前用戶是否獲勝
+        // userRole: 'host' 或 'visitor'
+        // result.winner: 'host' 或 'visitor'
+        isWinner = (userRole === result.winner);
+        
+        if (isWinner) {
+            message = `🎉 恭喜獲勝！你的 ${result.winner_name} 擊敗了對手的 ${result.loser_name}！`;
+            showStatus(message, 'success');
+        } else {
+            message = `😢 很遺憾落敗！對手的 ${result.winner_name} 擊敗了你的 ${result.loser_name}。`;
+            showStatus(message, 'danger');
+        }
+        
+        // 添加視覺效果
+        if (userRole === 'host') {
+            if (isWinner) {
+                document.getElementById('visitor-slot').classList.add('winner-glow');
+                document.getElementById('host-slot').classList.add('loser-fade');
+            } else {
+                document.getElementById('host-slot').classList.add('winner-glow');
+                document.getElementById('visitor-slot').classList.add('loser-fade');
+            }
+        } else {
+            if (isWinner) {
+                document.getElementById('visitor-slot').classList.add('winner-glow');
+                document.getElementById('host-slot').classList.add('loser-fade');
+            } else {
+                document.getElementById('host-slot').classList.add('winner-glow');
+                document.getElementById('visitor-slot').classList.add('loser-fade');
+            }
+        }
+    }      // 更新按鈕
+    document.getElementById('action-buttons').innerHTML = `
+        <button class="btn btn-primary me-2" onclick="cleanupAndRedirect('{{ url_for('friend_fight.choose_fight') }}')">
+            <i class="fas fa-redo me-2"></i>再來一戰
+        </button>
+        <button class="btn btn-success me-2" onclick="cleanupAndRedirect('{{ url_for('main.home') }}')">
+            <i class="fas fa-home me-2"></i>返回主頁
+        </button>
+        <div class="mt-3">
+            <div class="alert alert-warning" id="countdown-alert">
+                <i class="fas fa-clock me-2"></i>
+                <span id="countdown-text">10秒後自動返回主頁並清理房間...</span>
+            </div>
+        </div>    `;
+    
+    // 開始倒數計時
+    startCountdown();
+}
+
+function startCountdown() {
+    let seconds = 10;
+    countdownTimer = setInterval(() => {
+        const countdownText = document.getElementById('countdown-text');
+        if (countdownText) {
+            countdownText.textContent = `${seconds}秒後自動返回主頁並清理房間...`;
+        }
+        
+        seconds--;
+        
+        if (seconds < 0) {
+            clearInterval(countdownTimer);
+            // 自動執行清理並跳轉
+            cleanupAndRedirect('{{ url_for("main.home") }}');
+        }
+    }, 1000);
+}
+
+function showStatus(message, type) {
+    const statusDiv = document.getElementById('status-message');
+    const statusText = document.getElementById('status-text');
+    
+    statusDiv.className = `alert alert-${type}`;
+    statusText.textContent = message;
+}
+
+function cleanupAndRedirect(url) {
+    // 清除倒數計時器
+    if (countdownTimer) {
+        clearInterval(countdownTimer);
+    }
+    
+    // 只有房主才能刪除房間，避免重複刪除
+    if (userRole === 'host') {
+        deleteRoom().then(() => {
+            window.location.href = url;
+        }).catch(error => {
+            console.error('清理房間失敗:', error);
+            // 即使清理失敗也要跳轉，避免用戶卡住
+            window.location.href = url;
+        });
+    } else {
+        // 訪客直接跳轉
+        window.location.href = url;
+    }
+}
+
+function deleteRoom() {
+    return fetch(`{{ url_for("friend_fight.delete_room", room_id="ROOM_ID") }}`.replace('ROOM_ID', roomId), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('房間已成功清理');
+        } else {
+            console.warn('房間清理失敗:', data.message);
+        }
+        return data;
+    });
+}
+
+function goBackWithCleanup() {
+    // 清除倒數計時器
+    if (countdownTimer) {
+        clearInterval(countdownTimer);
+    }
+    
+    // 只有房主才能刪除房間
+    if (userRole === 'host') {
+        showStatus('正在清理房間...', 'info');
+        deleteRoom().then(() => {
+            window.location.href = '{{ url_for("friend_fight.choose_fight") }}';
+        }).catch(error => {
+            console.error('清理房間失敗:', error);
+            // 即使清理失敗也要返回
+            window.location.href = '{{ url_for("friend_fight.choose_fight") }}';
+        });
+    } else {
+        // 訪客直接返回
+        window.location.href = '{{ url_for("friend_fight.choose_fight") }}';
+    }
+}
+
+// 頁面卸載時清理
+window.addEventListener('beforeunload', function() {
+    if (statusCheckInterval) {
+        clearInterval(statusCheckInterval);
+    }
+    
+    // 頁面離開時也嘗試清理房間（只有房主執行）
+    if (userRole === 'host' && roomId) {
+        // 使用 navigator.sendBeacon 進行異步清理，不阻塞頁面卸載
+        const deleteUrl = `{{ url_for("friend_fight.delete_room", room_id="ROOM_ID") }}`.replace('ROOM_ID', roomId);
+        navigator.sendBeacon(deleteUrl);
+    }
+});
 </script>
 {% endblock %}
