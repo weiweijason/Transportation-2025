@@ -85,4 +85,5 @@ if __name__ == '__main__':
     start_periodic_cache()
 
     # 啟動伺服器
-    app.run(debug=True, port=5001)
+    # app.run(debug=True, port=5001)
+    app.run(host="0.0.0.0", port=3001)

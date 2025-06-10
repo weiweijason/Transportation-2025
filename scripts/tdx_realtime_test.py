@@ -3,8 +3,8 @@ import json
 from urllib.parse import quote
 
 # 請填入你註冊 TDX 後獲得的
-TDX_CLIENT_ID=your-tdx-client-id
-TDX_CLIENT_SECRET=your-tdx-client-secret
+TDX_CLIENT_ID = "sssun-09d597db-5ec8-446e"
+TDX_CLIENT_SECRET= "8ffe4bd6-dc2e-40e1-8f9e-2c5d62e13ab1"
 
 auth_url = "https://tdx.transportdata.tw/auth/realms/TDXConnect/protocol/openid-connect/token"
 TDX_API_URL = "https://tdx.transportdata.tw/api/basic"

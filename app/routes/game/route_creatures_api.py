@@ -195,8 +195,7 @@ def get_route_creatures_from_csv():
                 current_app.logger.error(f"獲取用戶已捕獲精靈時發生錯誤: {e}")
                 import traceback
                 current_app.logger.error(f"錯誤詳情: {traceback.format_exc()}")
-            
-            # 過濾掉用戶已捕獲的精靈
+              # 過濾掉用戶已捕獲的精靈
             if captured_creatures_ids:
                 filtered_creatures = [c for c in creatures if c['id'] not in captured_creatures_ids]
                 creatures = filtered_creatures
@@ -209,6 +208,7 @@ def get_route_creatures_from_csv():
         })
     except Exception as e:
         print(f"獲取CSV精靈資料時發生錯誤: {str(e)}")
+        import traceback
         traceback.print_exc()
         return jsonify({
             'success': False,

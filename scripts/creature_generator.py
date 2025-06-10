@@ -3,6 +3,7 @@ import sys
 import json
 import random
 import time
+import pandas as pd
 from datetime import datetime, timedelta
 import threading
 import schedule
@@ -18,6 +19,64 @@ from app.models.bus import BusRoute, BusRouteShape
 
 # 創建應用實例
 app = create_app(load_tdx=False)
+
+def load_creatures_csv():
+    """從CSV文件加載精靈數據"""
+    try:
+        csv_path = os.path.join(current_dir, 'creatures.csv')
+        if not os.path.exists(csv_path):
+            print(f"警告: 找不到CSV文件: {csv_path}")
+            return None
+            
+        # 嘗試不同的編碼讀取CSV文件
+        encodings = ['utf-8', 'big5', 'gbk', 'cp1252', 'iso-8859-1']
+        df = None
+        
+        for encoding in encodings:
+            try:
+                df = pd.read_csv(csv_path, encoding=encoding)
+                print(f"成功使用 {encoding} 編碼讀取 {len(df)} 隻精靈的數據")
+                break
+            except UnicodeDecodeError:
+                continue
+        
+        if df is None:
+            print("嘗試所有編碼都失敗，無法讀取CSV文件")
+            return None
+        
+        # 檢查必要的欄位
+        required_columns = ['ID', 'C_Name', 'EN_Name', 'HP_Max', 'HP_Min', 'ATK_Max', 'ATK_Min', 'Rate', 'Type', 'Route', 'Img']
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            print(f"警告: CSV文件缺少必要欄位: {missing_columns}")
+            return None
+            
+        return df
+    except Exception as e:
+        print(f"讀取CSV文件失敗: {e}")
+        return None
+
+def map_route_id_to_csv_route(route_id):
+    """將資料庫路線ID映射到CSV文件中的路線名稱"""
+    route_mapping = {
+        # 根據現有的路線ID映射到CSV中的Route欄位
+        # 注意順序：更具體的匹配要放在前面
+        'cat_left_zhinan': 'cat_left_zhinan_route',
+        'cat_left': 'cat_left_route',
+        'cat_right': 'cat_right_route',
+        'br3': 'br3_route',
+        # 新的第四條路線
+        'new_route': 'NEW'
+    }
+    
+    # 檢查route_id中是否包含映射的關鍵字
+    for key, csv_route in route_mapping.items():
+        if key in str(route_id).lower():
+            return csv_route
+    
+    # 如果沒有找到匹配，返回None
+    print(f"警告: 無法映射路線ID {route_id} 到CSV路線")
+    return None
 
 def load_route_geometry(route_id):
     """從本地JSON文件加載路線幾何數據"""
@@ -72,6 +131,12 @@ def generate_creatures_for_all_routes():
     """為所有路線生成精靈"""
     print(f"=== 執行精靈生成任務 ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')}) ===")
     
+    # 載入精靈CSV數據
+    creatures_df = load_creatures_csv()
+    if creatures_df is None:
+        print("無法載入精靈數據，跳過此次生成")
+        return
+    
     # 初始化 Firebase 服務
     firebase_service = FirebaseService()
     
@@ -92,6 +157,12 @@ def generate_creatures_for_all_routes():
     for route in routes:
         # 80% 的機率生成精靈
         if random.random() < 0.8:
+            # 將路線ID映射到CSV路線名稱
+            csv_route_name = map_route_id_to_csv_route(route.route_id)
+            if not csv_route_name:
+                print(f"路線 {route.name} ({route.route_id}) 在CSV中找不到對應的精靈，跳過")
+                continue
+            
             # 嘗試從數據庫獲取路線形狀
             route_shape = BusRouteShape.query.filter_by(route_id=route.id).first()
             geometry = None
@@ -114,7 +185,9 @@ def generate_creatures_for_all_routes():
                 route_name=route.name,
                 element_type=route.element_type,
                 route_geometry=geometry,
-                count=count
+                count=count,
+                creatures_data=creatures_df,  # 傳入CSV數據
+                csv_route_name=csv_route_name  # 傳入CSV路線名稱
             )
             
             if creatures:
