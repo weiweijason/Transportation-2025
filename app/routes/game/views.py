@@ -100,27 +100,36 @@ def capture_interactive(creature_id):
                 return redirect(url_for('game.catch'))
         except Exception as e:
             current_app.logger.error(f"檢查玩家捕捉狀態失敗: {e}")
-            # 若檢查失敗，繼續讓用戶嘗試捕捉
-    
-    # 元素類型對應中文名稱
+            # 若檢查失敗，繼續讓用戶嘗試捕捉    # 元素類型對應中文名稱
     element_types = {
-        'fire': '火系',
-        'water': '水系',
-        'earth': '土系',
-        'air': '風系',
-        'electric': '電系',
-        'normal': '一般系',
-        0: '火系',
-        1: '水系',
-        2: '土系',
-        3: '風系',
-        4: '電系',
-        5: '一般系'
+        'fire': '火',
+        'water': '水',
+        'wood': '草',
+        'normal': '普',
+        'dark': '暗',
+        'light': '光',
+        'earth': '土',
+        'air': '風',
+        'electric': '電',
+        0: '火',
+        1: '水',
+        2: '土',
+        3: '風',
+        4: '電',
+        5: '普'
+    }
+      # 稀有度對應中文名稱
+    rarity_types = {
+        'SSR': '傳說',
+        'SR': '史詩',
+        'R': '稀有',
+        'N': '一般'
     }
     
     return render_template(
         'game/capture_interactive.html',
         creature=creature,
         element_types=element_types,
+        rarity_types=rarity_types,
         firebase_config=FIREBASE_CONFIG
     )

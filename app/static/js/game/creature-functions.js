@@ -150,15 +150,10 @@ function displayCreaturesOnMap(creatures) {
       if (window.creaturesLayer) {
         window.creaturesLayer.addLayer(marker);
       }
-      
-      // 添加彈出框
+        // 添加彈出框
       marker.bindPopup(`
         <div class="text-center py-2">
           <h5 class="mb-2">${name}</h5>
-          <p class="mb-2">
-            <span class="badge ${getTypeBadgeClass(elementType)}">${getElementTypeName(elementType)}</span>
-            <span class="badge ${getRarityBadgeClass(species)}">${species}</span>
-          </p>
           <p class="mb-3">
             <strong>攻擊:</strong> ${attack} | 
             <strong>生命:</strong> ${hp}

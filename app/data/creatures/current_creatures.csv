@@ -1,1 +1,1 @@
-id,name,species,element_type,level,power,defense,hp,position_lat,position_lng,bus_route_id,bus_route_name,image_url
+id,name,type,rate,hp,attack,route_id,route_name,lat,lng,created_at,expires_at,image_url

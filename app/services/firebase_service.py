@@ -513,7 +513,6 @@ class FirebaseService:
             import traceback
             traceback.print_exc()
             return []
-    
     def _generate_creatures_from_csv(self, route_id, route_name, element_type, route_geometry, count, creatures_data, csv_route_name):
         """使用CSV數據生成精靈"""
         try:
@@ -574,8 +573,7 @@ class FirebaseService:
                 # 生成隨機ID
                 creature_id = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=12))
                 random_id = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=16))
-                
-                # 創建精靈數據
+                  # 創建精靈數據
                 creature_data = {
                     'id': creature_id,
                     'random_id': random_id,
@@ -583,349 +581,7 @@ class FirebaseService:
                     'en_name': selected_creature['EN_Name'],
                     'csv_id': str(selected_creature['ID']),
                     'species': species,
-                    'element_type': element_type_value,
-                    'level': 1,
-                    'experience': 0,
-                    'attack': attack,  # 從CSV範圍生成的實際攻擊力
-                    'hp': hp,  # 從CSV範圍生成的實際生命值
-                    'image_url': selected_creature['Img'],
-                    'position': position,
-                    'bus_route_id': route_id,
-                    'bus_route_name': route_name,
-                    'csv_route': csv_route_name,
-                    'rate': selected_creature['Rate'],
-                    'generated_at': time.time(),
-                    'expires_at': expiry_timestamp,  # 精靈過期時間 (5分鐘後)
-                }
-                
-                # 儲存到 Firestore
-                creature_ref = self.firestore_db.collection('route_creatures').document(creature_id)
-                creature_ref.set(creature_data)
-                
-                # 添加到返回列表
-                creatures.append(creature_data)
-            
-            print(f"已在路線 {route_name} (ID: {route_id}) 上生成 {len(creatures)} 隻精靈 (使用CSV數據)")
-            return creatures
-            
-        except Exception as e:
-            print(f"使用CSV數據生成路線精靈失敗: {e}")
-            import traceback
-            traceback.print_exc()
-            return []
-    
-    def _parse_route_geometry(self, route_geometry, count):
-        """解析路線幾何數據以獲取位置"""
-        positions = []
-        
-        if route_geometry:
-            # 如果是字符串，嘗試解析為 JSON
-            if isinstance(route_geometry, str):
-                try:
-                    geometry_data = json.loads(route_geometry)
-                except json.JSONDecodeError:
-                    geometry_data = None
-            else:
-                geometry_data = route_geometry
-            
-            # 從幾何數據中提取座標點
-            if geometry_data:
-                coordinates = []
-                
-                # 檢查數據格式，處理 app/data/routes/ 中的路線數據格式
-                if 'data' in geometry_data:
-                    # 路線格式: { "data": [ {"PositionLon": x, "PositionLat": y}, ... ] }
-                    for point in geometry_data['data']:
-                        if 'PositionLon' in point and 'PositionLat' in point:
-                            coordinates.append({
-                                'lng': point['PositionLon'],
-                                'lat': point['PositionLat']
-                            })
-                elif 'coordinates' in geometry_data:
-                    # GeoJSON 格式: { "coordinates": [[lng, lat], [lng, lat], ...] }
-                    for coord in geometry_data['coordinates']:
-                        if len(coord) >= 2:
-                            coordinates.append({
-                                'lng': coord[0],
-                                'lat': coord[1]
-                            })
-                
-                # 從路線上隨機選擇點
-                if coordinates:
-                    print(f"從路線上的 {len(coordinates)} 個點中選擇精靈位置")
-                    for _ in range(count):
-                        # 隨機選擇一個座標點作為精靈位置
-                        random_point_index = random.randint(0, len(coordinates) - 1)
-                        position = coordinates[random_point_index]
-                        positions.append(position)
-        
-        # 如果無法從路線幾何資訊中獲取位置，使用預設位置
-        if not positions:
-            print("警告: 無法從路線數據中獲取座標點，使用預設位置範圍")
-            # 使用硬編碼的預設位置範圍 (台北市範圍)
-            for _ in range(count):
-                lat = random.uniform(25.01, 25.10)  # 台北市緯度範圍
-                lng = random.uniform(121.50, 121.60)  # 台北市經度範圍
-                positions.append({'lat': lat, 'lng': lng})
-        
-        return positions
-    
-    def _generate_creatures_legacy(self, route_id, route_name, element_type, route_geometry, count):
-        """使用原來硬編碼方式生成精靈 (向後兼容)"""
-        try:
-            from app.models.creature import ElementType
-            import json
-            from datetime import datetime, timedelta
-            import time
-            
-            # 精靈名稱庫 (依據元素類型分類)
-            creature_names = {
-                'fire': ['火焰龍', '炎魔獸', '熔岩鼠', '火羽鳥', '赤炎狐', '煙霧蟲'],
-                'water': ['水晶蛇', '深海魚', '漣漪蛙', '珊瑚龜', '海泡兔', '水精靈'],
-                'earth': ['岩石熊', '泥沼蟹', '土靈鼠', '山嶽龜', '晶石蜥', '花園精'],
-                'air': ['旋風鷹', '雲朵羊', '微風蝶', '颶風鳥', '風翼獸', '空氣精'],
-                'electric': ['雷電獸', '閃電鼠', '電流蜥', '充電鳥', '感應蟲', '電磁龍'],
-                'normal': ['普通貓', '常見鳥', '小兔子', '灰松鼠', '家犬', '普通鼠']
-            }
-            
-            # 轉換元素類型字符串為枚舉值
-            try:
-                element_enum = ElementType[element_type.upper()]
-            except (KeyError, AttributeError):
-                # 如果類型不匹配，使用一般類型
-                element_enum = ElementType.NORMAL
-                element_type = 'normal'
-            
-            # 精靈種類庫
-            species_list = ['一般種', '罕見種', '稀有種', '傳說種']
-            species_weights = [60, 25, 10, 5]  # 不同稀有度的機率權重
-            
-            # 精靈圖片URL庫 (依據元素類型分類)
-            image_urls = {
-                'fire': [
-                    'https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET/o/creatures%2Ffire1.png',
-                    'https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET/o/creatures%2Ffire2.png'
-                ],
-                'water': [
-                    'https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET/o/creatures%2Fwater1.png',
-                    'https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET/o/creatures%2Fwater2.png'
-                ],
-                'earth': [
-                    'https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET/o/creatures%2Fearth1.png',
-                    'https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET/o/creatures%2Fearth2.png'
-                ],
-                'air': [
-                    'https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET/o/creatures%2Fair1.png',
-                    'https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET/o/creatures%2Fair2.png'
-                ],
-                'electric': [
-                    'https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET/o/creatures%2Felectric1.png',
-                    'https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET/o/creatures%2Felectric2.png'
-                ],
-                'normal': [
-                    'https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET/o/creatures%2Fnormal1.png',
-                    'https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET/o/creatures%2Fnormal2.png'
-                ]
-            }
-            
-            # 預設圖片，如果找不到對應的元素圖片
-            default_image = 'https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET/o/creatures%2Fdefault.png'
-            
-            # 如果提供了路線幾何資訊，解析它以生成精靈位置
-            positions = []
-            if route_geometry:
-                # 如果是字符串，嘗試解析為 JSON
-                if isinstance(route_geometry, str):
-                    try:
-                        geometry_data = json.loads(route_geometry)
-                    except json.JSONDecodeError:
-                        geometry_data = None
-                else:
-                    geometry_data = route_geometry
-                
-                # 從幾何數據中提取座標點
-                if geometry_data:
-                    coordinates = []
-                    
-                    # 檢查數據格式，處理 app/data/routes/ 中的路線數據格式
-                    if 'data' in geometry_data:
-                        # 路線格式: { "data": [ {"PositionLon": x, "PositionLat": y}, ... ] }
-                        for point in geometry_data['data']:
-                            if 'PositionLon' in point and 'PositionLat' in point:
-                                coordinates.append({
-                                    'lng': point['PositionLon'],
-                                    'lat': point['PositionLat']
-                                })
-                    elif 'coordinates' in geometry_data:
-                        # GeoJSON 格式: { "coordinates": [[lng, lat], [lng, lat], ...] }
-                        for coord in geometry_data['coordinates']:
-                            if len(coord) >= 2:
-                                coordinates.append({
-                                    'lng': coord[0],
-                                    'lat': coord[1]
-                                })
-                    
-                    # 從路線上隨機選擇點
-                    if coordinates:
-                        print(f"從路線上的 {len(coordinates)} 個點中選擇精靈位置")
-                        for _ in range(count):
-                            # 隨機選擇一個座標點作為精靈位置
-                            random_point_index = random.randint(0, len(coordinates) - 1)
-                            position = coordinates[random_point_index]
-                            positions.append(position)
-            
-            # 如果無法從路線幾何資訊中獲取位置，使用預設位置
-            if not positions:
-                print("警告: 無法從路線數據中獲取座標點，使用預設位置範圍")
-                # 使用硬編碼的預設位置範圍 (台北市範圍)
-                for _ in range(count):
-                    lat = random.uniform(25.01, 25.10)  # 台北市緯度範圍
-                    lng = random.uniform(121.50, 121.60)  # 台北市經度範圍
-                    positions.append({'lat': lat, 'lng': lng})
-            
-            # 設定精靈存活時間 (5分鐘)
-            expiry_time = datetime.now() + timedelta(minutes=5)
-            expiry_timestamp = int(time.mktime(expiry_time.timetuple()))
-            
-            # 生成隨機精靈
-            creatures = []
-            for position in positions:
-                # 隨機選擇精靈名稱
-                if element_type in creature_names and creature_names[element_type]:
-                    name = random.choice(creature_names[element_type])
-                else:
-                    name = random.choice(creature_names['normal'])
-                
-                # 隨機選擇精靈種類 (基於權重)
-                species = random.choices(species_list, weights=species_weights, k=1)[0]
-                
-                # 根據精靈種類設置屬性範圍並生成隨機值
-                if species == '一般種':
-                    hp = random.randint(50, 100)
-                    attack = random.randint(10, 30)
-                elif species == '罕見種':
-                    hp = random.randint(80, 150)
-                    attack = random.randint(25, 45)
-                elif species == '稀有種':
-                    hp = random.randint(120, 200)
-                    attack = random.randint(40, 70)
-                else:  # 傳說種
-                    hp = random.randint(180, 300)
-                    attack = random.randint(65, 100)
-                
-                # 選擇隨機圖片URL
-                if element_type in image_urls and image_urls[element_type]:
-                    image_url = random.choice(image_urls[element_type])
-                else:
-                    image_url = default_image
-                
-                # 生成隨機ID
-                random_id = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=16))
-                
-                # 創建精靈數據
-                creature_id = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=12))
-                creature_data = {
-                    'id': creature_id,
-                    'random_id': random_id,
-                    'name': name,
-                    'species': species,
-                    'element_type': element_enum.value,
-                    'level': 1,
-                    'experience': 0,
-                    'attack': attack,  # 隨機生成的攻擊力
-                    'hp': hp,  # 隨機生成的生命值
-                    'image_url': image_url,
-                    'position': position,  # 精靈位置
-                    'bus_route_id': route_id,
-                    'bus_route_name': route_name,
-                    'generated_at': time.time(),
-                    'expires_at': expiry_timestamp,  # 精靈過期時間 (5分鐘後)
-                }
-                
-                # 儲存到 Firestore
-                creature_ref = self.firestore_db.collection('route_creatures').document(creature_id)
-                creature_ref.set(creature_data)
-                
-                # 添加到返回列表
-                creatures.append(creature_data)
-            
-            print(f"已在路線 {route_name} (ID: {route_id}) 上生成 {len(creatures)} 隻精靈")
-            return creatures
-        except Exception as e:
-            print(f"生成路線精靈失敗: {e}")
-            import traceback
-            traceback.print_exc()
-            return []
-    
-    def _generate_creatures_from_csv(self, route_id, route_name, element_type, route_geometry, count, creatures_data, csv_route_name):
-        """使用CSV數據生成精靈"""
-        try:
-            import json
-            from datetime import datetime, timedelta
-            import time
-            
-            # 篩選出屬於指定路線的精靈
-            route_creatures = creatures_data[creatures_data['Route'] == csv_route_name]
-            
-            if route_creatures.empty:
-                print(f"警告: 在CSV中找不到路線 {csv_route_name} 的精靈數據")
-                return []
-            
-            print(f"找到 {len(route_creatures)} 隻可用於路線 {csv_route_name} 的精靈")
-            
-            # 解析路線幾何數據以獲取位置
-            positions = self._parse_route_geometry(route_geometry, count)
-            
-            # 設定精靈存活時間 (5分鐘)
-            expiry_time = datetime.now() + timedelta(minutes=5)
-            expiry_timestamp = int(time.mktime(expiry_time.timetuple()))
-            
-            # 生成精靈
-            creatures = []
-            for position in positions:
-                # 從該路線的精靈中隨機選擇一隻
-                selected_creature = route_creatures.sample(n=1).iloc[0]
-                
-                # 根據CSV中的HP和ATK範圍生成隨機值
-                hp = random.randint(int(selected_creature['HP_Min']), int(selected_creature['HP_Max']))
-                attack = random.randint(int(selected_creature['ATK_Min']), int(selected_creature['ATK_Max']))
-                
-                # 轉換稀有度為種類
-                rate_to_species = {
-                    'N': '一般種',
-                    'R': '罕見種', 
-                    'SR': '稀有種',
-                    'SSR': '傳說種'
-                }
-                species = rate_to_species.get(selected_creature['Rate'], '一般種')
-                
-                # 轉換元素類型
-                type_mapping = {
-                    'fire': 1,
-                    'water': 2, 
-                    'earth': 3,
-                    'air': 4,
-                    'electric': 5,
-                    'wood': 3,  # 將wood映射為earth
-                    'normal': 0
-                }
-                
-                # 使用CSV中的Type或fallback到路線的element_type
-                csv_element_type = selected_creature.get('Type', element_type).lower()
-                element_type_value = type_mapping.get(csv_element_type, 0)
-                
-                # 生成隨機ID
-                creature_id = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=12))
-                random_id = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=16))
-                
-                # 創建精靈數據
-                creature_data = {
-                    'id': creature_id,
-                    'random_id': random_id,
-                    'name': selected_creature['C_Name'],
-                    'en_name': selected_creature['EN_Name'],
-                    'csv_id': str(selected_creature['ID']),
-                    'species': species,
+                    'type': selected_creature['Type'],  # 保存原始的精靈種類
                     'element_type': element_type_value,
                     'level': 1,
                     'experience': 0,
@@ -1500,14 +1156,14 @@ class FirebaseService:
                         element_type = 'normal'
                 elif not element_type:
                     element_type = 'normal'
-                
-                # 精靈數據
+                  # 精靈數據
                 user_creature_data = {
                     'id': user_creature_id,
                     'original_creature_id': creature_id,
                     'random_id': creature_data.get('random_id', ''),
                     'name': creature_data.get('name', '未知精靈'),
                     'species': creature_data.get('species', '一般種'),
+                    'type': creature_data.get('type', ''),  # 保存原始的精靈種類
                     'element_type': element_type,
                     'level': 1,
                     'experience': 0,
@@ -1577,7 +1233,7 @@ class FirebaseService:
             return {
                 'success': False,
                 'message': f'捕捉精靈時發生錯誤: {str(e)}'
-            }
+                }
 
     # 新增 - 將精靈資料緩存到CSV文件
     def cache_creatures_to_csv(self):
@@ -1586,35 +1242,34 @@ class FirebaseService:
         Returns:
             int: 緩存的精靈數量
         """
-        try:
-            # 獲取所有未捕捉且未過期的精靊
+        try:            # 獲取所有未捕捉且未過期的精靊
             creatures = self.get_route_creatures()
             
             if not creatures:
                 logging.warning("沒有可緩存的精靈，返回空數據")
                 # 創建一個空的DataFrame並保存，確保文件存在
-                empty_df = pd.DataFrame(columns=['id', 'name', 'species', 'element_type', 'level', 
-                                                'power', 'defense', 'hp', 'position_lat', 'position_lng', 
-                                                'bus_route_id', 'bus_route_name', 'image_url'])
-                csv_path = 'app/data/creatures/current_creatures.csv'
+                empty_df = pd.DataFrame(columns=['id', 'name', 'type', 'rate', 'hp', 'attack', 
+                                                'route_id', 'route_name', 'lat', 'lng', 
+                                                'created_at', 'expires_at', 'image_url'])
+                csv_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'creatures', 'current_creatures.csv')
+                os.makedirs(os.path.dirname(csv_path), exist_ok=True)
                 empty_df.to_csv(csv_path, index=False, encoding='utf-8')
                 return 0
             
             # 將精靈資料轉換為DataFrame格式
             creatures_data = []
-            for creature in creatures:
-                # 提取位置資訊
+            for creature in creatures:                # 提取位置資訊
                 position = creature.get('position', {})
                 lat = position.get('lat', 0)
-                lng = position.get('lng', 0)                  # 創建行數據
+                lng = position.get('lng', 0)
+                
+                # 創建行數據
                 row = {
                     'id': creature.get('id', ''),
                     'name': creature.get('name', '未知精靈'),
-                    'species': creature.get('species', '一般種'),
-                    'element_type': creature.get('element_type', 'normal'),
-                    'level': creature.get('level', 1),
+                    'type': creature.get('type', ''),  # 精靈的type字段
+                    'rate': creature.get('rate', ''),  # 精靈稀有度
                     'hp': creature.get('hp', 100),
-                    'max_hp': creature.get('hp', 100),  # max_hp 設為與 hp 相同的值，只存在於 CSV 中
                     'attack': creature.get('attack', 50),
                     'route_id': creature.get('route_id', ''),
                     'route_name': creature.get('route_name', ''),
@@ -1625,15 +1280,14 @@ class FirebaseService:
                     'image_url': creature.get('image_url', '')
                 }
                 creatures_data.append(row)
-            
-            # 創建DataFrame
+              # 創建DataFrame
             df = pd.DataFrame(creatures_data)
-              # 保存到CSV文件
-            csv_path = os.path.join(os.path.dirname(__file__), '..', '..', 'scripts', 'cached_creatures.csv')
+            # 保存到CSV文件 (主遊戲緩存存放至 app/data/creatures/)
+            csv_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'creatures', 'firebase_cached_creatures.csv')
             os.makedirs(os.path.dirname(csv_path), exist_ok=True)
             df.to_csv(csv_path, index=False, encoding='utf-8-sig')
             
-            print(f"已緩存 {len(creatures_data)} 隻精靈到 CSV 文件")
+            print(f"已緩存 {len(creatures_data)} 隻精靈到 CSV 文件: {csv_path}")
             return df
             
         except Exception as e:
@@ -1650,9 +1304,8 @@ class FirebaseService:
         try:
             import pandas as pd
             import os
-            
-            # CSV文件路徑
-            csv_path = os.path.join(os.path.dirname(__file__), '..', '..', 'scripts', 'cached_creatures.csv')
+              # CSV文件路徑 (主遊戲緩存存放至 app/data/creatures/)
+            csv_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'creatures', 'firebase_cached_creatures.csv')
             
             # 檢查文件是否存在
             if not os.path.exists(csv_path):
@@ -1680,15 +1333,12 @@ class FirebaseService:
                 position = {
                     'lat': float(row.get('lat', 0)) if pd.notna(row.get('lat')) else 0,
                     'lng': float(row.get('lng', 0)) if pd.notna(row.get('lng')) else 0
-                }
-                
-                # 構建精靈數據，與Firebase格式兼容
+                }                # 構建精靈數據，與Firebase格式兼容
                 creature_data = {
                     'id': str(row.get('id', '')),
                     'name': str(row.get('name', '未知精靈')),
-                    'species': str(row.get('species', '一般種')),
-                    'element_type': str(row.get('element_type', 'normal')),
-                    'level': int(row.get('level', 1)) if pd.notna(row.get('level')) else 1,
+                    'type': str(row.get('type', '')),  # 精靈的type字段
+                    'rate': str(row.get('rate', '')),  # 精靈稀有度
                     'hp': int(row.get('hp', 100)) if pd.notna(row.get('hp')) else 100,
                     'attack': int(row.get('attack', 50)) if pd.notna(row.get('attack')) else 50,
                     'position': position,

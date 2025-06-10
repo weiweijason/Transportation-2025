@@ -1,0 +1,6 @@
+# 忽略緩存的精靈數據文件
+firebase_cached_creatures.csv
+current_creatures.csv
+
+# 保留目錄結構但忽略緩存文件
+!.gitkeep

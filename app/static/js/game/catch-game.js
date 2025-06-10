@@ -343,12 +343,10 @@ function displayCreaturesDirectly(creatures) {
       circleMarker.on('click', function() {
         console.log(`點擊了精靈 ${name}`);
         showGameAlert(`你發現了 ${name}！點擊捕捉按鈕來捕捉它。`, 'success');
-        
-        // 顯示精靈信息
+          // 顯示精靈信息
         circleMarker.bindPopup(`
           <div class="text-center py-2">
             <h5 class="mb-2">${name}</h5>
-            <p class="mb-1"><span class="badge ${creature.element_type ? 'bg-'+creature.element_type : 'bg-secondary'}">${creature.element_type || '一般'}</span></p>
             <button class="btn btn-success btn-sm w-100 catch-btn" onclick="catchCreature('${creature.id}')">
               <i class="fas fa-hand-sparkles me-1"></i>捕捉
             </button>
