@@ -500,7 +500,15 @@ def tutorial_capture_creature(creature_id):
 @auth.route('/tutorial/set-base-gym', methods=['POST'])
 def tutorial_set_base_gym():
     """設定使用者的基地道館"""
-    if not current_user.is_authenticated:
+    print(f">>> DEBUG: 收到基地道館設定請求")
+    print(f">>> DEBUG: 用戶認證狀態: {current_user.is_authenticated}")
+    print(f">>> DEBUG: 會話數據: {session}")    # 檢查是否是新手導覽模式或已登入用戶
+    is_tutorial_mode = (session.get('tutorial_mode') or 
+                       session.get('new_user_info') or 
+                       request.headers.get('X-Tutorial-Mode') == 'true')
+    
+    if not current_user.is_authenticated and not is_tutorial_mode:
+        print(f">>> DEBUG: 用戶未認證且非新手導覽模式")
         return jsonify({
             'success': False,
             'message': '請先登入'
@@ -509,28 +517,57 @@ def tutorial_set_base_gym():
     try:
         # 獲取前端傳來的道館資料
         gym_data = request.json
+        print(f">>> DEBUG: 收到的道館資料: {gym_data}")
+          # 取得用戶ID（從已登入用戶或新手導覽會話）
+        user_id = None
+        if current_user.is_authenticated:
+            user_id = current_user.id
+            print(f">>> DEBUG: 使用已登入用戶ID: {user_id}")
+        elif session.get('new_user_info'):
+            user_id = session.get('new_user_info').get('uid')
+            print(f">>> DEBUG: 使用新手導覽用戶ID: {user_id}")
+        elif request.headers.get('X-Tutorial-User-ID'):
+            user_id = request.headers.get('X-Tutorial-User-ID')
+            print(f">>> DEBUG: 使用標頭中的新手導覽用戶ID: {user_id}")
+        
+        if not user_id:
+            print(f">>> DEBUG: 無法取得用戶ID")
+            return jsonify({
+                'success': False,
+                'message': '無法取得用戶信息'
+            }), 400
+        
+        print(f">>> DEBUG: 當前用戶ID: {user_id}")
         
         if not gym_data:
+            print(f">>> DEBUG: 道館資料為空")
             return jsonify({
                 'success': False,
                 'message': '無效的道館資料'
             })
         
         # 儲存基地道館
-        result = firebase_service.save_user_base_gym(current_user.id, gym_data)
+        print(f">>> DEBUG: 開始呼叫 Firebase Service")
+        result = firebase_service.save_user_base_gym(user_id, gym_data)
+        print(f">>> DEBUG: Firebase Service 回應: {result}")
         
         if result['status'] == 'success':
+            print(f">>> DEBUG: 基地道館設定成功")
             return jsonify({
                 'success': True,
                 'message': '成功設定基地道館'
             })
         else:
+            print(f">>> DEBUG: 基地道館設定失敗: {result['message']}")
             return jsonify({
                 'success': False,
                 'message': result['message']
             })
+            
     except Exception as e:
-        print(f"設定基地道館時出錯: {e}")
+        print(f">>> DEBUG: 設定基地道館時出錯: {e}")
+        import traceback
+        print(f">>> DEBUG: 錯誤堆疊: {traceback.format_exc()}")
         return jsonify({
             'success': False,
             'message': f'設定基地道館失敗: {str(e)}'

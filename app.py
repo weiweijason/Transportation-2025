@@ -84,6 +84,5 @@ if __name__ == '__main__':
     # 啟動定時任務
     start_periodic_cache()
 
-    # 啟動伺服器
-    # app.run(debug=True, port=5001)
-    app.run(host="0.0.0.0", port=3001)
+    # 啟動伺服器，啟用調試模式以查看print輸出
+    app.run(host="0.0.0.0", port=3001, debug=True)

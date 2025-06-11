@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>測試道館佔領功能</title>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>測試道館佔領功能</h2>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">測試基地道館設定</h5>
+                <button id="testGymButton" class="btn btn-primary">測試佔領中正紀念堂基地</button>
+                <div id="result" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('testGymButton').addEventListener('click', function() {
+            console.log('>>> DEBUG: 開始測試道館佔領');
+            
+            const testGymData = {
+                gym_id: 'tutorial-gym-1',
+                gym_name: '中正紀念堂基地',
+                gym_level: 5,
+                lat: 25.03556,
+                lng: 121.51972,
+                guardian_creature: {
+                    id: 'test_creature',
+                    name: '測試精靈',
+                    image: 'test.png',
+                    type: 'fire',
+                    power: 100
+                }
+            };
+            
+            console.log('>>> DEBUG: 測試道館數據:', testGymData);
+            
+            fetch('/auth/tutorial/set-base-gym', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(testGymData)
+            })
+            .then(response => {
+                console.log('>>> DEBUG: 回應狀態:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('>>> DEBUG: 伺服器回應:', data);
+                document.getElementById('result').innerHTML = `
+                    <div class="alert alert-${data.success ? 'success' : 'danger'}">
+                        <strong>結果:</strong> ${data.message}
+                        <br><strong>詳細回應:</strong> <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                console.error('>>> DEBUG: 錯誤:', error);
+                document.getElementById('result').innerHTML = `
+                    <div class="alert alert-danger">
+                        <strong>錯誤:</strong> ${error.message}
+                    </div>
+                `;
+            });
+        });
+    </script>
+</body>
+</html>

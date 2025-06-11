@@ -1783,26 +1783,68 @@ class FirebaseService:
                 'is_tutorial_base': True,  # 標記為教學基地
                 'status': 'active'
             }
-            
-            # 保存到 user_base_gyms 集合中
+              # 保存到 user_base_gyms 集合中
             base_gym_ref = self.firestore_db.collection('user_base_gyms').document(f"{user_id}_{gym_data.get('gym_id')}")
             base_gym_ref.set(base_gym_data)
             
-            # 同時更新用戶資料，記錄當前基地道館
+            # 保存到用戶的 user_arenas 子集合中 (重要：用於用戶道館管理)
             user_ref = self.firestore_db.collection('users').document(user_id)
-            user_ref.update({
-                'current_base_gym': {
-                    'gym_id': gym_data.get('gym_id'),
-                    'gym_name': gym_data.get('gym_name'),
-                    'established_at': time.time()
+            user_arena_ref = user_ref.collection('user_arenas').document(gym_data.get('gym_id'))
+            
+            user_arena_data = {
+                'arena_id': gym_data.get('gym_id'),
+                'arena_name': gym_data.get('gym_name'),
+                'level': gym_data.get('gym_level', 5),
+                'position': {
+                    'lat': gym_data.get('lat'),
+                    'lng': gym_data.get('lng')
                 },
-                'tutorial_completed': {
-                    'base_selection': True,
-                    'completed_at': time.time()
+                'guardian_creature': gym_data.get('guardian_creature', {}),
+                'occupied_at': time.time(),
+                'is_base_gym': True,  # 標記為基地道館
+                'is_tutorial': True,  # 標記為教學道館
+                'status': 'occupied',
+                'owner_id': user_id            }
+            
+            user_arena_ref.set(user_arena_data)
+            
+            # 確保用戶文檔存在，然後更新或創建用戶資料
+            user_doc = user_ref.get()
+            if not user_doc.exists:
+                # 如果用戶文檔不存在，先創建基本用戶資料
+                print(f">>> DEBUG: 用戶文檔不存在，創建基本用戶資料: {user_id}")
+                user_basic_data = {
+                    'username': f'TutorialUser_{user_id}',
+                    'player_id': user_id,
+                    'created_at': time.time(),
+                    'is_tutorial_user': True,
+                    'current_base_gym': {
+                        'gym_id': gym_data.get('gym_id'),
+                        'gym_name': gym_data.get('gym_name'),
+                        'established_at': time.time()
+                    },
+                    'tutorial_completed': {
+                        'base_selection': True,
+                        'completed_at': time.time()
+                    }
                 }
-            })
+                user_ref.set(user_basic_data)
+            else:
+                # 用戶文檔存在，進行更新
+                user_ref.update({
+                    'current_base_gym': {
+                        'gym_id': gym_data.get('gym_id'),
+                        'gym_name': gym_data.get('gym_name'),
+                        'established_at': time.time()
+                    },
+                    'tutorial_completed': {
+                        'base_selection': True,
+                        'completed_at': time.time()
+                    }
+                })
             
             print(f">>> DEBUG: 基地道館保存成功: {gym_data.get('gym_name')}")
+            print(f">>> DEBUG: 已保存到 user_base_gyms 集合和 users/{user_id}/user_arenas 子集合")
             
             return {
                 'status': 'success',
