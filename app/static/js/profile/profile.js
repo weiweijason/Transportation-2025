@@ -260,6 +260,8 @@ function getTypeColor(type) {
         case '風系': return 'success';
         case 'electric': return 'info';
         case '電系': return 'info';
+        case 'dark': return 'dark';
+        case '暗系': return 'dark';
         default: return 'secondary';
     }
 }
@@ -272,6 +274,7 @@ function getTypeText(type) {
         case 'earth': return '土系';
         case 'air': return '風系';
         case 'electric': return '電系';
+        case 'dark': return '暗系';
         default: return '一般';
     }
 }

@@ -694,8 +694,7 @@
             arenaList.appendChild(arenaCard);
         });
     }
-    
-    // 根據精靈類型獲取顏色
+      // 根據精靈類型獲取顏色
     function getTypeColor(type) {
         switch(String(type).toLowerCase()) {
             case 'water': return 'primary';
@@ -708,6 +707,8 @@
             case '風系': return 'success';
             case 'electric': return 'info';
             case '電系': return 'info';
+            case 'dark': return 'dark';
+            case '暗系': return 'dark';
             default: return 'secondary';
         }
     }
@@ -716,10 +717,10 @@
     function getTypeText(type) {
         switch(String(type).toLowerCase()) {
             case 'water': return '水系';
-            case 'fire': return '火系';
-            case 'earth': return '土系';
+            case 'fire': return '火系';            case 'earth': return '土系';
             case 'air': return '風系';
             case 'electric': return '電系';
+            case 'dark': return '暗系';
             default: return '一般';
         }
     }

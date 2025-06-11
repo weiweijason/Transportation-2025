@@ -69,7 +69,7 @@ function displayCreaturesOnMap(creatures) {
       case 'earth': bgColor = '#8e44ad'; break;
       case 'air': bgColor = '#2ecc71'; break;
       case 'electric': bgColor = '#f1c40f'; break;
-      default: bgColor = '#95a5a6';
+      case 'dark': bgColor = '#2c3e50'; break;
     }
     
     // 獲取表情符號
@@ -310,6 +310,7 @@ function getTypeColor(type) {
     case 'earth': return '8e44ad';
     case 'air': return '2ecc71';
     case 'electric': return 'f1c40f';
+    case 'dark': return '2c3e50';
     default: return '95a5a6';
   }
 }
@@ -322,6 +323,7 @@ function getTypeBadgeClass(type) {
     case 'earth': return 'bg-warning';
     case 'air': return 'bg-info';
     case 'electric': return 'bg-warning';
+    case 'dark': return 'bg-dark';
     default: return 'bg-secondary';
   }
 }
@@ -345,11 +347,13 @@ function getElementTypeName(type) {
     case 'earth': return '土系';
     case 'air': return '風系';
     case 'electric': return '電系';
+    case 'dark': return '暗系';
     case 0: return '火系'; // 數字枚舉值 (FIRE = 0)
     case 1: return '水系'; // 數字枚舉值 (WATER = 1)
     case 2: return '土系'; // 數字枚舉值 (EARTH = 2)
     case 3: return '風系'; // 數字枚舉值 (AIR = 3)
     case 4: return '電系'; // 數字枚舉值 (ELECTRIC = 4)
+    case 5: return '暗系'; // 數字枚舉值 (DARK = 5)
     default: return '一般系';
   }
 }

@@ -1360,8 +1360,7 @@ class FirebaseService:
                     'success': False,
                     'message': f'添加精靊到用戶收藏失敗: {str(e)}'
                 }
-            
-            # 步驟 6: 同步道館資料 (如有必要)
+              # 步驟 6: 同步道館資料 (如有必要)
             try:
                 if 'arena_id' in creature_data and creature_data['arena_id']:
                     arena_id = creature_data['arena_id']
@@ -1380,7 +1379,8 @@ class FirebaseService:
                                 print(f">>> DEBUG: 已同步道館 {arena_data.get('name', arena_id)} 到 Firebase")
                         except Exception as arena_error:
                             print(f">>> DEBUG: 同步道館資料失敗 (非致命錯誤): {arena_error}")
-            except Exception as e:                # 這個錯誤不影響捕捉結果，只是記錄
+            except Exception as e:
+                # 這個錯誤不影響捕捉結果，只是記錄
                 print(f">>> DEBUG: 同步道館資料失敗 (非致命錯誤): {e}")
             
             print(f">>> DEBUG: 精靈捕捉完全成功: {creature_data.get('name', '未知精靈')}")
@@ -1388,7 +1388,7 @@ class FirebaseService:
                 'success': True,
                 'message': f"已成功捕捉 {creature_data.get('name', '未知精靈')}!",
                 'creature': user_creature_data
-            }        
+            }
         except Exception as e:
             print(f">>> DEBUG: 捕捉精靈過程中發生未預期錯誤: {e}")
             import traceback
@@ -1408,6 +1408,11 @@ class FirebaseService:
         Returns:
             dict: 捕捉結果
         """
+        import random
+        import re
+        import string
+        import time
+        
         try:
             print(f">>> DEBUG: 開始捕捉教學精靈 ID: {creature_id}, 用戶 ID: {user_id}")
             
@@ -1441,8 +1446,7 @@ class FirebaseService:
                     'image_url': 'https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET/o/creatures%2Ftutorial_earth.png'
                 }
             }
-            
-            # 檢查是否為有效的教學精靈
+              # 檢查是否為有效的教學精靈
             creature_template = None
             
             if creature_id in tutorial_creatures:
@@ -1450,20 +1454,19 @@ class FirebaseService:
                 creature_template = tutorial_creatures[creature_id]
                 print(f">>> DEBUG: 使用固定教學精靈模板: {creature_id}")
             elif creature_id.startswith('tutorial_'):
-                # 處理動態生成的教學精靈 ID (格式: tutorial_數字_數字)
-                import re
-                if re.match(r'^tutorial_\d+_\d+$', creature_id):
-                    # 使用默認的教學精靈模板
+                # 處理動態生成的教學精靈 ID (格式: tutorial_obnuxis_數字_數字 或 tutorial_數字_數字)
+                if re.match(r'^tutorial_[a-zA-Z0-9_]+_\d+_\d+$', creature_id):
+                    # 使用蒙昧精靈模板（教學模式固定精靈）
                     creature_template = {
-                        'name': '初始精靈',
-                        'species': '一般種',
-                        'type': 'normal',
-                        'element_type': 0,  # 普通屬性
-                        'hp': 100,
-                        'attack': 50,
-                        'image_url': 'https://raw.githubusercontent.com/google/material-design-icons/master/png/image/pets/materialicons/48dp/2x/baseline_pets_1.png'
+                        'name': '蒙昧',
+                        'species': '超稀有種',
+                        'type': 'dark',  # 暗系
+                        'element_type': 1,  # 暗屬性
+                        'hp': random.randint(2700, 2800),  # HP範圍：2700-2800
+                        'attack': random.randint(500, 550),  # ATK範圍：500-550
+                        'image_url': 'https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/68390f3c001270e4def2/view?project=681c5c6b002355634f3c&mode=admin'
                     }
-                    print(f">>> DEBUG: 使用動態教學精靈模板: {creature_id}")
+                    print(f">>> DEBUG: 使用蒙昧精靈模板: {creature_id}")
                 else:
                     print(f">>> DEBUG: 無效的動態教學精靈ID格式: {creature_id}")
                     return {

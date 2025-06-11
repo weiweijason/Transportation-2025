@@ -51,8 +51,7 @@ const tutorialCreature = {
         creatureTypeElement.className = 'creature-type badge';
         
         document.getElementById('creatureRarity').textContent = defaultCreature.rarity || '普通';
-        
-        // 根據類型設置樣式
+          // 根據類型設置樣式
         if (defaultCreature.type === '水系') {
             creatureTypeElement.classList.add('bg-primary');
         } else if (defaultCreature.type === '火系') {
@@ -61,6 +60,8 @@ const tutorialCreature = {
             creatureTypeElement.classList.add('bg-success');
         } else if (defaultCreature.type === '土系') {
             creatureTypeElement.classList.add('bg-warning');
+        } else if (defaultCreature.type === '暗系') {
+            creatureTypeElement.classList.add('bg-dark');
         }
         
         // 設置能量條
@@ -94,8 +95,7 @@ const tutorialCreature = {
         const typeElement = document.getElementById('starterCreatureType');
         typeElement.textContent = defaultCreature.type;
         typeElement.className = 'creature-select-type badge';
-        
-        if (defaultCreature.type === '水系') {
+          if (defaultCreature.type === '水系') {
             typeElement.classList.add('bg-primary');
         } else if (defaultCreature.type === '火系') {
             typeElement.classList.add('bg-danger');
@@ -103,6 +103,8 @@ const tutorialCreature = {
             typeElement.classList.add('bg-success');
         } else if (defaultCreature.type === '土系') {
             typeElement.classList.add('bg-warning');
+        } else if (defaultCreature.type === '暗系') {
+            typeElement.classList.add('bg-dark');
         }
         
         document.getElementById('starterCreaturePower').textContent = defaultCreature.power;

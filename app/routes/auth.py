@@ -350,45 +350,25 @@ def tutorial():
             'level': 5
         }
     ]
-    
-    # 隨機生成一個在用戶附近的精靈
-    element_types = ['water', 'fire', 'wind', 'earth', 'electric']
-    element_type = random.choice(element_types)
-    
-    # 根據屬性選擇對應的中文名稱和顏色
-    element_type_names = {
-        'water': '水系',
-        'fire': '火系',
-        'wind': '風系',
-        'earth': '土系',
-        'electric': '電系'
-    }
-    
-    element_colors = {
-        'water': '#3498db',
-        'fire': '#e74c3c',
-        'wind': '#2ecc71',
-        'earth': '#8e44ad',
-        'electric': '#f1c40f'
-    }
-    
-    # 生成精靈 ID
-    creature_id = f"tutorial_{int(time.time())}_{random.randint(1000, 9999)}"
+      # 固定初始精靈為蒙昧(Obnuxis) - 所有玩家都使用相同的初始精靈
+    creature_id = f"tutorial_obnuxis_{int(time.time())}_{random.randint(1000, 9999)}"
     
     default_creature = {
         'id': creature_id,
-        'name': f"初始{element_type_names[element_type]}精靈",
-        'type': element_type_names[element_type],        'element_type': element_type,
-        'element_color': element_colors[element_type],
-        'image': f"https://raw.githubusercontent.com/google/material-design-icons/master/png/image/pets/materialicons/48dp/2x/baseline_pets_{random.randint(1, 3)}.png",
+        'name': '蒙昧',
+        'en_name': 'Obnuxis',
+        'type': '暗系',
+        'element_type': 'dark',
+        'element_color': '#8e44ad',  # 暗系紫色
+        'image': 'https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/68390f3c001270e4def2/view?project=681c5c6b002355634f3c&mode=admin',
         'lat': 25.03556 + (random.random() - 0.5) * 0.01,  # 隨機在中正紀念堂附近
         'lng': 121.51972 + (random.random() - 0.5) * 0.01,
-        'power': random.randint(30, 80),
-        'hp': random.randint(80, 120),
-        'attack': random.randint(10, 30),
-        'defense': random.randint(5, 15),
-        'species': '初始精靈',
-        'rarity': '普通'
+        'power': random.randint(500, 550),  # ATK範圍：500-550
+        'hp': random.randint(2700, 2800),   # HP範圍：2700-2800
+        'attack': random.randint(500, 550), # ATK範圍：500-550
+        'defense': random.randint(200, 250), # 適當的防禦值
+        'species': '蒙昧',
+        'rarity': 'SSR'
     }
     
     # 在 Firebase 中創建這隻精靈，但將其標記為教學精靈
@@ -580,31 +560,18 @@ def tutorial_interactive_capture(creature_id):
     if not current_user.is_authenticated:
         flash('請先登入', 'warning')
         return redirect(url_for('auth.login'))
-    
-    # 設置默認精靈
-    element_types = {
-        'fire': '火系',
-        'water': '水系',
-        'earth': '土系',
-        'wind': '風系'
-    }
-    
-    # 隨機選擇一個元素類型
-    element_type = random.choice(['fire', 'water', 'earth', 'wind'])
-    element_colors = {
-        'fire': '#e74c3c',
-        'water': '#3498db', 
-        'earth': '#f39c12',
-        'wind': '#2ecc71'
-    }
-    
-    # 在教學模式中使用固定的精靈
+      # 在教學模式中使用固定的蒙昧精靈
     creature = {
         'id': creature_id,
-        'name': f"{element_types[element_type]}精靈",
-        'type': element_types[element_type],
-        'power': random.randint(30, 70),
-        'image': f"https://raw.githubusercontent.com/google/material-design-icons/master/png/image/pets/materialicons/48dp/2x/baseline_pets_{random.randint(1, 3)}.png",
+        'name': '蒙昧',
+        'en_name': 'Obnuxis',
+        'type': '暗系',
+        'element_type': 'dark',
+        'power': random.randint(500, 550),  # ATK範圍：500-550
+        'hp': random.randint(2700, 2800),   # HP範圍：2700-2800
+        'attack': random.randint(500, 550), # ATK範圍：500-550
+        'rarity': 'SSR',
+        'image': 'https://fra.cloud.appwrite.io/v1/storage/buckets/681c5c8d00308c6d7719/files/68390f3c001270e4def2/view?project=681c5c6b002355634f3c&mode=admin',
     }
     
     return render_template('auth/tutorial_capture.html', creature=creature)
