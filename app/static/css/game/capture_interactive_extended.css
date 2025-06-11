@@ -422,7 +422,7 @@ body.dark-theme {
   opacity: 0.85;
 }
 
-/* 不同等級魔法陣樣式 */
+/* 不同等級魔法陣樣式
 .magic-circle-inner.normal {
   filter: hue-rotate(90deg);
 }
@@ -432,8 +432,7 @@ body.dark-theme {
 }
 
 .magic-circle-inner.premium {
-  filter: hue-rotate(320deg) saturate(1.5) brightness(1.1);
-  box-shadow: 0 0 20px rgba(220, 53, 69, 0.8), 0 0 40px rgba(220, 53, 69, 0.4);
+  filter: hue-rotate(320deg);
 }
 
 .magic-circle.normal {
@@ -445,9 +444,8 @@ body.dark-theme {
 }
 
 .magic-circle.premium {
-  filter: hue-rotate(320deg) saturate(1.5) brightness(1.1);
-  box-shadow: 0 0 30px rgba(220, 53, 69, 0.6), 0 0 60px rgba(220, 53, 69, 0.3);
-}
+  filter: hue-rotate(320deg);
+} */
 
 /* 捕捉特效樣式 */
 .capture-effect {
