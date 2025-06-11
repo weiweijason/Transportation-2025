@@ -49,6 +49,80 @@ def get_user_creatures():
         current_app.logger.error(f"獲取用戶精靈失敗: {e}")
         return jsonify({'error': f'獲取精靈資料失敗: {str(e)}'}), 500
 
+@user_bp.route('/backpack')
+@login_required
+def get_user_backpack():
+    """獲取當前用戶的背包內容"""
+    try:
+        firebase_service = FirebaseService()
+        result = firebase_service.get_user_backpack(current_user.id)
+        
+        if result['status'] == 'success':
+            return jsonify({
+                'success': True,
+                'backpack': result['backpack']
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': result['message']
+            }), 500
+    
+    except Exception as e:
+        current_app.logger.error(f"獲取用戶背包失敗: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'獲取背包資料失敗: {str(e)}'
+        }), 500
+
+@user_bp.route('/backpack/update', methods=['POST'])
+@login_required
+def update_backpack_item():
+    """更新背包中物品的數量"""
+    try:
+        from flask import request
+        
+        data = request.get_json()
+        if not data:
+            return jsonify({
+                'success': False,
+                'message': '缺少請求數據'
+            }), 400
+        
+        item_name = data.get('item_name')
+        count_change = data.get('count_change')
+        
+        if item_name is None or count_change is None:
+            return jsonify({
+                'success': False,
+                'message': '缺少必要參數: item_name 和 count_change'
+            }), 400
+        
+        firebase_service = FirebaseService()
+        result = firebase_service.update_backpack_item(
+            current_user.id, 
+            item_name, 
+            count_change
+        )
+        
+        if result['status'] == 'success':
+            return jsonify({
+                'success': True,
+                'data': result
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': result['message']
+            }), 400
+    
+    except Exception as e:
+        current_app.logger.error(f"更新背包物品失敗: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'更新背包物品失敗: {str(e)}'
+        }), 500
+
 @user_bp.route('/verify-auth-status', methods=['POST'])
 @jwt_or_session_required
 def verify_auth_status():

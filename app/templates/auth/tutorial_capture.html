@@ -426,9 +426,8 @@
           <div class="circle-icon premium-circle">
             <img src="{{ url_for('static', filename='img/circles/premium/magic-circle-inner.png') }}" alt="高級魔法陣">
           </div>
-          <div class="circle-info">
-            <div class="circle-name">高級魔法陣</div>
-            <div class="circle-rate">成功率：100%</div>
+          <div class="circle-info">            <div class="circle-name">高級魔法陣</div>
+            <div class="circle-rate">成功率：95%</div>
             <div class="circle-count">剩餘：1 個</div>
           </div>
         </div>
@@ -473,12 +472,12 @@
 </div>
 
 <!-- 捕捉結果模態框 -->
-<div class="modal fade" id="captureResultModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="captureResultModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header" id="resultModalHeader">
         <h5 class="modal-title" id="resultModalTitle">捕捉結果</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <!-- Remove X button for tutorial -->
       </div>
       <div class="modal-body text-center">        <div id="resultContent">
           <img id="resultImage" src="{{ creature.image }}" alt="{{ creature.name }}" class="mb-3" style="max-width: 150px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
@@ -513,8 +512,10 @@
             </div>
           </div>
         </div>
-      </div>
-      <div class="modal-footer justify-content-center">
+      </div>      <div class="modal-footer justify-content-center">
+        <div class="text-center w-100 mb-2">
+          <small class="text-muted">將在 <span id="autoCountdown">5</span> 秒後自動繼續教學</small>
+        </div>
         <button id="continueButton" class="btn btn-primary">繼續教學</button>
       </div>
     </div>
@@ -541,27 +542,114 @@
     const resultMessage = document.getElementById('resultMessage');
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
-    const continueButton = document.getElementById('continueButton');
-    const circleTypeItems = document.querySelectorAll('.circle-type-item');
+    const continueButton = document.getElementById('continueButton');    const circleTypeItems = document.querySelectorAll('.circle-type-item');
     
     // 魔法陣等級和剩餘數量
     const circleCounts = {
       normal: 0,
       advanced: 0,
-      premium: 1
+      premium: 0
     };
-    
-    // 魔法陣成功率
+      // 魔法陣成功率
     const circleRates = {
       normal: 60,
       advanced: 80,
-      premium: 100
+      premium: 95
     };
-    
-    // 當前選擇的魔法陣類型
+      // 當前選擇的魔法陣類型
     let selectedCircleType = 'premium';
-    
-    // 更新魔法陣選擇項顯示
+
+    // 從 Firebase 獲取用戶背包數據
+    async function loadUserBackpack() {
+      try {
+        const response = await fetch('/game/api/user/backpack', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
+          },
+          credentials: 'same-origin'
+        });        if (response.ok) {
+          const data = await response.json();
+          console.log('API 響應數據:', data);
+          if (data.success && data.backpack) {
+            // 更新魔法陣數量，如果用戶背包中有對應資料
+            if (data.backpack.normal && data.backpack.normal.count !== undefined) {
+              circleCounts.normal = data.backpack.normal.count;
+              circleRates.normal = Math.round(data.backpack.normal.success_rate * 100);
+            }
+            if (data.backpack.advanced && data.backpack.advanced.count !== undefined) {
+              circleCounts.advanced = data.backpack.advanced.count;
+              circleRates.advanced = Math.round(data.backpack.advanced.success_rate * 100);
+            }
+            if (data.backpack.premium && data.backpack.premium.count !== undefined) {
+              circleCounts.premium = data.backpack.premium.count;
+              circleRates.premium = Math.round(data.backpack.premium.success_rate * 100);
+            }
+              // 更新UI顯示
+            updateCircleItems();
+            
+            // 更新成功率顯示
+            updateCircleRates();
+            
+            // 設置默認選中的魔法陣（選擇有庫存的最高級別）
+            setDefaultSelectedCircle();
+            
+            console.log('教學模式：已載入背包數據:', circleCounts);          } else {
+            console.warn('教學模式：背包數據載入失敗，使用默認值');
+            // 為教學模式設置默認的魔法陣數量
+            circleCounts.normal = 10;
+            circleCounts.advanced = 5;
+            circleCounts.premium = 3;
+            updateCircleItems();
+            updateCircleRates();
+            setDefaultSelectedCircle();
+          }        } else {
+          console.error('教學模式：獲取背包數據失敗:', response.status);
+          // 為教學模式設置默認的魔法陣數量
+          circleCounts.normal = 10;
+          circleCounts.advanced = 5;
+          circleCounts.premium = 3;
+          updateCircleItems();
+          updateCircleRates();
+          setDefaultSelectedCircle();
+        }      } catch (error) {
+        console.error('教學模式：載入背包數據時出錯:', error);
+        // 為教學模式設置默認的魔法陣數量
+        circleCounts.normal = 10;
+        circleCounts.advanced = 5;
+        circleCounts.premium = 3;
+        updateCircleItems();
+        updateCircleRates();
+        setDefaultSelectedCircle();
+      }
+    }
+
+    // 設置默認選中的魔法陣
+    function setDefaultSelectedCircle() {
+      // 按優先級選擇有庫存的魔法陣
+      const priority = ['premium', 'advanced', 'normal'];
+      let defaultType = 'normal'; // 默認選擇
+      
+      for (const type of priority) {
+        if (circleCounts[type] > 0) {
+          defaultType = type;
+          break;
+        }
+      }
+      
+      selectedCircleType = defaultType;
+      
+      // 更新UI顯示
+      circleTypeItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.type === selectedCircleType) {
+          item.classList.add('active');
+        }
+      });
+      
+      console.log(`教學模式：選擇默認魔法陣類型: ${selectedCircleType}`);
+    }    // 更新魔法陣選擇項顯示
     function updateCircleItems() {
       circleTypeItems.forEach(item => {
         const type = item.getAttribute('data-type');
@@ -583,8 +671,18 @@
       });
     }
     
-    // 初始化魔法陣選擇
-    updateCircleItems();
+    // 更新魔法陣成功率顯示
+    function updateCircleRates() {
+      circleTypeItems.forEach(item => {
+        const type = item.getAttribute('data-type');
+        const rateElement = item.querySelector('.circle-rate');
+        
+        rateElement.textContent = `成功率：${circleRates[type]}%`;
+      });
+    }
+    
+    // 載入用戶背包數據
+    loadUserBackpack();
     
     // 點擊選擇魔法陣
     circleTypeItems.forEach(item => {
@@ -847,12 +945,26 @@
           // 顯示結果
           setTimeout(() => {
             resultMessage.classList.add('visible');
+                // 顯示結果模態框
+          setTimeout(() => {
+            const resultModal = new bootstrap.Modal(document.getElementById('captureResultModal'));
+            resultModal.show();
             
-            // 顯示結果模態框
-            setTimeout(() => {
-              const resultModal = new bootstrap.Modal(document.getElementById('captureResultModal'));
-              resultModal.show();
-            }, 2000);
+            // 開始5秒倒數計時自動繼續
+            let countdown = 5;
+            const countdownElement = document.getElementById('autoCountdown');
+            const countdownInterval = setInterval(() => {
+              countdown--;
+              if (countdownElement) {
+                countdownElement.textContent = countdown;
+              }
+              if (countdown <= 0) {
+                clearInterval(countdownInterval);
+                // 自動點擊繼續按鈕
+                document.getElementById('continueButton').click();
+              }
+            }, 1000);
+          }, 2000);
           }, 1000);
         })
         .catch(error => {
@@ -866,12 +978,26 @@
           document.getElementById('resultModalTitle').textContent = '系統錯誤';
           document.getElementById('resultText').textContent = '系統錯誤！';
           document.getElementById('resultDescription').textContent = '無法連接到伺服器，請稍後再試。';
-          
-          setTimeout(() => {
+            setTimeout(() => {
             resultMessage.classList.add('visible');
             setTimeout(() => {
               const resultModal = new bootstrap.Modal(document.getElementById('captureResultModal'));
               resultModal.show();
+              
+              // 開始5秒倒數計時自動繼續 (錯誤情況下也自動繼續)
+              let countdown = 5;
+              const countdownElement = document.getElementById('autoCountdown');
+              const countdownInterval = setInterval(() => {
+                countdown--;
+                if (countdownElement) {
+                  countdownElement.textContent = countdown;
+                }
+                if (countdown <= 0) {
+                  clearInterval(countdownInterval);
+                  // 自動點擊繼續按鈕
+                  document.getElementById('continueButton').click();
+                }
+              }, 1000);
             }, 2000);
           }, 1000);
         });

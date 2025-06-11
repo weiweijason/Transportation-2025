@@ -12,6 +12,7 @@ import pandas as pd
 import time
 from datetime import datetime
 import logging
+import traceback
 
 from app.config.firebase_config import FIREBASE_CONFIG, FIREBASE_ADMIN_CONFIG
 
@@ -136,9 +137,11 @@ class FirebaseService:
                 "level": 1,
                 "player_id": player_id  # 添加玩家ID
             })
-            
-            # 儲存使用者資料到 Firestore Database
+              # 儲存使用者資料到 Firestore Database
             self.firestore_db.collection('users').document(user['localId']).set(user_data)
+            
+            # 創建用戶背包子集合並初始化魔法陣
+            self._initialize_user_backpack(user['localId'])
             
             # 為用戶設置顯示名稱
             self.auth.update_profile(user['idToken'], display_name=username)
@@ -278,15 +281,14 @@ class FirebaseService:
         try:
             # 更新 Firestore 中的用戶數據
             self.firestore_db.collection('users').document(uid).update(user_data)
-            
-            # 同時更新 Realtime Database 中的用戶數據 (保持兼容性)
+              # 同時更新 Realtime Database 中的用戶數據 (保持兼容性)
             self.db.child("users").child(uid).update(user_data)
             
             return True
         except Exception as e:
             print(f"更新使用者資訊失敗: {e}")
             return False
-    
+
     def verify_id_token(self, id_token):
         """驗證ID令牌
         
@@ -301,6 +303,168 @@ class FirebaseService:
         except Exception as e:
             print(f"令牌驗證失敗: {e}")
             return None
+    
+    def update_user_profile(self, user_id, data):
+        """更新用戶配置文件
+        
+        Args:
+            user_id: 使用者ID
+            data: 要更新的資料字典
+            
+        Returns:
+            dict: 更新結果
+        """
+        try:
+            # 更新 Firestore 中的用戶資料
+            self.firestore_db.collection('users').document(user_id).update(data)
+            
+            # 同時更新 Realtime Database 中的用戶資料 (保持兼容性)
+            self.db.child("users").child(user_id).update(data)
+            
+            return {
+                'status': 'success',
+                'message': '用戶配置文件更新成功'
+            }
+        except Exception as e:
+            print(f"更新用戶配置文件失敗: {e}")
+            return {
+                'status': 'error',
+                'message': f'更新配置文件失敗: {str(e)}'
+            }
+    
+    def _initialize_user_backpack(self, user_id):
+        """初始化用戶背包子集合並設置魔法陣個數
+        
+        Args:
+            user_id: 使用者ID
+        """
+        try:
+            # 創建用戶背包子集合的引用
+            user_ref = self.firestore_db.collection('users').document(user_id)
+            backpack_ref = user_ref.collection('user_backpack')
+            
+            # 初始化魔法陣類型和數量
+            magic_circles = [
+                {
+                    'item_type': 'magic_circle',
+                    'item_name': 'normal',
+                    'display_name': '普通魔法陣',
+                    'count': 10,  # 初始給予10個普通魔法陣
+                    'description': '基礎的魔法陣，成功率 60%',
+                    'success_rate': 0.6,
+                    'created_at': time.time()
+                },
+                {
+                    'item_type': 'magic_circle',
+                    'item_name': 'advanced',
+                    'display_name': '進階魔法陣',
+                    'count': 5,  # 初始給予5個進階魔法陣
+                    'description': '進階的魔法陣，成功率 80%',
+                    'success_rate': 0.8,
+                    'created_at': time.time()
+                },
+                {
+                    'item_type': 'magic_circle',
+                    'item_name': 'premium',
+                    'display_name': '高級魔法陣',
+                    'count': 3,  # 初始給予3個高級魔法陣
+                    'description': '高級的魔法陣，成功率 95%',
+                    'success_rate': 0.95,
+                    'created_at': time.time()
+                }
+            ]
+              # 將每個魔法陣類型添加到背包子集合中
+            for circle in magic_circles:
+                backpack_ref.document(circle['item_name']).set(circle)
+            
+            print(f"已為用戶 {user_id} 初始化背包，包含 {len(magic_circles)} 種魔法陣")
+            
+        except Exception as e:
+            print(f"初始化用戶背包失敗: {e}")
+            import traceback
+            traceback.print_exc()
+    
+    def get_user_backpack(self, user_id):
+        """獲取用戶背包內容
+        
+        Args:
+            user_id: 使用者ID
+            
+        Returns:
+            dict: 背包內容，按物品類型組織
+        """
+        try:
+            user_ref = self.firestore_db.collection('users').document(user_id)
+            backpack_ref = user_ref.collection('user_backpack').get()
+            
+            backpack_contents = {}
+            
+            for doc in backpack_ref:
+                item_data = doc.to_dict()
+                item_name = doc.id
+                backpack_contents[item_name] = item_data
+            
+            return {
+                'status': 'success',
+                'backpack': backpack_contents
+            }
+            
+        except Exception as e:
+            print(f"獲取用戶背包失敗: {e}")
+            return {
+                'status': 'error',
+                'message': f'獲取背包內容失敗: {str(e)}',
+                'backpack': {}
+            }
+    
+    def update_backpack_item(self, user_id, item_name, count_change):
+        """更新背包中物品的數量
+        
+        Args:
+            user_id: 使用者ID
+            item_name: 物品名稱
+            count_change: 數量變化（正數為增加，負數為減少）
+            
+        Returns:
+            dict: 更新結果
+        """
+        try:
+            user_ref = self.firestore_db.collection('users').document(user_id)
+            item_ref = user_ref.collection('user_backpack').document(item_name)
+            
+            # 獲取當前物品數據
+            item_doc = item_ref.get()
+            
+            if not item_doc.exists:
+                return {
+                    'status': 'error',
+                    'message': f'物品 {item_name} 不存在'
+                }
+            
+            item_data = item_doc.to_dict()
+            current_count = item_data.get('count', 0)
+            new_count = max(0, current_count + count_change)  # 確保數量不會小於0
+            
+            # 更新數量
+            item_ref.update({
+                'count': new_count,
+                'last_updated': time.time()
+            })
+            
+            return {
+                'status': 'success',
+                'item_name': item_name,
+                'old_count': current_count,
+                'new_count': new_count,
+                'change': count_change
+            }
+            
+        except Exception as e:
+            print(f"更新背包物品失敗: {e}")
+            return {
+                'status': 'error',
+                'message': f'更新物品失敗: {str(e)}'
+            }
     
     def generate_route_creatures(self, route_id, route_name, element_type, route_geometry=None, count=1, creatures_data=None, csv_route_name=None):
         """在特定公車路線上生成隨機精靈
@@ -1216,8 +1380,7 @@ class FirebaseService:
                                 print(f">>> DEBUG: 已同步道館 {arena_data.get('name', arena_id)} 到 Firebase")
                         except Exception as arena_error:
                             print(f">>> DEBUG: 同步道館資料失敗 (非致命錯誤): {arena_error}")
-            except Exception as e:
-                # 這個錯誤不影響捕捉結果，只是記錄
+            except Exception as e:                # 這個錯誤不影響捕捉結果，只是記錄
                 print(f">>> DEBUG: 同步道館資料失敗 (非致命錯誤): {e}")
             
             print(f">>> DEBUG: 精靈捕捉完全成功: {creature_data.get('name', '未知精靈')}")
@@ -1225,7 +1388,7 @@ class FirebaseService:
                 'success': True,
                 'message': f"已成功捕捉 {creature_data.get('name', '未知精靈')}!",
                 'creature': user_creature_data
-            }
+            }        
         except Exception as e:
             print(f">>> DEBUG: 捕捉精靈過程中發生未預期錯誤: {e}")
             import traceback
@@ -1233,7 +1396,241 @@ class FirebaseService:
             return {
                 'success': False,
                 'message': f'捕捉精靈時發生錯誤: {str(e)}'
+            }
+    
+    def capture_tutorial_creature(self, user_id, creature_id):
+        """捕捉教學模式中的精靈
+        
+        Args:
+            user_id (str): 使用者ID
+            creature_id (str): 精靈ID（用於教學模式）
+        
+        Returns:
+            dict: 捕捉結果
+        """
+        try:
+            print(f">>> DEBUG: 開始捕捉教學精靈 ID: {creature_id}, 用戶 ID: {user_id}")
+            
+            # 教學模式中的預設精靈資料
+            tutorial_creatures = {
+                'tutorial_fire': {
+                    'name': '教學火龍',
+                    'species': '一般種',
+                    'type': 'fire',
+                    'element_type': 1,  # 火屬性
+                    'hp': 80,
+                    'attack': 35,
+                    'image_url': 'https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET/o/creatures%2Ftutorial_fire.png'
+                },
+                'tutorial_water': {
+                    'name': '教學水龜',
+                    'species': '一般種', 
+                    'type': 'water',
+                    'element_type': 2,  # 水屬性
+                    'hp': 90,
+                    'attack': 30,
+                    'image_url': 'https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET/o/creatures%2Ftutorial_water.png'
+                },
+                'tutorial_earth': {
+                    'name': '教學土熊',
+                    'species': '一般種',
+                    'type': 'earth', 
+                    'element_type': 3,  # 土屬性
+                    'hp': 100,
+                    'attack': 25,
+                    'image_url': 'https://firebasestorage.googleapis.com/v0/b/YOUR_BUCKET/o/creatures%2Ftutorial_earth.png'
                 }
+            }
+            
+            # 檢查是否為有效的教學精靈
+            creature_template = None
+            
+            if creature_id in tutorial_creatures:
+                # 使用預定義的固定教學精靈
+                creature_template = tutorial_creatures[creature_id]
+                print(f">>> DEBUG: 使用固定教學精靈模板: {creature_id}")
+            elif creature_id.startswith('tutorial_'):
+                # 處理動態生成的教學精靈 ID (格式: tutorial_數字_數字)
+                import re
+                if re.match(r'^tutorial_\d+_\d+$', creature_id):
+                    # 使用默認的教學精靈模板
+                    creature_template = {
+                        'name': '初始精靈',
+                        'species': '一般種',
+                        'type': 'normal',
+                        'element_type': 0,  # 普通屬性
+                        'hp': 100,
+                        'attack': 50,
+                        'image_url': 'https://raw.githubusercontent.com/google/material-design-icons/master/png/image/pets/materialicons/48dp/2x/baseline_pets_1.png'
+                    }
+                    print(f">>> DEBUG: 使用動態教學精靈模板: {creature_id}")
+                else:
+                    print(f">>> DEBUG: 無效的動態教學精靈ID格式: {creature_id}")
+                    return {
+                        'status': 'error',
+                        'message': '無效的教學精靈ID格式'
+                    }
+            else:
+                print(f">>> DEBUG: 無效的教學精靈ID: {creature_id}")
+                return {
+                    'status': 'error',
+                    'message': '無效的教學精靈ID'
+                }
+            if not creature_template:
+                return {
+                    'status': 'error',
+                    'message': '無法找到教學精靈模板'
+                }
+              # 獲取或創建用戶資料
+            user_ref = self.firestore_db.collection('users').document(user_id)
+            user_doc = user_ref.get()
+            
+            if not user_doc.exists:
+                # 創建基本用戶資料
+                player_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+                user_data = {
+                    'username': f'User_{player_id}',
+                    'player_id': player_id,
+                    'created_at': time.time()
+                }
+                user_ref.set(user_data)
+                print(f">>> DEBUG: 已為用戶 {user_id} 創建新的基本資料，player_id: {player_id}")
+                
+                # 初始化用戶背包
+                try:
+                    self._initialize_user_backpack(user_id)
+                    print(f">>> DEBUG: 已為教學用戶 {user_id} 初始化背包")
+                except Exception as e:
+                    print(f">>> DEBUG: 初始化教學用戶背包失敗: {e}")
+            else:
+                user_data = user_doc.to_dict()
+                player_id = user_data.get('player_id')
+                if not player_id:
+                    player_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+                    user_ref.update({'player_id': player_id})
+                    print(f">>> DEBUG: 已為用戶 {user_id} 更新 player_id: {player_id}")
+                
+                # 檢查是否需要初始化背包
+                backpack_ref = user_ref.collection('user_backpack').get()
+                if not backpack_ref:
+                    try:
+                        self._initialize_user_backpack(user_id)
+                        print(f">>> DEBUG: 已為現有教學用戶 {user_id} 初始化背包")
+                    except Exception as e:
+                        print(f">>> DEBUG: 初始化現有教學用戶背包失敗: {e}")
+                player_id = user_data.get('player_id')
+                if not player_id:
+                    player_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+                    user_ref.update({'player_id': player_id})
+                    print(f">>> DEBUG: 已為用戶 {user_id} 更新 player_id: {player_id}")
+                
+                # 檢查是否需要初始化背包
+                backpack_ref = user_ref.collection('user_backpack').get()
+                if not backpack_ref:
+                    try:
+                        self._initialize_user_backpack(user_id)
+                        print(f">>> DEBUG: 已為現有教學用戶 {user_id} 初始化背包")
+                    except Exception as e:
+                        print(f">>> DEBUG: 初始化現有教學用戶背包失敗: {e}")
+            
+            # 檢查是否已經捕捉過此教學精靈
+            existing_creature = user_ref.collection('user_creatures').where('tutorial_id', '==', creature_id).get()
+            
+            if existing_creature:
+                print(f">>> DEBUG: 用戶已捕捉過教學精靈: {creature_id}")
+                # 返回已存在的精靈資料
+                existing_data = existing_creature[0].to_dict()
+                return {
+                    'status': 'success', 
+                    'message': f"您已經擁有 {creature_template['name']}！",
+                    'creature': existing_data,
+                    'already_captured': True
+                }
+            
+            # 創建新的用戶精靈
+            user_creature_id = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=12))
+            
+            user_creature_data = {
+                'id': user_creature_id,
+                'tutorial_id': creature_id,  # 標記為教學精靈
+                'name': creature_template['name'],
+                'species': creature_template['species'],
+                'type': creature_template['type'],
+                'element_type': creature_template['element_type'],
+                'level': 1,
+                'experience': 0,
+                'attack': creature_template['attack'],
+                'hp': creature_template['hp'],
+                'image_url': creature_template['image_url'],
+                'bus_route_id': 'tutorial',
+                'bus_route_name': '教學模式',
+                'captured_at': time.time(),
+                'is_tutorial': True  # 標記為教學精靈
+            }
+              # 保存到用戶的精靈子集合中
+            user_ref.collection('user_creatures').document(user_creature_id).set(user_creature_data)
+            
+            print(f">>> DEBUG: 教學精靈捕捉成功: {creature_template['name']}")
+            
+            return {
+                'status': 'success',
+                'message': f"已成功捕捉 {creature_template['name']}！",
+                'creature': user_creature_data,
+                'already_captured': False
+            }
+            
+        except Exception as e:
+            print(f">>> DEBUG: 捕捉教學精靈失敗: {e}")
+            import traceback
+            print(f">>> DEBUG: 錯誤詳情: {traceback.format_exc()}")
+            return {
+                'status': 'error',
+                'message': f'捕捉教學精靈失敗: {str(e)}'
+            }
+
+    def save_tutorial_creature(self, user_id, creature_data):
+        """保存教學精靈到Firebase
+        
+        Args:
+            user_id (str): 使用者ID
+            creature_data (dict): 教學精靈資料
+            
+        Returns:
+            dict: 保存結果
+        """
+        try:
+            print(f">>> DEBUG: 保存教學精靈 ID: {creature_data.get('id')}, 用戶 ID: {user_id}")
+            
+            # 保存到教學精靈集合中
+            tutorial_ref = self.firestore_db.collection('tutorial_creatures').document(creature_data['id'])
+            
+            # 添加額外的元數據
+            tutorial_creature_data = {
+                **creature_data,
+                'created_for_user': user_id,
+                'created_at': time.time(),
+                'is_tutorial': True,
+                'captured': False  # 初始狀態為未捕獲
+            }
+            
+            tutorial_ref.set(tutorial_creature_data)
+            
+            print(f">>> DEBUG: 教學精靈已保存: {creature_data.get('name', '未知精靈')}")
+            
+            return {
+                'status': 'success',
+                'message': '教學精靈保存成功',
+                'creature_id': creature_data['id']
+            }
+            
+        except Exception as e:
+            print(f">>> DEBUG: 保存教學精靈失敗: {e}")
+            import traceback
+            print(f">>> DEBUG: 錯誤詳情: {traceback.format_exc()}")
+            return {
+                'status': 'error',
+                'message': f'保存教學精靈失敗: {str(e)}'
+            }
 
     # 新增 - 將精靈資料緩存到CSV文件
     def cache_creatures_to_csv(self):

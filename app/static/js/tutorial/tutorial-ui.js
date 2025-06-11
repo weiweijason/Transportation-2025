@@ -34,14 +34,20 @@ const tutorialUI = {
         if (step.action) {
             tutorialConfig.executeAction(step.action);
         }
-        
-        // 更新按鈕
+          // 更新按鈕
         if (index === 0) {
             elements.tutorialPrev.style.display = 'none';
             elements.nextBtnText.textContent = '開始';
         } else {
             elements.tutorialPrev.style.display = 'block';
             elements.nextBtnText.textContent = '下一步';
+        }
+        
+        // Step 3 (index 2) is creature capture - hide next button to force capture
+        if (index === 2) {
+            elements.tutorialNext.style.display = 'none';
+        } else {
+            elements.tutorialNext.style.display = 'block';
         }
         
         // 最後一步

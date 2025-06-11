@@ -1,0 +1,654 @@
+/* 精靈捕捉互動頁面樣式 */
+
+/* 主題設定：確保深色背景在所有模式下 */
+body {
+  background-color: #121212 !important;
+  color: rgba(255, 255, 255, 0.87);
+}
+
+/* 覆蓋基礎模板的背景 */
+body.game-background {
+  background-color: #121212 !important;
+}
+
+body.game-background::before {
+  display: none !important;
+}
+
+body.light-theme {
+  background-color: #121212 !important;
+  color: rgba(255, 255, 255, 0.87);
+}
+
+body.dark-theme {
+  background-color: #121212 !important;
+  color: rgba(255, 255, 255, 0.87);
+}
+
+/* 背景上下跳動動畫 */
+@keyframes backgroundFloat {
+  0%, 100% { background-position: center 0px; }
+  50% { background-position: center -10px; }
+}
+
+/* 捕捉容器主要樣式 */
+.capture-container {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  max-width: 100%;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  animation: backgroundFloat 6s ease-in-out infinite;
+}
+
+/* 確保背景圖片可見 */
+.container-fluid {
+  background: transparent !important;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .capture-container {
+    padding: 10px;
+    gap: 10px;
+  }
+}
+
+/* 魔法陣選擇容器樣式 */
+.circle-selection-container {
+  width: 100%;
+  max-width: 600px;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+}
+
+@media (max-width: 768px) {
+  .circle-selection-container {
+    max-width: 95%;
+    padding: 15px;
+    border-radius: 12px;
+  }
+}
+
+.circle-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .circle-types {
+    gap: 8px;
+  }
+}
+
+/* 魔法陣選項樣式 */
+.circle-type-item {
+  width: calc(33.333% - 10px);
+  min-width: 140px;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 12px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .circle-type-item {
+    width: calc(50% - 6px);
+    min-width: 120px;
+    padding: 10px 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .circle-type-item {
+    width: 100%;
+    max-width: 200px;
+    margin: 0 auto;
+  }
+}
+
+.circle-type-item.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.circle-type-item:hover:not(.disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.circle-type-item.active {
+  border-color: #4CAF50;
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+/* 魔法陣圖標樣式 */
+.circle-icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding: 5px;
+}
+
+.circle-icon img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.normal-circle {
+  background-color: rgba(104, 159, 56, 0.3);
+  border: 2px solid rgba(104, 159, 56, 0.7);
+}
+
+.advanced-circle {
+  background-color: rgba(3, 169, 244, 0.3);
+  border: 2px solid rgba(3, 169, 244, 0.7);
+}
+
+.premium-circle {
+  background-color: rgba(220, 53, 69, 0.4);
+  border: 2px solid rgba(220, 53, 69, 0.9);
+  box-shadow: 0 0 15px rgba(220, 53, 69, 0.5), inset 0 0 10px rgba(220, 53, 69, 0.3);
+}
+
+/* 魔法陣信息文字樣式 */
+.circle-name {
+  font-weight: 700;
+  margin-bottom: 2px;
+  font-size: 0.95rem;
+  color: #2c3e50;
+}
+
+.circle-rate {
+  color: #d35400;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.circle-count {
+  font-size: 0.85rem;
+  color: #34495e;
+  font-weight: 600;
+}
+
+/* 魔法陣容器樣式 */
+.magic-container {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  margin: 20px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent !important;
+}
+
+@media (max-width: 768px) {
+  .magic-container {
+    width: 250px;
+    height: 250px;
+    margin: 15px auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .magic-container {
+    width: 200px;
+    height: 200px;
+    margin: 10px auto;
+  }
+}
+
+/* 精靈圖片樣式 */
+.creature-image {
+  max-width: 350px;
+  margin: 0 auto;
+  display: block;
+  position: relative;
+  z-index: 20;
+  animation: creatureFloat 4s ease-in-out infinite;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* 精靈上下跳動動畫 */
+@keyframes creatureFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+}
+
+@media (max-width: 768px) {
+  .creature-image {
+    max-width: 280px;
+  }
+}
+
+@media (max-width: 480px) {
+  .creature-image {
+    max-width: 220px;
+  }
+}
+
+/* 精靈信息樣式 */
+.creature-info {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.creature-stats {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 15px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  padding: 20px 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+}
+
+@media (max-width: 768px) {
+  .creature-stats {
+    gap: 15px;
+    padding: 15px 10px;
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .creature-stats {
+    gap: 10px;
+    padding: 12px 8px;
+    flex-wrap: wrap;
+  }
+}
+
+.stat-item {
+  text-align: center;
+  min-width: 80px;
+  flex: 1;
+}
+
+@media (max-width: 480px) {
+  .stat-item {
+    min-width: calc(50% - 5px);
+    margin-bottom: 10px;
+  }
+}
+
+.stat-item .value {
+  font-size: 1.5rem;
+  margin-bottom: 5px;
+}
+
+@media (max-width: 768px) {
+  .stat-item .value {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .stat-item .value {
+    font-size: 1.2rem;
+  }
+}
+
+.stat-item .label {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 480px) {
+  .stat-item .label {
+    font-size: 0.8rem;
+  }
+}
+
+/* 操作按鈕樣式 */
+.action-buttons {
+  margin-top: 25px;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 0 20px;
+}
+
+/* 取消按鈕樣式修正 */
+#cancelBtn {
+  color: #000 !important;
+  border-color: #000 !important;
+  background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+#cancelBtn:hover {
+  color: #fff !important;
+  background-color: #000 !important;
+  border-color: #000 !important;
+}
+
+@media (max-width: 768px) {
+  .action-buttons {
+    gap: 12px;
+    padding: 0 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .action-buttons {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px;
+  }
+  
+  .action-buttons .btn {
+    width: 100%;
+    max-width: 280px;
+  }
+}
+
+/* 魔法陣動畫樣式 */
+.magic-circle {
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 1s ease;
+  z-index: 10;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.magic-circle.active {
+  opacity: 0.8;
+  transform: scale(1) rotate(180deg);
+}
+
+.magic-circle.premium.active {
+  opacity: 0.9;
+}
+
+.magic-circle-inner {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 1s ease;
+  z-index: 11;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.magic-circle-inner.active {
+  opacity: 0.7;
+  transform: scale(1) rotate(-90deg);
+}
+
+.magic-circle-inner.premium.active {
+  opacity: 0.85;
+}
+
+/* 不同等級魔法陣樣式 */
+.magic-circle-inner.normal {
+  filter: hue-rotate(90deg);
+}
+
+.magic-circle-inner.advanced {
+  filter: hue-rotate(180deg);
+}
+
+.magic-circle-inner.premium {
+  filter: hue-rotate(320deg) saturate(1.5) brightness(1.1);
+  box-shadow: 0 0 20px rgba(220, 53, 69, 0.8), 0 0 40px rgba(220, 53, 69, 0.4);
+}
+
+.magic-circle.normal {
+  filter: hue-rotate(90deg);
+}
+
+.magic-circle.advanced {
+  filter: hue-rotate(180deg);
+}
+
+.magic-circle.premium {
+  filter: hue-rotate(320deg) saturate(1.5) brightness(1.1);
+  box-shadow: 0 0 30px rgba(220, 53, 69, 0.6), 0 0 60px rgba(220, 53, 69, 0.3);
+}
+
+/* 捕捉特效樣式 */
+.capture-effect {
+  position: absolute;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+  border-radius: 50%;
+  opacity: 0;
+  transition: all 0.5s ease;
+  z-index: 9;
+}
+
+.capture-effect.active {
+  width: 300px;
+  height: 300px;
+  opacity: 1;
+}
+
+/* 結果消息樣式 */
+.result-message {
+  position: absolute;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #2ecc71;
+  text-shadow: 0 0 15px rgba(255,255,255,0.9), 0 2px 5px rgba(0,0,0,0.2);
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.5s ease;
+  z-index: 30;
+}
+
+.result-message.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.result-message.success {
+  color: #2ecc71;
+}
+
+.result-message.failure {
+  color: #e74c3c;
+}
+
+.creature-image.captured {
+  animation: capture-animation 1s forwards;
+}
+
+/* 魔法粒子樣式 */
+.magic-particle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 8;
+}
+
+.magic-particle.normal {
+  background-color: rgba(104, 159, 56, 0.6);
+  box-shadow: 0 0 10px rgba(104, 159, 56, 0.8);
+}
+
+.magic-particle.advanced {
+  background-color: rgba(3, 169, 244, 0.6);
+  box-shadow: 0 0 10px rgba(3, 169, 244, 0.8);
+}
+
+.magic-particle.premium {
+  background-color: rgba(220, 53, 69, 0.6);
+  box-shadow: 0 0 15px rgba(220, 53, 69, 0.8);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 模態框樣式優化 */
+.modal-content {
+  border: none;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.modal-header.bg-success {
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%) !important;
+}
+
+.modal-header.bg-danger {
+  background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%) !important;
+}
+
+.stat-box {
+  padding: 10px 15px;
+  border-radius: 8px;
+  background-color: rgba(255,255,255,0.6);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  min-width: 80px;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.creature-detail .card {
+  margin-top: 20px;
+}
+
+#continueButton {
+  background-color: #16a085;
+  border-color: #16a085;
+  padding: 10px 25px;
+  font-weight: 600;
+  border-radius: 30px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+#continueButton:hover {
+  background-color: #138a72;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+/* 動畫效果 */
+@keyframes float {
+  from { transform: translateY(0) translateX(0); }
+  to { transform: translateY(-30px) translateX(10px); }
+}
+
+@keyframes capture-animation {
+  0% { 
+    transform: scale(1) translateY(0px); 
+    opacity: 1; 
+    animation: creatureFloat 4s ease-in-out infinite;
+  }
+  50% { 
+    transform: scale(0.5) translateY(-7px); 
+    opacity: 0.7; 
+  }
+  100% { 
+    transform: scale(0) translateY(0px); 
+    opacity: 0; 
+  }
+}
+
+/* 煙花效果樣式 */
+.firework-particle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 100;
+  pointer-events: none;
+}
+
+@keyframes fireworkFade {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes fireworkMove {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(var(--tx), var(--ty)) scale(0.3); }
+}
+
+/* 稀有度徽章樣式 */
+.rarity-badge {
+  font-weight: 700 !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.rarity-ssr {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24) !important;
+  box-shadow: 0 0 15px rgba(238, 90, 36, 0.5);
+}
+
+.rarity-sr {
+  background: linear-gradient(135deg, #a29bfe, #6c5ce7) !important;
+  box-shadow: 0 0 10px rgba(108, 92, 231, 0.5);
+}
+
+.rarity-r {
+  background: linear-gradient(135deg, #74b9ff, #0984e3) !important;
+  box-shadow: 0 0 8px rgba(9, 132, 227, 0.5);
+}
+
+.rarity-n {
+  background: linear-gradient(135deg, #636e72, #2d3436) !important;
+}
+
+/* 屬性類型顏色樣式 */
+.type-fire { color: #e74c3c !important; }
+.type-water { color: #3498db !important; }
+.type-wood { color: #27ae60 !important; }
+.type-normal { color: #95a5a6 !important; }
+.type-dark { color: #2c3e50 !important; }
+.type-light { color: #f1c40f !important; }
