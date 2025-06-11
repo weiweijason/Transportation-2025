@@ -55,7 +55,7 @@ function loadUserCreatures() {
                 userCreatures.push(creatureData);
             });
             
-            // 根據力量值排序（由高到低）
+            // 根據攻擊力排序（由高到低）
             userCreatures.sort((a, b) => (b.attack || b.power) - (a.attack || a.power));
             
             // 渲染精靈選擇列表
@@ -110,10 +110,9 @@ function renderCreatureList(creatures) {
                     <div class="d-flex justify-content-between mb-2">
                         <span class="badge bg-${typeColor}">${getTypeText(creature.element_type || creature.type)}</span>
                         <span class="badge bg-secondary">${creature.species || creature.rarity || '普通'}</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
+                    </div>                    <div class="d-flex justify-content-between align-items-center">
                         <div class="power-badge">
-                            <i class="fas fa-bolt text-warning me-1"></i> <strong>${creature.attack || creature.power}</strong>
+                            <small class="text-muted">ATK: ${creature.attack || creature.power || 100} | HP: ${creature.hp || (creature.power || 100) * 10}</small>
                         </div>
                         <div class="level-badge">
                             <small class="text-muted">Lv.${creature.level || 1}</small>
@@ -328,10 +327,9 @@ function showSimpleBattleResult(isWin, message, challenger, arena) {
         <div class="alert alert-${isWin ? 'success' : 'danger'} mt-4">
             <h4 class="alert-heading">${isWin ? '戰鬥勝利！' : '戰鬥失敗！'}</h4>
             <p>${message}</p>
-            <hr>
-            <p class="mb-0">
-                您的精靈: ${challenger.name} (力量: ${challenger.attack || challenger.power})
-                ${arena.ownerCreature ? `vs 對手精靈: ${arena.ownerCreature.name} (力量: ${arena.ownerCreature.power})` : ''}
+            <hr>            <p class="mb-0">
+                您的精靈: ${challenger.name} (ATK: ${challenger.attack || challenger.power || 100} | HP: ${challenger.hp || (challenger.power || 100) * 10})
+                ${arena.ownerCreature ? `vs 對手精靈: ${arena.ownerCreature.name} (ATK: ${arena.ownerCreature.attack || arena.ownerCreature.power || 100} | HP: ${arena.ownerCreature.hp || (arena.ownerCreature.power || 100) * 10})` : ''}
             </p>
         </div>
     `;

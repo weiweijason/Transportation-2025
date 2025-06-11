@@ -107,7 +107,8 @@ const tutorialCreature = {
             typeElement.classList.add('bg-dark');
         }
         
-        document.getElementById('starterCreaturePower').textContent = defaultCreature.power;
+        document.getElementById('starterCreatureAttack').textContent = defaultCreature.attack || defaultCreature.power || 100;
+        document.getElementById('starterCreatureHP').textContent = defaultCreature.hp || (defaultCreature.power || 100) * 10;
         
         // 更新捕捉按鈕狀態
         const catchButton = document.getElementById('catchButton');

@@ -16,43 +16,78 @@ class HostFight {
     openModal() {
         this.loadUserCreatures();
         new bootstrap.Modal(document.getElementById('spriteModal')).show();
-    }
-
-    loadUserCreatures() {
+    }    loadUserCreatures() {
+        console.log('開始載入用戶精靈...');
+        const creatureList = document.getElementById('creature-list');
+        
+        // 顯示載入狀態
+        creatureList.innerHTML = `
+            <div class="col-12 text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">載入中...</span>
+                </div>
+                <p class="mt-2">正在載入您的精靈...</p>
+            </div>
+        `;
+        
         fetch('/game/api/user/creatures')
-            .then(response => response.json())
+            .then(response => {
+                console.log('API 響應狀態:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
-                const creatureList = document.getElementById('creature-list');
+                console.log('收到精靈數據:', data);
                 creatureList.innerHTML = '';
                 
                 if (Array.isArray(data) && data.length > 0) {
+                    console.log(`載入了 ${data.length} 隻精靈`);
                     data.forEach(creature => {
                         const creatureCard = this.createCreatureCard(creature);
                         creatureList.appendChild(creatureCard);
                     });
                 } else if (data.error) {
+                    console.error('API 返回錯誤:', data.error);
                     creatureList.innerHTML = `<div class="col-12 text-center"><p class="text-danger">載入錯誤：${data.error}</p></div>`;
                 } else {
+                    console.log('用戶沒有精靈');
                     creatureList.innerHTML = `<div class="col-12 text-center"><p class="text-muted">你還沒有捕捉到任何精靈！<br><a href="${this.catchUrl}">立即去捕捉</a></p></div>`;
                 }
             })
             .catch(error => {
-                console.error('Error loading creatures:', error);
-                this.showStatus('載入精靈失敗', 'danger');
+                console.error('載入精靈時發生錯誤:', error);
+                creatureList.innerHTML = `
+                    <div class="col-12 text-center py-4">
+                        <p class="text-danger">載入精靈失敗</p>
+                        <p class="text-muted">錯誤詳情: ${error.message}</p>
+                        <button class="btn btn-outline-primary btn-sm" onclick="hostFight.loadUserCreatures()">
+                            <i class="fas fa-redo me-1"></i>重試
+                        </button>
+                    </div>
+                `;
+                this.showStatus('載入精靈失敗: ' + error.message, 'danger');
             });
-    }
-
-    createCreatureCard(creature) {
+    }    createCreatureCard(creature) {
+        console.log('創建精靈卡片:', creature);
         const div = document.createElement('div');
-        div.className = 'col-md-4 col-sm-6 mb-3';
+        div.className = 'col-md-4 col-sm-6 mb-3';        // 確保必要的字段存在
+        const creatureName = creature.name || '未知精靈';
+        const creatureImageUrl = creature.image_url || '/static/img/creature.PNG';
+        const creatureElement = creature.element || creature.type || 'Normal';
+        const creatureAttack = creature.attack || 100;
+        const creatureHp = creature.hp || 1000;
+        
         div.innerHTML = `
-            <div class="card creature-card h-100" onclick="hostFight.selectCreature('${creature.id}', '${creature.name}', '${creature.image_url}')">
-                <img src="${creature.image_url}" class="card-img-top" alt="${creature.name}" style="height: 150px; object-fit: cover;">
+            <div class="card creature-card h-100" onclick="hostFight.selectCreature('${creature.id}', '${creatureName}', '${creatureImageUrl}')">
+                <img src="${creatureImageUrl}" class="card-img-top" alt="${creatureName}" style="height: 150px; object-fit: cover;" 
+                     onerror="this.src='/static/img/creature.PNG'">
                 <div class="card-body text-center">
-                    <h6 class="card-title">${creature.name}</h6>
-                    <span class="badge bg-${this.getElementColor(creature.element)}">${creature.element}</span>
+                    <h6 class="card-title">${creatureName}</h6>
+                    <span class="badge bg-${this.getElementColor(creatureElement)}">${creatureElement}</span>
                     <div class="mt-2">
-                        <small class="text-muted">力量: ${creature.power}</small>
+                        <small class="text-muted">ATK: ${creatureAttack} | HP: ${creatureHp}</small>
                     </div>
                 </div>
             </div>

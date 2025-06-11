@@ -581,9 +581,8 @@ class FirebaseArena:
         
         # 使用Firestore的where查詢功能
         arenas_ref = firebase_service.firestore_db.collection('arenas').where('name', '==', name).limit(1).get()
-        
-        # 檢查是否有結果
-        if not arenas_ref或len(arenas_ref) == 0:
+          # 檢查是否有結果
+        if not arenas_ref or len(arenas_ref) == 0:
             return None
             
         # 返回第一個匹配的道館
@@ -665,8 +664,7 @@ class FirebaseArena:
             'challengerUsername': challenger_username,
             'result': False
         }
-        
-        # 如果擂台無人控制，直接獲勝
+          # 如果擂台無人控制，直接獲勝
         if not self.owner:
             self.owner = challenger_username
             self.owner_creature = {
@@ -679,8 +677,8 @@ class FirebaseArena:
             self.save()
             return True, "成功佔領無人擂台"
             
-        # 計算勝率 - 挑戰者力量 / (挑戰者力量 + 防守者力量)
-        win_chance = challenger_power / (挑戰者力量 + self.owner_creature.get('power', 0))
+        # 計算勝率 - 挑戰者攻擊力 / (挑戰者攻擊力 + 防守者攻擊力)
+        win_chance = challenger_power / (challenger_power + self.owner_creature.get('attack', self.owner_creature.get('power', 0)))
         
         # 決定勝負
         import random
@@ -724,8 +722,7 @@ class FirebaseArena:
             'challengerId': challenger_id,
             'challengerName': challenger_name,
             'challengerPower': challenger_power,
-            'challengerUsername': challenger_username,
-            'challengerPlayerId': challenger_player_id,
+            'challengerUsername': challenger_username,        'challengerPlayerId': challenger_player_id,
             'result': False
         }
         
@@ -743,8 +740,8 @@ class FirebaseArena:
             self.save_to_firestore()
             return True, "成功佔領無人擂台"
             
-        # 計算勝率 - 挑戰者力量 / (挑戰者力量 + 防守者力量)
-        win_chance = challenger_power / (挑戰者力量 + self.owner_creature.get('power', 0))
+        # 計算勝率 - 挑戰者攻擊力 / (挑戰者攻擊力 + 防守者攻擊力)
+        win_chance = challenger_power / (challenger_power + self.owner_creature.get('attack', self.owner_creature.get('power', 0)))
         
         # 決定勝負
         import random
