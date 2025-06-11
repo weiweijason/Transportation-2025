@@ -41,13 +41,12 @@ const tutorialGym = {
                 tutorialConfig.map.flyTo([lat, lng], 16, {
                     duration: 1.5
                 });
-                
-                // 顯示道館資訊的氣泡視窗
+                  // 顯示道館資訊的氣泡視窗
                 const gymInfo = `
                     <div class="text-center">
                         <h5>${tutorialConfig.selectedGym.name}</h5>
-                        <p class="mb-1"><span class="badge bg-success">等級 ${tutorialConfig.selectedGym.id.includes('2') ? '2' : '3'}</span></p>
-                        <p class="mb-0"><small>控制者：無人佔領</small></p>
+                        <p class="mb-1"><span class="badge bg-danger">等級 5 - 特級基地</span></p>
+                        <p class="mb-0"><small>狀態：可建立個人基地</small></p>
                     </div>
                 `;
                 
@@ -104,12 +103,11 @@ const tutorialGym = {
             
             // 初始禁用佔領按鈕，直到選擇了精靈
             document.getElementById('occupyGymButton').disabled = true;
-            
-            // 設置占領按鈕事件
+              // 設置占領按鈕事件
             document.getElementById('occupyGymButton').onclick = function() {
                 // 占領動畫
                 this.disabled = true;
-                this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>占領中...';
+                this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>建立基地中...';
                 
                 // 顯示佔領過程的視覺效果
                 const gymMarker = tutorialConfig.gymMarkers.find(marker => marker.id === tutorialConfig.selectedGym.id);
@@ -125,7 +123,7 @@ const tutorialGym = {
                     const gymData = {
                         gym_id: tutorialConfig.selectedGym.id,
                         gym_name: tutorialConfig.selectedGym.name,
-                        gym_level: tutorialConfig.selectedGym.id.includes('2') ? 2 : 3,
+                        gym_level: 5, // 所有基地道館都是5級
                         lat: tutorialConfig.selectedGym.lat,
                         lng: tutorialConfig.selectedGym.lng,
                         guardian_creature: {
@@ -149,11 +147,10 @@ const tutorialGym = {
                         }
                         return response.json();
                     })                    .then(data => {
-                        console.log("佔領成功，伺服器回應:", data);
-                        
-                        // 顯示保存到 Firebase 的確認訊息
+                        console.log("基地建立成功，伺服器回應:", data);
+                          // 顯示保存到 Firebase 的確認訊息
                         if (data.success) {
-                            console.log("✅ 道館資料已成功保存到 Firebase user_arenas 集合");
+                            console.log("✅ 基地道館資料已成功保存到 Firebase user_arenas 集合");
                         }
                         
                         // 繼續視覺效果和UI更新...
@@ -167,8 +164,8 @@ const tutorialGym = {
                             const newPopup = `
                                 <div class="text-center">
                                     <h5>${tutorialConfig.selectedGym.name}</h5>
-                                    <p class="mb-1"><span class="badge bg-success">等級 ${tutorialConfig.selectedGym.id.includes('2') ? '2' : '3'}</span></p>
-                                    <p class="mb-0"><small>控制者：您</small></p>
+                                    <p class="mb-1"><span class="badge bg-danger">等級 5 - 個人基地</span></p>
+                                    <p class="mb-0"><small>基地主：您</small></p>
                                     <div class="mt-2">
                                         <img src="${tutorialConfig.defaultCreature.image}" class="img-fluid" style="max-height: 60px; border-radius: 5px;">
                                         <p class="small mb-0 mt-1">${tutorialConfig.defaultCreature.name}</p>
@@ -179,16 +176,15 @@ const tutorialGym = {
                             gymMarker.marker.bindPopup(newPopup);
                             gymMarker.marker.openPopup();
                         }, 3000);
-                    })
-                    .catch(error => {
-                        console.error("佔領道館失敗:", error);
+                    })                    .catch(error => {
+                        console.error("建立基地道館失敗:", error);
                         // 清除閃爍效果
                         clearInterval(blinkInterval);
                         gymMarker.marker.setOpacity(1.0);
                         
                         // 重置按鈕狀態
                         this.disabled = false;
-                        this.innerHTML = '<i class="fas fa-flag me-2"></i>佔領道館';
+                        this.innerHTML = '<i class="fas fa-home me-2"></i>建立基地';
                         
                         // 顯示錯誤消息
                         const occupationNotice = document.querySelector('.occupation-notice');
@@ -196,7 +192,7 @@ const tutorialGym = {
                         occupationNotice.classList.add('alert-danger');
                         occupationNotice.innerHTML = `
                             <i class="fas fa-exclamation-circle me-2"></i>
-                            <small>佔領道館失敗，請稍後再試。</small>
+                            <small>建立基地失敗，請稍後再試。</small>
                         `;
                         
                         return;

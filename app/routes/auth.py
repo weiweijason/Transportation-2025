@@ -307,32 +307,47 @@ def tutorial():
     if 'new_user_info' not in session and not current_user.is_authenticated:
         flash('請先完成註冊流程並登入', 'warning')
         return redirect(url_for('auth.register'))
-    
-    # 預定義道館資訊 - 這些道館將作為可能的基地道館
+      # 預定義道館資訊 - 這些道館將作為可能的基地道館
     gyms = [
         {
             'id': 'tutorial-gym-1',
-            'name': '中正紀念堂站',
+            'name': '中正紀念堂基地',
             'lat': 25.03556,
             'lng': 121.51972,
-            'description': '中正紀念堂站牌道館，位於臺北市中正區，是最受歡迎的站牌道館之一。',
-            'level': 3
+            'description': '中正紀念堂基地道館，位於臺北市中正區，著名的歷史地標。',
+            'level': 5
         },
         {
             'id': 'tutorial-gym-2',
-            'name': '東門站',
-            'lat': 25.03756,
-            'lng': 121.52172,
-            'description': '東門站牌道館，位於臺北市中正區，是繁忙的交通樞紐之一。',
-            'level': 2
+            'name': '國立故宮博物院基地',
+            'lat': 25.1021,
+            'lng': 121.5482,
+            'description': '國立故宮博物院基地道館，位於臺北市士林區，世界級文化殿堂。',
+            'level': 5
         },
         {
             'id': 'tutorial-gym-3',
-            'name': '捷運動物園站',
-            'lat': 24.99823,
-            'lng': 121.57857,
-            'description': '臺北市立動物園站牌道館，位於臺北市文山區，遊客眾多。',
-            'level': 3
+            'name': '台北車站基地',
+            'lat': 25.047778,
+            'lng': 121.517222,
+            'description': '台北車站基地道館，位於臺北市中正區，重要的交通樞紐。',
+            'level': 5
+        },
+        {
+            'id': 'tutorial-gym-4',
+            'name': '國父紀念館基地',
+            'lat': 25.040000,
+            'lng': 121.560000,
+            'description': '國父紀念館基地道館，位於臺北市信義區，重要的紀念場所。',
+            'level': 5
+        },
+        {
+            'id': 'tutorial-gym-5',
+            'name': '台北101基地',
+            'lat': 25.033611,
+            'lng': 121.564444,
+            'description': '台北101基地道館，位於臺北市信義區，台北市的摩天地標。',
+            'level': 5
         }
     ]
     

@@ -51,52 +51,88 @@
                     <div class="catch-info mt-2">
                         <small class="text-muted">精靈將在 <span id="catchCountdown">30</span> 秒後消失</small>
                     </div>
-                </div>
-                  <!-- 道館選擇介面 (最初隱藏) -->
+                </div>                <!-- 道館選擇介面 (最初隱藏) -->
                 <div id="gymSelection" class="gym-selection" style="display: none;">
-                    <h5>附近公車站牌擂台</h5>
-                    <p class="small text-muted mb-3">選擇一個站牌擂台開始您的冒險</p>
+                    <h5>選擇您的起始基地道館</h5>
+                    <p class="small text-muted mb-3">選擇一個著名地標作為您的個人基地，這將是您的專屬道館</p>
                     <div class="gym-list">
                         <div class="gym-item" data-gym-id="tutorial-gym-1" data-lat="25.03556" data-lng="121.51972">
                             <div class="gym-icon">
-                                <i class="fas fa-building"></i>
+                                <i class="fas fa-monument"></i>
                             </div>
                             <div class="gym-info">
-                                <h6>中正紀念堂站道館</h6>
-                                <small>等級: 3級 (經過3條公車路線)</small>
+                                <h6>中正紀念堂基地</h6>
+                                <small>等級: 5級 特級基地道館</small>
                                 <div class="d-flex align-items-center mt-1">
-                                    <span class="route-badge" style="background-color: #4caf50;">貓空左線</span>
-                                    <span class="route-badge" style="background-color: #ff9800;">貓空右線</span>
-                                    <span class="route-badge" style="background-color: #9c27b0;">貓左指南宮</span>
+                                    <span class="route-badge" style="background-color: #dc3545;">個人基地</span>
+                                    <span class="route-badge" style="background-color: #ffc107;">歷史地標</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="gym-item" data-gym-id="tutorial-gym-2" data-lat="25.03756" data-lng="121.52172">
+                        <div class="gym-item" data-gym-id="tutorial-gym-2" data-lat="25.1021" data-lng="121.5482">
+                            <div class="gym-icon">
+                                <i class="fas fa-university"></i>
+                            </div>
+                            <div class="gym-info">
+                                <h6>國立故宮博物院基地</h6>
+                                <small>等級: 5級 特級基地道館</small>
+                                <div class="d-flex align-items-center mt-1">
+                                    <span class="route-badge" style="background-color: #dc3545;">個人基地</span>
+                                    <span class="route-badge" style="background-color: #6f42c1;">文化殿堂</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="gym-item" data-gym-id="tutorial-gym-3" data-lat="25.047778" data-lng="121.517222">
+                            <div class="gym-icon">
+                                <i class="fas fa-train"></i>
+                            </div>
+                            <div class="gym-info">
+                                <h6>台北車站基地</h6>
+                                <small>等級: 5級 特級基地道館</small>
+                                <div class="d-flex align-items-center mt-1">
+                                    <span class="route-badge" style="background-color: #dc3545;">個人基地</span>
+                                    <span class="route-badge" style="background-color: #17a2b8;">交通樞紐</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="gym-item" data-gym-id="tutorial-gym-4" data-lat="25.040000" data-lng="121.560000">
+                            <div class="gym-icon">
+                                <i class="fas fa-flag"></i>
+                            </div>
+                            <div class="gym-info">
+                                <h6>國父紀念館基地</h6>
+                                <small>等級: 5級 特級基地道館</small>
+                                <div class="d-flex align-items-center mt-1">
+                                    <span class="route-badge" style="background-color: #dc3545;">個人基地</span>
+                                    <span class="route-badge" style="background-color: #28a745;">紀念場所</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="gym-item" data-gym-id="tutorial-gym-5" data-lat="25.033611" data-lng="121.564444">
                             <div class="gym-icon">
                                 <i class="fas fa-building"></i>
                             </div>
                             <div class="gym-info">
-                                <h6>東門站道館</h6>
-                                <small>等級: 2級 (經過2條公車路線)</small>
+                                <h6>台北101基地</h6>
+                                <small>等級: 5級 特級基地道館</small>
                                 <div class="d-flex align-items-center mt-1">
-                                    <span class="route-badge" style="background-color: #4caf50;">貓空左線</span>
-                                    <span class="route-badge" style="background-color: #ff9800;">貓空右線</span>
+                                    <span class="route-badge" style="background-color: #dc3545;">個人基地</span>
+                                    <span class="route-badge" style="background-color: #fd7e14;">摩天地標</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                  <!-- 占領道館介面 (最初隱藏) -->
+                </div>                <!-- 占領道館介面 (最初隱藏) -->
                 <div id="gymOccupation" class="gym-occupation" style="display: none;">
                     <div class="battle-header mb-3">
-                        <h5 id="battleArenaName">中正紀念堂站道館</h5>
+                        <h5 id="battleArenaName">您的基地道館</h5>
                         <div class="battle-status">
-                            <span class="badge bg-success">空置</span>
-                            <span class="text-muted small">尚無人佔領此道館</span>
+                            <span class="badge bg-success">可建立</span>
+                            <span class="text-muted small">建立您的個人基地道館</span>
                         </div>
                     </div>
-                    <h5>選擇一隻精靈進行佔領</h5>
-                    <p class="text-muted small mb-3">放置強大的精靈來守護您的道館</p>
+                    <h5>選擇一隻精靈守護您的基地</h5>
+                    <p class="text-muted small mb-3">放置您最強的精靈來守護您的個人基地道館</p>
                     <div class="creatures-list">
                         <div class="creature-selection-item" data-creature-id="starter_creature">
                             <img id="starterCreatureImg" src="" alt="初始精靈" class="creature-select-img">
@@ -114,10 +150,10 @@
                     </div>
                     <div class="occupation-notice alert alert-info mt-3">
                         <i class="fas fa-info-circle me-2"></i>
-                        <small>佔領道館後，其他玩家可以挑戰您的精靈。如果他們獲勝，道館擁有權將轉移給他們。</small>
+                        <small>這是您的個人基地道館，作為您在遊戲中的據點。建立基地後，您就可以開始探索更廣闊的世界！</small>
                     </div>
                     <button id="occupyGymButton" class="btn btn-danger btn-block mt-3 w-100">
-                        <i class="fas fa-flag me-2"></i>佔領道館
+                        <i class="fas fa-home me-2"></i>建立基地
                     </button>
                 </div>
             </div>

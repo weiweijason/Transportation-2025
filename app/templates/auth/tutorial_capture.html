@@ -543,23 +543,19 @@
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
     const continueButton = document.getElementById('continueButton');    const circleTypeItems = document.querySelectorAll('.circle-type-item');
-    
-    // 魔法陣等級和剩餘數量
+      // 魔法陣等級和剩餘數量（教學模式固定配置）
     const circleCounts = {
       normal: 0,
       advanced: 0,
-      premium: 0
+      premium: 1  // 教學模式固定為1個高級魔法陣
     };
       // 魔法陣成功率
     const circleRates = {
       normal: 60,
       advanced: 80,
       premium: 95
-    };
-      // 當前選擇的魔法陣類型
-    let selectedCircleType = 'premium';
-
-    // 從 Firebase 獲取用戶背包數據
+    };    // 當前選擇的魔法陣類型
+    let selectedCircleType = 'premium';// 從 Firebase 獲取用戶背包數據（教學模式有特殊處理）
     async function loadUserBackpack() {
       try {
         const response = await fetch('/game/api/user/backpack', {
@@ -572,19 +568,21 @@
         });        if (response.ok) {
           const data = await response.json();
           console.log('API 響應數據:', data);
-          if (data.success && data.backpack) {
-            // 更新魔法陣數量，如果用戶背包中有對應資料
-            if (data.backpack.normal && data.backpack.normal.count !== undefined) {
-              circleCounts.normal = data.backpack.normal.count;
+          if (data.success && data.backpack) {            // 教學模式：不同步普通和進階魔法陣數量，只同步成功率
+            if (data.backpack.normal && data.backpack.normal.success_rate !== undefined) {
+              circleCounts.normal = 0;  // 教學模式固定為0個
               circleRates.normal = Math.round(data.backpack.normal.success_rate * 100);
             }
-            if (data.backpack.advanced && data.backpack.advanced.count !== undefined) {
-              circleCounts.advanced = data.backpack.advanced.count;
+            if (data.backpack.advanced && data.backpack.advanced.success_rate !== undefined) {
+              circleCounts.advanced = 0;  // 教學模式固定為0個
               circleRates.advanced = Math.round(data.backpack.advanced.success_rate * 100);
-            }
-            if (data.backpack.premium && data.backpack.premium.count !== undefined) {
-              circleCounts.premium = data.backpack.premium.count;
+            }if (data.backpack.premium && data.backpack.premium.success_rate !== undefined) {
+              // 教學模式：高級魔法陣數量固定為1，但成功率可以同步
+              circleCounts.premium = 1;  // 教學模式固定為1個
               circleRates.premium = Math.round(data.backpack.premium.success_rate * 100);
+            } else {
+              // 如果沒有高級魔法陣數據，使用默認值
+              circleCounts.premium = 1;  // 教學模式固定為1個
             }
               // 更新UI顯示
             updateCircleItems();
@@ -595,30 +593,30 @@
             // 設置默認選中的魔法陣（選擇有庫存的最高級別）
             setDefaultSelectedCircle();
             
-            console.log('教學模式：已載入背包數據:', circleCounts);          } else {
-            console.warn('教學模式：背包數據載入失敗，使用默認值');
-            // 為教學模式設置默認的魔法陣數量
-            circleCounts.normal = 10;
-            circleCounts.advanced = 5;
-            circleCounts.premium = 3;
+            console.log('教學模式：已載入背包數據，高級魔法陣固定為1個:', circleCounts);          } else {
+            console.warn('教學模式：背包數據載入失敗，使用教學模式默認值');
+            // 教學模式的默認配置
+            circleCounts.normal = 0;
+            circleCounts.advanced = 0;
+            circleCounts.premium = 1;  // 教學模式固定為1個高級魔法陣
             updateCircleItems();
             updateCircleRates();
             setDefaultSelectedCircle();
           }        } else {
           console.error('教學模式：獲取背包數據失敗:', response.status);
-          // 為教學模式設置默認的魔法陣數量
-          circleCounts.normal = 10;
-          circleCounts.advanced = 5;
-          circleCounts.premium = 3;
+          // 教學模式的默認配置
+          circleCounts.normal = 0;
+          circleCounts.advanced = 0;
+          circleCounts.premium = 1;  // 教學模式固定為1個高級魔法陣
           updateCircleItems();
           updateCircleRates();
           setDefaultSelectedCircle();
         }      } catch (error) {
         console.error('教學模式：載入背包數據時出錯:', error);
-        // 為教學模式設置默認的魔法陣數量
-        circleCounts.normal = 10;
-        circleCounts.advanced = 5;
-        circleCounts.premium = 3;
+        // 教學模式的默認配置
+        circleCounts.normal = 0;
+        circleCounts.advanced = 0;
+        circleCounts.premium = 1;  // 教學模式固定為1個高級魔法陣
         updateCircleItems();
         updateCircleRates();
         setDefaultSelectedCircle();
@@ -679,10 +677,17 @@
         
         rateElement.textContent = `成功率：${circleRates[type]}%`;
       });
-    }
-    
-    // 載入用戶背包數據
-    loadUserBackpack();
+    }    // 載入用戶背包數據（教學模式下確保初始化）
+    loadUserBackpack().then(() => {
+      // 教學模式：強制重置魔法陣數量為指定值
+      circleCounts.normal = 0;
+      circleCounts.advanced = 0;
+      circleCounts.premium = 1;
+      
+      updateCircleItems();
+      setDefaultSelectedCircle();
+      console.log('教學模式：強制設定魔法陣數量 - 普通:0, 進階:0, 高級:1');
+    });
     
     // 點擊選擇魔法陣
     circleTypeItems.forEach(item => {
@@ -699,10 +704,20 @@
         updateCircleItems();
       });
     });
-    
-    // 初始隱藏魔法陣
+      // 初始隱藏魔法陣
     magicCircle.style.display = 'none';
     magicCircleInner.style.display = 'none';
+    
+    // 教學模式：強制設置正確的魔法陣數量
+    setTimeout(() => {
+      circleCounts.normal = 0;
+      circleCounts.advanced = 0;
+      circleCounts.premium = 1;
+      updateCircleItems();
+      setDefaultSelectedCircle();
+      console.log('教學模式：延遲設定魔法陣數量 - 普通:0, 進階:0, 高級:1');
+    }, 100);
+    
     
     // 主題切換功能
     function initTheme() {
@@ -846,8 +861,7 @@
     // 開始捕捉
     let captureInProgress = false;    captureBtn.addEventListener('click', function() {
       if (captureInProgress) return;
-      
-      // 檢查是否有足夠的魔法陣
+        // 檢查是否有足夠的魔法陣（教學模式特殊處理）
       if (circleCounts[selectedCircleType] <= 0) {
         alert('您沒有足夠的魔法陣！');
         return;

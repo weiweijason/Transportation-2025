@@ -124,17 +124,14 @@ const tutorialMap = {
             clearInterval(pulseAnimation);
             tutorialConfig.map.removeLayer(pulseCircle);
         }, 5000);
-        
-        // 添加道館標記 - 針對不同等級使用不同圖標
+          // 添加道館標記 - 所有基地道館都是5級特級道館
         tutorialConfig.gyms.forEach(gym => {
-            // 判斷道館等級
-            const isHighLevel = !gym.id.includes('2'); // 3級道館為高級
-            
+            // 所有基地道館都使用統一的5級道館圖標
             const gymIcon = L.divIcon({
-                className: `gym-marker ${isHighLevel ? 'high-level' : 'mid-level'}`,
-                html: `<i class="fas ${isHighLevel ? 'fa-building' : 'fa-house-user'}"></i>`,
-                iconSize: [40, 40],
-                iconAnchor: [20, 40]
+                className: 'gym-marker base-level',
+                html: `<i class="fas fa-crown"></i>`, // 使用皇冠圖標表示基地
+                iconSize: [45, 45], // 比一般道館稍大
+                iconAnchor: [22.5, 45]
             });
             
             // 創建標記並添加到地圖
@@ -145,17 +142,12 @@ const tutorialMap = {
             const popupContent = `
                 <div class="gym-popup text-center">
                     <h5>${gym.name}</h5>
-                    <p class="mb-1"><span class="badge ${isHighLevel ? 'bg-danger' : 'bg-success'}">等級 ${isHighLevel ? '3' : '2'}</span></p>
+                    <p class="mb-1"><span class="badge bg-danger">等級 5 - 特級基地</span></p>
                     <div class="routes-container mt-2">
-                        ${isHighLevel ? 
-                            `<span class="route-badge" style="background-color: #4caf50;">貓空左線</span>
-                            <span class="route-badge" style="background-color: #ff9800;">貓空右線</span>
-                            <span class="route-badge" style="background-color: #9c27b0;">貓左指南宮</span>` : 
-                            `<span class="route-badge" style="background-color: #4caf50;">貓空左線</span>
-                            <span class="route-badge" style="background-color: #ff9800;">貓空右線</span>`
-                        }
+                        <span class="route-badge" style="background-color: #dc3545;">個人基地</span>
+                        <span class="route-badge" style="background-color: #ffc107;">地標建築</span>
                     </div>
-                    <p class="mt-2 mb-0"><small>點擊查看道館詳情</small></p>
+                    <p class="mt-2 mb-0"><small>點擊選擇此地作為您的基地</small></p>
                 </div>
             `;
             

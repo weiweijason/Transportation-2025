@@ -1756,3 +1756,65 @@ class FirebaseService:
             import traceback
             traceback.print_exc()
             return []
+    
+    def save_user_base_gym(self, user_id, gym_data):
+        """保存使用者的基地道館
+        
+        Args:
+            user_id (str): 使用者ID
+            gym_data (dict): 道館資料
+            
+        Returns:
+            dict: 保存結果
+        """
+        try:
+            print(f">>> DEBUG: 保存基地道館 ID: {gym_data.get('gym_id')}, 用戶 ID: {user_id}")
+            
+            # 準備基地道館資料
+            base_gym_data = {
+                'user_id': user_id,
+                'gym_id': gym_data.get('gym_id'),
+                'gym_name': gym_data.get('gym_name'),
+                'gym_level': gym_data.get('gym_level', 5),
+                'lat': gym_data.get('lat'),
+                'lng': gym_data.get('lng'),
+                'guardian_creature': gym_data.get('guardian_creature', {}),
+                'established_at': time.time(),
+                'is_tutorial_base': True,  # 標記為教學基地
+                'status': 'active'
+            }
+            
+            # 保存到 user_base_gyms 集合中
+            base_gym_ref = self.firestore_db.collection('user_base_gyms').document(f"{user_id}_{gym_data.get('gym_id')}")
+            base_gym_ref.set(base_gym_data)
+            
+            # 同時更新用戶資料，記錄當前基地道館
+            user_ref = self.firestore_db.collection('users').document(user_id)
+            user_ref.update({
+                'current_base_gym': {
+                    'gym_id': gym_data.get('gym_id'),
+                    'gym_name': gym_data.get('gym_name'),
+                    'established_at': time.time()
+                },
+                'tutorial_completed': {
+                    'base_selection': True,
+                    'completed_at': time.time()
+                }
+            })
+            
+            print(f">>> DEBUG: 基地道館保存成功: {gym_data.get('gym_name')}")
+            
+            return {
+                'status': 'success',
+                'message': f"已成功建立基地: {gym_data.get('gym_name')}",
+                'base_gym_data': base_gym_data
+            }
+            
+        except Exception as e:
+            print(f">>> DEBUG: 保存基地道館失敗: {e}")
+            import traceback
+            print(f">>> DEBUG: 錯誤詳情: {traceback.format_exc()}")
+            return {
+                'status': 'error',
+                'message': f'保存基地道館失敗: {str(e)}'
+            }
