@@ -65,6 +65,7 @@ def map_route_id_to_csv_route(route_id):
         'cat_left': 'cat_left_route',
         'cat_right': 'cat_right_route',
         'br3': 'br3_route',
+        'brown-3': 'br3_route',  # 棕3路線映射到br3_route
         # 新的第四條路線
         'new_route': 'NEW'
     }
@@ -83,7 +84,8 @@ def load_route_geometry(route_id):
     route_files = {
         'cat_right': 'app/data/routes/cat_right_route.json',
         'cat_left': 'app/data/routes/cat_left_route.json',
-        'cat_left_zhinan': 'app/data/routes/cat_left_zhinan_route.json'
+        'cat_left_zhinan': 'app/data/routes/cat_left_zhinan_route.json',
+        'brown-3': 'app/data/routes/brown_3_route.json'
     }
     
     route_key = None
@@ -93,6 +95,8 @@ def load_route_geometry(route_id):
         route_key = 'cat_left_zhinan'
     elif 'cat_left' in route_id:
         route_key = 'cat_left'
+    elif 'brown-3' in route_id or 'brown_3' in route_id:
+        route_key = 'brown-3'
     
     if route_key and route_key in route_files:
         try:

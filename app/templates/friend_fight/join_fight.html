@@ -197,13 +197,12 @@ function showRoomInfo(roomData) {
     }
     
     const hostCreature = roomData.host_creature;
-    
-    // 顯示房主精靈
+      // 顯示房主精靈
     document.getElementById('host-creature').innerHTML = `
         <div class="creature-display">
-            <img src="${hostCreature.image_url || '/static/images/default-creature.png'}" alt="${hostCreature.name}">
+            <img src="${hostCreature.image_url || '/static/img/creature.PNG'}" alt="${hostCreature.name}">
             <div class="mt-2"><strong>${hostCreature.name}</strong></div>
-            <small class="text-muted">${hostCreature.element} | 力量: ${hostCreature.power}</small>
+            <small class="text-muted">${hostCreature.element} | ATK: ${hostCreature.attack || 100} | HP: ${hostCreature.hp || 1000}</small>
         </div>
     `;
     
@@ -216,39 +215,79 @@ function selectCreature() {
 }
 
 function loadUserCreatures() {
+    console.log('開始載入用戶精靈...');
+    const creatureList = document.getElementById('creature-list');
+    
+    // 顯示載入狀態
+    creatureList.innerHTML = `
+        <div class="col-12 text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">載入中...</span>
+            </div>
+            <p class="mt-2">正在載入您的精靈...</p>
+        </div>
+    `;
+    
     fetch('/game/api/user/creatures')
-        .then(response => response.json())        .then(data => {
-            const creatureList = document.getElementById('creature-list');
+        .then(response => {
+            console.log('API 響應狀態:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('收到精靈數據:', data);
             creatureList.innerHTML = '';
             
             if (Array.isArray(data) && data.length > 0) {
+                console.log(`載入了 ${data.length} 隻精靈`);
                 data.forEach(creature => {
                     const creatureCard = createCreatureCard(creature);
                     creatureList.appendChild(creatureCard);
                 });
             } else if (data.error) {
+                console.error('API 返回錯誤:', data.error);
                 creatureList.innerHTML = `<div class="col-12 text-center"><p class="text-danger">載入錯誤：${data.error}</p></div>`;
             } else {
+                console.log('用戶沒有精靈');
                 creatureList.innerHTML = '<div class="col-12 text-center"><p class="text-muted">你還沒有捕捉到任何精靈！<br><a href="{{ url_for("game.catch") }}">立即去捕捉</a></p></div>';
             }
         })
         .catch(error => {
-            console.error('Error loading creatures:', error);
-            showStatus('載入精靈失敗', 'danger');
+            console.error('載入精靈時發生錯誤:', error);
+            creatureList.innerHTML = `
+                <div class="col-12 text-center py-4">
+                    <p class="text-danger">載入精靈失敗</p>
+                    <p class="text-muted">錯誤詳情: ${error.message}</p>
+                    <button class="btn btn-outline-primary btn-sm" onclick="loadUserCreatures()">
+                        <i class="fas fa-redo me-1"></i>重試
+                    </button>
+                </div>
+            `;
+            showStatus('載入精靈失敗: ' + error.message, 'danger');
         });
 }
 
 function createCreatureCard(creature) {
+    console.log('創建精靈卡片:', creature);
     const div = document.createElement('div');
-    div.className = 'col-md-4 col-sm-6 mb-3';
+    div.className = 'col-md-4 col-sm-6 mb-3';    // 確保必要的字段存在
+    const creatureName = creature.name || '未知精靈';
+    const creatureImageUrl = creature.image_url || '/static/img/creature.PNG';
+    const creatureElement = creature.element || creature.type || 'Normal';
+    const creatureAttack = creature.attack || 100;
+    const creatureHp = creature.hp || 1000;
+    
     div.innerHTML = `
-        <div class="card creature-card h-100" onclick="chooseCreature('${creature.id}', '${creature.name}', '${creature.image_url}', '${creature.element}', ${creature.power})">
-            <img src="${creature.image_url}" class="card-img-top" alt="${creature.name}" style="height: 150px; object-fit: cover;">
+        <div class="card creature-card h-100" onclick="chooseCreature('${creature.id}', '${creatureName}', '${creatureImageUrl}', '${creatureElement}', ${creatureAttack}, ${creatureHp})">
+            <img src="${creatureImageUrl}" class="card-img-top" alt="${creatureName}" style="height: 150px; object-fit: cover;"
+                 onerror="this.src='/static/img/creature.PNG'">
             <div class="card-body text-center">
-                <h6 class="card-title">${creature.name}</h6>
-                <span class="badge bg-${getElementColor(creature.element)}">${creature.element}</span>
+                <h6 class="card-title">${creatureName}</h6>
+                <span class="badge bg-${getElementColor(creatureElement)}">${creatureElement}</span>
                 <div class="mt-2">
-                    <small class="text-muted">力量: ${creature.power}</small>
+                    <small class="text-muted">ATK: ${creatureAttack} | HP: ${creatureHp}</small>
                 </div>
             </div>
         </div>
@@ -267,14 +306,15 @@ function getElementColor(element) {
     return colors[element] || 'secondary';
 }
 
-function chooseCreature(creatureId, creatureName, imageUrl, element, power) {
+function chooseCreature(creatureId, creatureName, imageUrl, element, attack, hp) {
     selectedCreatureId = creatureId;
     selectedCreatureData = {
         id: creatureId,
         name: creatureName,
         image_url: imageUrl,
         element: element,
-        power: power
+        attack: attack,
+        hp: hp
     };
     
     // 清除之前的選擇狀態
@@ -290,7 +330,7 @@ function chooseCreature(creatureId, creatureName, imageUrl, element, power) {
         <div class="creature-display">
             <img src="${imageUrl}" alt="${creatureName}">
             <div class="mt-2"><strong>${creatureName}</strong></div>
-            <small class="text-muted">${element} | 力量: ${power}</small>
+            <small class="text-muted">${element} | ATK: ${attack} | HP: ${hp}</small>
         </div>
     `;
     

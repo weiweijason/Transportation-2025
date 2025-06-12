@@ -30,9 +30,11 @@ LOCAL_DATA_FILES = {
     'cat-right-route': os.path.join(ROUTES_DATA_DIR, 'cat_right_route.json'),
     'cat-left-route': os.path.join(ROUTES_DATA_DIR, 'cat_left_route.json'),
     'cat-left-zhinan-route': os.path.join(ROUTES_DATA_DIR, 'cat_left_zhinan_route.json'),
+    'brown-3-route': os.path.join(ROUTES_DATA_DIR, 'brown_3_route.json'),
     'cat-right-stops': os.path.join(STOPS_DATA_DIR, 'cat_right_stops.json'),
     'cat-left-stops': os.path.join(STOPS_DATA_DIR, 'cat_left_stops.json'),
     'cat-left-zhinan-stops': os.path.join(STOPS_DATA_DIR, 'cat_left_zhinan_stops.json'),
+    'brown-3-stops': os.path.join(STOPS_DATA_DIR, 'brown_3_stops.json'),
 }
 
 # 緩存配置
@@ -342,6 +344,86 @@ def fetch_and_save_cat_left_zhinan_route():
     success = save_data_to_file(route_data, LOCAL_DATA_FILES['cat-left-zhinan-route'])
     return success
 
+def fetch_and_save_brown_3_route():
+    """
+    獲取并保存棕3路線的路線資料
+    """
+    logger.info("開始獲取棕3路線路線資料")
+    token = get_tdx_token()
+    if not token:
+        logger.error("獲取TDX Token失敗")
+        return False
+    
+    # 使用StopOfRoute API 獲取包含路線幾何的資料
+    url = f"{TDX_API_URL}/V3/Map/Bus/Network/StopOfRoute/City/Taipei/RouteName/%E6%A3%953?$format=GEOJSON"
+
+    data = make_tdx_request(url, token)
+    
+    # 處理GeoJSON格式的資料
+    route_data = []
+    
+    if data and isinstance(data, dict) and data.get('type') == 'FeatureCollection':
+        features = data.get('features', [])
+        logger.info(f"獲得 {len(features)} 個特徵")
+        
+        for feature in features:
+            if feature.get('type') == 'Feature':
+                geometry = feature.get('geometry', {})
+                
+                # 處理LineString類型的幾何資料
+                if geometry.get('type') == 'LineString':
+                    coordinates = geometry.get('coordinates', [])
+                    logger.info(f"找到LineString，包含 {len(coordinates)} 個座標點")
+                    
+                    for coord in coordinates:
+                        if isinstance(coord, list) and len(coord) >= 2:
+                            route_data.append({
+                                "PositionLat": coord[1],  # 緯度
+                                "PositionLon": coord[0]   # 經度
+                            })
+                    
+                    # 只處理第一個LineString就停止（通常第一個方向就足夠了）
+                    if route_data:
+                        logger.info(f"成功提取了 {len(route_data)} 個路線座標點")
+                        break
+    
+    # 如果沒有路線幾何資料，從站點資料構造路線
+    if not route_data:
+        logger.info("無路線幾何資料，從站點資料構造路線")
+        if data and isinstance(data, dict) and data.get('type') == 'FeatureCollection':
+            features = data.get('features', [])
+            
+            # 收集所有Point類型的站點
+            stops = []
+            for feature in features:
+                if (feature.get('type') == 'Feature' and 
+                    feature.get('geometry', {}).get('type') == 'Point'):
+                    
+                    properties = feature.get('properties', {}).get('model', {})
+                    coordinates = feature.get('geometry', {}).get('coordinates', [])
+                    
+                    if len(coordinates) >= 2 and properties.get('StopSequence'):
+                        stops.append({
+                            'sequence': int(properties.get('StopSequence', 0)),
+                            'lat': coordinates[1],
+                            'lon': coordinates[0]
+                        })
+            
+            # 按StopSequence排序站點
+            stops.sort(key=lambda x: x['sequence'])
+            
+            for stop in stops:
+                route_data.append({
+                    "PositionLat": stop['lat'],
+                    "PositionLon": stop['lon']
+                })
+            
+            logger.info(f"從 {len(stops)} 個站點構造了路線")
+    
+    # 保存到本地文件
+    success = save_data_to_file(route_data, LOCAL_DATA_FILES['brown-3-route'])
+    return success
+
 def fetch_and_save_cat_right_stops():
     """
     獲取并保存貓空右線的站牌資料
@@ -408,6 +490,28 @@ def fetch_and_save_cat_left_zhinan_stops():
     success = save_data_to_file(stops_data, LOCAL_DATA_FILES['cat-left-zhinan-stops'])
     return success
 
+def fetch_and_save_brown_3_stops():
+    """
+    獲取并保存棕3路線的站牌資料
+    """
+    logger.info("開始獲取棕3路線站點資料")
+    token = get_tdx_token()
+    if not token:
+        logger.error("獲取TDX Token失敗")
+        return False
+    
+    # 使用V3 Map API獲取GeoJSON格式的站點資料
+    url = f"{TDX_API_URL}/V3/Map/Bus/Network/StopOfRoute/City/Taipei/RouteName/%E6%A3%953?$format=GEOJSON"
+    
+    data = make_tdx_request(url, token)
+    
+    # 處理GeoJSON格式的資料
+    stops_data = process_geojson_data(data, "stops")
+    
+    # 保存到本地文件
+    success = save_data_to_file(stops_data, LOCAL_DATA_FILES['brown-3-stops'])
+    return success
+
 def fetch_all_data():
     """
     獲取并保存所有貓空纜車路線和站點資料
@@ -445,6 +549,11 @@ def fetch_all_data():
     logger.info("抓取貓空左線(指南宮)路線資料...")
     route_results['cat-left-zhinan-route'] = fetch_and_save_cat_left_zhinan_route()
     print(f"=== 貓空左線(指南宮)路線資料抓取完成, 結果: {'成功' if route_results['cat-left-zhinan-route'] else '失敗'} ===")
+    
+    # 抓取棕3路線資料
+    logger.info("抓取棕3路線資料...")
+    route_results['brown-3-route'] = fetch_and_save_brown_3_route()
+    print(f"=== 棕3路線資料抓取完成, 結果: {'成功' if route_results['brown-3-route'] else '失敗'} ===")
     
     # 計算路線資料抓取的成功率
     route_success_count = sum(1 for success in route_results.values() if success)
@@ -486,6 +595,11 @@ def fetch_all_data():
     logger.info("抓取貓空左線(指南宮)站點資料...")
     stops_results['cat-left-zhinan-stops'] = fetch_and_save_cat_left_zhinan_stops()
     print(f"=== 貓空左線(指南宮)站點資料抓取完成, 結果: {'成功' if stops_results['cat-left-zhinan-stops'] else '失敗'} ===")
+    
+    # 抓取棕3站點資料
+    logger.info("抓取棕3路線站點資料...")
+    stops_results['brown-3-stops'] = fetch_and_save_brown_3_stops()
+    print(f"=== 棕3路線站點資料抓取完成, 結果: {'成功' if stops_results['brown-3-stops'] else '失敗'} ===")
     
     # 計算站點資料抓取的成功率
     stops_success_count = sum(1 for success in stops_results.values() if success)
@@ -579,6 +693,31 @@ def get_cat_left_zhinan_route():
         
     return local_data
 
+def get_brown_3_route():
+    """
+    獲取棕3路線的路線資料
+    優先從本地文件讀取，如果不存在或已過期則從API獲取
+    """
+    # 嘗試從本地文件讀取
+    local_data = load_data_from_file(LOCAL_DATA_FILES['brown-3-route'])
+    
+    if local_data is not None:
+        return local_data
+    
+    # 本地數據不存在或已過期，從API獲取
+    logger.info("本地棕3路線路線數據不存在或已過期，從API獲取")
+    fetch_and_save_brown_3_route()
+    
+    # 再次嘗試從本地文件讀取
+    local_data = load_data_from_file(LOCAL_DATA_FILES['brown-3-route'])
+    
+    # 如果仍然無法獲取數據，返回空列表
+    if local_data is None:
+        logger.warning("無法獲取棕3路線路線數據，返回空列表")
+        return []
+        
+    return local_data
+
 def get_cat_right_stops():
     """
     獲取貓空右線的站牌資料
@@ -654,6 +793,31 @@ def get_cat_left_zhinan_stops():
         
     return local_data
 
+def get_brown_3_stops():
+    """
+    獲取棕3路線的站牌資料
+    優先從本地文件讀取，如果不存在或已過期則從API獲取
+    """
+    # 嘗試從本地文件讀取
+    local_data = load_data_from_file(LOCAL_DATA_FILES['brown-3-stops'])
+    
+    if local_data is not None:
+        return local_data
+    
+    # 本地數據不存在或已過期，從API獲取
+    logger.info("本地棕3路線站點數據不存在或已過期，從API獲取")
+    fetch_and_save_brown_3_stops()
+    
+    # 再次嘗試從本地文件讀取
+    local_data = load_data_from_file(LOCAL_DATA_FILES['brown-3-stops'])
+    
+    # 如果仍然無法獲取數據，返回空列表
+    if local_data is None:
+        logger.warning("無法獲取棕3路線站點數據，返回空列表")
+        return []
+        
+    return local_data
+
 def get_data_status():
     """
     獲取所有本地數據的狀態
@@ -704,12 +868,11 @@ class TdxService:
     def __init__(self):
         """初始化 TDX 服務"""
         self.token = get_tdx_token()
-    
     def get_route_stops(self, route_key):
         """獲取指定路線的站點資料
         
         Args:
-            route_key: 路線鍵值，可以是 'cat-right', 'cat-left', 'cat-left-zhinan'
+            route_key: 路線鍵值，可以是 'cat-right', 'cat-left', 'cat-left-zhinan', 'brown-3'
             
         Returns:
             站點資料列表
@@ -720,15 +883,16 @@ class TdxService:
             return get_cat_left_stops()
         elif route_key == 'cat-left-zhinan':
             return get_cat_left_zhinan_stops()
+        elif route_key == 'brown-3':
+            return get_brown_3_stops()
         else:
             logger.warning(f"不支援的路線鍵值: {route_key}")
             return []
-    
     def get_route_data(self, route_key):
         """獲取指定路線的路線資料
         
         Args:
-            route_key: 路線鍵值，可以是 'cat-right', 'cat-left', 'cat-left-zhinan'
+            route_key: 路線鍵值，可以是 'cat-right', 'cat-left', 'cat-left-zhinan', 'brown-3'
             
         Returns:
             路線資料列表
@@ -739,6 +903,8 @@ class TdxService:
             return get_cat_left_route()
         elif route_key == 'cat-left-zhinan':
             return get_cat_left_zhinan_route()
+        elif route_key == 'brown-3':
+            return get_brown_3_route()
         else:
             logger.warning(f"不支援的路線鍵值: {route_key}")
             return []

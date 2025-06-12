@@ -3,7 +3,7 @@
 // 導入所有模組
 import { initMap } from './modules/map-core.js';
 import { updateUserLocation } from './modules/user-location.js';
-import { loadAllRoutes, loadCatRightRoute, loadCatLeftRoute, loadCatLeftZhinanRoute } from './modules/route-manager.js';
+import { loadAllRoutes, loadCatRightRoute, loadCatLeftRoute, loadCatLeftZhinanRoute, loadBrown3Route } from './modules/route-manager.js';
 import { loadAllBusStops } from './modules/stop-manager.js';
 import { createArena, showArenaInfo, renderAllArenas } from './modules/arena-manager.js';
 import { showLoading, hideLoading, showErrorMessage } from './modules/ui-utils.js';
@@ -28,6 +28,7 @@ window.loadAllRoutes = loadAllRoutes;
 window.loadCatRightRoute = loadCatRightRoute;
 window.loadCatLeftRoute = loadCatLeftRoute;
 window.loadCatLeftZhinanRoute = loadCatLeftZhinanRoute;
+window.loadBrown3Route = loadBrown3Route;
 window.loadAllBusStops = loadAllBusStops;
 window.showArenaInfo = showArenaInfo;
 window.createArena = createArena;

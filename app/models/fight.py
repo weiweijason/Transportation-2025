@@ -50,28 +50,65 @@ def battle_system(A_atk: float, A_hp: float, A_type: str,
 def calculate_battle(host_creature, visitor_creature):
     """計算好友對戰結果"""
     try:
-        # 提取精靈數據
-        host_power = host_creature.get('power', 100)
-        host_element = host_creature.get('element', 'normal').lower()
+        # 提取精靈數據，確保所有數值都不是 None
+        # 優先使用 Firebase 中的實際 attack 和 hp 值
+        host_attack_value = host_creature.get('attack')
+        host_hp_value = host_creature.get('hp')
+        host_power_value = host_creature.get('power')
+        
+        if host_attack_value is not None:
+            host_attack = float(host_attack_value)
+        elif host_power_value is not None:
+            host_attack = float(host_power_value)
+        else:
+            host_attack = 100.0
+            
+        if host_hp_value is not None:
+            host_hp = float(host_hp_value)
+        elif host_power_value is not None:
+            host_hp = float(host_power_value) * 10
+        else:
+            host_hp = 1000.0
+        
+        visitor_attack_value = visitor_creature.get('attack')
+        visitor_hp_value = visitor_creature.get('hp')
+        visitor_power_value = visitor_creature.get('power')
+        
+        if visitor_attack_value is not None:
+            visitor_attack = float(visitor_attack_value)
+        elif visitor_power_value is not None:
+            visitor_attack = float(visitor_power_value)
+        else:
+            visitor_attack = 100.0
+            
+        if visitor_hp_value is not None:
+            visitor_hp = float(visitor_hp_value)
+        elif visitor_power_value is not None:
+            visitor_hp = float(visitor_power_value) * 10
+        else:
+            visitor_hp = 1000.0
+        
+        # 獲取元素類型和名稱
+        host_element = (host_creature.get('element_type') or 
+                       host_creature.get('type') or 
+                       host_creature.get('element') or 'normal')
         host_name = host_creature.get('name', '精靈A')
         
-        visitor_power = visitor_creature.get('power', 100)
-        visitor_element = visitor_creature.get('element', 'normal').lower()
-        visitor_name = visitor_creature.get('name', '精靈B')
-        
-        # 將power轉換為攻擊力和血量
-        # 攻擊力 = power * 0.8~1.2隨機
-        # 血量 = power * 2.5~3.5隨機
-        host_atk = host_power * random.uniform(0.8, 1.2)
-        host_hp = host_power * random.uniform(2.5, 3.5)
-        
-        visitor_atk = visitor_power * random.uniform(0.8, 1.2)
-        visitor_hp = visitor_power * random.uniform(2.5, 3.5)
+        visitor_element = (visitor_creature.get('element_type') or 
+                          visitor_creature.get('type') or 
+                          visitor_creature.get('element') or 'normal')
+        visitor_name = visitor_creature.get('name', '精靈B')        # 戰鬥邏輯基於攻擊力和血量
+        # 攻擊力調整 = 基礎攻擊力 * 0.8~1.2隨機
+        # 血量調整 = 基礎血量 * 0.9~1.1隨機
+        host_atk = host_attack * random.uniform(0.8, 1.2)
+        host_hp_battle = host_hp * random.uniform(0.9, 1.1)
+        visitor_atk = visitor_attack * random.uniform(0.8, 1.2)
+        visitor_hp_battle = visitor_hp * random.uniform(0.9, 1.1)
         
         # 執行戰鬥
         battle_outcome = battle_system(
-            A_atk=host_atk, A_hp=host_hp, A_type=host_element,
-            B_atk=visitor_atk, B_hp=visitor_hp, B_type=visitor_element
+            A_atk=host_atk, A_hp=host_hp_battle, A_type=host_element.lower(),
+            B_atk=visitor_atk, B_hp=visitor_hp_battle, B_type=visitor_element.lower()
         )
         
         # 解析結果
@@ -91,21 +128,22 @@ def calculate_battle(host_creature, visitor_creature):
         return {
             'winner': winner,
             'winner_name': winner_name,
-            'loser_name': loser_name,
-            'battle_details': {
+            'loser_name': loser_name,            'battle_details': {
                 'host_stats': {
                     'name': host_name,
                     'element': host_element,
-                    'power': host_power,
+                    'attack': host_attack,
+                    'hp': host_hp,
                     'final_atk': round(host_atk, 2),
-                    'final_hp': round(host_hp, 2)
+                    'final_hp': round(host_hp_battle, 2)
                 },
                 'visitor_stats': {
                     'name': visitor_name,
                     'element': visitor_element,
-                    'power': visitor_power,
+                    'attack': visitor_attack,
+                    'hp': visitor_hp,
                     'final_atk': round(visitor_atk, 2),
-                    'final_hp': round(visitor_hp, 2)
+                    'final_hp': round(visitor_hp_battle, 2)
                 },
                 'outcome': battle_outcome
             }

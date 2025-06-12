@@ -42,7 +42,7 @@
                                                                     <span class="badge bg-primary">{{ arena.owner_creature.type }}</span>
                                                                     <span class="badge bg-secondary">{{ arena.owner_creature.rarity }}</span>
                                                                 </div>
-                                                                <div><strong>力量：</strong> {{ arena.owner_creature.power }}</div>
+                                                                <div><strong>ATK：</strong> {{ arena.owner_creature.attack or arena.owner_creature.power or 100 }} | <strong>HP：</strong> {{ arena.owner_creature.hp or (arena.owner_creature.power or 100) * 10 }}</div>
                                                             </div>
                                                         </div>
                                                     </div>

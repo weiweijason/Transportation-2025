@@ -155,16 +155,14 @@ function renderCreatures(creatures) {
                 <div class="creature-image">
                     <img src="${creature.image_url || 'https://placehold.co/150?text=' + encodeURIComponent(creature.name)}" 
                          alt="${creature.name}">
-                </div>
-                <div class="card-body text-center">
+                </div>                <div class="card-body text-center">
                     <h6 class="card-title">${creature.name}</h6>
                     <div class="creature-type mb-1">
                         <span class="badge bg-${getTypeColor(creature.element_type)}">${getTypeText(creature.element_type)}</span>
                         <span class="badge bg-secondary">${creature.species}</span>
                     </div>
                     <div class="creature-power">
-                        <span class="power-value">${creature.attack || creature.power}</span>
-                        <span class="power-label">力量</span>
+                        <small class="text-muted">ATK: ${creature.attack || creature.power || 100} | HP: ${creature.hp || (creature.power || 100) * 10}</small>
                     </div>
                 </div>
             </div>
@@ -199,16 +197,14 @@ function renderCreaturesByType(containerId, creatures) {
                 <div class="creature-image">
                     <img src="${creature.image_url || 'https://placehold.co/150?text=' + encodeURIComponent(creature.name)}" 
                          alt="${creature.name}">
-                </div>
-                <div class="card-body text-center">
+                </div>                <div class="card-body text-center">
                     <h6 class="card-title">${creature.name}</h6>
                     <div class="creature-type mb-1">
                         <span class="badge bg-${getTypeColor(creature.element_type)}">${getTypeText(creature.element_type)}</span>
                         <span class="badge bg-secondary">${creature.species}</span>
                     </div>
                     <div class="creature-power">
-                        <span class="power-value">${creature.attack || creature.power}</span>
-                        <span class="power-label">力量</span>
+                        <small class="text-muted">ATK: ${creature.attack || creature.power || 100} | HP: ${creature.hp || (creature.power || 100) * 10}</small>
                     </div>
                 </div>
             </div>

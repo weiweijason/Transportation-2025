@@ -53,8 +53,7 @@ def host_fight():
         if not user_doc:
             flash('找不到用戶資料', 'danger')
             return redirect(url_for('main.home'))
-        
-        # 獲取用戶的精靈
+          # 獲取用戶的精靈
         user_creatures_ref = firebase_service.firestore_db.collection('users').document(user_doc_id).collection('user_creatures')
         user_creatures = user_creatures_ref.get()
         
@@ -64,8 +63,10 @@ def host_fight():
             creatures_list.append({
                 'id': creature_doc.id,
                 'name': creature_data.get('name', '未知精靈'),
-                'element': creature_data.get('element', 'Normal'),
+                'element': creature_data.get('type', creature_data.get('element', 'Normal')),
                 'power': creature_data.get('power', 100),
+                'attack': creature_data.get('attack', creature_data.get('power', 100)),
+                'hp': creature_data.get('hp', creature_data.get('power', 100) * 10),
                 'image_url': creature_data.get('image_url', '')
             })
         
@@ -118,12 +119,13 @@ def create_room():
         room_data = {
             'room_id': room_id,
             'host_player_id': current_player_id,
-            'host_username': user_data.get('username', '未知用戶'),
-            'host_creature': {
+            'host_username': user_data.get('username', '未知用戶'),            'host_creature': {
                 'id': selected_creature_id,
                 'name': creature_data.get('name'),
-                'element': creature_data.get('element'),
+                'element': creature_data.get('type', creature_data.get('element', 'Normal')),
                 'power': creature_data.get('power'),
+                'attack': creature_data.get('attack', creature_data.get('power', 100)),
+                'hp': creature_data.get('hp', creature_data.get('health', 1000)),
                 'image_url': creature_data.get('image_url', '')
             },
             'visitor_player_id': None,
@@ -280,12 +282,13 @@ def confirm_join():
         room_ref = firebase_service.firestore_db.collection('temp_rooms').document(room_id)
         room_ref.update({
             'visitor_player_id': current_player_id,
-            'visitor_username': user_data.get('username', '未知用戶'),
-            'visitor_creature': {
+            'visitor_username': user_data.get('username', '未知用戶'),            'visitor_creature': {
                 'id': selected_creature_id,
                 'name': creature_data.get('name'),
-                'element': creature_data.get('element'),
+                'element': creature_data.get('type', creature_data.get('element', 'Normal')),
                 'power': creature_data.get('power'),
+                'attack': creature_data.get('attack', creature_data.get('power', 100)),
+                'hp': creature_data.get('hp', creature_data.get('health', 1000)),
                 'image_url': creature_data.get('image_url', '')
             },
             'status': 'ready'

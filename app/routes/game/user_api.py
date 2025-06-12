@@ -23,6 +23,7 @@ def get_current_user():
 def get_user_creatures():
     """獲取當前用戶的所有精靈（從Firebase）"""
     try:
+        current_app.logger.info(f"獲取用戶 {current_user.id} 的精靈列表")
         firebase_service = FirebaseService()
         
         # 獲取用戶的精靈子集合
@@ -32,21 +33,54 @@ def get_user_creatures():
         creatures_list = []
         for creature_doc in user_creatures_ref:
             creature_data = creature_doc.to_dict()
-            creatures_list.append({
+            
+            # 從 Firebase 數據中提取數值，確保類型正確
+            attack_value = creature_data.get('attack')
+            hp_value = creature_data.get('hp')
+            power_value = creature_data.get('power')
+            
+            # 確保 attack 值存在且為數字
+            if attack_value is not None:
+                attack = float(attack_value)
+            elif power_value is not None:
+                attack = float(power_value)
+            else:
+                attack = 100.0
+                
+            # 確保 hp 值存在且為數字
+            if hp_value is not None:
+                hp = float(hp_value)
+            elif power_value is not None:
+                hp = float(power_value) * 10
+            else:
+                hp = 1000.0
+            
+            # 統一字段名稱，確保與前端期望的一致
+            creature_info = {
                 'id': creature_doc.id,
                 'name': creature_data.get('name', '未知精靈'),
-                'element': creature_data.get('element', 'Normal'),
-                'power': creature_data.get('power', 100),
-                'image_url': creature_data.get('image_url', ''),
-                'level': creature_data.get('level', 1),
-                'captured_at': creature_data.get('captured_at', ''),
-                'original_creature_id': creature_data.get('original_creature_id', '')
-            })
+                'element': creature_data.get('type', creature_data.get('element', 'Normal')),
+                'power': int(power_value) if power_value is not None else int(attack),
+                'image_url': creature_data.get('image_url', '/static/img/creature.PNG'),
+                'level': creature_data.get('level', 1),                'captured_at': creature_data.get('captured_at', ''),
+                'original_creature_id': creature_data.get('original_creature_id', ''),
+                # 戰鬥數值字段，確保不為 None
+                'attack': attack,
+                'hp': hp,
+                'type': creature_data.get('type', creature_data.get('element', 'Normal')),
+                'element_type': str(creature_data.get('element_type') or 
+                               creature_data.get('type', 'Normal')).lower()
+            }
+            creatures_list.append(creature_info)
+            current_app.logger.debug(f"添加精靈: {creature_info['name']} (ID: {creature_info['id']})")
         
+        current_app.logger.info(f"成功獲取 {len(creatures_list)} 隻精靈")
         return jsonify(creatures_list)
     
     except Exception as e:
         current_app.logger.error(f"獲取用戶精靈失敗: {e}")
+        import traceback
+        current_app.logger.error(f"錯誤詳情: {traceback.format_exc()}")
         return jsonify({'error': f'獲取精靈資料失敗: {str(e)}'}), 500
 
 @user_bp.route('/backpack')

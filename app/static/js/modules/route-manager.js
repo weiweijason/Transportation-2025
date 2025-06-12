@@ -175,6 +175,63 @@ function loadCatLeftZhinanRoute() {
         });
 }
 
+// 獲取並繪製棕3路線
+function loadBrown3Route() {
+    console.log('載入棕3路線');
+    showLoading();
+    
+    fetch('/game/api/bus/brown-3-route')
+        .then(response => response.json())
+        .then(data => {
+            console.log('獲取到棕3路線資料:', data);
+            
+            // 解析路線座標
+            if (data && Array.isArray(data)) {
+                let coordinates = [];
+                
+                // 提取路線座標點
+                data.forEach(point => {
+                    if (point.PositionLat && point.PositionLon) {
+                        coordinates.push([point.PositionLat, point.PositionLon]);
+                    }
+                });
+                
+                if (coordinates.length > 0) {
+                    // 儲存路線座標
+                    routeCoordinates['brown-3'] = coordinates;
+                    
+                    // 創建路線
+                    const polyline = L.polyline(coordinates, {
+                        color: routeColors['brown-3'],
+                        weight: 5,
+                        opacity: 0.8
+                    }).addTo(routeLayer);
+                    
+                    // 添加路線資訊彈窗
+                    polyline.bindPopup(`
+                        <div style="font-weight:bold;font-size:16px;">棕3路線</div>
+                        <div>方向: 起點 → 終點</div>
+                    `);
+                    
+                    console.log('棕3路線繪製完成，座標點數量:', coordinates.length);
+                } else {
+                    console.warn('棕3路線座標解析失敗，使用備用座標');
+                    useBackupRoute('brown-3');
+                }
+            } else {
+                console.warn('棕3路線資料格式不正確，使用備用資料');
+                useBackupRoute('brown-3');
+            }
+        })
+        .catch(error => {
+            console.error('獲取棕3路線資料失敗:', error);
+            useBackupRoute('brown-3');
+        })
+        .finally(() => {
+            hideLoading();
+        });
+}
+
 // 使用備用路線資料（當API獲取失敗時）
 function useBackupRoute(routeKey) {
     console.log(`使用備用路線資料: ${routeKey}`);
@@ -198,14 +255,31 @@ function useBackupRoute(routeKey) {
                 [25.0323, 121.5342]  // 貓空站
             ];
             break;
-            
-        case 'cat-left-zhinan':
+              case 'cat-left-zhinan':
             // 修正貓空左線(指南宮)的備用路線座標
             coordinates = [
                 [25.0323, 121.5342], // 貓空站
                 [25.0330, 121.5360], // 中途點1
                 [25.0345, 121.5376], // 中途點2
                 [25.0355, 121.5389]  // 指南宮站
+            ];
+            break;
+            
+        case 'brown-3':
+            // 棕3路線的備用路線座標（示例座標，實際應根據真實路線調整）
+            coordinates = [
+                [25.0400, 121.5500], // 起點站
+                [25.0420, 121.5520], // 中途點1
+                [25.0440, 121.5540], // 中途點2
+                [25.0460, 121.5560]  // 終點站
+            ];
+            break;
+            
+        case 'brown-3':
+            coordinates = [
+                [25.0330, 121.5350], // 起點
+                [25.0340, 121.5360], // 中途點
+                [25.0350, 121.5370], // 終點
             ];
             break;
     }
@@ -232,10 +306,17 @@ function useBackupRoute(routeKey) {
         case 'cat-left':
             routeName = '貓空纜車左線(動物園)';
             direction = '動物園 → 貓空';
-            break;
-        case 'cat-left-zhinan':
+            break;        case 'cat-left-zhinan':
             routeName = '貓空纜車左線(指南宮)';
             direction = '貓空 → 指南宮';
+            break;
+        case 'brown-3':
+            routeName = '棕3路線';
+            direction = '起點 → 終點';
+            break;
+        case 'brown-3':
+            routeName = '棕3路線';
+            direction = '起點 → 終點';
             break;
     }
     
@@ -263,6 +344,9 @@ function loadAllRoutes() {
     
     // 加載貓空左線(指南宮)
     loadCatLeftZhinanRoute();
+    
+    // 加載棕3路線
+    loadBrown3Route();
 }
 
 // 導出模組
@@ -270,6 +354,7 @@ export {
     loadCatRightRoute,
     loadCatLeftRoute,
     loadCatLeftZhinanRoute,
+    loadBrown3Route,
     loadAllRoutes,
     useBackupRoute
 };

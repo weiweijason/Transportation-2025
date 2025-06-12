@@ -18,8 +18,7 @@
           <div id="map" class="mb-3"></div>
           
           <div class="row">
-            <div class="col-md-6">
-              <div class="bus-routes-legend mb-3">
+            <div class="col-md-6">              <div class="bus-routes-legend mb-3">
                 <h6 class="mb-2"><i class="fas fa-route me-2"></i>路線圖例</h6>
                 <div class="d-flex flex-wrap">
                   <div class="me-4 mb-2 d-flex align-items-center">
@@ -33,6 +32,10 @@
                   <div class="me-4 mb-2 d-flex align-items-center">
                     <span class="route-line" style="background-color: #9c27b0;"></span>
                     <span>貓空左線(指南宮)</span>
+                  </div>
+                  <div class="me-4 mb-2 d-flex align-items-center">
+                    <span class="route-line" style="background-color: #8B4513;"></span>
+                    <span>棕3路線</span>
                   </div>
                 </div>
               </div>
@@ -103,11 +106,14 @@
           <div class="catch-sparkle" style="top:50%; left:20%;"></div>
           <div class="catch-sparkle" style="top:60%; left:70%;"></div>
           <div class="catch-sparkle" style="top:30%; left:80%;"></div>
-        </div>
-        <div class="creature-stats d-flex justify-content-around mb-4">
+        </div>        <div class="creature-stats d-flex justify-content-around mb-4">
           <div class="stat-item text-center">
-            <span class="d-block fs-4 fw-bold text-primary" id="creature-power">--</span>
-            <span class="small text-muted">力量</span>
+            <span class="d-block fs-4 fw-bold text-danger" id="creature-attack">--</span>
+            <span class="small text-muted">ATK</span>
+          </div>
+          <div class="stat-item text-center">
+            <span class="d-block fs-4 fw-bold text-success" id="creature-hp">--</span>
+            <span class="small text-muted">HP</span>
           </div>
           <div class="stat-item text-center">
             <span class="d-block fs-4 fw-bold text-success" id="creature-type">--</span>

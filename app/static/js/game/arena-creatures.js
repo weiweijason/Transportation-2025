@@ -125,9 +125,8 @@ function renderCreatureSelectionList(creatures) {
                     <div class="creature-type mb-1">
                         <span class="badge bg-${getTypeColor(creature.element_type || creature.type)}">${getTypeText(creature.element_type || creature.type)}</span>
                         <span class="badge bg-secondary">${creature.species || creature.rarity || '一般'}</span>
-                    </div>
-                    <div class="mt-1">
-                        <strong class="text-danger">${creature.attack || creature.power}</strong> <small>力量</small>
+                    </div>                    <div class="mt-1">
+                        <small class="text-muted">ATK: ${creature.attack || creature.power || 100} | HP: ${creature.hp || (creature.power || 100) * 10}</small>
                     </div>
                     <button class="btn btn-danger btn-sm w-100 mt-2 select-creature-btn">選擇此精靈</button>
                 </div>

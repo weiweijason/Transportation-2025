@@ -932,9 +932,8 @@
                     <h5 class="fighter-role mb-2 text-primary">挑戰者</h5>
                     <div class="fighter-image">
                       <img id="challengerImg" src="https://placehold.co/200x200?text=挑戰者" alt="挑戰者精靈">
-                    </div>
-                    <div class="fighter-name" id="challengerName">--</div>
-                    <div class="fighter-power" id="challengerPower">力量: --</div>
+                    </div>                    <div class="fighter-name" id="challengerName">--</div>
+                    <div class="fighter-power" id="challengerPower">ATK: -- | HP: --</div>
                     <div class="fighter-owner" id="challengerOwner">挑戰者: 你</div>
                   </div>
                 </div>
@@ -950,9 +949,8 @@
                     <h5 class="fighter-role mb-2 text-danger">守護者</h5>
                     <div class="fighter-image">
                       <img id="defenderImg" src="https://placehold.co/200x200?text=守護者" alt="守護者精靈">
-                    </div>
-                    <div class="fighter-name" id="defenderName">--</div>
-                    <div class="fighter-power" id="defenderPower">力量: --</div>
+                    </div>                    <div class="fighter-name" id="defenderName">--</div>
+                    <div class="fighter-power" id="defenderPower">ATK: -- | HP: --</div>
                     <div class="fighter-owner" id="defenderOwner">擁有者: --</div>
                   </div>
                 </div>
@@ -1160,12 +1158,18 @@ function updateArenaDisplay(arena) {
           </div>
           <div class="guardian-stats">
             <h5 class="mb-3 text-center">${arena.ownerCreature.name}</h5>
+              <div class="stat-item">
+              <div class="stat-icon power-icon">
+                <i class="fas fa-fist-raised"></i>
+              </div>
+              <div class="stat-value">ATK：${arena.ownerCreature.attack || arena.ownerCreature.power || 100}</div>
+            </div>
             
             <div class="stat-item">
               <div class="stat-icon power-icon">
-                <i class="fas fa-bolt"></i>
+                <i class="fas fa-heart"></i>
               </div>
-              <div class="stat-value">力量值：${arena.ownerCreature.power}</div>
+              <div class="stat-value">HP：${arena.ownerCreature.hp || (arena.ownerCreature.power || 100) * 10}</div>
             </div>
             
             <div class="stat-item">
@@ -1359,21 +1363,20 @@ function showBattleResult(isWin, message, challenger, arena) {
   const resultTitle = document.getElementById('battleResultTitle');
   const resultMessage = document.getElementById('battleResultMessage');
   
-  // 設置挑戰者信息
-  document.getElementById('challengerImg').src = challenger.image_url || `https://placehold.co/200x200/e74c3c/white?text=${encodeURIComponent(challenger.name)}`;
+  // 設置挑戰者信息  document.getElementById('challengerImg').src = challenger.image_url || `https://placehold.co/200x200/e74c3c/white?text=${encodeURIComponent(challenger.name)}`;
   document.getElementById('challengerName').textContent = challenger.name;
-  document.getElementById('challengerPower').textContent = '力量: ' + (challenger.attack || challenger.power);
+  document.getElementById('challengerPower').textContent = `ATK: ${challenger.attack || challenger.power || 100} | HP: ${challenger.hp || (challenger.power || 100) * 10}`;
   
   // 設置守護者信息
   if (arena.ownerCreature) {
     document.getElementById('defenderImg').src = arena.ownerCreature.image_url || arena.ownerCreature.img || `https://placehold.co/200x200/3498db/white?text=${encodeURIComponent(arena.ownerCreature.name)}`;
     document.getElementById('defenderName').textContent = arena.ownerCreature.name;
-    document.getElementById('defenderPower').textContent = '力量: ' + arena.ownerCreature.power;
+    document.getElementById('defenderPower').textContent = `ATK: ${arena.ownerCreature.attack || arena.ownerCreature.power || 100} | HP: ${arena.ownerCreature.hp || (arena.ownerCreature.power || 100) * 10}`;
     document.getElementById('defenderOwner').textContent = '擁有者: ' + arena.owner;
   } else {
     document.getElementById('defenderImg').src = 'https://placehold.co/200x200/cccccc/ffffff?text=無守護者';
     document.getElementById('defenderName').textContent = '無守護者';
-    document.getElementById('defenderPower').textContent = '力量: 0';
+    document.getElementById('defenderPower').textContent = 'ATK: 0 | HP: 0';
     document.getElementById('defenderOwner').textContent = '擁有者: 無';
   }
   

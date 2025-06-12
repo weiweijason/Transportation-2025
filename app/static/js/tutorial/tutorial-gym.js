@@ -89,7 +89,8 @@ const tutorialGym = {    // 顯示道館選擇界面
             if (defaultCreature) {
                 document.getElementById('starterCreatureImg').src = defaultCreature.image;
                 document.getElementById('starterCreatureName').textContent = defaultCreature.name;
-                document.getElementById('starterCreaturePower').textContent = defaultCreature.power || 50;
+                document.getElementById('starterCreatureAttack').textContent = defaultCreature.attack || defaultCreature.power || 50;
+                document.getElementById('starterCreatureHP').textContent = defaultCreature.hp || (defaultCreature.power || 50) * 10;
             }
             
             // 選擇精靈項目添加點擊事件

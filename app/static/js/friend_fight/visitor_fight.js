@@ -35,13 +35,12 @@ class VisitorFight {
             });
     }
 
-    updateRoomDisplay(roomData) {
-        // 更新房主精靈顯示
+    updateRoomDisplay(roomData) {        // 更新房主精靈顯示
         if (roomData.host_creature) {
             document.getElementById('host-creature-display').innerHTML = `
                 <img src="${roomData.host_creature.image_url}" alt="${roomData.host_creature.name}">
                 <div class="mt-2"><strong>${roomData.host_creature.name}</strong></div>
-                <small class="text-muted">${roomData.host_creature.element} | 力量: ${roomData.host_creature.power}</small>
+                <small class="text-muted">${roomData.host_creature.element || roomData.host_creature.type || 'Normal'} | ATK: ${roomData.host_creature.attack || roomData.host_creature.power || 100} | HP: ${roomData.host_creature.hp || 1000}</small>
             `;
         }
         
@@ -50,7 +49,7 @@ class VisitorFight {
             document.getElementById('visitor-creature-display').innerHTML = `
                 <img src="${roomData.visitor_creature.image_url}" alt="${roomData.visitor_creature.name}">
                 <div class="mt-2"><strong>${roomData.visitor_creature.name}</strong></div>
-                <small class="text-muted">${roomData.visitor_creature.element} | 力量: ${roomData.visitor_creature.power}</small>
+                <small class="text-muted">${roomData.visitor_creature.element || roomData.visitor_creature.type || 'Normal'} | ATK: ${roomData.visitor_creature.attack || roomData.visitor_creature.power || 100} | HP: ${roomData.visitor_creature.hp || 1000}</small>
             `;
         }
         
