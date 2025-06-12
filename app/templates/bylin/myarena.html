@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+{% block title %}我的擂台 - 精靈公車{% endblock %}
+{% block content %}
+<!--擂台-->
+<div class="col-md-8">
+    <div class="card shadow-lg mb-4">
+        <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0"><i class="fas fa-trophy me-2"></i>我的擂台</h4>
+            <a href="{{ url_for('game.list_arenas') }}" class="btn btn-light btn-sm">
+                <i class="fas fa-map-marker-alt me-1"></i>探索擂台
+            </a>
+        </div>
+        <div class="card-body p-0">
+            <div class="creature-tabs">
+                <!-- 分類標籤 -->
+                <ul class="nav nav-tabs nav-fill" id="arenaTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="zoo-right-guidemountain-tab" data-bs-toggle="tab" data-bs-target="#zoo-right-guidemountain" type="button" role="tab">
+                            動物園右線（指南宮）
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="zoo-right-zoo-tab" data-bs-toggle="tab" data-bs-target="#zoo-right-zoo" type="button" role="tab">
+                            動物園右線（動物園）
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="zoo-left-tab" data-bs-toggle="tab" data-bs-target="#zoo-left" type="button" role="tab">
+                            動物園左線
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="brown3-tab" data-bs-toggle="tab" data-bs-target="#brown3" type="button" role="tab">
+                            棕3
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- 分類內容 -->
+                <div class="tab-content p-3" id="arenaTabContent">
+
+                    <!-- 動物園右線（指南宮） -->
+                    <div class="tab-pane fade show active" id="zoo-right-guidemountain" role="tabpanel">
+                        <div class="row" id="arena-zoo-right-guidemountain-list">
+                            <div class="col-12 text-center py-4">
+                                <img src="https://cdn-icons-png.flaticon.com/512/4076/4076478.png" alt="尚無擂台" style="max-width: 100px; opacity: 0.5;" class="mb-3">
+                                <p class="text-muted">尚無「動物園右線（指南宮）」擂台。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 動物園右線（動物園） -->
+                    <div class="tab-pane fade" id="zoo-right-zoo" role="tabpanel">
+                        <div class="row" id="arena-zoo-right-zoo-list">
+                            <div class="col-12 text-center py-4">
+                                <p class="text-muted">尚無「動物園右線（動物園）」擂台。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 動物園左線 -->
+                    <div class="tab-pane fade" id="zoo-left" role="tabpanel">
+                        <div class="row" id="arena-zoo-left-list">
+                            <div class="col-12 text-center py-4">
+                                <p class="text-muted">尚無「動物園左線」擂台。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 棕3 -->
+                    <div class="tab-pane fade" id="brown3" role="tabpanel">
+                        <div class="row" id="arena-brown3-list">
+                            <div class="col-12 text-center py-4">
+                                <p class="text-muted">尚無「棕3」擂台。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+ <link rel="stylesheet" href="{{ url_for('static', filename='css/profile/myarena.css') }}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+<script>
+    // 初始化Firebase
+    var firebaseConfig = {
+        apiKey: "{{ firebase_config.apiKey }}",
+        authDomain: "{{ firebase_config.authDomain }}",
+        projectId: "{{ firebase_config.projectId }}",
+        storageBucket: "{{ firebase_config.storageBucket }}",
+        messagingSenderId: "{{ firebase_config.messagingSenderId }}",
+        appId: "{{ firebase_config.appId }}"
+    };
+    
+    // 初始化Firebase應用
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    
+    // 取得Firestore資料庫實例
+    var db = firebase.firestore();
+      // 從Firebase獲取用戶數據
+    document.addEventListener('DOMContentLoaded', function() {
+        const userId = "{{ session['user']['uid'] }}";
+        
+        if (!userId) {
+            console.error("未登入或找不到用戶ID");
+            return;
+        }
+        
+        console.log("正在從 Firebase 獲取用戶數據, 用戶ID:", userId);
+        
+        // 從Firestore獲取用戶資料
+        db.collection('users').doc(userId).get()
+            .then(function(doc) {
+                if (doc.exists) {
+                    const userData = doc.data();
+                    console.log("成功獲取用戶資料:", userData);
+                    
+                    // 檢查頭像資料
+                    if (userData.avatar) {
+                        console.log("用戶頭像 URL:", userData.avatar);
+                        console.log("頭像 URL 長度:", userData.avatar.length);
+                    } else {
+                        console.log("用戶資料中沒有頭像 URL");
+                    }
+                    
+                    updateUserProfile(userData);
+                    
+                    // 獲取用戶已捕獲的精靈
+                    loadUserCreatures(userId);
+                    
+                    // 獲取用戶擁有的擂台
+                    loadUserArenas(userId);
+                } else {
+                    console.error("找不到用戶資料!");
+                }
+            })
+            .catch(function(error) {
+                console.error("獲取用戶資料錯誤:", error);
+            });
+    });
+
+    // 加載用戶的擂台
+    function loadUserArenas(userId) {
+        db.collection('arenas').where('owner_id', '==', userId).get()
+            .then(function(querySnapshot) {
+                const arenas = [];
+                querySnapshot.forEach(function(doc) {
+                    const arenaData = doc.data();
+                    arenaData.id = doc.id; // 確保保存擂台ID
+                    arenas.push(arenaData);
+                });
+                
+                // 更新顯示擁有的擂台數量
+                document.getElementById('arena-count').textContent = arenas.length;
+                
+                // 更新擂台按鈕顯示
+                const arenaViewBtn = document.querySelector('.arena-view-btn');
+                const noArenaBtn = document.querySelector('.no-arena-btn');
+                
+                // 如果有擂台，顯示查看我的擂台按鈕，隱藏查看所有擂台按鈕
+                if (arenas.length > 0) {
+                    // 更新擂台按鈕的href屬性，指向第一個擂台
+                    const firstArenaId = arenas[0].id;
+                    arenaViewBtn.href = arenaViewBtn.href.replace('placeholder', firstArenaId);
+                    arenaViewBtn.style.display = '';
+                    noArenaBtn.style.display = 'none';
+                    
+                    // 顯示擂台列表
+                    renderArenas(arenas);
+                } else {
+                    // 如果沒有擂台，隱藏查看我的擂台按鈕，顯示查看所有擂台按鈕
+                    arenaViewBtn.style.display = 'none';
+                    noArenaBtn.style.display = '';
+                }
+            })
+            .catch(function(error) {
+                console.error("獲取擂台資料錯誤:", error);
+            });
+    }
+    
+    // 渲染擂台列表
+    function renderArenas(arenas) {
+        const arenaList = document.getElementById('arena-list');
+        arenaList.innerHTML = '';
+        
+        const tabIdMap = {
+            "動物園右線（指南宮）": "arena-zoo-right-guidemountain-list",
+            "動物園右線（動物園）": "arena-zoo-right-zoo-list",
+            "動物園左線": "arena-zoo-left-list",
+            "棕3": "arena-brown3-list"
+        };
+
+        arenas.forEach(arena => {
+            const listId = tabIdMap[arena.line] || "arena-zoo-left-list"; // 預設放左線
+            const container = document.getElementById(listId);
+            const arenaCard = document.createElement('div');
+            arenaCard.className = 'col-md-6 mb-3';
+            arenaCard.innerHTML = `
+                <div class="card arena-card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">${arena.name || '未命名擂台'}</h5>
+                        <div class="arena-details">
+                            <div class="mb-2">
+                                <span class="badge bg-primary">等級 ${arena.level || 1}</span>
+                                <span class="badge bg-success">獎勵 ${arena.reward || 10} 經驗值</span>
+                            </div>
+                            <p class="small text-muted">${arena.description || '沒有描述'}</p>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <small class="text-muted">已佔領: ${formatDate(arena.captured_at)}</small>
+                        <a href="/game/arena/${arena.id}" class="btn btn-sm btn-outline-danger">查看</a>
+                    </div>
+                </div>
+            `;
+            container.innerHTML = ''; // 清空原本的「尚無擂台」訊息
+            container.appendChild(arenaCard);
+        });
+
+    }
+    // 格式化日期
+    function formatDate(timestamp) {
+        if (!timestamp) return '未知日期';
+        
+        // 如果是Firebase Timestamp格式
+        if (timestamp && timestamp.seconds) {
+            const date = new Date(timestamp.seconds * 1000);
+            return date.toLocaleDateString('zh-TW');
+        }
+        
+        // 如果是其他格式，嘗試轉換為日期
+        try {
+            const date = new Date(timestamp);
+            return date.toLocaleDateString('zh-TW');
+        } catch (e) {
+            return '未知日期';
+        }
+    }
+</script>
+{% endblock %}

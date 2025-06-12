@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}成就 - 精靈公車{% endblock %}
+
+{% block content %}
+<h1>🎖️ 遊戲成就一覽表</h1>
+<div class="accordion" id="achievementAccordion">
+  <!-- 這裡用JS插入項目 -->
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/achievement/achievement.css') }}">
+{% endblock %}
+
+{% block extra_js %}
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+<script>
+  // 初始化Firebase
+  const firebaseConfig = {
+    apiKey: "{{ firebase_config.apiKey }}",
+    authDomain: "{{ firebase_config.authDomain }}",
+    projectId: "{{ firebase_config.projectId }}",
+    storageBucket: "{{ firebase_config.storageBucket }}",
+    messagingSenderId: "{{ firebase_config.messagingSenderId }}",
+    appId: "{{ firebase_config.appId }}"
+  };
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  var db = firebase.firestore();
+  window.currentUserId = "{{ session['user']['uid'] }}";
+</script>
+
+<script src="{{ url_for('static', filename='js/achievement/achievement.js') }}"></script>
+{% endblock %}
