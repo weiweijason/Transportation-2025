@@ -1,0 +1,102 @@
+.creature-tabs .nav-tabs {
+    border-bottom: none;
+}
+    
+.creature-tabs .nav-link {
+    border: none;
+    color: var(--text-color);
+    font-weight: 500;
+    padding: 12px 15px;
+}
+    
+.creature-tabs .nav-link.active {
+    color: var(--primary-color);
+    background-color: transparent;
+    border-bottom: 3px solid var(--primary-color);
+}
+    
+.creature-tabs .nav-link:hover:not(.active) {
+    border-bottom: 3px solid #e9ecef;
+}
+    
+    /* 精靈卡片樣式 - 針對直立獨角獸圖片優化 */
+.power-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+    
+.power-label {
+    font-size: 0.7rem;
+    color: #6c757d;
+}
+    
+/* 深色模式適配 */
+[data-theme="dark"] .profile-title {
+    color: var(--text-color);
+}
+    
+[data-theme="dark"] .trainer-name {
+    color: var(--text-color);
+}
+    
+[data-theme="dark"] .stat-label {
+    color: #adb5bd;
+}
+    
+[data-theme="dark"] .text-muted {
+    color: #adb5bd !important;
+}
+    
+[data-theme="dark"] .card-footer.bg-light {
+    background-color: #2c3035 !important;
+    color: #e0e0e0;
+}
+    
+[data-theme="dark"] .achievement {
+    color: #e0e0e0;
+}
+    
+[data-theme="dark"] .power-value {
+    color: #4dabf7; /* 深色模式下使用更亮的藍色 */
+}
+    
+[data-theme="dark"] .power-label {
+    color: #ced4da; /* 深色模式下使用更亮的灰色 */
+}
+    
+/* 深色模式按鈕適配 */
+[data-theme="dark"] .btn-outline-primary {
+    color: var(--link-color);
+    border-color: var(--link-color);
+}
+    
+[data-theme="dark"] .btn-outline-primary:hover {
+    background-color: var(--link-color);
+    color: #fff;
+}
+    
+/* 修正卡片頭部的捕捉精靈和檢視擂台按鈕 */
+[data-theme="dark"] .card-header .btn-light {
+    background-color: #495057;
+    color: #f8f9fa;
+    border-color: #495057;
+}
+    
+[data-theme="dark"] .card-header .btn-light:hover {
+    background-color: #5a6268;
+    border-color: #5a6268;
+}
+    
+/* 修正卡片內容的按鈕 */
+[data-theme="dark"] .card-body .btn-primary,
+[data-theme="dark"] .card-body .btn-danger {
+    border-color: transparent;
+}
+
+@media (max-width: 767.98px) {
+    .creature-tabs .nav-link {
+        padding: 8px 10px;
+        font-size: 0.9rem;
+    }
+}
