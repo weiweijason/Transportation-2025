@@ -75,30 +75,49 @@
                             <span>排名: #42</span>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
+                </div>            </div>        </div>
 
-    </div>
-    <!-- 功能選單卡片 -->
+    </div><!-- 功能選單卡片 -->
     <div class="col-md-8">
-        <div class="row g-3">
-            {% set menu_items = [
+        <div class="function-menu-container">            {% set menu_items = [
                 {"label": "精靈", "icon": url_for('static', filename='img/profile/elf.png'), "url": url_for('bylin.myelf')},
-                {"label": "背包", "icon": url_for('static', filename='img/profile/bag.png'), "url": url_for('#')},
+                {"label": "背包", "icon": url_for('static', filename='img/profile/bag.png'), "url": url_for('bylin.backpack')},
                 {"label": "我的道館", "icon": url_for('static', filename='img/profile/arena.png'), "url": url_for('bylin.myarena')},
-                {"label": "競技場", "icon": url_for('static', filename='img/profile/battle.png'), "url": url_for('friend_fight.choose')},
+                {"label": "競技場", "icon": url_for('static', filename='img/profile/battle.png'), "url": url_for('friend_fight.choose_fight')},
                 {"label": "好友", "icon": url_for('static', filename='img/profile/friends.png'), "url": url_for('community.friends')},
-                {"label": "成就", "icon": url_for('static', filename='img/profile/achievement.png'), "url": url_for('achievement.achievement')}
+                {"label": "成就", "icon": url_for('static', filename='img/profile/achievement.png'), "url": url_for('achievement.achievement_page')},                {"label": "商店", "icon": "fas fa-store", "url": "#", "coming_soon": true},
+                {"label": "排行榜", "icon": "fas fa-trophy", "url": "#", "coming_soon": true},
+                {"label": "每日任務", "icon": "fas fa-calendar-check", "url": "#", "coming_soon": true}
             ] %}
-            {% for item in menu_items %}
-            <div class="col-4 text-center">
-                <a href="{{ item.url }}" class="menu-link d-block p-2">
-                    <img src="{{ item.icon }}" alt="{{ item.label }}" class="img-fluid mb-2 menu-icon">
-                    <div class="menu-label">{{ item.label }}</div>
-                </a>
+              <div class="row g-3">
+                {% for item in menu_items %}
+                <div class="col-md-4 col-sm-6 col-12">
+                    <div class="menu-item-card {% if item.coming_soon %}coming-soon-item{% endif %}">                        {% if item.coming_soon %}
+                            <div class="menu-link coming-soon-link">
+                                <div class="menu-icon-container">
+                                    {% if item.icon.startswith('fas ') %}
+                                        <i class="{{ item.icon }} menu-icon-font"></i>
+                                    {% else %}
+                                        <img src="{{ item.icon }}" alt="{{ item.label }}" class="menu-icon">
+                                    {% endif %}
+                                </div>
+                                <div class="menu-label">{{ item.label }}</div>
+                                <div class="coming-soon-badge">
+                                    <i class="fas fa-clock"></i> 敬請期待
+                                </div>
+                            </div>
+                        {% else %}
+                            <a href="{{ item.url }}" class="menu-link">
+                                <div class="menu-icon-container">
+                                    <img src="{{ item.icon }}" alt="{{ item.label }}" class="menu-icon">
+                                </div>
+                                <div class="menu-label">{{ item.label }}</div>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
     </div>
 </div>
@@ -201,11 +220,7 @@
         } else {
             console.log("使用默認頭像");
         }
-    }
-    
-    
-
-    
+    }    
     // 格式化日期
     function formatDate(timestamp) {
         if (!timestamp) return '未知日期';

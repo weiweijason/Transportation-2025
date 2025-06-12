@@ -8,8 +8,9 @@ def init_routes(app: Flask):
     from app.routes.admin import admin_bp
     from app.routes.community import community_bp
     from app.routes.friend_fight import friend_fight_bp
-    
-    # 使用新的遊戲模組結構
+    from app.routes.bylin import bylin
+    from app.routes.achievement import achievement
+      # 使用新的遊戲模組結構
     from app.routes.game import init_app as init_game_routes
     
     app.register_blueprint(main)
@@ -17,6 +18,8 @@ def init_routes(app: Flask):
     app.register_blueprint(admin_bp)
     app.register_blueprint(community_bp)
     app.register_blueprint(friend_fight_bp)
+    app.register_blueprint(bylin)
+    app.register_blueprint(achievement)
     
     # 初始化遊戲路由
     init_game_routes(app)
