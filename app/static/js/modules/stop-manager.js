@@ -34,8 +34,7 @@ function loadAllBusStops() {
     Object.keys(uniqueStops).forEach(key => {
         delete uniqueStops[key];
     });
-    
-    // 同時加載所有路線，並在所有加載完成後進行道館合併處理
+      // 同時加載所有路線，並在所有加載完成後進行道館合併處理
     Promise.all([
         // 加載貓空右線站點
         new Promise(resolve => loadBusStops('cat-right', resolve)),
@@ -44,7 +43,10 @@ function loadAllBusStops() {
         new Promise(resolve => loadBusStops('cat-left', resolve)),
         
         // 加載貓空左線(指南宮)站點
-        new Promise(resolve => loadBusStops('cat-left-zhinan', resolve))
+        new Promise(resolve => loadBusStops('cat-left-zhinan', resolve)),
+        
+        // 加載棕3路線站點
+        new Promise(resolve => loadBusStops('brown-3', resolve))
     ]).then(() => {
         console.log('所有路線站點加載完成，開始更新道館等級');
         // 所有路線站點加載完成後，更新道館等級
@@ -209,8 +211,7 @@ function loadBusStops(routeKey, callback) {
     
     let apiUrl = '';
     let routeName = '';
-    
-    // 根據路線類型設置API和路線名稱
+      // 根據路線類型設置API和路線名稱
     switch(routeKey) {
         case 'cat-right':
             apiUrl = '/game/api/bus/cat-right-stops';
@@ -223,6 +224,10 @@ function loadBusStops(routeKey, callback) {
         case 'cat-left-zhinan':
             apiUrl = '/game/api/bus/cat-left-zhinan-stops';
             routeName = '貓空左線(指南宮)';
+            break;
+        case 'brown-3':
+            apiUrl = '/game/api/bus/brown-3-stops';
+            routeName = '棕3路線';
             break;
     }
     
@@ -369,12 +374,19 @@ function useBackupStops(routeKey, routeName) {
                 { id: 'stop-cl-3', name: '貓空站', position: [25.0323, 121.5342] }
             ];
             break;
-            
-        case 'cat-left-zhinan':
+              case 'cat-left-zhinan':
             backupStops = [
                 { id: 'stop-cz-1', name: '貓空站', position: [25.0323, 121.5342] },
                 { id: 'stop-cz-2', name: '指南宮中途站', position: [25.0340, 121.5370] },
                 { id: 'stop-cz-3', name: '指南宮站', position: [25.0355, 121.5389] }
+            ];
+            break;
+            
+        case 'brown-3':
+            backupStops = [
+                { id: 'stop-br3-1', name: '棕3起點站', position: [25.0400, 121.5500] },
+                { id: 'stop-br3-2', name: '棕3中途站', position: [25.0420, 121.5520] },
+                { id: 'stop-br3-3', name: '棕3終點站', position: [25.0460, 121.5560] }
             ];
             break;
     }

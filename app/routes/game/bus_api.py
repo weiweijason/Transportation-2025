@@ -1,8 +1,9 @@
 from flask import Blueprint, jsonify, current_app
 import requests
 from app.services.tdx_service import (get_cat_right_route, get_cat_left_route, 
-                                     get_cat_left_zhinan_route, get_cat_right_stops,
-                                     get_cat_left_stops, get_cat_left_zhinan_stops,
+                                     get_cat_left_zhinan_route, get_brown_3_route,
+                                     get_cat_right_stops, get_cat_left_stops, 
+                                     get_cat_left_zhinan_stops, get_brown_3_stops,
                                      get_tdx_token, TDX_API_URL)
 
 # 修改藍圖前綴為 /game/api/bus 以符合前端預期
@@ -21,7 +22,14 @@ def get_cat_left_route_api():
 
 @bus_bp.route('/cat-left-zhinan-route')
 def get_cat_left_zhinan_route_api():
+    """獲取貓空左線(指南宮)的路線資料"""
     route_data = get_cat_left_zhinan_route()
+    return jsonify(route_data)
+
+@bus_bp.route('/brown-3-route')
+def get_brown_3_route_api():
+    """獲取棕3路線的路線資料"""
+    route_data = get_brown_3_route()
     return jsonify(route_data)
 
 # 公車站牌 API
@@ -37,7 +45,14 @@ def get_cat_left_stops_api():
 
 @bus_bp.route('/cat-left-zhinan-stops')
 def get_cat_left_zhinan_stops_api():
+    """獲取貓空左線(指南宮)的站牌資料"""
     stops_data = get_cat_left_zhinan_stops()
+    return jsonify(stops_data)
+
+@bus_bp.route('/brown-3-stops')
+def get_brown_3_stops_api():
+    """獲取棕3路線的站牌資料"""
+    stops_data = get_brown_3_stops()
     return jsonify(stops_data)
 
 # V3 Network API 路由 - 直接使用站點資料
