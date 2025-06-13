@@ -1319,18 +1319,19 @@ class FirebaseService:
                     except:
                         element_type = 'normal'
                 elif not element_type:
-                    element_type = 'normal'
-                  # 精靈數據
+                    element_type = 'normal'                # 精靈數據
                 user_creature_data = {
                     'id': user_creature_id,
                     'original_creature_id': creature_id,
                     'random_id': creature_data.get('random_id', ''),
                     'name': creature_data.get('name', '未知精靈'),
-                    'species': creature_data.get('species', '一般種'),
+                    'rate': creature_data.get('rate', 'N'),  # 使用原始 rate 值 (SSR/SR/R/N)
+                    'species': creature_data.get('species', '一般種'),  # 保留 species 作為備份
                     'type': creature_data.get('type', ''),  # 保存原始的精靈種類
                     'element_type': element_type,
-                    'level': 1,
-                    'experience': 0,
+                    'level': 1,  # 初始等級
+                    'experience': 0,  # 初始經驗值
+                    'max_experience': 100,  # 升級所需經驗值（可根據等級調整）
                     'attack': attack_value,
                     'hp': creature_data.get('hp', 100),
                     'image_url': creature_data.get('image_url', ''),
@@ -1381,14 +1382,63 @@ class FirebaseService:
                             print(f">>> DEBUG: 同步道館資料失敗 (非致命錯誤): {arena_error}")
             except Exception as e:
                 # 這個錯誤不影響捕捉結果，只是記錄
-                print(f">>> DEBUG: 同步道館資料失敗 (非致命錯誤): {e}")
+                print(f">>> DEBUG: 同步道館資料失敗 (非致命錯誤): {e}")            # 步驟 7: 為新捕捉的精靈添加經驗值獎勵，並為用戶添加經驗值
+            try:
+                # 根據精靈稀有度決定經驗值獎勵
+                rate = creature_data.get('rate', 'N')
+                experience_rewards = {
+                    'N': 20,
+                    'R': 40, 
+                    'SR': 60,
+                    'SSR': 80
+                }
+                experience_amount = experience_rewards.get(rate, 20)
+                print(f">>> DEBUG: 根據稀有度 {rate} 獲得 {experience_amount} 經驗值")
+                
+                # 為精靈添加經驗值
+                exp_result = self.add_experience_to_creature(user_id, user_creature_id, experience_amount=experience_amount)
+                if exp_result.get('success'):
+                    print(f">>> DEBUG: 已為新精靈 {user_creature_id} 添加捕捉經驗值獎勵")
+                    # 更新返回的精靈數據，包含最新的經驗值和等級信息
+                    user_creature_data.update({
+                        'level': exp_result.get('new_level', 1),
+                        'experience': exp_result.get('current_experience', experience_amount),
+                        'max_experience': exp_result.get('max_experience', 100)
+                    })
+                else:
+                    print(f">>> DEBUG: 添加捕捉經驗值失敗: {exp_result.get('message', '未知錯誤')}")
+                  # 為用戶添加經驗值
+                user_exp_result = self.add_experience_to_user(user_id, experience_amount)
+                if user_exp_result.get('success'):
+                    print(f">>> DEBUG: 已為用戶 {user_id} 添加 {experience_amount} 經驗值")
+                else:
+                    print(f">>> DEBUG: 為用戶添加經驗值失敗: {user_exp_result.get('message', '未知錯誤')}")
+                    
+            except Exception as exp_error:
+                print(f">>> DEBUG: 添加經驗值時發生錯誤 (非致命): {exp_error}")
             
             print(f">>> DEBUG: 精靈捕捉完全成功: {creature_data.get('name', '未知精靈')}")
-            return {
+            
+            # 準備返回數據
+            response_data = {
                 'success': True,
                 'message': f"已成功捕捉 {creature_data.get('name', '未知精靈')}!",
                 'creature': user_creature_data
             }
+            
+            # 添加經驗值獲得信息（如果有的話）
+            try:
+                rate = creature_data.get('rate', 'N')
+                experience_rewards = {
+                    'N': 20, 'R': 40, 'SR': 60, 'SSR': 80
+                }
+                experience_gained = experience_rewards.get(rate, 20)
+                response_data['experience_gained'] = experience_gained
+                response_data['creature_rate'] = rate
+            except:
+                pass
+                
+            return response_data
         except Exception as e:
             print(f">>> DEBUG: 捕捉精靈過程中發生未預期錯誤: {e}")
             import traceback
@@ -1507,20 +1557,6 @@ class FirebaseService:
                     print(f">>> DEBUG: 初始化教學用戶背包失敗: {e}")
             else:
                 user_data = user_doc.to_dict()
-                player_id = user_data.get('player_id')
-                if not player_id:
-                    player_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
-                    user_ref.update({'player_id': player_id})
-                    print(f">>> DEBUG: 已為用戶 {user_id} 更新 player_id: {player_id}")
-                
-                # 檢查是否需要初始化背包
-                backpack_ref = user_ref.collection('user_backpack').get()
-                if not backpack_ref:
-                    try:
-                        self._initialize_user_backpack(user_id)
-                        print(f">>> DEBUG: 已為現有教學用戶 {user_id} 初始化背包")
-                    except Exception as e:
-                        print(f">>> DEBUG: 初始化現有教學用戶背包失敗: {e}")
                 player_id = user_data.get('player_id')
                 if not player_id:
                     player_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
@@ -1915,3 +1951,184 @@ class FirebaseService:
                 'success': False,
                 'message': f'更新失敗: {str(e)}'
             }
+    
+    def add_experience_to_creature(self, user_id, creature_id, experience_amount=10):
+        """為精靈添加經驗值並處理等級提升
+        
+        Args:
+            user_id (str): 用戶ID
+            creature_id (str): 精靈ID（user_creatures 子集合中的文檔ID）
+            experience_amount (int): 要添加的經驗值數量
+            
+        Returns:
+            dict: 包含更新結果和是否升級的信息
+        """
+        try:
+            # 獲取精靈資料
+            user_ref = self.firestore_db.collection('users').document(user_id)
+            creature_ref = user_ref.collection('user_creatures').document(creature_id)
+            creature_doc = creature_ref.get()
+            
+            if not creature_doc.exists:
+                return {
+                    'success': False,
+                    'message': '找不到指定精靈'
+                }
+            
+            creature_data = creature_doc.to_dict()
+            current_level = creature_data.get('level', 1)
+            current_exp = creature_data.get('experience', 0)
+            max_exp = creature_data.get('max_experience', 100)
+            
+            # 添加經驗值
+            new_exp = current_exp + experience_amount
+            level_up = False
+            new_level = current_level
+            
+            # 檢查是否升級（可以連續升級）
+            while new_exp >= max_exp and new_level < 100:  # 假設最高等級為100
+                new_exp -= max_exp
+                new_level += 1
+                level_up = True
+                # 每升一級，所需經驗值增加
+                max_exp = self._calculate_max_experience(new_level)
+            
+            # 更新精靈資料
+            update_data = {
+                'experience': new_exp,
+                'level': new_level,
+                'max_experience': max_exp
+            }
+              # 升級時不增加攻擊力和生命值 (已移除稀有度加成功能)
+            
+            creature_ref.update(update_data)
+            
+            return {
+                'success': True,
+                'level_up': level_up,
+                'old_level': current_level,
+                'new_level': new_level,
+                'experience_gained': experience_amount,
+                'current_experience': new_exp,
+                'max_experience': max_exp,
+                'message': f'獲得 {experience_amount} 經驗值！' +                          (f'恭喜升級至 {new_level} 級！' if level_up else '')
+            }
+            
+        except Exception as e:
+            print(f">>> DEBUG: 添加經驗值失敗: {e}")
+            return {
+                'success': False,
+                'message': f'添加經驗值失敗: {str(e)}'
+            }
+    
+    def add_experience_to_user(self, user_id, experience_amount=20):
+        """為用戶添加經驗值並處理等級提升
+        
+        Args:
+            user_id (str): 用戶ID
+            experience_amount (int): 要添加的經驗值數量
+            
+        Returns:
+            dict: 包含更新結果和是否升級的信息
+        """
+        try:
+            # 獲取用戶資料
+            user_ref = self.firestore_db.collection('users').document(user_id)
+            user_doc = user_ref.get()
+            
+            if not user_doc.exists:
+                return {
+                    'success': False,
+                    'message': '找不到指定用戶'
+                }
+            
+            user_data = user_doc.to_dict()
+            current_level = user_data.get('level', 1)
+            current_exp = user_data.get('experience', 0)
+            
+            # 添加經驗值
+            new_exp = current_exp + experience_amount
+            level_up = False
+            new_level = current_level
+            
+            # 檢查是否升級（可以連續升級）
+            while new_level < 100:  # 假設最高等級為100
+                max_exp = self._calculate_max_experience(new_level)
+                if new_exp >= max_exp:
+                    new_exp -= max_exp
+                    new_level += 1
+                    level_up = True
+                else:
+                    break
+            
+            # 更新用戶資料
+            update_data = {
+                'experience': new_exp,
+                'level': new_level
+            }
+            
+            user_ref.update(update_data)
+            
+            return {
+                'success': True,
+                'level_up': level_up,
+                'old_level': current_level,
+                'new_level': new_level,
+                'experience_gained': experience_amount,
+                'current_experience': new_exp,
+                'max_experience': self._calculate_max_experience(new_level),
+                'message': f'獲得 {experience_amount} 經驗值！' + 
+                          (f'恭喜升級至 {new_level} 級！' if level_up else '')
+            }
+            
+        except Exception as e:
+            print(f">>> DEBUG: 為用戶添加經驗值失敗: {e}")
+            return {
+                'success': False,
+                'message': f'為用戶添加經驗值失敗: {str(e)}'
+            }
+    
+    def _calculate_max_experience(self, level):
+        """計算指定等級升級所需的最大經驗值
+        
+        Args:
+            level (int): 當前等級
+            
+        Returns:
+            int: 升級所需經驗值（最大5000）
+        """
+        # 指數增長公式：100, 200, 400, 800, 1600... 最大5000
+        base_exp = 100
+        max_exp = int(base_exp * (2 ** (level - 1)))
+        return min(max_exp, 5000)  # 設定上限為5000
+    
+    def get_creature_level_info(self, user_id, creature_id):
+        """獲取精靈的等級和經驗值信息
+        
+        Args:
+            user_id (str): 用戶ID
+            creature_id (str): 精靈ID
+            
+        Returns:
+            dict: 精靈等級信息
+        """
+        try:
+            user_ref = self.firestore_db.collection('users').document(user_id)
+            creature_ref = user_ref.collection('user_creatures').document(creature_id)
+            creature_doc = creature_ref.get()
+            
+            if not creature_doc.exists:
+                return None
+            
+            creature_data = creature_doc.to_dict()
+            return {
+                'level': creature_data.get('level', 1),
+                'experience': creature_data.get('experience', 0),
+                'max_experience': creature_data.get('max_experience', 100),
+                'rate': creature_data.get('rate', 'N'),
+                'name': creature_data.get('name', '未知精靈')
+            }
+            
+        except Exception as e:
+            print(f">>> DEBUG: 獲取精靈等級信息失敗: {e}")
+            return None
