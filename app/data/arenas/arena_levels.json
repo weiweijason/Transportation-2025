@@ -39,7 +39,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1749733252653
+    "updatedAt": 1749740271402
   },
   "arena-200269": {
     "id": "arena-200269",
@@ -81,7 +81,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1749733252653
+    "updatedAt": 1749740271402
   },
   "arena-14707": {
     "id": "arena-14707",
@@ -102,7 +102,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1749733252654
+    "updatedAt": 1749740271402
   },
   "arena-58815": {
     "id": "arena-58815",
@@ -296,7 +296,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1749733252656
+    "updatedAt": 1749740271403
   },
   "arena-14743": {
     "id": "arena-14743",
@@ -317,7 +317,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1749733252656
+    "updatedAt": 1749740271403
   },
   "arena-200262": {
     "id": "arena-200262",
@@ -360,7 +360,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1749733252656
+    "updatedAt": 1749740271404
   },
   "arena-58820": {
     "id": "arena-58820",
@@ -445,7 +445,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1749733252657
+    "updatedAt": 1749740271404
   },
   "arena-14687": {
     "id": "arena-14687",
@@ -466,7 +466,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1749733252657
+    "updatedAt": 1749740271404
   },
   "arena-180071": {
     "id": "arena-180071",
@@ -508,7 +508,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1749733252658
+    "updatedAt": 1749740271404
   },
   "arena-14699": {
     "id": "arena-14699",
@@ -529,7 +529,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1749733252658
+    "updatedAt": 1749740271404
   },
   "arena-45829": {
     "id": "arena-45829",
@@ -698,7 +698,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1749733252660
+    "updatedAt": 1749740271405
   },
   "arena-58814": {
     "id": "arena-58814",
@@ -850,7 +850,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1749733252662
+    "updatedAt": 1749740271406
   },
   "arena-200265": {
     "id": "arena-200265",
@@ -893,7 +893,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1749733252663
+    "updatedAt": 1749740271406
   },
   "arena-14713": {
     "id": "arena-14713",
@@ -914,7 +914,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1749733252663
+    "updatedAt": 1749740271406
   },
   "arena-216115": {
     "id": "arena-216115",
@@ -957,7 +957,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1749733252663
+    "updatedAt": 1749740271406
   },
   "arena-200266": {
     "id": "arena-200266",
@@ -1022,7 +1022,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1749733252664
+    "updatedAt": 1749740271407
   },
   "arena-14723": {
     "id": "arena-14723",
@@ -1043,7 +1043,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1749733252664
+    "updatedAt": 1749740271407
   },
   "arena-14721": {
     "id": "arena-14721",
@@ -1064,7 +1064,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1749733252665
+    "updatedAt": 1749740271407
   },
   "arena-14725": {
     "id": "arena-14725",
@@ -1085,7 +1085,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1749733252665
+    "updatedAt": 1749740271407
   },
   "arena-14705": {
     "id": "arena-14705",
@@ -1106,7 +1106,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1749733252665
+    "updatedAt": 1749740271407
   },
   "arena-14697": {
     "id": "arena-14697",
@@ -1127,7 +1127,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1749733252665
+    "updatedAt": 1749740271407
   },
   "arena-216114": {
     "id": "arena-216114",
@@ -1280,6 +1280,6 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1749733252668
+    "updatedAt": 1749740271408
   }
 }
