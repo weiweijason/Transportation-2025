@@ -461,36 +461,41 @@ async function toggleFavorite() {
     if (!currentCreature) {
         console.error('沒有選中的精靈');
         return;
-    }
-
-    try {
-        const newFavoriteStatus = !(currentCreature.favorite === true);
-        
+    }    try {
         // 更新按鈕狀態（樂觀更新）
+        const newFavoriteStatus = !(currentCreature.favorite === true);
         updateFavoriteButton(newFavoriteStatus);
         
-        // 更新 Firebase
-        await db.collection('users')
-            .doc(currentUserId)
-            .collection('user_creatures')
-            .doc(currentCreature.id)
-            .update({
-                favorite: newFavoriteStatus
-            });
+        // 調用後端 API 而不是直接操作 Firebase
+        const response = await fetch(`/game/api/user/creatures/${currentCreature.id}/toggle-favorite`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
         
-        // 更新本地數據
-        currentCreature.favorite = newFavoriteStatus;
+        const result = await response.json();
         
-        // 更新 userCreatures 陣列中的對應精靈
-        const creatureIndex = userCreatures.findIndex(c => c.id === currentCreature.id);
-        if (creatureIndex !== -1) {
-            userCreatures[creatureIndex].favorite = newFavoriteStatus;
+        if (result.success) {
+            // 更新本地數據
+            currentCreature.favorite = result.favorite;
+            
+            // 更新 userCreatures 陣列中的對應精靈
+            const creatureIndex = userCreatures.findIndex(c => c.id === currentCreature.id);
+            if (creatureIndex !== -1) {
+                userCreatures[creatureIndex].favorite = result.favorite;
+            }
+            
+            // 重新渲染列表
+            applyFiltersAndSort();
+            
+            console.log(`精靈 ${currentCreature.name} ${result.message}`);
+            
+            // 確保按鈕狀態與後端回傳的狀態一致
+            updateFavoriteButton(result.favorite);
+        } else {
+            throw new Error(result.message);
         }
-        
-        // 重新渲染列表
-        applyFiltersAndSort();
-        
-        console.log(`精靈 ${currentCreature.name} ${newFavoriteStatus ? '已加入' : '已移出'} 我的最愛`);
         
     } catch (error) {
         console.error('更新我的最愛狀態失敗:', error);

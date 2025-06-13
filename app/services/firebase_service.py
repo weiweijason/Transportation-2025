@@ -1863,3 +1863,55 @@ class FirebaseService:
                 'status': 'error',
                 'message': f'保存基地道館失敗: {str(e)}'
             }
+
+    def toggle_creature_favorite(self, user_id, creature_id):
+        """切換精靈的我的最愛狀態
+        
+        Args:
+            user_id (str): 使用者ID
+            creature_id (str): 精靈ID
+        
+        Returns:
+            dict: 操作結果，包含 success, favorite, message
+        """
+        try:
+            print(f">>> DEBUG: 切換精靈我的最愛狀態 - 用戶: {user_id}, 精靈: {creature_id}")
+            
+            # 獲取精靈文檔
+            creature_ref = self.firestore_db.collection('users').document(user_id).collection('user_creatures').document(creature_id)
+            creature_doc = creature_ref.get()
+            
+            if not creature_doc.exists:
+                print(f">>> DEBUG: 精靈不存在: {creature_id}")
+                return {
+                    'success': False,
+                    'message': '精靈不存在'
+                }
+            
+            # 獲取當前狀態並切換
+            current_data = creature_doc.to_dict()
+            current_favorite = current_data.get('favorite', False)
+            new_favorite = not current_favorite
+            
+            print(f">>> DEBUG: 當前我的最愛狀態: {current_favorite}, 新狀態: {new_favorite}")
+            
+            # 更新 Firebase
+            creature_ref.update({'favorite': new_favorite})
+            
+            message = '已加入我的最愛' if new_favorite else '已移出我的最愛'
+            print(f">>> DEBUG: 更新成功 - {message}")
+            
+            return {
+                'success': True,
+                'favorite': new_favorite,
+                'message': message
+            }
+            
+        except Exception as e:
+            print(f">>> DEBUG: 更新我的最愛狀態失敗: {e}")
+            import traceback
+            print(f">>> DEBUG: 錯誤詳情: {traceback.format_exc()}")
+            return {
+                'success': False,
+                'message': f'更新失敗: {str(e)}'
+            }

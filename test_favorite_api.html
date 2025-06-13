@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>測試我的最愛API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .loading { background-color: #d1ecf1; color: #0c5460; }
+        .debug {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        input[type="text"] {
+            width: 300px;
+            padding: 5px;
+            margin: 5px;
+        }
+        button {
+            padding: 8px 15px;
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>測試我的最愛API</h1>
+    
+    <div class="test-section">
+        <h3>1. 獲取用戶精靈列表</h3>
+        <button onclick="getUserCreatures()">獲取用戶精靈</button>
+        <div id="creatures-status"></div>
+        <div id="creatures-debug"></div>
+        <div id="creatures-list"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>2. 切換精靈我的最愛狀態</h3>
+        <input type="text" id="creature-id" placeholder="輸入精靈ID">
+        <button onclick="toggleFavorite()">切換我的最愛</button>
+        <div id="favorite-status"></div>
+        <div id="favorite-debug"></div>
+        <div id="favorite-result"></div>
+    </div>
+
+    <script>
+        function showStatus(containerId, message, type = 'loading') {
+            const statusDiv = document.getElementById(containerId);
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = message;
+        }
+
+        function showDebug(containerId, data) {
+            const debugDiv = document.getElementById(containerId);
+            debugDiv.className = 'debug';
+            debugDiv.textContent = JSON.stringify(data, null, 2);
+        }
+
+        function showResult(containerId, content) {
+            const resultDiv = document.getElementById(containerId);
+            resultDiv.innerHTML = content;
+        }
+
+        async function getUserCreatures() {
+            showStatus('creatures-status', '正在獲取用戶精靈...', 'loading');
+            
+            try {
+                const response = await fetch('/game/api/user/creatures');
+                const data = await response.json();
+                
+                console.log('用戶精靈API響應:', data);
+                showDebug('creatures-debug', data);
+                
+                if (response.ok && Array.isArray(data)) {
+                    showStatus('creatures-status', `成功獲取 ${data.length} 隻精靈`, 'success');
+                    
+                    let html = '<h4>精靈列表：</h4><ul>';
+                    data.forEach(creature => {
+                        const favoriteIcon = creature.favorite ? '❤️' : '🤍';
+                        html += `<li>
+                            <strong>${creature.name}</strong> (ID: ${creature.id}) ${favoriteIcon}
+                            <button onclick="toggleSpecificFavorite('${creature.id}', '${creature.name}')">
+                                ${creature.favorite ? '移出我的最愛' : '加入我的最愛'}
+                            </button>
+                        </li>`;
+                    });
+                    html += '</ul>';
+                    showResult('creatures-list', html);
+                } else {
+                    showStatus('creatures-status', '獲取精靈失敗', 'error');
+                }
+            } catch (error) {
+                console.error('獲取用戶精靈失敗:', error);
+                showStatus('creatures-status', `錯誤: ${error.message}`, 'error');
+            }
+        }
+
+        async function toggleFavorite() {
+            const creatureId = document.getElementById('creature-id').value.trim();
+            
+            if (!creatureId) {
+                alert('請輸入精靈ID');
+                return;
+            }
+            
+            await toggleSpecificFavorite(creatureId, '測試精靈');
+        }
+
+        async function toggleSpecificFavorite(creatureId, creatureName) {
+            showStatus('favorite-status', `正在切換 ${creatureName} 的我的最愛狀態...`, 'loading');
+            
+            try {
+                const response = await fetch(`/game/api/user/creatures/${creatureId}/toggle-favorite`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                console.log('切換我的最愛API響應:', result);
+                showDebug('favorite-debug', result);
+                
+                if (result.success) {
+                    showStatus('favorite-status', `成功: ${result.message}`, 'success');
+                    showResult('favorite-result', `
+                        <h4>切換結果：</h4>
+                        <p><strong>精靈:</strong> ${creatureName}</p>
+                        <p><strong>新狀態:</strong> ${result.favorite ? '我的最愛 ❤️' : '一般 🤍'}</p>
+                        <p><strong>訊息:</strong> ${result.message}</p>
+                    `);
+                    
+                    // 重新載入精靈列表以查看更新
+                    setTimeout(getUserCreatures, 1000);
+                } else {
+                    showStatus('favorite-status', `失敗: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                console.error('切換我的最愛失敗:', error);
+                showStatus('favorite-status', `錯誤: ${error.message}`, 'error');
+            }
+        }
+
+        // 頁面載入時自動獲取精靈列表
+        window.addEventListener('load', function() {
+            console.log('頁面載入完成，開始測試API');
+            setTimeout(getUserCreatures, 1000);
+        });
+    </script>
+</body>
+</html>

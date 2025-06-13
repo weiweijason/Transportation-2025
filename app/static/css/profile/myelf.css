@@ -105,6 +105,7 @@
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border-radius: 12px 12px 0 0;
     padding: 0.5rem;
+    transition: background 0.3s ease;
 }
 
 .creature-tabs .nav-link {
@@ -114,6 +115,7 @@
     padding: 0.75rem 1rem;
     font-weight: 600;
     color: #6c757d;
+    transition: all 0.3s ease;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
@@ -767,9 +769,379 @@
         margin-bottom: 140px !important;
         padding-bottom: 120px !important;
     }
-    
-    .tab-content {
+      .tab-content {
         margin-bottom: 120px !important;
         padding-bottom: 100px !important;
+    }
+}
+
+/* ============ 暗色主題支援 ============ */
+[data-theme="dark"] {
+    /* 全局暗色背景 */
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-tertiary: #3a3a3a;
+    --text-primary: #ffffff;
+    --text-secondary: #b3b3b3;
+    --text-muted: #888888;
+    --border-color: #4a4a4a;
+    --card-bg: #2d2d2d;
+    --modal-bg: #2d2d2d;
+}
+
+/* 主容器暗色主題 */
+[data-theme="dark"] .myelf-container {
+    background: transparent;
+}
+
+/* 統計面板暗色主題 */
+[data-theme="dark"] .myelf-stats .card,
+[data-theme="dark"] .stats-panel .card {
+    background: linear-gradient(135deg, var(--card-bg) 0%, #3a3a3a 100%);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .myelf-stats .card:hover,
+[data-theme="dark"] .stats-panel .card:hover {
+    box-shadow: 0 6px 20px rgba(255,255,255,0.1)!important;
+    border-color: #5a5a5a;
+    transform: translateY(-2px);
+}
+
+[data-theme="dark"] .myelf-stats .card h5,
+[data-theme="dark"] .stats-panel .card h5 {
+    background: linear-gradient(45deg, #4a9eff, #00d4ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+[data-theme="dark"] .myelf-stats .card p,
+[data-theme="dark"] .stats-panel .card p {
+    color: var(--text-secondary);
+}
+
+/* 主卡片暗色主題 */
+[data-theme="dark"] .myelf-main-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5) !important;
+}
+
+[data-theme="dark"] .myelf-header {
+    background: linear-gradient(135deg, #0d47a1 0%, #1565c0 100%) !important;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* 搜尋工具暗色主題 */
+[data-theme="dark"] .myelf-search-tools {
+    background: linear-gradient(135deg, #2d2d2d 0%, #3a3a3a 100%);
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+/* 內容區域暗色主題 */
+[data-theme="dark"] .myelf-content-area {
+    background-color: var(--card-bg);
+}
+
+[data-theme="dark"] .myelf-loading {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .myelf-error {
+    background: linear-gradient(135deg, #8b2635 0%, #a94442 100%);
+    border-left-color: #dc3545;
+    color: white;
+    border: 1px solid #dc3545;
+}
+
+/* 標籤頁容器暗色主題 */
+[data-theme="dark"] .myelf-tabs {
+    background: var(--card-bg);
+}
+
+[data-theme="dark"] .myelf-tab-content {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+}
+
+/* 主要卡片容器暗色主題 */
+[data-theme="dark"] .card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .card-header {
+    background: linear-gradient(135deg, #0d47a1 0%, #1565c0 100%) !important;
+    border-bottom: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .card-body {
+    background-color: var(--card-bg);
+}
+
+/* 搜尋和排序工具暗色主題 */
+[data-theme="dark"] .card-body.border-bottom {
+    background: linear-gradient(135deg, #2d2d2d 0%, #3a3a3a 100%);
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+[data-theme="dark"] .input-group-text {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+    background-color: var(--bg-secondary);
+    border-color: #4a9eff;
+    box-shadow: 0 0 0 0.25rem rgba(74, 158, 255, 0.25);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .form-control::placeholder {
+    color: var(--text-muted);
+}
+
+[data-theme="dark"] .btn-outline-secondary {
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .btn-outline-secondary:hover {
+    background-color: var(--bg-tertiary);
+    border-color: #5a5a5a;
+    color: var(--text-primary);
+}
+
+/* 標籤頁暗色主題 */
+[data-theme="dark"] .nav-tabs {
+    border-bottom: 2px solid var(--border-color);
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+}
+
+[data-theme="dark"] .nav-link {
+    color: var(--text-secondary);
+    border-color: transparent;
+}
+
+[data-theme="dark"] .nav-link:hover {
+    background: rgba(74, 158, 255, 0.1);
+    color: #4a9eff;
+}
+
+[data-theme="dark"] .nav-link.active {
+    background: #0d47a1;
+    color: white;
+    border-color: #0d47a1;
+}
+
+[data-theme="dark"] .nav-link .badge {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+}
+
+/* 精靈卡片暗色主題 */
+[data-theme="dark"] .creature-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+[data-theme="dark"] .creature-card:hover {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border-color: #5a5a5a;
+}
+
+[data-theme="dark"] .creature-card .card-body {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .creature-card .card-title {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .creature-image {
+    background: var(--bg-tertiary) !important;
+}
+
+/* 我的最愛精靈特殊暗色樣式 */
+[data-theme="dark"] .favorite-creature {
+    border: 2px solid #ffc107 !important;
+    box-shadow: 0 4px 20px rgba(255, 193, 7, 0.4) !important;
+    background: linear-gradient(135deg, var(--card-bg) 0%, #3d3416 100%);
+}
+
+[data-theme="dark"] .favorite-creature:hover {
+    box-shadow: 0 8px 30px rgba(255, 193, 7, 0.5) !important;
+}
+
+[data-theme="dark"] .favorite-badge {
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.4);
+}
+
+/* 統計項目暗色主題 */
+[data-theme="dark"] .stat-item {
+    background: rgba(255,255,255,0.1);
+    color: var(--text-primary);
+}
+
+/* 載入和錯誤狀態暗色主題 */
+[data-theme="dark"] #loading-spinner {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] #error-message {
+    background: linear-gradient(135deg, #8b2635 0%, #a94442 100%);
+    border-left-color: #dc3545;
+    color: white;
+}
+
+/* 模態框暗色主題 */
+[data-theme="dark"] .modal-content {
+    background-color: var(--modal-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .modal-header {
+    background: linear-gradient(135deg, #0d47a1 0%, #1565c0 100%);
+    border-bottom: 1px solid var(--border-color);
+    color: white;
+}
+
+[data-theme="dark"] .modal-body {
+    background-color: var(--modal-bg);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .modal-body .card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .modal-body .card-body {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .modal-body h6 {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .modal-body .h5 {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .modal-footer {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .btn-close {
+    filter: invert(1);
+}
+
+/* 徽章暗色主題調整 */
+[data-theme="dark"] .badge.bg-secondary {
+    background-color: #6c757d !important;
+    color: white !important;
+}
+
+[data-theme="dark"] .badge.bg-light {
+    background-color: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+}
+
+/* 空狀態暗色主題 */
+[data-theme="dark"] .empty-state {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .empty-state h5 {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .empty-state p {
+    color: var(--text-muted);
+}
+
+[data-theme="dark"] .empty-state img {
+    filter: brightness(0.7) sepia(1) hue-rotate(220deg);
+}
+
+/* 按鈕暗色主題 */
+[data-theme="dark"] .btn-light {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .btn-light:hover {
+    background-color: #5a5a5a;
+    border-color: #6a6a6a;
+    color: white;
+}
+
+[data-theme="dark"] .btn-outline-warning {
+    color: #ffc107;
+    border-color: #ffc107;
+}
+
+[data-theme="dark"] .btn-outline-warning:hover {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+/* 文字顏色調整 */
+[data-theme="dark"] .text-muted {
+    color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] strong {
+    color: var(--text-primary);
+}
+
+/* 響應式暗色主題調整 */
+@media (max-width: 768px) {
+    [data-theme="dark"] .stats-panel .card {
+        border: 1px solid var(--border-color);
+    }
+    
+    [data-theme="dark"] .creature-card {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+}
+
+/* 動畫效果暗色調整 */
+[data-theme="dark"] .creature-card {
+    animation: fadeInUpDark 0.6s ease-out;
+}
+
+@keyframes fadeInUpDark {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+        box-shadow: 0 0 0 rgba(0,0,0,0);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
     }
 }
