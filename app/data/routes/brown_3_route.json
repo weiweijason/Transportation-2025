@@ -1,5 +1,1182 @@
 {
-  "data": [],
-  "timestamp": 1749777854.851018,
-  "expires_at": 1749864254.851018
+  "data": [
+    {
+      "PositionLat": 25.0000056570934,
+      "PositionLon": 121.590521987362
+    },
+    {
+      "PositionLat": 25.0011648293174,
+      "PositionLon": 121.589186790345
+    },
+    {
+      "PositionLat": 25.001463862758,
+      "PositionLon": 121.58883893268
+    },
+    {
+      "PositionLat": 25.0015273986217,
+      "PositionLon": 121.588799308149
+    },
+    {
+      "PositionLat": 25.0029653423423,
+      "PositionLon": 121.587440120046
+    },
+    {
+      "PositionLat": 25.0031356180717,
+      "PositionLon": 121.587027658202
+    },
+    {
+      "PositionLat": 25.0031756727591,
+      "PositionLon": 121.586433290231
+    },
+    {
+      "PositionLat": 25.0031100659367,
+      "PositionLon": 121.584776680014
+    },
+    {
+      "PositionLat": 25.0029856468302,
+      "PositionLon": 121.584046843864
+    },
+    {
+      "PositionLat": 25.0028855127948,
+      "PositionLon": 121.583965396632
+    },
+    {
+      "PositionLat": 25.0026122742488,
+      "PositionLon": 121.58400629304
+    },
+    {
+      "PositionLat": 25.00231748624,
+      "PositionLon": 121.584107107441
+    },
+    {
+      "PositionLat": 25.002022697524,
+      "PositionLon": 121.584207921842
+    },
+    {
+      "PositionLat": 25.0017210124331,
+      "PositionLon": 121.584244062854
+    },
+    {
+      "PositionLat": 25.0015098324287,
+      "PositionLon": 121.584186998098
+    },
+    {
+      "PositionLat": 25.0012796889085,
+      "PositionLon": 121.584048140527
+    },
+    {
+      "PositionLat": 25.0011460847946,
+      "PositionLon": 121.583910234035
+    },
+    {
+      "PositionLat": 25.0008909436313,
+      "PositionLon": 121.583596377881
+    },
+    {
+      "PositionLat": 25.000722860481,
+      "PositionLon": 121.583309151946
+    },
+    {
+      "PositionLat": 25.0005151266287,
+      "PositionLon": 121.583094208035
+    },
+    {
+      "PositionLat": 25.000359110517,
+      "PositionLon": 121.582880215203
+    },
+    {
+      "PositionLat": 25.0003151501403,
+      "PositionLon": 121.582741357631
+    },
+    {
+      "PositionLat": 25.0000332861752,
+      "PositionLon": 121.582292448223
+    },
+    {
+      "PositionLat": 24.9987454957971,
+      "PositionLon": 121.580123036444
+    },
+    {
+      "PositionLat": 24.9965767366522,
+      "PositionLon": 121.576503228801
+    },
+    {
+      "PositionLat": 24.9959138610571,
+      "PositionLon": 121.57538190636
+    },
+    {
+      "PositionLat": 24.9958276611071,
+      "PositionLon": 121.575209761015
+    },
+    {
+      "PositionLat": 24.9954164865136,
+      "PositionLon": 121.574542103378
+    },
+    {
+      "PositionLat": 24.9952621879359,
+      "PositionLon": 121.574203519163
+    },
+    {
+      "PositionLat": 24.9951535754131,
+      "PositionLon": 121.574076074543
+    },
+    {
+      "PositionLat": 24.9949406601097,
+      "PositionLon": 121.573915342149
+    },
+    {
+      "PositionLat": 24.9941803684452,
+      "PositionLon": 121.573794555084
+    },
+    {
+      "PositionLat": 24.9934821372634,
+      "PositionLon": 121.573732734932
+    },
+    {
+      "PositionLat": 24.9921054895975,
+      "PositionLon": 121.573627165135
+    },
+    {
+      "PositionLat": 24.9917753332312,
+      "PositionLon": 121.573591024123
+    },
+    {
+      "PositionLat": 24.9915951692005,
+      "PositionLon": 121.573730832774
+    },
+    {
+      "PositionLat": 24.9916253402288,
+      "PositionLon": 121.574015205471
+    },
+    {
+      "PositionLat": 24.9916986126954,
+      "PositionLon": 121.574497402653
+    },
+    {
+      "PositionLat": 24.9918451574975,
+      "PositionLon": 121.575055686175
+    },
+    {
+      "PositionLat": 24.9918839487394,
+      "PositionLon": 121.575284896276
+    },
+    {
+      "PositionLat": 24.9918520537192,
+      "PositionLon": 121.575683398483
+    },
+    {
+      "PositionLat": 24.9917486103534,
+      "PositionLon": 121.575961113626
+    },
+    {
+      "PositionLat": 24.9915667222241,
+      "PositionLon": 121.576304453237
+    },
+    {
+      "PositionLat": 24.9913434563325,
+      "PositionLon": 121.576573608666
+    },
+    {
+      "PositionLat": 24.9910805365193,
+      "PositionLon": 121.576726732426
+    },
+    {
+      "PositionLat": 24.990847787363,
+      "PositionLon": 121.57678569934
+    },
+    {
+      "PositionLat": 24.9906814145478,
+      "PositionLon": 121.576794259053
+    },
+    {
+      "PositionLat": 24.9894047327574,
+      "PositionLon": 121.576804720925
+    },
+    {
+      "PositionLat": 24.9888271613524,
+      "PositionLon": 121.576927410148
+    },
+    {
+      "PositionLat": 24.9886875093516,
+      "PositionLon": 121.576952138209
+    },
+    {
+      "PositionLat": 24.988648717101,
+      "PositionLon": 121.576915046118
+    },
+    {
+      "PositionLat": 24.9885883735757,
+      "PositionLon": 121.576729585664
+    },
+    {
+      "PositionLat": 24.9884616520762,
+      "PositionLon": 121.57654317413
+    },
+    {
+      "PositionLat": 24.988323723765,
+      "PositionLon": 121.576367224468
+    },
+    {
+      "PositionLat": 24.9879866608034,
+      "PositionLon": 121.575983939528
+    },
+    {
+      "PositionLat": 24.98774399214,
+      "PositionLon": 121.575721917193
+    },
+    {
+      "PositionLat": 24.9877116650172,
+      "PositionLon": 121.575656292725
+    },
+    {
+      "PositionLat": 24.9877323543768,
+      "PositionLon": 121.57541947399
+    },
+    {
+      "PositionLat": 24.9878694212958,
+      "PositionLon": 121.574696178217
+    },
+    {
+      "PositionLat": 24.9880323496989,
+      "PositionLon": 121.573918670927
+    },
+    {
+      "PositionLat": 24.9881370892726,
+      "PositionLon": 121.57353205721
+    },
+    {
+      "PositionLat": 24.9881758816846,
+      "PositionLon": 121.573189668678
+    },
+    {
+      "PositionLat": 24.9881267446273,
+      "PositionLon": 121.572935730517
+    },
+    {
+      "PositionLat": 24.9878319218709,
+      "PositionLon": 121.572173916034
+    },
+    {
+      "PositionLat": 24.9877026134213,
+      "PositionLon": 121.571827247646
+    },
+    {
+      "PositionLat": 24.9876444245747,
+      "PositionLon": 121.571616108051
+    },
+    {
+      "PositionLat": 24.9876651139455,
+      "PositionLon": 121.571159590009
+    },
+    {
+      "PositionLat": 24.9877401128857,
+      "PositionLon": 121.570745870533
+    },
+    {
+      "PositionLat": 24.9878008878554,
+      "PositionLon": 121.57054614389
+    },
+    {
+      "PositionLat": 24.9878047671078,
+      "PositionLon": 121.570432014379
+    },
+    {
+      "PositionLat": 24.9876767517151,
+      "PositionLon": 121.569637387662
+    },
+    {
+      "PositionLat": 24.9876340798879,
+      "PositionLon": 121.569343504173
+    },
+    {
+      "PositionLat": 24.9876560623462,
+      "PositionLon": 121.568691539344
+    },
+    {
+      "PositionLat": 24.9877077857619,
+      "PositionLon": 121.568627341494
+    },
+    {
+      "PositionLat": 24.9882909657684,
+      "PositionLon": 121.568651594015
+    },
+    {
+      "PositionLat": 24.9884797551556,
+      "PositionLon": 121.568624488256
+    },
+    {
+      "PositionLat": 24.9888418161828,
+      "PositionLon": 121.568561717025
+    },
+    {
+      "PositionLat": 24.9889122886516,
+      "PositionLon": 121.568630908041
+    },
+    {
+      "PositionLat": 24.98905581961,
+      "PositionLon": 121.568844187564
+    },
+    {
+      "PositionLat": 24.9894418006803,
+      "PositionLon": 121.569324244818
+    },
+    {
+      "PositionLat": 24.9905208602575,
+      "PositionLon": 121.57071163168
+    },
+    {
+      "PositionLat": 24.9906889573617,
+      "PositionLon": 121.570968423079
+    },
+    {
+      "PositionLat": 24.9915721099095,
+      "PositionLon": 121.57114532382
+    },
+    {
+      "PositionLat": 24.9927397235231,
+      "PositionLon": 121.571377862698
+    },
+    {
+      "PositionLat": 24.9947982135318,
+      "PositionLon": 121.571794435412
+    },
+    {
+      "PositionLat": 24.9953826529035,
+      "PositionLon": 121.571870046212
+    },
+    {
+      "PositionLat": 24.9958313246062,
+      "PositionLon": 121.572072626094
+    },
+    {
+      "PositionLat": 24.9961403511375,
+      "PositionLon": 121.572322284398
+    },
+    {
+      "PositionLat": 24.9969471782509,
+      "PositionLon": 121.573241026958
+    },
+    {
+      "PositionLat": 24.9978664892264,
+      "PositionLon": 121.574292445074
+    },
+    {
+      "PositionLat": 24.9980908207483,
+      "PositionLon": 121.574559936114
+    },
+    {
+      "PositionLat": 24.9981587019638,
+      "PositionLon": 121.574624847273
+    },
+    {
+      "PositionLat": 24.998336485922,
+      "PositionLon": 121.57453925014
+    },
+    {
+      "PositionLat": 24.9988497952524,
+      "PositionLon": 121.574293158383
+    },
+    {
+      "PositionLat": 24.9993365967043,
+      "PositionLon": 121.574082732098
+    },
+    {
+      "PositionLat": 24.9996598369748,
+      "PositionLon": 121.573909397904
+    },
+    {
+      "PositionLat": 24.9999856623068,
+      "PositionLon": 121.57368470543
+    },
+    {
+      "PositionLat": 25.0005442180088,
+      "PositionLon": 121.573208214724
+    },
+    {
+      "PositionLat": 25.0010432957241,
+      "PositionLon": 121.572808761437
+    },
+    {
+      "PositionLat": 25.0015656443223,
+      "PositionLon": 121.572397181889
+    },
+    {
+      "PositionLat": 25.0016813623375,
+      "PositionLon": 121.572186042295
+    },
+    {
+      "PositionLat": 25.0017796255944,
+      "PositionLon": 121.572053366739
+    },
+    {
+      "PositionLat": 25.0018591411988,
+      "PositionLon": 121.571991308817
+    },
+    {
+      "PositionLat": 25.0019994247005,
+      "PositionLon": 121.571939237228
+    },
+    {
+      "PositionLat": 25.0029969198194,
+      "PositionLon": 121.57194922356
+    },
+    {
+      "PositionLat": 25.0033835035661,
+      "PositionLon": 121.571870046212
+    },
+    {
+      "PositionLat": 25.0038140452367,
+      "PositionLon": 121.571780169223
+    },
+    {
+      "PositionLat": 25.0041114154796,
+      "PositionLon": 121.571653200142
+    },
+    {
+      "PositionLat": 25.0043855126311,
+      "PositionLon": 121.571489138971
+    },
+    {
+      "PositionLat": 25.0044747233646,
+      "PositionLon": 121.57127371952
+    },
+    {
+      "PositionLat": 25.0048975037855,
+      "PositionLon": 121.569765783362
+    },
+    {
+      "PositionLat": 25.004922068964,
+      "PositionLon": 121.569514698439
+    },
+    {
+      "PositionLat": 25.0049349980034,
+      "PositionLon": 121.568939771029
+    },
+    {
+      "PositionLat": 25.0048910392641,
+      "PositionLon": 121.568611648686
+    },
+    {
+      "PositionLat": 25.004887160551,
+      "PositionLon": 121.568500372414
+    },
+    {
+      "PositionLat": 25.0049492199451,
+      "PositionLon": 121.568126598266
+    },
+    {
+      "PositionLat": 25.0050943483016,
+      "PositionLon": 121.56786624032
+    },
+    {
+      "PositionLat": 25.0049792799529,
+      "PositionLon": 121.56770075253
+    },
+    {
+      "PositionLat": 25.0048409392111,
+      "PositionLon": 121.567757817285
+    },
+    {
+      "PositionLat": 25.0046909621562,
+      "PositionLon": 121.56796895688
+    },
+    {
+      "PositionLat": 25.0046172664673,
+      "PositionLon": 121.568094499342
+    },
+    {
+      "PositionLat": 25.0045564998133,
+      "PositionLon": 121.568842047636
+    },
+    {
+      "PositionLat": 25.0045332274698,
+      "PositionLon": 121.569144490839
+    },
+    {
+      "PositionLat": 25.0043923004066,
+      "PositionLon": 121.569616701689
+    },
+    {
+      "PositionLat": 25.0042849888647,
+      "PositionLon": 121.56990773194
+    },
+    {
+      "PositionLat": 25.0040975166691,
+      "PositionLon": 121.570896378826
+    },
+    {
+      "PositionLat": 25.0039682253329,
+      "PositionLon": 121.571061866616
+    },
+    {
+      "PositionLat": 25.0038479842682,
+      "PositionLon": 121.571143183892
+    },
+    {
+      "PositionLat": 25.0037212785028,
+      "PositionLon": 121.571180275983
+    },
+    {
+      "PositionLat": 25.0035596638164,
+      "PositionLon": 121.571185982459
+    },
+    {
+      "PositionLat": 25.0034381294322,
+      "PositionLon": 121.57113319756
+    },
+    {
+      "PositionLat": 25.0033631400713,
+      "PositionLon": 121.571063293235
+    },
+    {
+      "PositionLat": 25.0032538882481,
+      "PositionLon": 121.570946310486
+    },
+    {
+      "PositionLat": 25.0032015249138,
+      "PositionLon": 121.570816488168
+    },
+    {
+      "PositionLat": 25.0031814846195,
+      "PositionLon": 121.570693085635
+    },
+    {
+      "PositionLat": 25.0031866563086,
+      "PositionLon": 121.570590369075
+    },
+    {
+      "PositionLat": 25.0034051599775,
+      "PositionLon": 121.569864220065
+    },
+    {
+      "PositionLat": 25.0034639878219,
+      "PositionLon": 121.569645234066
+    },
+    {
+      "PositionLat": 25.0035157045849,
+      "PositionLon": 121.569273599847
+    },
+    {
+      "PositionLat": 25.0035473810916,
+      "PositionLon": 121.568156557263
+    },
+    {
+      "PositionLat": 25.0034982501798,
+      "PositionLon": 121.567019542014
+    },
+    {
+      "PositionLat": 25.0034717453377,
+      "PositionLon": 121.566622941965
+    },
+    {
+      "PositionLat": 25.0034749776359,
+      "PositionLon": 121.565953857709
+    },
+    {
+      "PositionLat": 25.0034607555235,
+      "PositionLon": 121.5653789303
+    },
+    {
+      "PositionLat": 25.0033747763545,
+      "PositionLon": 121.564637088481
+    },
+    {
+      "PositionLat": 25.0033004334155,
+      "PositionLon": 121.564069294166
+    },
+    {
+      "PositionLat": 25.0033004334155,
+      "PositionLon": 121.563736891967
+    },
+    {
+      "PositionLat": 25.00335926131,
+      "PositionLon": 121.563293213495
+    },
+    {
+      "PositionLat": 25.0034050000001,
+      "PositionLon": 121.563084
+    },
+    {
+      "PositionLat": 25.0034050000001,
+      "PositionLon": 121.563084
+    },
+    {
+      "PositionLat": 25.0035441079858,
+      "PositionLon": 121.56270125818
+    },
+    {
+      "PositionLat": 25.003576832802,
+      "PositionLon": 121.562490021197
+    },
+    {
+      "PositionLat": 25.0035484712952,
+      "PositionLon": 121.562351603801
+    },
+    {
+      "PositionLat": 25.0033935737191,
+      "PositionLon": 121.561939360685
+    },
+    {
+      "PositionLat": 25.0032877632907,
+      "PositionLon": 121.561769648921
+    },
+    {
+      "PositionLat": 25.0028765198326,
+      "PositionLon": 121.561528923014
+    },
+    {
+      "PositionLat": 25.0027063497232,
+      "PositionLon": 121.561477166945
+    },
+    {
+      "PositionLat": 25.0025230893417,
+      "PositionLon": 121.561485592351
+    },
+    {
+      "PositionLat": 25.0023758263371,
+      "PositionLon": 121.561528923014
+    },
+    {
+      "PositionLat": 25.0022231089606,
+      "PositionLon": 121.561614380711
+    },
+    {
+      "PositionLat": 25.0021085708037,
+      "PositionLon": 121.561685394854
+    },
+    {
+      "PositionLat": 25.0019220370054,
+      "PositionLon": 121.561915288095
+    },
+    {
+      "PositionLat": 25.0018271337361,
+      "PositionLon": 121.562146384965
+    },
+    {
+      "PositionLat": 25.0018074985678,
+      "PositionLon": 121.562533953675
+    },
+    {
+      "PositionLat": 25.0018522231133,
+      "PositionLon": 121.562846897354
+    },
+    {
+      "PositionLat": 25.0020878448401,
+      "PositionLon": 121.563364458053
+    },
+    {
+      "PositionLat": 25.0021412960023,
+      "PositionLon": 121.563624442032
+    },
+    {
+      "PositionLat": 25.0021314784437,
+      "PositionLon": 121.563915720379
+    },
+    {
+      "PositionLat": 25.0020136676786,
+      "PositionLon": 121.564209405985
+    },
+    {
+      "PositionLat": 25.0017115043664,
+      "PositionLon": 121.564528367812
+    },
+    {
+      "PositionLat": 25.0015958748879,
+      "PositionLon": 121.564674006985
+    },
+    {
+      "PositionLat": 25.001459519231,
+      "PositionLon": 121.565024263179
+    },
+    {
+      "PositionLat": 25.0013657064512,
+      "PositionLon": 121.565558674692
+    },
+    {
+      "PositionLat": 25.0014944262936,
+      "PositionLon": 121.56574403364
+    },
+    {
+      "PositionLat": 25.001980942446,
+      "PositionLon": 121.566635923125
+    },
+    {
+      "PositionLat": 25.0021331147035,
+      "PositionLon": 121.566998817429
+    },
+    {
+      "PositionLat": 25.0022880138688,
+      "PositionLon": 121.567375553473
+    },
+    {
+      "PositionLat": 25.0023981885084,
+      "PositionLon": 121.567867837952
+    },
+    {
+      "PositionLat": 25.0024243686063,
+      "PositionLon": 121.568360122431
+    },
+    {
+      "PositionLat": 25.0024210960943,
+      "PositionLon": 121.568753709289
+    },
+    {
+      "PositionLat": 25.0023000130918,
+      "PositionLon": 121.569834568609
+    },
+    {
+      "PositionLat": 25.0022411078042,
+      "PositionLon": 121.570438790635
+    },
+    {
+      "PositionLat": 25.0023392832679,
+      "PositionLon": 121.571706212534
+    },
+    {
+      "PositionLat": 25.0022738329675,
+      "PositionLon": 121.571838611783
+    },
+    {
+      "PositionLat": 25.0021942017216,
+      "PositionLon": 121.571868702521
+    },
+    {
+      "PositionLat": 25.0020076680532,
+      "PositionLon": 121.571863888003
+    },
+    {
+      "PositionLat": 25.0018593135885,
+      "PositionLon": 121.571926476738
+    },
+    {
+      "PositionLat": 25.0017415025624,
+      "PositionLon": 121.572017952583
+    },
+    {
+      "PositionLat": 25.0016258731122,
+      "PositionLon": 121.572202107902
+    },
+    {
+      "PositionLat": 25.0014927900253,
+      "PositionLon": 121.57238746685
+    },
+    {
+      "PositionLat": 25.0000201396866,
+      "PositionLon": 121.573585078235
+    },
+    {
+      "PositionLat": 24.9997059719966,
+      "PositionLon": 121.573811360588
+    },
+    {
+      "PositionLat": 24.9993470780623,
+      "PositionLon": 121.574013570349
+    },
+    {
+      "PositionLat": 24.999208538178,
+      "PositionLon": 121.574074955455
+    },
+    {
+      "PositionLat": 24.9988474610527,
+      "PositionLon": 121.574239852702
+    },
+    {
+      "PositionLat": 24.9982213006221,
+      "PositionLon": 121.574529927419
+    },
+    {
+      "PositionLat": 24.9981656660044,
+      "PositionLon": 121.574499836681
+    },
+    {
+      "PositionLat": 24.9975351385769,
+      "PositionLon": 121.573790898886
+    },
+    {
+      "PositionLat": 24.9969144258904,
+      "PositionLon": 121.573067517536
+    },
+    {
+      "PositionLat": 24.9962882556099,
+      "PositionLon": 121.572356172482
+    },
+    {
+      "PositionLat": 24.9960493500801,
+      "PositionLon": 121.572125075611
+    },
+    {
+      "PositionLat": 24.9958704433519,
+      "PositionLon": 121.571991472733
+    },
+    {
+      "PositionLat": 24.9956435368829,
+      "PositionLon": 121.571877127928
+    },
+    {
+      "PositionLat": 24.9954449933789,
+      "PositionLon": 121.571814539192
+    },
+    {
+      "PositionLat": 24.9951831772788,
+      "PositionLon": 121.571756764974
+    },
+    {
+      "PositionLat": 24.9948188156113,
+      "PositionLon": 121.571707416163
+    },
+    {
+      "PositionLat": 24.9933460852897,
+      "PositionLon": 121.571424563223
+    },
+    {
+      "PositionLat": 24.9927078966699,
+      "PositionLon": 121.571289756715
+    },
+    {
+      "PositionLat": 24.992140615115,
+      "PositionLon": 121.571177819169
+    },
+    {
+      "PositionLat": 24.9917500620612,
+      "PositionLon": 121.571099583249
+    },
+    {
+      "PositionLat": 24.9907431276538,
+      "PositionLon": 121.570911415832
+    },
+    {
+      "PositionLat": 24.9904238451767,
+      "PositionLon": 121.570506996309
+    },
+    {
+      "PositionLat": 24.9899394651657,
+      "PositionLon": 121.569866665397
+    },
+    {
+      "PositionLat": 24.9894579924525,
+      "PositionLon": 121.569253616755
+    },
+    {
+      "PositionLat": 24.9890434298442,
+      "PositionLon": 121.568728031858
+    },
+    {
+      "PositionLat": 24.9889597898502,
+      "PositionLon": 121.568630939076
+    },
+    {
+      "PositionLat": 24.9889285157509,
+      "PositionLon": 121.568530636615
+    },
+    {
+      "PositionLat": 24.9888441483735,
+      "PositionLon": 121.568496934988
+    },
+    {
+      "PositionLat": 24.9884252198489,
+      "PositionLon": 121.568586003574
+    },
+    {
+      "PositionLat": 24.9882412108617,
+      "PositionLon": 121.568602854387
+    },
+    {
+      "PositionLat": 24.9878833744143,
+      "PositionLon": 121.568586805993
+    },
+    {
+      "PositionLat": 24.9876797271905,
+      "PositionLon": 121.568578781796
+    },
+    {
+      "PositionLat": 24.9871479766712,
+      "PositionLon": 121.568570405039
+    },
+    {
+      "PositionLat": 24.9868837758482,
+      "PositionLon": 121.568347765094
+    },
+    {
+      "PositionLat": 24.9867921683952,
+      "PositionLon": 121.568422466655
+    },
+    {
+      "PositionLat": 24.986757649627,
+      "PositionLon": 121.569207565409
+    },
+    {
+      "PositionLat": 24.9867111820392,
+      "PositionLon": 121.569679210556
+    },
+    {
+      "PositionLat": 24.9865996597568,
+      "PositionLon": 121.570336877237
+    },
+    {
+      "PositionLat": 24.9865505368147,
+      "PositionLon": 121.570629824533
+    },
+    {
+      "PositionLat": 24.9866952502908,
+      "PositionLon": 121.570726497141
+    },
+    {
+      "PositionLat": 24.9877073650478,
+      "PositionLon": 121.570746117376
+    },
+    {
+      "PositionLat": 24.987642634267,
+      "PositionLon": 121.571161770775
+    },
+    {
+      "PositionLat": 24.9875960862687,
+      "PositionLon": 121.571547734645
+    },
+    {
+      "PositionLat": 24.9876702721326,
+      "PositionLon": 121.571834198474
+    },
+    {
+      "PositionLat": 24.9880899305395,
+      "PositionLon": 121.572936723127
+    },
+    {
+      "PositionLat": 24.9881422968259,
+      "PositionLon": 121.573191090168
+    },
+    {
+      "PositionLat": 24.9881001128747,
+      "PositionLon": 121.573536130634
+    },
+    {
+      "PositionLat": 24.9879990167947,
+      "PositionLon": 121.573913267888
+    },
+    {
+      "PositionLat": 24.9878310080175,
+      "PositionLon": 121.574698034344
+    },
+    {
+      "PositionLat": 24.98769718268,
+      "PositionLon": 121.575412187867
+    },
+    {
+      "PositionLat": 24.987660817074,
+      "PositionLon": 121.575633655701
+    },
+    {
+      "PositionLat": 24.9877248205334,
+      "PositionLon": 121.575771671888
+    },
+    {
+      "PositionLat": 24.9879051937397,
+      "PositionLon": 121.575965055033
+    },
+    {
+      "PositionLat": 24.9883437613589,
+      "PositionLon": 121.576444099587
+    },
+    {
+      "PositionLat": 24.9884899502177,
+      "PositionLon": 121.57664390209
+    },
+    {
+      "PositionLat": 24.9885568624731,
+      "PositionLon": 121.576784325535
+    },
+    {
+      "PositionLat": 24.9886252293052,
+      "PositionLon": 121.577013015146
+    },
+    {
+      "PositionLat": 24.9887197791168,
+      "PositionLon": 121.577047519193
+    },
+    {
+      "PositionLat": 24.9894209000656,
+      "PositionLon": 121.576910305426
+    },
+    {
+      "PositionLat": 24.9906740347052,
+      "PositionLon": 121.576888640095
+    },
+    {
+      "PositionLat": 24.9908449487705,
+      "PositionLon": 121.576881418317
+    },
+    {
+      "PositionLat": 24.9910827734787,
+      "PositionLon": 121.576814817483
+    },
+    {
+      "PositionLat": 24.9913882357317,
+      "PositionLon": 121.576651926286
+    },
+    {
+      "PositionLat": 24.9916580600904,
+      "PositionLon": 121.576349414064
+    },
+    {
+      "PositionLat": 24.9918973377998,
+      "PositionLon": 121.575864752572
+    },
+    {
+      "PositionLat": 24.9919409750218,
+      "PositionLon": 121.575669764587
+    },
+    {
+      "PositionLat": 24.9919649754873,
+      "PositionLon": 121.575291824914
+    },
+    {
+      "PositionLat": 24.9919642482006,
+      "PositionLon": 121.575167449862
+    },
+    {
+      "PositionLat": 24.991837700238,
+      "PositionLon": 121.574637852867
+    },
+    {
+      "PositionLat": 24.9917824263744,
+      "PositionLon": 121.574430026168
+    },
+    {
+      "PositionLat": 24.9917329707912,
+      "PositionLon": 121.574127513945
+    },
+    {
+      "PositionLat": 24.9917024246857,
+      "PositionLon": 121.57390765095
+    },
+    {
+      "PositionLat": 24.9917140612982,
+      "PositionLon": 121.57378006622
+    },
+    {
+      "PositionLat": 24.9920973416068,
+      "PositionLon": 121.573761610567
+    },
+    {
+      "PositionLat": 24.9934784499218,
+      "PositionLon": 121.573873949323
+    },
+    {
+      "PositionLat": 24.9941809982755,
+      "PositionLon": 121.573928513862
+    },
+    {
+      "PositionLat": 24.994921360621,
+      "PositionLon": 121.574002336474
+    },
+    {
+      "PositionLat": 24.995120632239,
+      "PositionLon": 121.574212570432
+    },
+    {
+      "PositionLat": 24.9957097179797,
+      "PositionLon": 121.575186707934
+    },
+    {
+      "PositionLat": 24.9958806250426,
+      "PositionLon": 121.575441074976
+    },
+    {
+      "PositionLat": 24.9961068038116,
+      "PositionLon": 121.575799756577
+    },
+    {
+      "PositionLat": 24.9985576531664,
+      "PositionLon": 121.579927403457
+    },
+    {
+      "PositionLat": 25.0000252303601,
+      "PositionLon": 121.582435767404
+    },
+    {
+      "PositionLat": 25.0000470475301,
+      "PositionLon": 121.582618719093
+    },
+    {
+      "PositionLat": 25.0000368661846,
+      "PositionLon": 121.582840186927
+    },
+    {
+      "PositionLat": 25.0001139534938,
+      "PositionLon": 121.583153130606
+    },
+    {
+      "PositionLat": 25.000262310066,
+      "PositionLon": 121.583445211373
+    },
+    {
+      "PositionLat": 25.000662290128,
+      "PositionLon": 121.583512614627
+    },
+    {
+      "PositionLat": 25.0008659158412,
+      "PositionLon": 121.583657050171
+    },
+    {
+      "PositionLat": 25.0010971760633,
+      "PositionLon": 121.584002090637
+    },
+    {
+      "PositionLat": 25.0013909777303,
+      "PositionLon": 121.584254050419
+    },
+    {
+      "PositionLat": 25.0017269579835,
+      "PositionLon": 121.584343921424
+    },
+    {
+      "PositionLat": 25.0021283877306,
+      "PositionLon": 121.584295776243
+    },
+    {
+      "PositionLat": 25.0026127197013,
+      "PositionLon": 121.584140106823
+    },
+    {
+      "PositionLat": 25.002884701082,
+      "PositionLon": 121.584146526181
+    },
+    {
+      "PositionLat": 25.0029646954911,
+      "PositionLon": 121.584404905321
+    },
+    {
+      "PositionLat": 25.0030766875764,
+      "PositionLon": 121.585188066937
+    },
+    {
+      "PositionLat": 25.0030912319955,
+      "PositionLon": 121.585539526761
+    },
+    {
+      "PositionLat": 25.0030825053442,
+      "PositionLon": 121.5867800676
+    },
+    {
+      "PositionLat": 25.0030708698082,
+      "PositionLon": 121.587004745113
+    },
+    {
+      "PositionLat": 25.0028817921934,
+      "PositionLon": 121.587402745278
+    },
+    {
+      "PositionLat": 25.0017211401514,
+      "PositionLon": 121.588460334428
+    },
+    {
+      "PositionLat": 25.0009779098396,
+      "PositionLon": 121.589216213775
+    },
+    {
+      "PositionLat": 24.9997974908412,
+      "PositionLon": 121.590601025779
+    }
+  ],
+  "timestamp": 1749780514.56796,
+  "expires_at": 1749866914.56796
 }

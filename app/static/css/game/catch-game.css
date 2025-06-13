@@ -377,16 +377,16 @@
   background-color: #3498db !important;
 }
 
-.creature-earth {
-  background-color: #8e44ad !important;
+.creature-wood {
+  background-color: #27ae60 !important;
 }
 
-.creature-air {
-  background-color: #2ecc71 !important;
-}
-
-.creature-electric {
+.creature-light {
   background-color: #f1c40f !important;
+}
+
+.creature-dark {
+  background-color: #2c3e50 !important;
 }
 
 .creature-normal {

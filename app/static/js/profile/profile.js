@@ -79,26 +79,30 @@ function loadUserCreatures(userId, db) {
             
             // 如果有精靈，顯示精靈列表
             if (creatures.length > 0) {
-                renderCreatures(creatures);
-                
-                // 按元素類型分類精靈
+                renderCreatures(creatures);                // 按元素類型分類精靈
                 const waterCreatures = creatures.filter(c => c.element_type === 'water');
                 const fireCreatures = creatures.filter(c => c.element_type === 'fire');
-                const earthCreatures = creatures.filter(c => c.element_type === 'earth');
-                const airCreatures = creatures.filter(c => c.element_type === 'air');
-                
-                // 更新各類型分頁的內容
+                const woodCreatures = creatures.filter(c => c.element_type === 'wood');
+                const lightCreatures = creatures.filter(c => c.element_type === 'light');
+                const darkCreatures = creatures.filter(c => c.element_type === 'dark');
+                const normalCreatures = creatures.filter(c => c.element_type === 'normal');                // 更新各類型分頁的內容
                 if (waterCreatures.length > 0) {
                     renderCreaturesByType('water-creatures', waterCreatures);
                 }
                 if (fireCreatures.length > 0) {
                     renderCreaturesByType('fire-creatures', fireCreatures);
                 }
-                if (earthCreatures.length > 0) {
-                    renderCreaturesByType('earth-creatures', earthCreatures);
+                if (woodCreatures.length > 0) {
+                    renderCreaturesByType('wood-creatures', woodCreatures);
                 }
-                if (airCreatures.length > 0) {
-                    renderCreaturesByType('air-creatures', airCreatures);
+                if (lightCreatures.length > 0) {
+                    renderCreaturesByType('light-creatures', lightCreatures);
+                }
+                if (darkCreatures.length > 0) {
+                    renderCreaturesByType('dark-creatures', darkCreatures);
+                }
+                if (normalCreatures.length > 0) {
+                    renderCreaturesByType('normal-creatures', normalCreatures);
                 }
             }
         })
@@ -250,14 +254,14 @@ function getTypeColor(type) {
         case '水系': return 'primary';
         case 'fire': return 'danger';
         case '火系': return 'danger';
-        case 'earth': return 'warning';
-        case '土系': return 'warning';
-        case 'air': return 'success';
-        case '風系': return 'success';
-        case 'electric': return 'info';
-        case '電系': return 'info';
+        case 'wood': return 'success';
+        case '草系': return 'success';
+        case 'light': return 'warning';
+        case '光系': return 'warning';
         case 'dark': return 'dark';
         case '暗系': return 'dark';
+        case 'normal': return 'secondary';
+        case '一般': return 'secondary';
         default: return 'secondary';
     }
 }
@@ -267,10 +271,10 @@ function getTypeText(type) {
     switch(String(type).toLowerCase()) {
         case 'water': return '水系';
         case 'fire': return '火系';
-        case 'earth': return '土系';
-        case 'air': return '風系';
-        case 'electric': return '電系';
+        case 'wood': return '草系';
+        case 'light': return '光系';
         case 'dark': return '暗系';
+        case 'normal': return '一般';
         default: return '一般';
     }
 }

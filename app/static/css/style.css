@@ -1130,25 +1130,24 @@ a:hover {
     text-shadow: 0 0 5px rgba(51, 153, 255, 0.3);
 }
 
-.type-earth {
-    color: var(--earth-color);
-    text-shadow: 0 0 5px rgba(120, 200, 80, 0.3);
+.type-wood {
+    color: var(--wood-color);
+    text-shadow: 0 0 5px rgba(39, 174, 96, 0.3);
 }
 
-.type-air {
-    color: var(--air-color);
-    text-shadow: 0 0 5px rgba(168, 144, 240, 0.3);
+.type-light {
+    color: var(--light-color);
+    text-shadow: 0 0 5px rgba(241, 196, 15, 0.3);
 }
 
-.type-electric {
-    color: var(--electric-color);
-    text-shadow: 0 0 5px rgba(248, 208, 48, 0.3);
+.type-dark {
+    color: var(--dark-color);
+    text-shadow: 0 0 5px rgba(44, 62, 80, 0.3);
 }
 
-.type-normal {
-    color: #a8a878;
+/* 精靈詳情頁面
     text-shadow: 0 0 5px rgba(168, 168, 120, 0.3);
-}
+} */
 
 /* 精靈詳情頁面 */
 .creature-detail-card {

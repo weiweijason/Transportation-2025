@@ -1,88 +1,194 @@
 {% extends "base.html" %}
-{% block title %}個人資料 - 精靈公車{% endblock %}
+{% block title %}個人資料 - 我的精靈{% endblock %}
 {% block content %}
 
 <!-- 精靈收藏 -->
-<div class="col-md-8">
-    <div class="card shadow-lg mb-4">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h4 class="mb-0"><i class="fas fa-dragon me-2"></i>我的精靈</h4>
-            <a href="{{ url_for('game.catch') }}" class="btn btn-light btn-sm">
-                <i class="fas fa-plus me-1"></i>捕捉精靈
-            </a>
+<div class="container mt-2">    
+    <div class="row">        
+        <!-- 統計面板 -->
+        <div class="col-12 mb-2">
+            <div class="stats-panel">
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <div class="card text-center border-0 shadow-sm">
+                            <div class="card-body py-2">
+                                <h5 class="text-primary mb-1" id="total-count">0</h5>
+                                <p class="text-muted mb-0 small">總計精靈</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <div class="card text-center border-0 shadow-sm">
+                            <div class="card-body py-2">
+                                <h5 class="text-warning mb-1" id="total-power">0</h5>
+                                <p class="text-muted mb-0 small">總戰力</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <div class="card text-center border-0 shadow-sm">
+                            <div class="card-body py-2">
+                                <h5 class="text-info mb-1" id="average-power">0</h5>
+                                <p class="text-muted mb-0 small">平均戰力</p>
+                            </div>
+                        </div>
+                    </div>    
+                </div>
+            </div>
         </div>
-        <div class="card-body p-0">
-            <div class="creature-tabs">
-                <!-- 分類標籤 -->
-                <ul class="nav nav-tabs nav-fill" id="creatureTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-creatures" type="button" role="tab">
-                            <i class="fas fa-th me-1"></i>全部
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="water-tab" data-bs-toggle="tab" data-bs-target="#water-creatures" type="button" role="tab">
-                            <i class="fas fa-water me-1 text-primary"></i>水系
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="fire-tab" data-bs-toggle="tab" data-bs-target="#fire-creatures" type="button" role="tab">
-                            <i class="fas fa-fire me-1 text-danger"></i>火系
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="earth-tab" data-bs-toggle="tab" data-bs-target="#earth-creatures" type="button" role="tab">
-                            <i class="fas fa-mountain me-1 text-success"></i>土系
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="air-tab" data-bs-toggle="tab" data-bs-target="#air-creatures" type="button" role="tab">
-                            <i class="fas fa-wind me-1 text-info"></i>風系
-                        </button>
-                    </li>
-                </ul>
+
+        <!-- 主要內容 -->
+        <div class="col-12">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0"><i class="fas fa-dragon me-2"></i>我的精靈</h4>
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('game.catch') }}" class="btn btn-light btn-sm">
+                            <i class="fas fa-plus me-1"></i>捕捉精靈
+                        </a>
+                    </div>
+                </div>
+                  <!-- 搜尋和排序工具 -->
+                <div class="card-body border-bottom py-2">
+                    <div class="row align-items-center">
+                        <div class="col-md-6 mb-1 mb-md-0">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" class="form-control" id="creature-search" placeholder="搜尋精靈名稱...">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex gap-2">
+                                <select class="form-select form-select-sm" id="creature-sort">
+                                    <option value="name">名稱排序</option>
+                                    <option value="power">戰力排序</option>
+                                    <option value="level">等級排序</option>
+                                    <option value="captured_at">捕獲時間</option>
+                                </select>
+                                <button class="btn btn-outline-secondary btn-sm" id="sort-order-btn" data-order="asc">
+                                    <i class="fas fa-sort-alpha-down"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <!-- 載入狀態 -->
+                    <div id="loading-spinner" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">載入中...</span>
+                        </div>
+                        <p class="mt-2 text-muted">正在載入您的精靈...</p>
+                    </div>
                     
-                <!-- 分類內容 -->
+                    <!-- 錯誤狀態 -->
+                    <div id="error-message" class="alert alert-danger m-3" style="display: none;">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <span id="error-text"></span>
+                    </div>
+                    
+                    <div class="creature-tabs">
+                        <!-- 分類標籤 -->
+                        <ul class="nav nav-tabs nav-fill" id="creatureTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-creatures" type="button" role="tab">
+                                    <i class="fas fa-th me-1"></i>全部 <span class="badge bg-light text-dark ms-1" id="all-count">0</span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="water-tab" data-bs-toggle="tab" data-bs-target="#water-creatures" type="button" role="tab">
+                                    <i class="fas fa-water me-1 text-primary"></i>水系 <span class="badge bg-primary ms-1" id="water-count">0</span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="fire-tab" data-bs-toggle="tab" data-bs-target="#fire-creatures" type="button" role="tab">
+                                    <i class="fas fa-fire me-1 text-danger"></i>火系 <span class="badge bg-danger ms-1" id="fire-count">0</span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="wood-tab" data-bs-toggle="tab" data-bs-target="#wood-creatures" type="button" role="tab">
+                                    <i class="fas fa-leaf me-1 text-success"></i>草系 <span class="badge bg-success ms-1" id="wood-count">0</span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="light-tab" data-bs-toggle="tab" data-bs-target="#light-creatures" type="button" role="tab">
+                                    <i class="fas fa-sun me-1 text-warning"></i>光系 <span class="badge bg-warning ms-1" id="light-count">0</span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="dark-tab" data-bs-toggle="tab" data-bs-target="#dark-creatures" type="button" role="tab">
+                                    <i class="fas fa-moon me-1 text-dark"></i>暗系 <span class="badge bg-dark ms-1" id="dark-count">0</span>
+                                </button>
+                            </li>                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="normal-tab" data-bs-toggle="tab" data-bs-target="#normal-creatures" type="button" role="tab">
+                                    <i class="fas fa-star me-1 text-secondary"></i>一般 <span class="badge bg-secondary ms-1" id="normal-count">0</span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="favorite-tab" data-bs-toggle="tab" data-bs-target="#favorite-creatures" type="button" role="tab">
+                                    <i class="fas fa-heart me-1 text-danger"></i>我的最愛 <span class="badge bg-danger ms-1" id="favorite-count">0</span>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>                    
+                </div>
+                    <!-- 分類內容 -->
                 <div class="tab-content p-3" id="creatureTabContent">
                     <!-- 全部精靈 -->
                     <div class="tab-pane fade show active" id="all-creatures" role="tabpanel">
                         <div class="row" id="creature-list">
-                            <div class="col-12 text-center py-4">
-                                <img src="https://cdn-icons-png.flaticon.com/512/4698/4698906.png" alt="尚無精靈" style="max-width: 100px; opacity: 0.5;" class="mb-3">
-                                <p class="text-muted">你還沒有捕捉到任何精靈。</p>
-                                <a href="{{ url_for('game.catch') }}" class="btn btn-primary mt-2">
-                                    <i class="fas fa-search me-1"></i>開始捕捉精靈
-                                </a>
-                            </div>
+                            <!-- 精靈將通過 JavaScript 動態載入 -->
                         </div>
                     </div>
                         
                     <!-- 水系精靈 -->
                     <div class="tab-pane fade" id="water-creatures" role="tabpanel">
-                        <div class="text-center py-4">
-                            <p class="text-muted">尚無水系精靈</p>
+                        <div class="row" id="water-creatures-list">
+                            <!-- 水系精靈將通過 JavaScript 動態載入 -->
+                        </div>
+                    </div>
+                      
+                    <!-- 火系精靈 -->
+                    <div class="tab-pane fade" id="fire-creatures" role="tabpanel">
+                        <div class="row" id="fire-creatures-list">
+                            <!-- 火系精靈將通過 JavaScript 動態載入 -->
+                        </div>
+                    </div>
+                        
+                    <!-- 草系精靈 -->
+                    <div class="tab-pane fade" id="wood-creatures" role="tabpanel">
+                        <div class="row" id="wood-creatures-list">
+                            <!-- 草系精靈將通過 JavaScript 動態載入 -->
+                        </div>
+                    </div>
+                        
+                    <!-- 光系精靈 -->
+                    <div class="tab-pane fade" id="light-creatures" role="tabpanel">
+                        <div class="row" id="light-creatures-list">
+                            <!-- 光系精靈將通過 JavaScript 動態載入 -->
+                        </div>
+                    </div>
+                          
+                    <!-- 暗系精靈 -->
+                    <div class="tab-pane fade" id="dark-creatures" role="tabpanel">
+                        <div class="row" id="dark-creatures-list">
+                            <!-- 暗系精靈將通過 JavaScript 動態載入 -->
+                        </div>
+                    </div>
+                          <!-- 一般系精靈 -->
+                    <div class="tab-pane fade" id="normal-creatures" role="tabpanel">
+                        <div class="row" id="normal-creatures-list">
+                            <!-- 一般系精靈將通過 JavaScript 動態載入 -->
                         </div>
                     </div>
                     
-                    <!-- 火系精靈 -->
-                    <div class="tab-pane fade" id="fire-creatures" role="tabpanel">
-                        <div class="text-center py-4">
-                            <p class="text-muted">尚無火系精靈</p>
+                    <!-- 我的最愛精靈 -->
+                    <div class="tab-pane fade" id="favorite-creatures" role="tabpanel">
+                        <div class="row" id="favorite-creatures-list">
+                            <!-- 我的最愛精靈將通過 JavaScript 動態載入 -->
                         </div>
-                    </div>
-                        
-                    <!-- 土系精靈 -->
-                    <div class="tab-pane fade" id="earth-creatures" role="tabpanel">
-                        <div class="text-center py-4">
-                            <p class="text-muted">尚無土系精靈</p>
-                        </div>
-                    </div>
-                        
-                    <!-- 風系精靈 -->
-                    <div class="tab-pane fade" id="air-creatures" role="tabpanel">
-                        <div class="text-center py-4">
-                            <p class="text-muted">尚無風系精靈</p>
-                        </div>                        
                     </div>
                 </div>
             </div>
@@ -91,21 +197,73 @@
 </div>
 
 
+<!-- 精靈詳情模態框 -->
+<div class="modal fade" id="creatureDetailModal" tabindex="-1" aria-labelledby="creatureDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="creatureDetailModalLabel">
+                    <i class="fas fa-dragon me-2"></i>精靈詳情
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <img id="modal-creature-image" src="" alt="精靈圖片" class="img-fluid rounded mb-3" style="max-height: 200px;">
+                        <div id="modal-creature-type" class="mb-2">
+                            <!-- 類型標籤 -->
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h4 id="modal-creature-name" class="mb-3"></h4>                        <div class="row">
+                            <div class="col-6">
+                                <div class="card border-0 bg-light mb-2">
+                                    <div class="card-body text-center py-2">
+                                        <h6 class="text-danger mb-1">攻擊力</h6>
+                                        <span id="modal-creature-attack" class="h5">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card border-0 bg-light mb-2">
+                                    <div class="card-body text-center py-2">
+                                        <h6 class="text-success mb-1">生命值</h6>
+                                        <span id="modal-creature-hp" class="h5">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="mb-2">
+                            <strong>種類：</strong>
+                            <span id="modal-creature-species" class="badge bg-secondary ms-1"></span>
+                        </div>
+                        <div class="mb-2">
+                            <strong>捕獲時間：</strong>
+                            <span id="modal-creature-captured" class="text-muted"></span>
+                        </div>
+                        <div class="mb-2" id="modal-creature-route-info" style="display: none;">
+                            <strong>捕獲路線：</strong>
+                            <span id="modal-creature-route" class="text-info"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-warning" id="favorite-btn">
+                    <i class="fas fa-heart me-1"></i><span id="favorite-text">加入我的最愛</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
-{% block extra_css %}
-<style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile/myelf.css') }}">
-</style>
-{% endblock %}
-
-{% block extra_js %}
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-
+<!-- 設置用戶ID供JavaScript使用 -->
 <script>
-    // 初始化Firebase
-    var firebaseConfig = {
+    window.currentUserId = "{{ session['user']['uid'] }}";
+    window.firebaseConfig = {
         apiKey: "{{ firebase_config.apiKey }}",
         authDomain: "{{ firebase_config.authDomain }}",
         projectId: "{{ firebase_config.projectId }}",
@@ -113,209 +271,17 @@
         messagingSenderId: "{{ firebase_config.messagingSenderId }}",
         appId: "{{ firebase_config.appId }}"
     };
-    
-    // 初始化Firebase應用
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    
-    // 取得Firestore資料庫實例
-    var db = firebase.firestore();
-      // 從Firebase獲取用戶數據
-    document.addEventListener('DOMContentLoaded', function() {
-        const userId = "{{ session['user']['uid'] }}";
-        
-        if (!userId) {
-            console.error("未登入或找不到用戶ID");
-            return;
-        }
-        
-        console.log("正在從 Firebase 獲取用戶數據, 用戶ID:", userId);
-        
-        // 從Firestore獲取用戶資料
-        db.collection('users').doc(userId).get()
-            .then(function(doc) {
-                if (doc.exists) {
-                    const userData = doc.data();
-                    console.log("成功獲取用戶資料:", userData);
-                    
-                    // 檢查頭像資料
-                    if (userData.avatar) {
-                        console.log("用戶頭像 URL:", userData.avatar);
-                        console.log("頭像 URL 長度:", userData.avatar.length);
-                    } else {
-                        console.log("用戶資料中沒有頭像 URL");
-                    }
-                    
-                    updateUserProfile(userData);
-                    
-                    // 獲取用戶已捕獲的精靈
-                    loadUserCreatures(userId);
-                    
-                    // 獲取用戶擁有的擂台
-                    loadUserArenas(userId);
-                } else {
-                    console.error("找不到用戶資料!");
-                }
-            })
-            .catch(function(error) {
-                console.error("獲取用戶資料錯誤:", error);
-            });
-    });
-    
-    // 加載用戶的精靈
-    function loadUserCreatures(userId) {
-        db.collection('users').doc(userId).collection('user_creatures').get()
-            .then(function(querySnapshot) {
-                const creatures = [];
-                querySnapshot.forEach(function(doc) {
-                    creatures.push(doc.data());
-                });
-                
-                // 更新顯示已捕獲的精靈數量
-                document.getElementById('captured-count').textContent = creatures.length;
-                
-                // 如果有精靈，顯示精靈列表
-                if (creatures.length > 0) {
-                    renderCreatures(creatures);
-                    
-                    // 按元素類型分類精靈
-                    const waterCreatures = creatures.filter(c => c.element_type === 'water');
-                    const fireCreatures = creatures.filter(c => c.element_type === 'fire');
-                    const earthCreatures = creatures.filter(c => c.element_type === 'earth');
-                    const airCreatures = creatures.filter(c => c.element_type === 'air');
-                    
-                    // 更新各類型分頁的內容
-                    if (waterCreatures.length > 0) {
-                        renderCreaturesByType('water-creatures', waterCreatures);
-                    }
-                    if (fireCreatures.length > 0) {
-                        renderCreaturesByType('fire-creatures', fireCreatures);
-                    }
-                    if (earthCreatures.length > 0) {
-                        renderCreaturesByType('earth-creatures', earthCreatures);
-                    }
-                    if (airCreatures.length > 0) {
-                        renderCreaturesByType('air-creatures', airCreatures);
-                    }
-                }
-            })
-            .catch(function(error) {
-                console.error("獲取精靈資料錯誤:", error);
-            });
-    }
-// 渲染精靈列表
-    function renderCreatures(creatures) {
-        const creatureList = document.getElementById('creature-list');
-        creatureList.innerHTML = '';
-        
-        creatures.forEach(creature => {
-            const creatureCard = document.createElement('div');
-            creatureCard.className = 'col-6 col-md-4 col-lg-3 mb-3';
-            creatureCard.innerHTML = `
-                <div class="card creature-card h-100">
-                    <div class="creature-image">
-                        <img src="${creature.image_url || 'https://placehold.co/150?text=' + encodeURIComponent(creature.name)}" 
-                             alt="${creature.name}" class="img-fluid">
-                    </div>
-                    <div class="card-body text-center">
-                        <h6 class="card-title">${creature.name}</h6>
-                        <div class="creature-type mb-1">
-                            <span class="badge bg-${getTypeColor(creature.element_type)}">${getTypeText(creature.element_type)}</span>
-                            <span class="badge bg-secondary">${creature.species}</span>
-                        </div>
-                        <div class="creature-power">
-                            <span class="power-value">${creature.attack || creature.power}</span>
-                            <span class="power-label">力量</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-            creatureList.appendChild(creatureCard);
-        });
-    }
-    
-    // 按類型渲染精靈列表
-    function renderCreaturesByType(containerId, creatures) {
-        const container = document.getElementById(containerId);
-        container.innerHTML = '';
-        
-        const row = document.createElement('div');
-        row.className = 'row';
-        container.appendChild(row);
-        
-        creatures.forEach(creature => {
-            const creatureCard = document.createElement('div');
-            creatureCard.className = 'col-6 col-md-4 col-lg-3 mb-3';
-            creatureCard.innerHTML = `
-                <div class="card creature-card h-100">
-                    <div class="creature-image">
-                        <img src="${creature.image_url || 'https://placehold.co/150?text=' + encodeURIComponent(creature.name)}" 
-                             alt="${creature.name}" class="img-fluid">
-                    </div>
-                    <div class="card-body text-center">
-                        <h6 class="card-title">${creature.name}</h6>
-                        <div class="creature-type mb-1">
-                            <span class="badge bg-${getTypeColor(creature.element_type)}">${getTypeText(creature.element_type)}</span>
-                            <span class="badge bg-secondary">${creature.species}</span>
-                        </div>
-                        <div class="creature-power">
-                            <span class="power-value">${creature.attack || creature.power}</span>
-                            <span class="power-label">力量</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-            row.appendChild(creatureCard);
-        });
-    }
-
-    // 根據精靈類型獲取顏色
-    function getTypeColor(type) {
-        switch(String(type).toLowerCase()) {
-            case 'water': return 'primary';
-            case '水系': return 'primary';
-            case 'fire': return 'danger';
-            case '火系': return 'danger';
-            case 'earth': return 'warning';
-            case '土系': return 'warning';
-            case 'air': return 'success';
-            case '風系': return 'success';
-            case 'electric': return 'info';
-            case '電系': return 'info';
-            default: return 'secondary';
-        }
-    }
-    
-    // 根據精靈類型獲取中文名稱
-    function getTypeText(type) {
-        switch(String(type).toLowerCase()) {
-            case 'water': return '水系';
-            case 'fire': return '火系';
-            case 'earth': return '土系';
-            case 'air': return '風系';
-            case 'electric': return '電系';
-            default: return '一般';
-        }
-    }
-
-    // 格式化日期
-    function formatDate(timestamp) {
-        if (!timestamp) return '未知日期';
-        
-        // 如果是Firebase Timestamp格式
-        if (timestamp && timestamp.seconds) {
-            const date = new Date(timestamp.seconds * 1000);
-            return date.toLocaleDateString('zh-TW');
-        }
-        
-        // 如果是其他格式，嘗試轉換為日期
-        try {
-            const date = new Date(timestamp);
-            return date.toLocaleDateString('zh-TW');
-        } catch (e) {
-            return '未知日期';
-        }
-    }
 </script>
+
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile/myelf.css') }}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="{{ url_for('static', filename='js/profile/myelf.js') }}"></script>
 {% endblock %}

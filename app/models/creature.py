@@ -6,9 +6,9 @@ class ElementType(enum.Enum):
     """精靈元素類型"""
     FIRE = "fire"      # 火系
     WATER = "water"    # 水系
-    EARTH = "earth"    # 地系
-    AIR = "air"        # 風系
-    ELECTRIC = "electric"  # 電系
+    WOOD = "wood"      # 草系
+    LIGHT = "light"    # 光系
+    DARK = "dark"      # 暗系
     NORMAL = "normal"  # 一般
 
 class Creature(db.Model):
@@ -37,8 +37,7 @@ class Creature(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     bus_route_id = db.Column(db.Integer, db.ForeignKey('bus_routes.id'), nullable=True)
     arena_id = db.Column(db.Integer, db.ForeignKey('arenas.id'), nullable=True)
-    
-    # 關聯查詢
+      # 關聯查詢
     bus_route = db.relationship('BusRoute', backref='creatures')
     
     def add_player_to_captured(self, player_id):
@@ -70,12 +69,12 @@ class Creature(db.Model):
         """檢查屬性相剋關係"""
         # 元素克制關係字典
         effectiveness = {
-            ElementType.FIRE: [ElementType.AIR, ElementType.EARTH],  # 火克風和地
-            ElementType.WATER: [ElementType.FIRE, ElementType.ELECTRIC],  # 水克火和電
-            ElementType.EARTH: [ElementType.ELECTRIC, ElementType.WATER],  # 地克電和水
-            ElementType.AIR: [ElementType.EARTH],  # 風克地
-            ElementType.ELECTRIC: [ElementType.AIR, ElementType.WATER],  # 電克風和水
-            ElementType.NORMAL: []  # 一般沒有特別克制
+            ElementType.LIGHT: [ElementType.DARK],     # 光克暗
+            ElementType.DARK: [ElementType.NORMAL],    # 暗克普
+            ElementType.NORMAL: [ElementType.LIGHT],   # 普克光
+            ElementType.WATER: [ElementType.FIRE],     # 水克火
+            ElementType.FIRE: [ElementType.WOOD],      # 火克草
+            ElementType.WOOD: [ElementType.WATER]      # 草克水
         }
         
         return other_creature.element_type in effectiveness.get(self.element_type, [])
