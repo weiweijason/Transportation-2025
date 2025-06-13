@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}我的包包 - 精靈公車{% endblock %}
+{% block content %}
+
+<div class="col-md-12 mt-4">
+  <div class="item-selection-row">
+    <!-- 魔法陣 -->
+    <div class="item-card item-toggle" data-type="magic-circle">
+      <img src="{{ url_for('static', filename='img/mybag/magic-circle-icon.png') }}" alt="魔法陣">
+      <h5>魔法陣</h5>
+    </div>
+    <!-- 藥水 -->
+    <div class="item-card item-toggle" data-type="potion">
+      <img src="{{ url_for('static', filename='img/mybag/potion-icon.png') }}" alt="藥水">
+      <h5>藥水</h5>
+    </div>
+  </div>
+
+  <!-- 展開區塊 -->
+  <div id="item-detail-container" class="mt-4" style="display: none;">
+    <div class="row text-center" id="item-detail-row">
+      <!-- 子項目卡片會由 JS 插入 -->
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "{{ firebase_config.apiKey }}",
+    authDomain: "{{ firebase_config.authDomain }}",
+    projectId: "{{ firebase_config.projectId }}",
+    storageBucket: "{{ firebase_config.storageBucket }}",
+    messagingSenderId: "{{ firebase_config.messagingSenderId }}",
+    appId: "{{ firebase_config.appId }}"
+  };
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+
+  const db = firebase.firestore();
+
+  const itemMeta = {
+    "magic-circle": [
+      {
+        name: "普通魔法陣",
+        key: "normal",
+        img: "{{ url_for('static', filename='img/mybag/magic-circle-normal.png') }}"
+      },
+      {
+        name: "進階魔法陣",
+        key: "advanced",
+        img: "{{ url_for('static', filename='img/mybag/magic-circle-advanced.png') }}"
+      },
+      {
+        name: "高級魔法陣",
+        key: "high",
+        img: "{{ url_for('static', filename='img/mybag/magic-circle-high.png') }}"
+      }
+    ],
+    "potion": [
+      {
+        name: "普通藥水",
+        key: "normal",
+        img: "{{ url_for('static', filename='img/mybag/potion-normal.png') }}",
+        description: "捕捉率 1.13 倍"
+      },
+      {
+        name: "進階藥水",
+        key: "advanced",
+        img: "{{ url_for('static', filename='img/mybag/potion-advanced.png') }}",
+        description: "捕捉率 1.25 倍"
+      },
+      {
+        name: "高級藥水",
+        key: "high",
+        img: "{{ url_for('static', filename='img/mybag/potion-high.png') }}",
+        description: "捕捉率 1.50 倍"
+      }
+    ]
+  };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const userId = "{{ session['user']['uid'] }}";
+    if (!userId) {
+      console.error("使用者未登入");
+      return;
+    }
+
+    let currentType = null;
+    let userItems = {};
+
+    db.collection('users').doc(userId).get()
+      .then(doc => {
+        if (doc.exists) {
+          const data = doc.data();
+          userItems = data.items || {};
+
+          // 綁定選擇類別卡片
+          document.querySelectorAll('.item-toggle').forEach(card => {
+            card.addEventListener('click', function () {
+              const type = this.dataset.type;
+              const container = document.getElementById('item-detail-container');
+              const row = document.getElementById('item-detail-row');
+
+              if (currentType === type && container.style.display === 'block') {
+                container.style.display = 'none';
+                document.querySelectorAll('.item-toggle').forEach(c => c.classList.remove('active'));
+                currentType = null;
+                return;
+              }
+
+              currentType = type;
+              document.querySelectorAll('.item-toggle').forEach(c => c.classList.remove('active'));
+              this.classList.add('active');
+
+              const metaItems = itemMeta[type];
+              row.innerHTML = '';
+
+              metaItems.forEach(item => {
+                const qty = userItems[type]?.[item.key] || 0;
+                row.innerHTML += `
+                  <div class="col-4">
+                    <div class="item-detail-card">
+                      <img src="${item.img}" alt="${item.name}">
+                      <h6>${item.name}</h6>
+                      <p>${item.description || ''}</p>
+                      <p class="fw-bold">剩餘：<span id="${type}-${item.key}-qty">${qty}</span> 個</p>
+                      ${type === 'potion' ? `<button class="btn btn-sm btn-primary use-btn" data-type="${type}" data-key="${item.key}">使用</button>` : ''}
+                    </div>
+                  </div>
+                `;
+              });
+
+              container.style.display = 'block';
+            });
+          });
+        } else {
+          console.warn("找不到使用者資料");
+        }
+      })
+      .catch(error => {
+        console.error("讀取 Firebase 資料錯誤:", error);
+      });
+
+    // 使用按鈕事件委派
+    document.addEventListener('click', function (e) {
+      if (e.target.classList.contains('use-btn')) {
+        const type = e.target.dataset.type;
+        const key = e.target.dataset.key;
+
+        fetch('/use-item', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type, key })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            const qtySpan = document.getElementById(`${type}-${key}-qty`);
+            let currentQty = parseInt(qtySpan.textContent);
+            if (currentQty > 0) {
+              qtySpan.textContent = currentQty - 1;
+            }
+          } else {
+            alert(data.message || "使用失敗！");
+          }
+        })
+        .catch(err => {
+          console.error("使用道具錯誤：", err);
+          alert("請稍後再試");
+        });
+      }
+    });
+  });
+</script>
+{% endblock %}

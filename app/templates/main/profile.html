@@ -85,7 +85,7 @@
         <div class="row g-3">
             {% set menu_items = [
                 {"label": "精靈", "icon": url_for('static', filename='img/profile/elf.png'), "url": url_for('bylin.myelf')},
-                {"label": "背包", "icon": url_for('static', filename='img/profile/bag.png'), "url": url_for('#')},
+                {"label": "背包", "icon": url_for('static', filename='img/profile/bag.png'), "url": url_for('bylin.mybag')},
                 {"label": "我的道館", "icon": url_for('static', filename='img/profile/arena.png'), "url": url_for('bylin.myarena')},
                 {"label": "競技場", "icon": url_for('static', filename='img/profile/battle.png'), "url": url_for('friend_fight.choose')},
                 {"label": "好友", "icon": url_for('static', filename='img/profile/friends.png'), "url": url_for('community.friends')},

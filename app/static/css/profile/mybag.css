@@ -1,0 +1,150 @@
+/* 主容器樣式 */
+.item-selection-row {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+
+/* 主分類卡片：魔法陣 / 藥水 */
+.item-card {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+  transition: transform 0.2s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  width: 150px;
+}
+
+.item-card:hover {
+  background-color: #f0f8ff;
+  transform: translateY(-4px);
+  box-shadow: 0 6px 15px rgb(0 0 0 / 0.15);
+}
+
+.item-card.active {
+  border: 2px solid #42a5f5;
+  background-color: #e3f2fd;
+}
+
+.item-card img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.item-card h5 {
+  font-size: 1.1rem;
+  color: #1a237e;
+}
+
+/* 展開後每個子項目卡片 */
+.item-detail-card {
+  background-color: #dff0f7;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  height: 100%;
+  transition: background-color 0.3s ease;
+}
+
+.item-detail-card img {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 10px;
+}
+
+.item-detail-card h6 {
+  margin: 8px 0 4px 0;
+  font-size: 1rem;
+  color: #1a237e;
+}
+
+.item-detail-card p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #34495e;
+}
+
+.item-detail-card .fw-bold {
+  margin-top: 6px;
+  color: #2c3e50;
+}
+
+/* 展開容器樣式 */
+#item-detail-container {
+  margin-top: 20px;
+  display: none;
+}
+
+.item-selection-row {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+.item-card {
+  cursor: pointer;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+  transition: 0.3s;
+  width: 120px;
+}
+
+.item-card.active,
+.item-card:hover {
+  border-color: #2196F3;
+  background-color: #E3F2FD;
+}
+
+.item-detail-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  margin: 10px auto;
+  background-color: #f9f9f9;
+}
+
+.item-detail-card img {
+  max-width: 60px;
+  margin-bottom: 5px;
+}
+
+/* 深色模式支援 */
+[data-theme="dark"] .item-card {
+  background-color: #1e1e1e;
+  box-shadow: 0 2px 6px rgb(255 255 255 / 0.05);
+}
+
+[data-theme="dark"] .item-card h5 {
+  color: #90caf9;
+}
+
+[data-theme="dark"] .item-card.active {
+  border-color: #90caf9;
+  background-color: #263238;
+}
+
+[data-theme="dark"] .item-detail-card {
+  background-color: #37474f;
+  color: #e0e0e0;
+}
+
+[data-theme="dark"] .item-detail-card h6 {
+  color: #64b5f6;
+}
+
+[data-theme="dark"] .item-detail-card p {
+  color: #a5b1c2;
+}
+
+[data-theme="dark"] .item-detail-card .fw-bold {
+  color: #ffffff;
+}
