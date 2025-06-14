@@ -386,8 +386,7 @@ class CaptureInteractive {
       }, duration * 1000);
     }
   }
-  
-  // 顯示捕捉結果模態框
+    // 顯示捕捉結果模態框
   showCaptureResultModal(isSuccess = true) {
     const modal = new bootstrap.Modal(document.getElementById('captureResultModal'));
     
@@ -397,6 +396,28 @@ class CaptureInteractive {
       document.getElementById('resultModalTitle').textContent = '捕捉失敗';
       document.getElementById('resultText').textContent = '捕捉失敗！';
       document.getElementById('resultDescription').textContent = '很遺憾，這次沒有成功捕捉到精靈，請再試一次！';
+      
+      // 隱藏經驗值信息
+      const experienceInfo = document.querySelector('.experience-gain-info');
+      if (experienceInfo) {
+        experienceInfo.style.display = 'none';
+      }
+    } else {
+      // 設置成功模態框樣式
+      document.getElementById('resultModalHeader').className = 'modal-header bg-success text-white';
+      document.getElementById('resultModalTitle').textContent = '捕捉成功';
+      
+      // 顯示經驗值信息（如果有捕捉結果數據）
+      if (window.lastCaptureResult && window.lastCaptureResult.creature) {
+        const creature = window.lastCaptureResult.creature;
+        const experienceInfo = document.querySelector('.experience-gain-info');
+        const experienceDetails = document.getElementById('experienceDetails');
+        
+        if (experienceInfo && experienceDetails) {
+          experienceInfo.style.display = 'block';
+          experienceDetails.textContent = `獲得 20 經驗值！當前等級：${creature.level || 1} 級`;
+        }
+      }
     }
     
     modal.show();
@@ -404,8 +425,7 @@ class CaptureInteractive {
     // 5秒後自動跳轉並顯示倒數計時
     this.startCountdown();
   }
-  
-  // 開始倒數計時
+    // 開始倒數計時
   startCountdown() {
     let countdown = 5;
     const countdownElement = document.getElementById('countdown');
@@ -416,7 +436,8 @@ class CaptureInteractive {
       }
       if (countdown <= 0) {
         clearInterval(countdownInterval);
-        window.location.href = "/game/catch";
+        // 修改重定向邏輯：優先返回到用戶精靈頁面，展示新捕捉的精靈
+        window.location.href = "/game/user/creatures";
       }
     }, 1000);
   }
@@ -507,8 +528,7 @@ class CaptureInteractive {
       this.elements.resultMessage.classList.add('success', 'visible');
       this.elements.creatureImage.classList.add('captured');
       this.createFireworks();
-      
-      // 調用捕捉處理器
+        // 調用捕捉處理器
       if (typeof CaptureHandler !== 'undefined') {
         try {
           const creatureId = document.querySelector('[data-creature-id]')?.dataset.creatureId || 
@@ -517,6 +537,16 @@ class CaptureInteractive {
           if (creatureId) {
             const result = await CaptureHandler.captureCreature(creatureId);
             console.log('捕捉處理結果:', result);
+            
+            // 如果捕捉成功，更新成功消息以包含經驗值信息
+            if (result.success && result.creature) {
+              const experienceInfo = result.creature.experience !== undefined ? 
+                ` 獲得 20 經驗值！當前等級：${result.creature.level || 1}` : '';
+              this.elements.resultMessage.textContent = `捕捉成功！${experienceInfo}`;
+              
+              // 保存捕捉結果供後續使用
+              window.lastCaptureResult = result;
+            }
           }
         } catch (error) {
           console.error('捕捉處理器調用失敗:', error);

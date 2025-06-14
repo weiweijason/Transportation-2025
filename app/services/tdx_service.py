@@ -358,22 +358,23 @@ def fetch_and_save_brown_3_route():
     url = f"{TDX_API_URL}/V3/Map/Bus/Network/StopOfRoute/City/Taipei/RouteName/%E6%A3%953?$format=GEOJSON"
 
     data = make_tdx_request(url, token)
-    
-    # 處理GeoJSON格式的資料
+      # 處理GeoJSON格式的資料
     route_data = []
     
     if data and isinstance(data, dict) and data.get('type') == 'FeatureCollection':
         features = data.get('features', [])
         logger.info(f"獲得 {len(features)} 個特徵")
         
+        linestring_count = 0
         for feature in features:
             if feature.get('type') == 'Feature':
                 geometry = feature.get('geometry', {})
                 
                 # 處理LineString類型的幾何資料
                 if geometry.get('type') == 'LineString':
+                    linestring_count += 1
                     coordinates = geometry.get('coordinates', [])
-                    logger.info(f"找到LineString，包含 {len(coordinates)} 個座標點")
+                    logger.info(f"找到LineString {linestring_count}，包含 {len(coordinates)} 個座標點")
                     
                     for coord in coordinates:
                         if isinstance(coord, list) and len(coord) >= 2:
@@ -381,11 +382,9 @@ def fetch_and_save_brown_3_route():
                                 "PositionLat": coord[1],  # 緯度
                                 "PositionLon": coord[0]   # 經度
                             })
-                    
-                    # 只處理第一個LineString就停止（通常第一個方向就足夠了）
-                    if route_data:
-                        logger.info(f"成功提取了 {len(route_data)} 個路線座標點")
-                        break
+        
+        if route_data:
+            logger.info(f"成功提取了 {len(route_data)} 個路線座標點，來自 {linestring_count} 個LineString")
     
     # 如果沒有路線幾何資料，從站點資料構造路線
     if not route_data:

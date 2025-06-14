@@ -191,3 +191,44 @@ def verify_auth_status():
             'success': False,
             'message': f'驗證用戶狀態失敗: {str(e)}'
         }), 500
+
+@user_bp.route('/creatures/<creature_id>/toggle-favorite', methods=['POST'])
+@login_required
+def toggle_creature_favorite(creature_id):
+    """切換精靈的我的最愛狀態"""
+    try:
+        current_app.logger.info(f"切換精靈我的最愛狀態 - 用戶: {current_user.id}, 精靈: {creature_id}")
+        
+        # 驗證 creature_id
+        if not creature_id:
+            return jsonify({
+                'success': False,
+                'message': '缺少精靈ID'
+            }), 400
+        
+        # 使用 Firebase 服務切換我的最愛狀態
+        firebase_service = FirebaseService()
+        result = firebase_service.toggle_creature_favorite(current_user.id, creature_id)
+        
+        if result['success']:
+            current_app.logger.info(f"成功更新精靈 {creature_id} 的我的最愛狀態: {result['favorite']}")
+            return jsonify({
+                'success': True,
+                'favorite': result['favorite'],
+                'message': result['message']
+            })
+        else:
+            current_app.logger.error(f"更新精靈我的最愛狀態失敗: {result['message']}")
+            return jsonify({
+                'success': False,
+                'message': result['message']
+            }), 400
+            
+    except Exception as e:
+        current_app.logger.error(f"切換精靈我的最愛狀態時發生錯誤: {e}")
+        import traceback
+        current_app.logger.error(f"錯誤詳情: {traceback.format_exc()}")
+        return jsonify({
+            'success': False,
+            'message': f'操作失敗: {str(e)}'
+        }), 500

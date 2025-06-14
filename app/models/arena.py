@@ -65,12 +65,12 @@ def update_arena_cache_from_tdx():
         
         # 獲取TDX服務實例
         tdx_service = TdxService()
-        
-        # 獲取各路線站點資料
+          # 獲取各路線站點資料
         routes_info = [
             {'key': 'cat-right', 'name': '貓空右線'},
             {'key': 'cat-left', 'name': '貓空左線(動物園)'},
-            {'key': 'cat-left-zhinan', 'name': '貓空左線(指南宮)'}
+            {'key': 'cat-left-zhinan', 'name': '貓空左線(指南宮)'},
+            {'key': 'brown-3', 'name': '棕3'}
         ]
         
         print(f"[道館數據處理] 開始從TDX獲取{len(routes_info)}條路線的站點資料")

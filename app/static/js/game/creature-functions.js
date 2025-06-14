@@ -62,14 +62,14 @@ function displayCreaturesOnMap(creatures) {
     const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
     
     // 根據元素類型獲取顏色
-    let bgColor;
-    switch(elementType) {
+    let bgColor;    switch(elementType) {
       case 'fire': bgColor = '#e74c3c'; break;
       case 'water': bgColor = '#3498db'; break;
-      case 'earth': bgColor = '#8e44ad'; break;
-      case 'air': bgColor = '#2ecc71'; break;
-      case 'electric': bgColor = '#f1c40f'; break;
+      case 'wood': bgColor = '#27ae60'; break;
+      case 'light': bgColor = '#f1c40f'; break;
       case 'dark': bgColor = '#2c3e50'; break;
+      case 'normal': bgColor = '#95a5a6'; break;
+      default: bgColor = '#95a5a6';
     }
     
     // 獲取表情符號
@@ -289,10 +289,11 @@ function getCreatureEmoji(type) {
   switch(type) {
     case 'water': return '💧';
     case 'fire': return '🔥';
-    case 'earth': return '🌱';
-    case 'air': return '💨';
-    case 'electric': return '⚡';
-    default: return '✨';
+    case 'wood': return '🌱';
+    case 'light': return '✨';
+    case 'dark': return '🌙';
+    case 'normal': return '⭐';
+    default: return '⭐';
   }
 }
 
@@ -307,10 +308,10 @@ function getTypeColor(type) {
   switch(type) {
     case 'water': return '3498db';
     case 'fire': return 'e74c3c';
-    case 'earth': return '8e44ad';
-    case 'air': return '2ecc71';
-    case 'electric': return 'f1c40f';
+    case 'wood': return '27ae60';
+    case 'light': return 'f1c40f';
     case 'dark': return '2c3e50';
+    case 'normal': return '95a5a6';
     default: return '95a5a6';
   }
 }
@@ -320,10 +321,10 @@ function getTypeBadgeClass(type) {
   switch(type) {
     case 'water': return 'bg-primary';
     case 'fire': return 'bg-danger';
-    case 'earth': return 'bg-warning';
-    case 'air': return 'bg-info';
-    case 'electric': return 'bg-warning';
+    case 'wood': return 'bg-success';
+    case 'light': return 'bg-warning';
     case 'dark': return 'bg-dark';
+    case 'normal': return 'bg-secondary';
     default: return 'bg-secondary';
   }
 }
@@ -344,16 +345,16 @@ function getElementTypeName(type) {
   switch(type) {
     case 'fire': return '火系';
     case 'water': return '水系';
-    case 'earth': return '土系';
-    case 'air': return '風系';
-    case 'electric': return '電系';
+    case 'wood': return '草系';
+    case 'light': return '光系';
     case 'dark': return '暗系';
+    case 'normal': return '一般系';
     case 0: return '火系'; // 數字枚舉值 (FIRE = 0)
     case 1: return '水系'; // 數字枚舉值 (WATER = 1)
-    case 2: return '土系'; // 數字枚舉值 (EARTH = 2)
-    case 3: return '風系'; // 數字枚舉值 (AIR = 3)
-    case 4: return '電系'; // 數字枚舉值 (ELECTRIC = 4)
-    case 5: return '暗系'; // 數字枚舉值 (DARK = 5)
+    case 2: return '草系'; // 數字枚舉值 (WOOD = 2)
+    case 3: return '光系'; // 數字枚舉值 (LIGHT = 3)
+    case 4: return '暗系'; // 數字枚舉值 (DARK = 4)
+    case 5: return '一般系'; // 數字枚舉值 (NORMAL = 5)
     default: return '一般系';
   }
 }

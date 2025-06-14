@@ -50,16 +50,17 @@ const tutorialCreature = {
         creatureTypeElement.textContent = defaultCreature.type;
         creatureTypeElement.className = 'creature-type badge';
         
-        document.getElementById('creatureRarity').textContent = defaultCreature.rarity || '普通';
-          // 根據類型設置樣式
+        document.getElementById('creatureRarity').textContent = defaultCreature.rarity || '普通';          // 根據類型設置樣式
         if (defaultCreature.type === '水系') {
             creatureTypeElement.classList.add('bg-primary');
         } else if (defaultCreature.type === '火系') {
             creatureTypeElement.classList.add('bg-danger');
-        } else if (defaultCreature.type === '風系') {
+        } else if (defaultCreature.type === '草系') {
             creatureTypeElement.classList.add('bg-success');
-        } else if (defaultCreature.type === '土系') {
+        } else if (defaultCreature.type === '光系') {
             creatureTypeElement.classList.add('bg-warning');
+        } else if (defaultCreature.type === '暗系') {
+            creatureTypeElement.classList.add('bg-dark');
         } else if (defaultCreature.type === '暗系') {
             creatureTypeElement.classList.add('bg-dark');
         }

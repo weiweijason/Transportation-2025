@@ -1,5 +1,4 @@
-
-    .profile-title {
+.profile-title {
         font-family: 'Baloo 2', cursive;
         font-weight: 700;
         margin-bottom: 1.5rem;
@@ -119,25 +118,84 @@
         background-color: transparent;
         border-bottom: 3px solid var(--primary-color);
     }
-    
-    .creature-tabs .nav-link:hover:not(.active) {
+      .creature-tabs .nav-link:hover:not(.active) {
         border-bottom: 3px solid #e9ecef;
     }
     
+    /* 功能選單樣式 */
+    .function-menu-container {
+        padding: 1rem;
+    }
+    
+    .menu-item-card {
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .menu-item-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .menu-link {
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        padding: 1rem;
+    }
+    
+    .menu-link:hover {
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .menu-icon-container {
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     .menu-icon {
-        max-width: 64px;
-        height: auto;
+        width: 48px;
+        height: 48px;
+        object-fit: contain;
         transition: transform 0.2s ease;
     }
 
     .menu-label {
         font-size: 0.9rem;
-        font-weight: 500;
+        font-weight: 600;
         color: var(--text-color);
+        text-align: center;
+        margin: 0;
     }
 
     .menu-link:hover .menu-icon {
-        transform: scale(1.05);
+        transform: scale(1.1);
+    }
+    
+    /* 深色模式適配 */
+    [data-theme="dark"] .menu-item-card {
+        background: #2c3035;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    [data-theme="dark"] .menu-item-card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
     }
 
     [data-theme="dark"] .menu-label {
@@ -224,8 +282,7 @@
     [data-theme="dark"] .small {
         color: var(--text-color);
     }
-    
-    /* 響應式調整 */
+      /* 響應式調整 */
     @media (max-width: 767.98px) {
         .profile-avatar {
             width: 80px;
@@ -244,5 +301,33 @@
             padding: 8px 10px;
             font-size: 0.9rem;
         }
-
+        
+        /* 手機版功能選單調整 */
+        .function-menu-container {
+            padding: 0.5rem;
+        }
+        
+        .menu-item-card {
+            height: 100px;
+        }
+        
+        .menu-icon {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .menu-label {
+            font-size: 0.8rem;
+        }
+    }
+    
+    @media (min-width: 768px) and (max-width: 991.98px) {
+        /* 平板版功能選單調整 */
+        .menu-item-card {
+            height: 110px;
+        }
+        
+        .menu-icon {
+            width: 44px;
+            height: 44px;        }
     }

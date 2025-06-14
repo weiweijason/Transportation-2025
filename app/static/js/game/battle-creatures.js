@@ -211,14 +211,14 @@ function getTypeColor(type) {
         case '水系': return 'primary';
         case 'fire': return 'danger';
         case '火系': return 'danger';
-        case 'earth': return 'warning';
-        case '土系': return 'warning';
-        case 'air': return 'success';
-        case '風系': return 'success';
-        case 'electric': return 'info';
-        case '電系': return 'info';
+        case 'wood': return 'success';
+        case '草系': return 'success';
+        case 'light': return 'warning';
+        case '光系': return 'warning';
         case 'dark': return 'dark';
         case '暗系': return 'dark';
+        case 'normal': return 'secondary';
+        case '一般': return 'secondary';
         default: return 'secondary';
     }
 }
@@ -232,10 +232,10 @@ function getTypeText(type) {
     switch(String(type).toLowerCase()) {
         case 'water': return '水系';
         case 'fire': return '火系';
-        case 'earth': return '土系';
-        case 'air': return '風系';
-        case 'electric': return '電系';
+        case 'wood': return '草系';
+        case 'light': return '光系';
         case 'dark': return '暗系';
+        case 'normal': return '一般';
         default: return '一般';
     }
 }

@@ -306,16 +306,16 @@ function displayCreaturesDirectly(creatures) {
       if (isNaN(lat) || isNaN(lng)) {
         console.error(`精靈 ${name} 位置無效:`, position);
         return;
-      }
-      
-      // 獲取元素類型對應的顏色
+      }      // 獲取元素類型對應的顏色
       let color = '#FF0000'; // 預設紅色
       if (creature.element_type) {
         switch(creature.element_type) {
           case 'fire': color = '#e74c3c'; break;    // 火紅色
           case 'water': color = '#3498db'; break;   // 水藍色
-          case 'earth': color = '#8e44ad'; break;   // 地紫色
-          case 'air': color = '#2ecc71'; break;     // 風綠色
+          case 'wood': color = '#27ae60'; break;    // 草綠色
+          case 'light': color = '#f1c40f'; break;   // 光金色
+          case 'dark': color = '#2c3e50'; break;    // 暗黑色
+          case 'normal': color = '#95a5a6'; break;  // 一般灰色
           case 'electric': color = '#f1c40f'; break; // 電黃色
           default: color = '#95a5a6';              // 一般灰色
         }

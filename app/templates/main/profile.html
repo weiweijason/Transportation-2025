@@ -31,11 +31,10 @@
                                 <span class="stat-value" id="captured-count">0</span>
                                 <span class="stat-label">已捕獲</span>
                             </div>
-                        </div>
-                        <div class="col-4">
+                        </div>                        <div class="col-4">
                             <div class="stat-item">
                                 <span class="stat-value" id="arena-count">0</span>
-                                <span class="stat-label">擂台</span>
+                                <span class="stat-label">道館</span>
                             </div>
                         </div>
                         <div class="col-4">
@@ -75,30 +74,49 @@
                             <span>排名: #42</span>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
+                </div>            </div>        </div>
 
-    </div>
-    <!-- 功能選單卡片 -->
+    </div><!-- 功能選單卡片 -->
     <div class="col-md-8">
-        <div class="row g-3">
-            {% set menu_items = [
+        <div class="function-menu-container">            {% set menu_items = [
                 {"label": "精靈", "icon": url_for('static', filename='img/profile/elf.png'), "url": url_for('bylin.myelf')},
-                {"label": "背包", "icon": url_for('static', filename='img/profile/bag.png'), "url": url_for('bylin.mybag')},
+                {"label": "背包", "icon": url_for('static', filename='img/profile/bag.png'), "url": url_for('bylin.backpack')},
                 {"label": "我的道館", "icon": url_for('static', filename='img/profile/arena.png'), "url": url_for('bylin.myarena')},
-                {"label": "競技場", "icon": url_for('static', filename='img/profile/battle.png'), "url": url_for('friend_fight.choose')},
+                {"label": "競技場", "icon": url_for('static', filename='img/profile/battle.png'), "url": url_for('friend_fight.choose_fight')},
                 {"label": "好友", "icon": url_for('static', filename='img/profile/friends.png'), "url": url_for('community.friends')},
-                {"label": "成就", "icon": url_for('static', filename='img/profile/achievement.png'), "url": url_for('achievement.achievement')}
+                {"label": "成就", "icon": url_for('static', filename='img/profile/achievement.png'), "url": url_for('achievement.achievement_page')},                {"label": "商店", "icon": "fas fa-store", "url": "#", "coming_soon": true},
+                {"label": "排行榜", "icon": "fas fa-trophy", "url": "#", "coming_soon": true},
+                {"label": "每日任務", "icon": "fas fa-calendar-check", "url": "#", "coming_soon": true}
             ] %}
-            {% for item in menu_items %}
-            <div class="col-4 text-center">
-                <a href="{{ item.url }}" class="menu-link d-block p-2">
-                    <img src="{{ item.icon }}" alt="{{ item.label }}" class="img-fluid mb-2 menu-icon">
-                    <div class="menu-label">{{ item.label }}</div>
-                </a>
+              <div class="row g-3">
+                {% for item in menu_items %}
+                <div class="col-md-4 col-sm-6 col-12">
+                    <div class="menu-item-card {% if item.coming_soon %}coming-soon-item{% endif %}">                        {% if item.coming_soon %}
+                            <div class="menu-link coming-soon-link">
+                                <div class="menu-icon-container">
+                                    {% if item.icon.startswith('fas ') %}
+                                        <i class="{{ item.icon }} menu-icon-font"></i>
+                                    {% else %}
+                                        <img src="{{ item.icon }}" alt="{{ item.label }}" class="menu-icon">
+                                    {% endif %}
+                                </div>
+                                <div class="menu-label">{{ item.label }}</div>
+                                <div class="coming-soon-badge">
+                                    <i class="fas fa-clock"></i> 敬請期待
+                                </div>
+                            </div>
+                        {% else %}
+                            <a href="{{ item.url }}" class="menu-link">
+                                <div class="menu-icon-container">
+                                    <img src="{{ item.icon }}" alt="{{ item.label }}" class="menu-icon">
+                                </div>
+                                <div class="menu-label">{{ item.label }}</div>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
     </div>
 </div>
@@ -158,11 +176,10 @@
                     }
                     
                     updateUserProfile(userData);
-                    
-                    // 獲取用戶已捕獲的精靈
+                      // 獲取用戶已捕獲的精靈
                     loadUserCreatures(userId);
                     
-                    // 獲取用戶擁有的擂台
+                    // 獲取用戶擁有的道館
                     loadUserArenas(userId);
                 } else {
                     console.error("找不到用戶資料!");
@@ -172,26 +189,62 @@
                 console.error("獲取用戶資料錯誤:", error);
             });
     });
-      // 更新用戶資料顯示
+      // 載入用戶精靈數據並更新統計
+    function loadUserCreatures(userId) {
+        console.log("正在載入用戶精靈數據...");
+        
+        db.collection('users').doc(userId).collection('user_creatures').get()
+            .then(function(querySnapshot) {
+                const creaturesCount = querySnapshot.size;
+                console.log("用戶精靈數量:", creaturesCount);
+                document.getElementById('captured-count').textContent = creaturesCount;
+            })
+            .catch(function(error) {
+                console.error("載入精靈數據錯誤:", error);
+                document.getElementById('captured-count').textContent = "0";
+            });
+    }
+    
+    // 載入用戶道館數據並更新統計
+    function loadUserArenas(userId) {
+        console.log("正在載入用戶道館數據...");
+        
+        db.collection('users').doc(userId).collection('user_arenas').get()
+            .then(function(querySnapshot) {
+                const arenasCount = querySnapshot.size;
+                console.log("用戶道館數量:", arenasCount);
+                document.getElementById('arena-count').textContent = arenasCount;
+            })
+            .catch(function(error) {
+                console.error("載入道館數據錯誤:", error);
+                document.getElementById('arena-count').textContent = "0";
+            });
+    }// 更新用戶資料顯示
     function updateUserProfile(userData) {
         console.log("從 Firebase 獲取的用戶資料:", userData);
         
-        // 設定用戶等級
+        // 設定用戶等級（確保有默認值）
         const userLevel = userData.level || 1;
         document.getElementById('user-level').textContent = userLevel;
         
-        // 設定經驗值
+        // 設定用戶經驗值（確保有默認值）
         const userExp = userData.experience || 0;
-        const nextLevelExp = userLevel * 100; // 假設每級需要100*等級的經驗值
+        const nextLevelExp = calculateMaxExperience(userLevel);
         document.getElementById('exp-text').textContent = `${userExp}/${nextLevelExp}`;
         
         // 更新經驗值進度條
-        const expPercentage = (userExp / nextLevelExp) * 100;
+        const expPercentage = Math.min((userExp / nextLevelExp) * 100, 100);
         document.getElementById('exp-progress').style.width = `${expPercentage}%`;
         
-        // 更新戰鬥次數
+        // 更新戰鬥次數（確保有默認值）
         const battleCount = userData.fight_count || 0;
         document.getElementById('battle-count').textContent = battleCount;
+        
+        // 如果用戶數據中缺少等級或經驗值，進行初始化
+        if (!userData.level || !userData.experience) {
+            console.log("檢測到用戶缺少等級或經驗值數據，進行初始化...");
+            initializeUserLevelAndExperience(userData);
+        }
         
         // 更新用戶頭像
         const userAvatar = userData.avatar || null;
@@ -203,9 +256,39 @@
         }
     }
     
+    // 初始化用戶等級和經驗值
+    function initializeUserLevelAndExperience(userData) {
+        const userId = "{{ session['user']['uid'] }}";
+        const updateData = {};
+        
+        if (!userData.level) {
+            updateData.level = 1;
+        }
+        if (!userData.experience) {
+            updateData.experience = 0;
+        }
+        
+        if (Object.keys(updateData).length > 0) {
+            console.log("正在初始化用戶等級和經驗值:", updateData);
+            db.collection('users').doc(userId).update(updateData)
+                .then(() => {
+                    console.log("用戶等級和經驗值初始化成功");
+                    // 重新更新顯示
+                    const updatedUserData = { ...userData, ...updateData };
+                    updateUserProfile(updatedUserData);
+                })
+                .catch(error => {
+                    console.error("初始化用戶等級和經驗值失敗:", error);
+                });
+        }
+    }
     
-
-    
+    // 計算指定等級升級所需的最大經驗值（與後端一致的公式）
+    function calculateMaxExperience(level) {
+        const baseExp = 100;
+        const maxExp = Math.floor(baseExp * Math.pow(2, level - 1));
+        return Math.min(maxExp, 5000); // 設定上限為5000
+    }
     // 格式化日期
     function formatDate(timestamp) {
         if (!timestamp) return '未知日期';
