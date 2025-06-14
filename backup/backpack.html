@@ -1,29 +1,103 @@
 {% extends "base.html" %}
 
-{% block title %}我的背包 - LionKing{% endblock %}
+{% block title %}重定向到我的背包 - LionKing{% endblock %}
 
 {% block head %}
-<link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
 <style>
-    .backpack-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-    
-    .backpack-header {
-        text-align: center;
-        margin-bottom: 30px;
-        padding: 20px;
+    .redirect-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 15px;
+        text-align: center;
         color: white;
     }
     
-    .backpack-header h1 {
-        margin: 0;
-        font-size: 2.5rem;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    .redirect-content {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        padding: 40px;
+        max-width: 500px;
+        margin: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .redirect-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        animation: bounce 2s infinite;
+    }
+    
+    .redirect-title {
+        font-size: 2rem;
+        margin-bottom: 15px;
+        font-weight: 700;
+    }
+    
+    .redirect-message {
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+        opacity: 0.9;
+    }
+    
+    .redirect-btn {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+    }
+    
+    .redirect-btn:hover {
+        background: linear-gradient(135deg, #059669, #047857);
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px rgba(16, 185, 129, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .countdown {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #fbbf24;
+        margin-top: 20px;
+    }
+    
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+            transform: translateY(0);
+        }
+        40% {
+            transform: translateY(-10px);
+        }
+        60% {
+            transform: translateY(-5px);
+        }
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .redirect-content {
+        animation: fadeIn 0.8s ease forwards;
     }
     
     .items-grid {

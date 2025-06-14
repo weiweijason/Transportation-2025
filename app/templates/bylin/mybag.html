@@ -1,185 +1,222 @@
 {% extends "base.html" %}
 {% block title %}我的包包 - 精靈公車{% endblock %}
+
+{% block extra_css %}
+{{ super() }} <!-- 可選：如果 extra_css 在父模板中可能有內容，用 super() 保留 -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+<!-- 引入 Bootstrap CSS (確保響應式設計) - base.html 已有 Bootstrap 5.3.0 -->
+<!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+<!-- 引入獨立的CSS文件 - 多彩版本 -->
+<link href="{{ url_for('static', filename='css/bylin/mybag_colorful.css') }}" rel="stylesheet">
+<!-- viewport meta 標籤已在 base.html 中定義 -->
+<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> -->
+{% endblock %}
+
 {% block content %}
+<!-- 動態背景粒子 -->
+<div class="mybag-particles"></div>
 
-<div class="col-md-12 mt-4">
-  <div class="item-selection-row">
-    <!-- 魔法陣 -->
-    <div class="item-card item-toggle" data-type="magic-circle">
-      <img src="{{ url_for('static', filename='img/mybag/magic-circle-icon.png') }}" alt="魔法陣">
-      <h5>魔法陣</h5>
-    </div>
-    <!-- 藥水 -->
-    <div class="item-card item-toggle" data-type="potion">
-      <img src="{{ url_for('static', filename='img/mybag/potion-icon.png') }}" alt="藥水">
-      <h5>藥水</h5>
+<!-- 載入動畫 -->
+<div id="loading-overlay" class="loading-overlay">
+  <div class="loading-content">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">載入魔法包包中...</div>
+    <div class="loading-subtitle">準備展示你的神奇道具與魔法藥水</div>
+  </div>
+</div>
+
+<div class="mybag-container container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-lg-10 col-md-11 col-sm-12">
+      <!-- 頂部導航區域 -->
+      <div class="top-navigation-area">
+        <!-- 返回按鈕 -->
+        <a href="{{ url_for('main.profile') }}" class="back-btn" aria-label="返回個人資料">
+          <div class="back-btn-inner">
+            <i class="fas fa-arrow-left"></i>
+            <span class="back-text">返回</span>
+          </div>
+        </a>
+        
+        <!-- 狀態指示器 -->
+        <div class="status-indicator">
+          <div class="status-pill">
+            <i class="fas fa-wifi"></i> 已連線
+          </div>
+        </div>
+      </div>
+
+      <!-- 頁面標題 -->
+      <div class="mybag-header">
+        <div class="header-animation-wrapper">
+          <div class="header-icon">
+            <i class="fas fa-magic"></i>
+          </div>
+        </div>
+        <h1>我的魔法包包</h1>
+        <p class="header-subtitle">管理你的魔法道具與神奇藥水</p>
+        
+        <!-- 新增: 包包狀態摘要 -->
+        <div class="bag-status-summary">
+          <div class="status-card">
+            <i class="fas fa-scroll"></i>
+            <span id="total-items-count">--</span>
+            <small>道具總數</small>
+          </div>
+          <div class="status-card">
+            <i class="fas fa-star"></i>
+            <span id="rare-items-count">--</span>
+            <small>稀有道具</small>
+          </div>
+          <div class="status-card">
+            <i class="fas fa-chart-line"></i>
+            <span id="power-level">--</span>
+            <small>力量指數</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-divider">
+        <div class="divider-ornament left"></div>
+        <div class="divider-line"></div>
+        <div class="divider-ornament right"></div>
+      </div>
+
+      <!-- 道具分類選擇 -->
+      <div class="item-selection-section">
+        <div class="section-title">
+          <i class="fas fa-star pulse-animation"></i> 
+          <span>選擇道具類型</span> 
+          <i class="fas fa-star pulse-animation"></i>
+        </div>
+        <div class="item-selection-row row">
+          <!-- 魔法陣 -->
+          <div class="col-md-6 col-sm-12 mb-4">
+            <div class="item-card item-toggle tooltip-custom" data-type="magic-circle" data-tooltip="點擊查看魔法陣收藏">
+              <div class="item-card-inner">
+                <div class="item-card-front">
+                  <div class="item-icon-wrapper">
+                    <img src="{{ url_for('static', filename='img/mybag/magic-circle-icon.png') }}" alt="魔法陣">
+                    <div class="item-glow"></div>
+                  </div>
+                  <h5><i class="fas fa-circle-notch fa-spin-pulse"></i> 魔法陣</h5>
+                  <div class="item-subtitle">召喚神秘力量的古老符文</div>
+                  <div class="item-action">
+                    <button class="view-btn">
+                      <i class="fas fa-eye"></i> 查看收藏
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 藥水 -->
+          <div class="col-md-6 col-sm-12 mb-4">
+            <div class="item-card item-toggle tooltip-custom" data-type="potion" data-tooltip="點擊查看藥水收藏">
+              <div class="item-card-inner">
+                <div class="item-card-front">
+                  <div class="item-icon-wrapper">
+                    <img src="{{ url_for('static', filename='img/mybag/potion-icon.png') }}" alt="藥水">
+                    <div class="item-glow potion-glow"></div>
+                  </div>
+                  <h5><i class="fas fa-flask fa-bounce"></i> 神奇藥水</h5>
+                  <div class="item-subtitle">增強捕捉能力的魔法藥劑</div>
+                  <div class="item-action">
+                    <button class="view-btn">
+                      <i class="fas fa-eye"></i> 查看收藏
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 展開區塊 -->
+      <div id="item-detail-container" class="fade-slide" style="display: none;">
+        <div class="detail-section-title">
+          <div class="title-decoration left"></div>
+          <h3>
+            <i class="fas fa-sparkles sparkle-icon"></i>
+            <span id="category-title">道具詳情</span>
+            <i class="fas fa-sparkles sparkle-icon"></i>
+          </h3>
+          <div class="title-decoration right"></div>
+        </div>
+        
+        <!-- 搜尋和過濾區 -->
+        <div class="search-filter-area">
+          <div class="search-bar">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="item-search" placeholder="搜尋道具...">
+          </div>
+          <div class="filter-options">
+            <button class="filter-btn" data-filter="all">
+              <i class="fas fa-th-large"></i> 全部
+            </button>
+            <button class="filter-btn" data-filter="rarity">
+              <i class="fas fa-gem"></i> 稀有度
+            </button>
+            <button class="filter-btn" data-filter="recent">
+              <i class="fas fa-clock"></i> 最近獲得
+            </button>
+          </div>
+        </div>
+        
+        <div class="row" id="item-detail-row">
+          <!-- 子項目卡片會由 JS 插入 -->
+          <div class="col-12 empty-state" style="display: none;">
+            <div class="empty-state-content">
+              <i class="fas fa-search fa-3x"></i>
+              <h4>沒有找到符合的道具</h4>
+              <p>請嘗試使用不同的搜尋條件</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 道具詳情模態框 -->
+        <div class="item-detail-modal" id="item-detail-modal">
+          <div class="modal-content">
+            <div class="modal-close"><i class="fas fa-times"></i></div>
+            <div class="modal-body" id="modal-body">
+              <!-- 由JS填充 -->
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 浮動動作按鈕 -->
+      <div class="floating-action-btn" id="scroll-top-btn">
+        <i class="fas fa-arrow-up"></i>
+      </div>
     </div>
   </div>
+</div>
 
-  <!-- 展開區塊 -->
-  <div id="item-detail-container" class="mt-4" style="display: none;">
-    <div class="row text-center" id="item-detail-row">
-      <!-- 子項目卡片會由 JS 插入 -->
-    </div>
-  </div>
+<!-- 添加底部空間，避免與 base.html 重疊 -->
+<div class="page-bottom-space"></div>
+
+<!-- 交互式提示 -->
+<div class="interactive-tips" id="interactive-tips">
+  <div class="tip-icon"><i class="fas fa-lightbulb"></i></div>
+  <div class="tip-content">點擊道具卡片可以展開更多選項</div>
 </div>
 
 {% endblock %}
 
 {% block extra_js %}
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-
+<!-- 引入 Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- 引入 Hammer.js 用於支援行動裝置滑動手勢 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+<!-- 設置用戶ID供JS使用 -->
 <script>
-  const firebaseConfig = {
-    apiKey: "{{ firebase_config.apiKey }}",
-    authDomain: "{{ firebase_config.authDomain }}",
-    projectId: "{{ firebase_config.projectId }}",
-    storageBucket: "{{ firebase_config.storageBucket }}",
-    messagingSenderId: "{{ firebase_config.messagingSenderId }}",
-    appId: "{{ firebase_config.appId }}"
-  };
-
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-
-  const db = firebase.firestore();
-
-  const itemMeta = {
-    "magic-circle": [
-      {
-        name: "普通魔法陣",
-        key: "normal",
-        img: "{{ url_for('static', filename='img/mybag/magic-circle-normal.png') }}"
-      },
-      {
-        name: "進階魔法陣",
-        key: "advanced",
-        img: "{{ url_for('static', filename='img/mybag/magic-circle-advanced.png') }}"
-      },
-      {
-        name: "高級魔法陣",
-        key: "high",
-        img: "{{ url_for('static', filename='img/mybag/magic-circle-high.png') }}"
-      }
-    ],
-    "potion": [
-      {
-        name: "普通藥水",
-        key: "normal",
-        img: "{{ url_for('static', filename='img/mybag/potion-normal.png') }}",
-        description: "捕捉率 1.13 倍"
-      },
-      {
-        name: "進階藥水",
-        key: "advanced",
-        img: "{{ url_for('static', filename='img/mybag/potion-advanced.png') }}",
-        description: "捕捉率 1.25 倍"
-      },
-      {
-        name: "高級藥水",
-        key: "high",
-        img: "{{ url_for('static', filename='img/mybag/potion-high.png') }}",
-        description: "捕捉率 1.50 倍"
-      }
-    ]
-  };
-
-  document.addEventListener('DOMContentLoaded', function () {
-    const userId = "{{ session['user']['uid'] }}";
-    if (!userId) {
-      console.error("使用者未登入");
-      return;
-    }
-
-    let currentType = null;
-    let userItems = {};
-
-    db.collection('users').doc(userId).get()
-      .then(doc => {
-        if (doc.exists) {
-          const data = doc.data();
-          userItems = data.items || {};
-
-          // 綁定選擇類別卡片
-          document.querySelectorAll('.item-toggle').forEach(card => {
-            card.addEventListener('click', function () {
-              const type = this.dataset.type;
-              const container = document.getElementById('item-detail-container');
-              const row = document.getElementById('item-detail-row');
-
-              if (currentType === type && container.style.display === 'block') {
-                container.style.display = 'none';
-                document.querySelectorAll('.item-toggle').forEach(c => c.classList.remove('active'));
-                currentType = null;
-                return;
-              }
-
-              currentType = type;
-              document.querySelectorAll('.item-toggle').forEach(c => c.classList.remove('active'));
-              this.classList.add('active');
-
-              const metaItems = itemMeta[type];
-              row.innerHTML = '';
-
-              metaItems.forEach(item => {
-                const qty = userItems[type]?.[item.key] || 0;
-                row.innerHTML += `
-                  <div class="col-4">
-                    <div class="item-detail-card">
-                      <img src="${item.img}" alt="${item.name}">
-                      <h6>${item.name}</h6>
-                      <p>${item.description || ''}</p>
-                      <p class="fw-bold">剩餘：<span id="${type}-${item.key}-qty">${qty}</span> 個</p>
-                      ${type === 'potion' ? `<button class="btn btn-sm btn-primary use-btn" data-type="${type}" data-key="${item.key}">使用</button>` : ''}
-                    </div>
-                  </div>
-                `;
-              });
-
-              container.style.display = 'block';
-            });
-          });
-        } else {
-          console.warn("找不到使用者資料");
-        }
-      })
-      .catch(error => {
-        console.error("讀取 Firebase 資料錯誤:", error);
-      });
-
-    // 使用按鈕事件委派
-    document.addEventListener('click', function (e) {
-      if (e.target.classList.contains('use-btn')) {
-        const type = e.target.dataset.type;
-        const key = e.target.dataset.key;
-
-        fetch('/use-item', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type, key })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            const qtySpan = document.getElementById(`${type}-${key}-qty`);
-            let currentQty = parseInt(qtySpan.textContent);
-            if (currentQty > 0) {
-              qtySpan.textContent = currentQty - 1;
-            }
-          } else {
-            alert(data.message || "使用失敗！");
-          }
-        })
-        .catch(err => {
-          console.error("使用道具錯誤：", err);
-          alert("請稍後再試");
-        });
-      }
-    });
-  });
+  // 設置用戶ID供JS使用
+  document.body.setAttribute('data-user-id', "{{ session['user']['uid'] if session.get('user') else '' }}");
 </script>
+<!-- 引入獨立的JavaScript文件 - 多主題支援版本 -->
+<script src="{{ url_for('static', filename='js/bylin/mybag_multi_theme.js') }}"></script>
 {% endblock %}

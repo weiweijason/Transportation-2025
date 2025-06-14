@@ -1,0 +1,1649 @@
+/* 魔法包包頁面的優化 CSS 樣式 - 多主題支援版本 (更豐富的色彩版本) */
+
+* {
+  box-sizing: border-box;
+}
+
+/* 全局變量定義 - 含淺色和深色主題，增強色彩元素 */
+:root {
+  /* 共享變量 */
+  --border-radius: 16px;
+  --transition-speed: 0.3s;
+  
+  /* 深色主題變量 (豐富色彩版) */
+  --primary-gradient: linear-gradient(135deg, #6a3093 0%, #a044ff 50%, #6a3093 100%);
+  --secondary-gradient: linear-gradient(45deg, #11998e 0%, #38ef7d 100%);
+  --accent-color: #ffd700;
+  --accent-secondary: #ff7e5f;
+  --accent-tertiary: #00e4ff;
+  --text-color: #ffffff;
+  --text-color-secondary: rgba(255, 255, 255, 0.85);
+  --text-color-muted: rgba(255, 255, 255, 0.7);
+  --card-bg: rgba(61, 66, 96, 0.7);
+  --card-hover-bg: rgba(71, 77, 120, 0.8);
+  --container-bg: rgba(30, 33, 58, 0.85);
+  --shadow-color: rgba(0, 0, 0, 0.35);
+  --glow-color: rgba(255, 215, 0, 0.6);
+  --border-color: rgba(255, 255, 255, 0.25);
+  --input-bg: rgba(255, 255, 255, 0.15);
+  --button-bg: rgba(255, 255, 255, 0.2);
+  --button-hover-bg: rgba(255, 255, 255, 0.3);
+  --overlay-bg: rgba(20, 24, 40, 0.8);
+  
+  /* 稀有度顏色 - 更豐富 */
+  --rarity-common: #78909c;
+  --rarity-rare: #29b6f6;
+  --rarity-legendary: #ffb74d;
+  
+  /* 多彩顏色系 - 更鮮豔 */
+  --color-purple: #9c27b0;
+  --color-deep-purple: #673ab7;
+  --color-blue: #2196f3;
+  --color-light-blue: #03a9f4;
+  --color-green: #4caf50;
+  --color-light-green: #8bc34a;
+  --color-orange: #ff9800;
+  --color-deep-orange: #ff5722;
+  --color-pink: #e91e63;
+  --color-red: #f44336;
+  --color-teal: #009688;
+  --color-cyan: #00bcd4;
+  --color-indigo: #3f51b5;
+  --color-amber: #ffc107;
+  
+  /* 頁面裝飾顏色 */
+  --decoration-color-1: #ff9a8b;
+  --decoration-color-2: #ff6a88;
+  --decoration-color-3: #ff99ac;
+  --decoration-color-4: #da77f2;
+  --decoration-color-5: #9775fa;
+  
+  /* 背景粒子顏色 */
+  --particle-color-1: rgba(255, 154, 139, 0.5);
+  --particle-color-2: rgba(255, 106, 136, 0.5);
+  --particle-color-3: rgba(255, 153, 172, 0.5);
+}
+
+/* 淺色主題變量 - 更豐富的色彩 */
+.light-theme {
+  --primary-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  --secondary-gradient: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+  --accent-color: #fd746c;
+  --accent-secondary: #ff9068;
+  --accent-tertiary: #0072ff;
+  --text-color: #2d3748;
+  --text-color-secondary: rgba(45, 55, 72, 0.8);
+  --text-color-muted: rgba(45, 55, 72, 0.6);
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --card-hover-bg: rgba(255, 255, 255, 0.95);
+  --container-bg: rgba(241, 245, 249, 0.92);
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --glow-color: rgba(253, 116, 108, 0.3);
+  --border-color: rgba(0, 0, 0, 0.1);
+  --input-bg: rgba(255, 255, 255, 0.9);
+  --button-bg: rgba(99, 102, 241, 0.1);
+  --button-hover-bg: rgba(99, 102, 241, 0.2);
+  --overlay-bg: rgba(255, 255, 255, 0.9);
+  
+  /* 稀有度顏色 - 淺色主題 */
+  --rarity-common: #546e7a;
+  --rarity-rare: #1976d2;
+  --rarity-legendary: #f57c00;
+  
+  /* 背景粒子顏色 - 淺色主題 */
+  --particle-color-1: rgba(253, 116, 108, 0.3);
+  --particle-color-2: rgba(255, 144, 104, 0.3);
+  --particle-color-3: rgba(99, 102, 241, 0.3);
+}
+
+/* 檢測系統主題偏好 */
+@media (prefers-color-scheme: light) {
+  :root {
+    --primary-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    --secondary-gradient: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+    --accent-color: #fd746c;
+    --accent-secondary: #ff9068;
+    --accent-tertiary: #0072ff;
+    --text-color: #2d3748;
+    --text-color-secondary: rgba(45, 55, 72, 0.8);
+    --text-color-muted: rgba(45, 55, 72, 0.6);
+    --card-bg: rgba(255, 255, 255, 0.8);
+    --card-hover-bg: rgba(255, 255, 255, 0.95);
+    --container-bg: rgba(241, 245, 249, 0.92);
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --glow-color: rgba(253, 116, 108, 0.3);
+    --border-color: rgba(0, 0, 0, 0.1);
+    --input-bg: rgba(255, 255, 255, 0.9);
+    --button-bg: rgba(99, 102, 241, 0.1);
+    --button-hover-bg: rgba(99, 102, 241, 0.2);
+    --overlay-bg: rgba(255, 255, 255, 0.9);
+    
+    /* 稀有度顏色 - 淺色主題 */
+    --rarity-common: #546e7a;
+    --rarity-rare: #1976d2;
+    --rarity-legendary: #f57c00;
+    
+    /* 背景粒子顏色 - 淺色主題 */
+    --particle-color-1: rgba(253, 116, 108, 0.3);
+    --particle-color-2: rgba(255, 144, 104, 0.3);
+    --particle-color-3: rgba(99, 102, 241, 0.3);
+  }
+}
+
+/* 避免與 base.html 重疊 */
+body.game-background {
+  padding-bottom: 80px !important; /* 增加底部間距避免內容被底部裝飾覆蓋 */
+  background: var(--primary-gradient) !important;
+  background-attachment: fixed !important;
+  background-size: 200% 200% !important;
+  animation: gradientAnimation 15s ease infinite !important;
+  min-height: 100vh;
+  font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+  overflow-x: hidden;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  color: var(--text-color);
+}
+
+@keyframes gradientAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 隱藏原有背景 */
+body.game-background::before {
+  display: none !important;
+}
+
+/* 動態彩色背景粒子效果 */
+.mybag-particles {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle at 25% 25%, var(--particle-color-1) 1px, transparent 1px),
+    radial-gradient(circle at 75% 75%, var(--particle-color-2) 1px, transparent 1px),
+    radial-gradient(circle at 50% 50%, var(--particle-color-3) 1px, transparent 1px);
+  background-size: 150px 150px, 200px 200px, 300px 300px;
+  animation: floatingParticles 20s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* 添加背景星光裝飾 */
+.mybag-particles::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle at 30% 10%, var(--decoration-color-1) 1px, transparent 4px),
+    radial-gradient(circle at 70% 20%, var(--decoration-color-2) 1px, transparent 4px),
+    radial-gradient(circle at 10% 40%, var(--decoration-color-3) 1px, transparent 4px),
+    radial-gradient(circle at 90% 60%, var(--decoration-color-4) 1px, transparent 4px),
+    radial-gradient(circle at 50% 80%, var(--decoration-color-5) 1px, transparent 4px);
+  background-size: 800px 800px;
+  animation: starsTwinkle 8s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes starsTwinkle {
+  0% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+@keyframes floatingParticles {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(20px, -20px) rotate(90deg); }
+  50% { transform: translate(-15px, 15px) rotate(180deg); }
+  75% { transform: translate(25px, 10px) rotate(270deg); }
+}
+
+/* 確保導航欄不被覆蓋 */
+/*
+.navbar {
+  position: relative !important;
+  z-index: 1050 !important;
+  background: rgba(255,255,255,0.95) !important;
+  backdrop-filter: blur(10px) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+*/
+
+/* 確保頁面容器不被導航欄覆蓋，並添加背景色 */
+.mybag-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 60px auto 80px; /* 增加底部間距 */
+  padding: 25px 20px 50px; /* 增加內部間距 */
+  position: relative;
+  animation: containerFadeIn 1s ease-out;
+  z-index: 1;
+  background: var(--container-bg); /* 添加背景色 */
+  border-radius: 20px;
+  box-shadow: 0 10px 40px var(--shadow-color);
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+/* 添加容器裝飾效果 */
+.mybag-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, 
+    var(--decoration-color-1),
+    var(--decoration-color-2),
+    var(--decoration-color-3),
+    var(--decoration-color-4),
+    var(--decoration-color-5));
+  z-index: 2;
+}
+
+/* 添加容器底部裝飾效果 */
+.mybag-container::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: linear-gradient(to bottom, transparent, var(--shadow-color));
+  opacity: 0.2;
+  z-index: 1;
+}
+
+@keyframes containerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 頂部導航區域 - 增加彩色邊框 */
+.top-navigation-area {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding: 12px 15px;
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px var(--shadow-color);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 添加彩色邊框效果 */
+.top-navigation-area::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: linear-gradient(45deg, 
+    var(--decoration-color-1),
+    var(--decoration-color-2),
+    var(--decoration-color-3),
+    var(--decoration-color-4),
+    var(--decoration-color-5)) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+  animation: borderGlow 4s ease infinite;
+}
+
+@keyframes borderGlow {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--text-color);
+  transition: all var(--transition-speed) ease;
+  background: linear-gradient(45deg, var(--accent-tertiary), var(--color-blue)); /* 添加漸變背景 */
+  padding: 8px 16px;
+  border-radius: 50px;
+  backdrop-filter: blur(5px);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 15px var(--shadow-color);
+}
+
+.back-btn:hover, .back-btn:focus {
+  background: linear-gradient(45deg, var(--color-blue), var(--accent-tertiary)); /* 反轉漸變方向 */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--shadow-color);
+  color: white;
+  text-decoration: none;
+}
+
+.back-btn-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-text {
+  font-weight: 600;
+}
+
+.status-indicator {
+  display: flex;
+  gap: 10px;
+}
+
+.status-pill {
+  background: linear-gradient(45deg, var(--color-green), var(--color-light-green)); /* 添加漸變背景 */
+  color: white;
+  padding: 6px 12px;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.status-pill i {
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* 頁面標題樣式 - 增加色彩動畫 */
+.mybag-header {
+  text-align: center;
+  margin-bottom: 40px;
+  color: var(--text-color);
+  position: relative;
+  animation: headerSlideDown 0.8s ease-out 0.2s both;
+  padding: 20px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px var(--shadow-color);
+  border: 1px solid var(--border-color);
+}
+
+/* 添加彩色波浪背景 */
+.mybag-header::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 40%;
+  background-image: 
+    radial-gradient(ellipse at 50% 150%, var(--decoration-color-1) 0%, transparent 70%),
+    radial-gradient(ellipse at 80% 150%, var(--decoration-color-3) 0%, transparent 70%),
+    radial-gradient(ellipse at 20% 150%, var(--decoration-color-5) 0%, transparent 70%);
+  background-size: 200% 200%;
+  animation: waveEffect 10s ease-in-out infinite alternate;
+  opacity: 0.3;
+  border-radius: 16px;
+  z-index: 0;
+}
+
+@keyframes waveEffect {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 0%; }
+}
+
+@keyframes headerSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header-animation-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 15px;
+}
+
+.header-icon {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 50%;
+  backdrop-filter: blur(20px);
+  border: 3px solid var(--border-color);
+  animation: headerIconFloat 4s ease-in-out infinite;
+  box-shadow: 0 10px 30px var(--shadow-color);
+  position: relative;
+  z-index: 2;
+}
+
+.header-icon::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  background: linear-gradient(45deg, 
+    var(--accent-color), 
+    var(--accent-secondary), 
+    var(--accent-tertiary), 
+    var(--color-green), 
+    var(--color-purple), 
+    var(--color-pink), 
+    var(--accent-color));
+  background-size: 400% 400%;
+  border-radius: 50%;
+  z-index: -1;
+  filter: blur(15px);
+  opacity: 0.7;
+  animation: gradientBackground 8s ease infinite;
+}
+
+@keyframes gradientBackground {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.header-icon i {
+  font-size: 2rem;
+  background: linear-gradient(45deg, var(--accent-color), var(--accent-tertiary), var(--color-pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@keyframes headerIconFloat {
+  0%, 100% { 
+    transform: translateY(0) rotate(0deg);
+    box-shadow: 0 10px 30px var(--shadow-color);
+  }
+  25% { 
+    transform: translateY(-10px) rotate(5deg);
+    box-shadow: 0 15px 35px var(--shadow-color);
+  }
+  50% { 
+    transform: translateY(-5px) rotate(0deg);
+    box-shadow: 0 20px 40px var(--shadow-color);
+  }
+  75% { 
+    transform: translateY(-8px) rotate(-5deg);
+    box-shadow: 0 12px 32px var(--shadow-color);
+  }
+}
+
+.mybag-header h1 {
+  font-size: 2.8rem;
+  font-weight: 900;
+  margin-bottom: 15px;
+  text-shadow: 2px 2px 4px var(--shadow-color);
+  letter-spacing: 2px;
+  background: linear-gradient(45deg, 
+    var(--color-purple), 
+    var(--color-blue), 
+    var(--color-indigo), 
+    var(--color-pink), 
+    var(--color-deep-purple));
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmerText 5s ease-in-out infinite;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes shimmerText {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.header-subtitle {
+  font-size: 1.2rem;
+  opacity: 0.95;
+  margin: 0 0 15px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 2px var(--shadow-color);
+  color: var(--text-color-secondary);
+  position: relative;
+  z-index: 1;
+}
+
+/* 包包狀態摘要 - 更豐富的色彩 */
+.bag-status-summary {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 25px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+.status-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 15px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 100px;
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px var(--shadow-color);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 彩色狀態卡片 */
+.status-card:nth-child(1) {
+  background: linear-gradient(45deg, rgba(255, 193, 7, 0.2), rgba(255, 152, 0, 0.2));
+}
+
+.status-card:nth-child(2) {
+  background: linear-gradient(45deg, rgba(233, 30, 99, 0.2), rgba(156, 39, 176, 0.2));
+}
+
+.status-card:nth-child(3) {
+  background: linear-gradient(45deg, rgba(33, 150, 243, 0.2), rgba(0, 188, 212, 0.2));
+}
+
+.status-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px var(--shadow-color);
+}
+
+/* 添加彩色邊框效果 */
+.status-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  z-index: -1;
+  border-radius: 14px;
+}
+
+.status-card:nth-child(1)::before {
+  background: linear-gradient(45deg, var(--color-amber), var(--color-orange));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.status-card:nth-child(2)::before {
+  background: linear-gradient(45deg, var(--color-pink), var(--color-purple));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.status-card:nth-child(3)::before {
+  background: linear-gradient(45deg, var(--color-blue), var(--color-teal));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.status-card:hover::before {
+  opacity: 1;
+}
+
+.status-card:nth-child(1) i {
+  color: var(--color-amber);
+  text-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+}
+
+.status-card:nth-child(2) i {
+  color: var(--color-pink);
+  text-shadow: 0 0 10px rgba(233, 30, 99, 0.5);
+}
+
+.status-card:nth-child(3) i {
+  color: var(--color-blue);
+  text-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
+}
+
+.status-card span {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+  color: var(--text-color);
+}
+
+.status-card small {
+  font-size: 0.8rem;
+  color: var(--text-color-muted);
+}
+
+/* 分隔線樣式 - 彩色彩虹效果 */
+.section-divider {
+  position: relative;
+  height: 3px;
+  margin: 40px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 600px;
+}
+
+.divider-line {
+  height: 3px;
+  background: linear-gradient(90deg, 
+    var(--decoration-color-1),
+    var(--decoration-color-2),
+    var(--decoration-color-3),
+    var(--decoration-color-4),
+    var(--decoration-color-5));
+  border-radius: 3px;
+  flex-grow: 1;
+  animation: rainbowGlow 5s ease-in-out infinite alternate;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+@keyframes rainbowGlow {
+  0% { 
+    box-shadow: 0 0 10px var(--decoration-color-1);
+    opacity: 0.8;
+  }
+  25% {
+    box-shadow: 0 0 10px var(--decoration-color-2);
+    opacity: 0.9;
+  }
+  50% { 
+    box-shadow: 0 0 15px var(--decoration-color-3);
+    opacity: 1;
+  }
+  75% {
+    box-shadow: 0 0 10px var(--decoration-color-4);
+    opacity: 0.9;
+  }
+  100% {
+    box-shadow: 0 0 10px var(--decoration-color-5);
+    opacity: 0.8;
+  }
+}
+
+.divider-ornament {
+  width: 20px;
+  height: 20px;
+  background: var(--card-bg);
+  border-radius: 50%;
+  position: relative;
+  margin: 0 15px;
+  z-index: 1;
+}
+
+.divider-ornament::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  animation: ornamentPulse 2s ease-in-out infinite;
+}
+
+.divider-ornament.left::after {
+  animation-delay: 0s;
+  background: var(--decoration-color-1);
+  box-shadow: 0 0 15px var(--decoration-color-1);
+}
+
+.divider-ornament.right::after {
+  animation-delay: 1s;
+  background: var(--decoration-color-5);
+  box-shadow: 0 0 15px var(--decoration-color-5);
+}
+
+@keyframes ornamentPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+/* 道具選擇區域 - 增強彩色效果 */
+.item-selection-section {
+  margin-bottom: 40px;
+  padding: 20px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px var(--shadow-color);
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 添加彩色背景效果 */
+.item-selection-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(255, 105, 180, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(64, 224, 208, 0.15) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  position: relative;
+  z-index: 1;
+}
+
+.section-title i {
+  animation: starTwinkle 3s ease-in-out infinite;
+}
+
+.section-title i:first-child {
+  animation-delay: 0s;
+  color: var(--decoration-color-1);
+  text-shadow: 0 0 10px var(--decoration-color-1);
+}
+
+.section-title i:last-child {
+  animation-delay: 1.5s;
+  color: var(--decoration-color-5);
+  text-shadow: 0 0 10px var(--decoration-color-5);
+}
+
+.section-title span {
+  background: linear-gradient(45deg, 
+    var(--color-blue), 
+    var(--color-purple), 
+    var(--color-pink), 
+    var(--color-indigo));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 300% 300%;
+  animation: titleGradient 5s ease infinite;
+}
+
+@keyframes titleGradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes starTwinkle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.8);
+  }
+}
+
+.pulse-animation {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  }
+  
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+  }
+  
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+/* 道具卡片樣式 - 增加彩色效果 */
+.item-card {
+  position: relative;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  padding: 25px 20px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  transition: all var(--transition-speed) ease;
+  cursor: pointer;
+  box-shadow: 0 10px 25px var(--shadow-color);
+  height: 100%;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 1;
+}
+
+/* 魔法陣卡片 */
+.item-card[data-type="magic-circle"] {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 藥水卡片 */
+.item-card[data-type="potion"] {
+  background: linear-gradient(135deg, rgba(156, 39, 176, 0.8), rgba(123, 31, 162, 0.8));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.item-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.2));
+  z-index: -1;
+  opacity: 0;
+  transition: opacity var(--transition-speed) ease;
+}
+
+.item-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px var(--shadow-color);
+}
+
+.item-card:hover::before {
+  opacity: 1;
+}
+
+/* 添加彩色邊框效果 */
+.item-card::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, 
+    var(--decoration-color-1),
+    var(--decoration-color-2),
+    var(--decoration-color-3),
+    var(--decoration-color-4),
+    var(--decoration-color-5));
+  background-size: 400% 400%;
+  animation: gradientAnimation 8s ease infinite;
+  z-index: -2;
+  border-radius: calc(var(--border-radius) + 2px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.item-card:hover::after {
+  opacity: 1;
+}
+
+.item-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  perspective: 1000px;
+}
+
+.item-card-front {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: hidden;
+  transition: transform var(--transition-speed) ease;
+}
+
+.item-icon-wrapper {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  filter: blur(15px);
+  opacity: 0.7;
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+/* 魔法陣光暈 */
+.item-card[data-type="magic-circle"] .item-glow {
+  background: radial-gradient(circle at center, var(--decoration-color-1) 0%, transparent 70%);
+}
+
+/* 藥水光暈 */
+.item-card[data-type="potion"] .item-glow {
+  background: radial-gradient(circle at center, var(--decoration-color-4) 0%, transparent 70%);
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.2);
+  }
+}
+
+.item-card img {
+  max-width: 80px;
+  max-height: 80px;
+  filter: drop-shadow(0 5px 15px var(--shadow-color));
+  transition: transform 0.5s ease;
+  z-index: 2;
+  position: relative;
+}
+
+.item-card:hover img {
+  transform: scale(1.1) translateY(-5px);
+}
+
+.item-card h5 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 15px 0 8px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* 魔法陣標題圖標 */
+.item-card[data-type="magic-circle"] h5 i {
+  color: var(--decoration-color-1);
+  text-shadow: 0 0 10px var(--decoration-color-1);
+}
+
+/* 藥水標題圖標 */
+.item-card[data-type="potion"] h5 i {
+  color: var(--decoration-color-4);
+  text-shadow: 0 0 10px var(--decoration-color-4);
+}
+
+.item-card .item-subtitle {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 20px;
+}
+
+.item-action {
+  margin-top: 15px;
+}
+
+.view-btn {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.view-btn:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+}
+
+.view-btn i {
+  color: white;
+}
+
+/* 工具提示樣式 */
+.tooltip-custom {
+  position: relative;
+}
+
+.tooltip-custom::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--overlay-bg);
+  color: var(--text-color);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+  pointer-events: none;
+  border: 1px solid var(--border-color);
+}
+
+.tooltip-custom:hover::after {
+  opacity: 1;
+  visibility: visible;
+  bottom: calc(100% + 10px);
+}
+
+/* 道具詳情區域 - 更豐富的色彩 */
+.detail-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.title-decoration {
+  width: 60px;
+  height: 2px;
+  position: relative;
+}
+
+.title-decoration.left {
+  background: linear-gradient(90deg, transparent, var(--decoration-color-1));
+  margin-right: 20px;
+  box-shadow: 0 0 10px var(--decoration-color-1);
+}
+
+.title-decoration.right {
+  background: linear-gradient(90deg, var(--decoration-color-5), transparent);
+  margin-left: 20px;
+  box-shadow: 0 0 10px var(--decoration-color-5);
+}
+
+.detail-section-title h3 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-color);
+  text-shadow: 2px 2px 4px var(--shadow-color);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.sparkle-icon {
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.detail-section-title h3 .sparkle-icon:first-child {
+  color: var(--decoration-color-1);
+  text-shadow: 0 0 10px var(--decoration-color-1);
+}
+
+.detail-section-title h3 .sparkle-icon:last-child {
+  color: var(--decoration-color-5);
+  text-shadow: 0 0 10px var(--decoration-color-5);
+}
+
+.detail-section-title h3 span {
+  background: linear-gradient(45deg, 
+    var(--color-pink), 
+    var(--color-purple), 
+    var(--color-indigo), 
+    var(--color-blue), 
+    var(--color-orange));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 300% 300%;
+  animation: titleGradient 5s ease infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.2) rotate(10deg); }
+}
+
+/* 搜尋和過濾區域 - 彩色邊框 */
+.search-filter-area {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 25px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 5px 15px var(--shadow-color);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 添加彩色邊框效果 */
+.search-filter-area::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, 
+    var(--decoration-color-1),
+    var(--decoration-color-2),
+    var(--decoration-color-3),
+    var(--decoration-color-4),
+    var(--decoration-color-5));
+  background-size: 400% 400%;
+  animation: gradientAnimation 8s ease infinite;
+  z-index: -1;
+  border-radius: 14px;
+  opacity: 0.5;
+}
+
+.search-bar {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-color-muted);
+}
+
+#item-search {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 50px;
+  padding: 10px 10px 10px 40px;
+  color: var(--text-color);
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+#item-search::placeholder {
+  color: var(--text-color-muted);
+}
+
+#item-search:focus {
+  background: var(--card-hover-bg);
+  border-color: var(--accent-tertiary);
+  box-shadow: 0 0 0 3px rgba(0, 228, 255, 0.2);
+}
+
+.filter-options {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  background: var(--button-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 50px;
+  padding: 8px 15px;
+  color: var(--text-color);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-btn:hover {
+  background: var(--button-hover-bg);
+  border-color: var(--accent-color);
+}
+
+.filter-btn.active {
+  background: rgba(255, 215, 0, 0.2);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+}
+
+.filter-btn:nth-child(1) i {
+  color: var(--color-teal);
+}
+
+.filter-btn:nth-child(2) i {
+  color: var(--color-pink);
+}
+
+.filter-btn:nth-child(3) i {
+  color: var(--color-blue);
+}
+
+/* 浮動動作按鈕 - 彩色漸變 */
+.floating-action-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(45deg, 
+    var(--color-indigo), 
+    var(--color-purple), 
+    var(--color-pink));
+  background-size: 200% 200%;
+  animation: gradientAnimation 5s ease infinite;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 5px 20px var(--shadow-color);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px);
+  z-index: 1000;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.floating-action-btn.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.floating-action-btn:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px var(--shadow-color), 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+/* 交互式提示 - 彩色邊框 */
+.interactive-tips {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--overlay-bg);
+  backdrop-filter: blur(10px);
+  border-radius: 50px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 5px 20px var(--shadow-color);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 添加彩色邊框效果 */
+.interactive-tips::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, 
+    var(--decoration-color-1),
+    var(--decoration-color-2),
+    var(--decoration-color-3),
+    var(--decoration-color-4),
+    var(--decoration-color-5));
+  background-size: 400% 400%;
+  animation: gradientAnimation 8s ease infinite;
+  z-index: -1;
+  border-radius: 52px;
+  opacity: 0.7;
+}
+
+.interactive-tips.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.tip-icon {
+  color: var(--accent-color);
+  font-size: 1.1rem;
+  animation: tipIconPulse 2s ease-in-out infinite;
+}
+
+@keyframes tipIconPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.tip-content {
+  color: var(--text-color);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* 媒體查詢 - 響應式設計 */
+@media (max-width: 991.98px) {
+  .mybag-header h1 {
+    font-size: 2.5rem;
+  }
+  
+  .header-subtitle {
+    font-size: 1.1rem;
+  }
+  
+  .section-title {
+    font-size: 1.3rem;
+  }
+  
+  .detail-section-title h3 {
+    font-size: 1.6rem;
+  }
+  
+  .bag-status-summary {
+    gap: 10px;
+  }
+  
+  .status-card {
+    min-width: 90px;
+    padding: 10px 15px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .mybag-container {
+    margin: 50px auto 70px;
+    padding: 15px 10px 40px;
+  }
+  
+  .mybag-header h1 {
+    font-size: 2.2rem;
+  }
+  
+  .header-subtitle {
+    font-size: 1rem;
+  }
+  
+  .section-title {
+    font-size: 1.2rem;
+    gap: 10px;
+  }
+  
+  .detail-section-title h3 {
+    font-size: 1.4rem;
+    gap: 10px;
+  }
+  
+  .header-icon {
+    padding: 15px;
+  }
+  
+  .header-icon i {
+    font-size: 1.5rem;
+  }
+  
+  .search-filter-area {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-options {
+    justify-content: center;
+  }
+  
+  .status-card span {
+    font-size: 1.3rem;
+  }
+  
+  .bag-status-summary {
+    justify-content: space-around;
+  }
+  
+  .floating-action-btn {
+    width: 45px;
+    height: 45px;
+    bottom: 20px;
+    right: 20px;
+  }
+  
+  .interactive-tips {
+    width: 90%;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .mybag-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .header-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .section-title {
+    font-size: 1.1rem;
+  }
+  
+  .detail-section-title h3 {
+    font-size: 1.2rem;
+  }
+  
+  .item-card {
+    min-height: 250px;
+    padding: 20px 15px;
+  }
+  
+  .item-card h5 {
+    font-size: 1.2rem;
+  }
+  
+  .item-card .item-subtitle {
+    font-size: 0.85rem;
+  }
+  
+  .item-icon-wrapper {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .item-card img {
+    max-width: 60px;
+    max-height: 60px;
+  }
+  
+  .status-card {
+    padding: 8px 12px;
+    min-width: 80px;
+  }
+  
+  .status-card i {
+    font-size: 1.2rem;
+  }
+  
+  .status-card span {
+    font-size: 1.2rem;
+  }
+  
+  .status-card small {
+    font-size: 0.75rem;
+  }
+  
+  .back-btn {
+    padding: 6px 12px;
+  }
+  
+  .back-text {
+    display: none;
+  }
+  
+  .back-btn-inner {
+    gap: 0;
+  }
+}
+
+/* 頁底空間，避免與 base.html 底部重疊 */
+.page-bottom-space {
+  height: 50px;
+  width: 100%;
+  margin-top: 30px;
+}
+
+/* 主題切換按鈕 - 彩色漸變 */
+/*
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 45px;
+  height: 45px;
+  background: linear-gradient(45deg, 
+    var(--color-blue), 
+    var(--color-purple));
+  background-size: 200% 200%;
+  animation: gradientAnimation 5s ease infinite;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1500;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 15px var(--shadow-color);
+  transition: all 0.3s ease;
+  color: white;
+}
+
+.theme-toggle:hover {
+  transform: rotate(30deg);
+  box-shadow: 0 6px 20px var(--shadow-color), 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+.theme-toggle i {
+  font-size: 1.2rem;
+  color: white;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+*/
+
+/* 通知樣式 - 彩色漸變 */
+.notification {
+  background: linear-gradient(45deg, 
+    var(--decoration-color-1),
+    var(--decoration-color-2)) !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* 魔法陣顯示區域的響應式調整 */
+
+/* 針對 #item-detail-row 中的 Bootstrap 欄位，確保它們有內邊距 */
+#item-detail-row [class*="col-"] {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  display: flex; /* 確保欄位內的卡片等高或對齊良好 */
+  justify-content: center; /* 水平置中卡片內容 (如果卡片比欄位窄) */
+}
+
+/* 假設魔法陣項目是一個卡片結構 */
+/* 請將 .magic-circle-display-card 替換為您 JavaScript 生成的實際 class 名稱 */
+#item-detail-row .magic-circle-display-card {
+  width: 100%; /* 卡片佔滿其 Bootstrap 欄位的寬度 */
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 15px;
+  margin-bottom: 20px; /* 卡片堆疊時的間距 */
+  box-shadow: 0 5px 15px var(--shadow-color);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 確保魔法陣圖片是響應式的 */
+/* 如果圖片有特定的 class，例如 .magic-circle-image，使用它會更精確 */
+#item-detail-row img {
+  max-width: 100%; /* 關鍵：圖片最大寬度不超過其容器 */
+  height: auto;    /* 保持圖片的長寬比 */
+  display: block;  /* 避免圖片下方產生多餘空間 */
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 8px; /* 可選：為圖片添加圓角 */
+  margin-bottom: 10px; /* 圖片與下方文字的間距 */
+}
+
+/* 魔法陣名稱的樣式 (假設) */
+#item-detail-row .magic-circle-name { /* 請將 .magic-circle-name 替換為您 JavaScript 生成的實際 class 名稱 */
+  color: var(--text-color);
+  font-weight: 600;
+  font-size: 1rem;
+  margin-top: 5px;
+}
+
+/* 
+  如果您的魔法陣項目沒有額外的卡片包裹，而是直接是圖片，
+  並且它們的父容器是 #item-detail-row 或 Bootstrap 的欄位，
+  那麼主要確保 #item-detail-row img 的樣式生效。
+  您可能還需要調整 Bootstrap 欄位的 class (例如，使用 col-lg-4 col-md-6 col-sm-12)
+  來控制在不同螢幕尺寸下一行顯示多少個魔法陣。
+  這部分通常在生成 HTML 的 JavaScript 中設定。
+*/
