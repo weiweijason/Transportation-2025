@@ -44,8 +44,7 @@ def before_request():
     用於實現自動重定向到登入頁面的功能
     """
     # 獲取當前路徑
-    path = request.path
-      # 定義不需要認證的路徑
+    path = request.path      # 定義不需要認證的路徑
     public_paths = [
         '/static/', 
         '/favicon.ico',
@@ -55,7 +54,9 @@ def before_request():
         '/auth/user-setup',
         '/auth/logout',
         '/auth/get-custom-token',
-        '/auth/tutorial'
+        '/auth/tutorial',
+        '/achievement/demo',
+        '/achievement/api/demo_achievements'
     ]
     
     # 檢查是否為公開路徑

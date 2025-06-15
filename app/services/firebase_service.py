@@ -139,9 +139,11 @@ class FirebaseService:
             })
               # 儲存使用者資料到 Firestore Database
             self.firestore_db.collection('users').document(user['localId']).set(user_data)
-            
-            # 創建用戶背包子集合並初始化魔法陣
+              # 創建用戶背包子集合並初始化魔法陣
             self._initialize_user_backpack(user['localId'])
+            
+            # 初始化用戶成就
+            self.initialize_user_achievements(user['localId'])
             
             # 為用戶設置顯示名稱
             self.auth.update_profile(user['idToken'], display_name=username)
@@ -2089,46 +2091,468 @@ class FirebaseService:
             }
     
     def _calculate_max_experience(self, level):
-        """計算指定等級升級所需的最大經驗值
-        
-        Args:
-            level (int): 當前等級
-            
-        Returns:
-            int: 升級所需經驗值（最大5000）
-        """
-        # 指數增長公式：100, 200, 400, 800, 1600... 最大5000
-        base_exp = 100
-        max_exp = int(base_exp * (2 ** (level - 1)))
-        return min(max_exp, 5000)  # 設定上限為5000
+        """計算指定等級所需的最大經驗值"""
+        # 使用簡單的線性增長公式
+        return 100 + (level - 1) * 50
     
-    def get_creature_level_info(self, user_id, creature_id):
-        """獲取精靈的等級和經驗值信息
+    # ==================== 成就系統相關方法 ====================
+    
+    def initialize_user_achievements(self, user_id):
+        """初始化用戶成就數據
         
         Args:
             user_id (str): 用戶ID
-            creature_id (str): 精靈ID
-            
-        Returns:
-            dict: 精靈等級信息
         """
         try:
+            from app.models.achievement import ACHIEVEMENTS
+            
             user_ref = self.firestore_db.collection('users').document(user_id)
-            creature_ref = user_ref.collection('user_creatures').document(creature_id)
-            creature_doc = creature_ref.get()
+            achievements_ref = user_ref.collection('user_achievements')
             
-            if not creature_doc.exists:
-                return None
+            # 為每個成就創建初始記錄
+            batch = self.firestore_db.batch()
             
-            creature_data = creature_doc.to_dict()
+            for achievement_id, achievement in ACHIEVEMENTS.items():
+                achievement_doc_ref = achievements_ref.document(achievement_id)
+                achievement_data = {
+                    'achievement_id': achievement_id,
+                    'completed': False,
+                    'progress': 0,
+                    'target_value': achievement.target_value,
+                    'completed_at': None,
+                    'created_at': time.time()
+                }
+                batch.set(achievement_doc_ref, achievement_data)
+            
+            batch.commit()
+            print(f"已為用戶 {user_id} 初始化 {len(ACHIEVEMENTS)} 個成就")
+            
+        except Exception as e:
+            print(f"初始化用戶成就失敗: {e}")
+    
+    def get_user_achievements(self, user_id):
+        """獲取用戶成就進度
+        
+        Args:
+            user_id (str): 用戶ID
+            
+        Returns:
+            dict: 成就進度數據
+        """
+        try:
+            from app.models.achievement import ACHIEVEMENTS, get_achievements_by_category, CATEGORY_DISPLAY_NAMES, CATEGORY_ICONS, get_achievement_by_id
+            
+            user_ref = self.firestore_db.collection('users').document(user_id)
+            achievements_ref = user_ref.collection('user_achievements')
+            
+            # 檢查是否已初始化成就
+            achievements_docs = achievements_ref.get()
+            if not achievements_docs:
+                self.initialize_user_achievements(user_id)
+                achievements_docs = achievements_ref.get()
+            
+            # 構建用戶成就數據
+            user_achievements = {}
+            for doc in achievements_docs:
+                achievement_data = doc.to_dict()
+                achievement_id = doc.id
+                
+                # 獲取成就定義
+                achievement_def = ACHIEVEMENTS.get(achievement_id)
+                if achievement_def:
+                    user_achievements[achievement_id] = {
+                        **achievement_data,
+                        'name': achievement_def.name,
+                        'description': achievement_def.description,
+                        'icon': achievement_def.icon,
+                        'category': achievement_def.category.value,
+                        'reward_points': achievement_def.reward_points,
+                        'hidden': achievement_def.hidden
+                    }
+              # 按類別分組
+            categories = get_achievements_by_category()
+            categorized_achievements = {}
+            
+            for category_name, achievements_list in categories.items():
+                # 找到對應的enum來獲取顯示名稱和圖標
+                category_enum = None
+                for enum_val in CATEGORY_DISPLAY_NAMES.keys():
+                    if enum_val.value == category_name:
+                        category_enum = enum_val
+                        break
+                
+                if category_enum:
+                    categorized_achievements[category_name] = {
+                        'display_name': CATEGORY_DISPLAY_NAMES[category_enum],
+                        'icon': CATEGORY_ICONS[category_enum],
+                        'achievements': []
+                    }
+                    
+                    for achievement_def in achievements_list:
+                        if achievement_def.id in user_achievements:
+                            categorized_achievements[category_name]['achievements'].append(
+                                user_achievements[achievement_def.id]
+                            )
+            
+            # 計算統計數據
+            total_achievements = len(ACHIEVEMENTS)
+            completed_achievements = sum(1 for ach in user_achievements.values() if ach['completed'])
+            completion_rate = (completed_achievements / total_achievements * 100) if total_achievements > 0 else 0
+            
+            # 獲取最近完成的成就（最近7天）
+            recent_time = time.time() - (7 * 24 * 60 * 60)  # 7天前
+            recent_achievements = sum(1 for ach in user_achievements.values() 
+                                   if ach['completed'] and ach.get('completed_at', 0) > recent_time)
+            
             return {
-                'level': creature_data.get('level', 1),
-                'experience': creature_data.get('experience', 0),
-                'max_experience': creature_data.get('max_experience', 100),
-                'rate': creature_data.get('rate', 'N'),
-                'name': creature_data.get('name', '未知精靈')
+                'status': 'success',
+                'achievements': user_achievements,
+                'categories': categorized_achievements,
+                'stats': {
+                    'total': total_achievements,
+                    'completed': completed_achievements,
+                    'completion_rate': round(completion_rate, 1),
+                    'recent': recent_achievements
+                }
             }
             
         except Exception as e:
-            print(f">>> DEBUG: 獲取精靈等級信息失敗: {e}")
-            return None
+            print(f"獲取用戶成就失敗: {e}")
+            return {
+                'status': 'error',
+                'message': f'獲取成就數據失敗: {str(e)}'
+            }
+    
+    def check_and_update_achievement(self, user_id, achievement_id, progress_value=1):
+        """檢查並更新成就進度
+        
+        Args:
+            user_id (str): 用戶ID
+            achievement_id (str): 成就ID
+            progress_value (int): 進度值（默認增加1）
+            
+        Returns:
+            dict: 更新結果
+        """
+        try:
+            from app.models.achievement import get_achievement_by_id
+            
+            user_ref = self.firestore_db.collection('users').document(user_id)
+            achievement_ref = user_ref.collection('user_achievements').document(achievement_id)
+            achievement_doc = achievement_ref.get()
+            
+            if not achievement_doc.exists:
+                # 如果成就不存在，初始化用戶成就
+                self.initialize_user_achievements(user_id)
+                achievement_doc = achievement_ref.get()
+            
+            achievement_data = achievement_doc.to_dict()
+            achievement_def = get_achievement_by_id(achievement_id)
+            
+            if not achievement_def:
+                return {'status': 'error', 'message': '成就定義不存在'}
+            
+            # 如果已經完成，不需要更新
+            if achievement_data.get('completed', False):
+                return {'status': 'already_completed'}
+            
+            # 更新進度
+            current_progress = achievement_data.get('progress', 0)
+            new_progress = current_progress + progress_value
+            
+            # 檢查是否完成
+            target_value = achievement_def.target_value
+            completed = new_progress >= target_value
+            
+            update_data = {
+                'progress': min(new_progress, target_value),
+                'completed': completed
+            }
+            
+            if completed:
+                update_data['completed_at'] = time.time()
+            
+            achievement_ref.update(update_data)
+            
+            result = {
+                'status': 'success',
+                'achievement_id': achievement_id,
+                'progress': update_data['progress'],
+                'target_value': target_value,
+                'completed': completed,
+                'achievement_name': achievement_def.name,
+                'reward_points': achievement_def.reward_points if completed else 0
+            }
+            
+            # 如果完成了成就，更新用戶總成就點數
+            if completed:
+                self._add_achievement_points(user_id, achievement_def.reward_points)
+                result['message'] = f'恭喜！獲得成就「{achievement_def.name}」！'
+            
+            return result
+            
+        except Exception as e:
+            print(f"更新成就進度失敗: {e}")
+            return {
+                'status': 'error',
+                'message': f'更新成就失敗: {str(e)}'
+            }
+    
+    def _add_achievement_points(self, user_id, points):
+        """為用戶添加成就點數
+        
+        Args:
+            user_id (str): 用戶ID
+            points (int): 要添加的點數
+        """
+        try:
+            user_ref = self.firestore_db.collection('users').document(user_id)
+            user_doc = user_ref.get()
+            
+            if user_doc.exists:
+                current_points = user_doc.to_dict().get('achievement_points', 0)
+                user_ref.update({
+                    'achievement_points': current_points + points
+                })
+            else:
+                user_ref.update({
+                    'achievement_points': points
+                })
+                
+        except Exception as e:
+            print(f"添加成就點數失敗: {e}")
+    
+    def trigger_achievement_check(self, user_id, event_type, event_data=None):
+        """觸發成就檢查
+        
+        Args:
+            user_id (str): 用戶ID
+            event_type (str): 事件類型
+            event_data (dict): 事件數據
+            
+        Returns:
+            list: 觸發的成就列表
+        """
+        try:
+            triggered_achievements = []
+            
+            # 根據事件類型檢查相應的成就
+            if event_type == 'creature_captured':
+                # 檢查初次邂逅成就
+                result = self.check_and_update_achievement(user_id, 'ACH-INIT-001')
+                if result.get('status') == 'success' and result.get('completed'):
+                    triggered_achievements.append(result)
+                
+                # 檢查精靈收集數量成就
+                user_creatures_count = self._get_user_creatures_count(user_id)
+                collection_achievements = ['ACH-COLL-001', 'ACH-COLL-002', 'ACH-COLL-003', 
+                                         'ACH-COLL-004', 'ACH-COLL-005', 'ACH-COLL-006']
+                
+                for ach_id in collection_achievements:
+                    achievement_def = get_achievement_by_id(ach_id)
+                    if achievement_def and user_creatures_count >= achievement_def.target_value:
+                        result = self.check_and_update_achievement(user_id, ach_id, achievement_def.target_value)
+                        if result.get('status') == 'success' and result.get('completed'):
+                            triggered_achievements.append(result)
+                
+                # 檢查屬性收集成就
+                if event_data and 'element_type' in event_data:
+                    element_type = event_data['element_type']
+                    self._check_element_type_achievements(user_id, element_type, triggered_achievements)
+            
+            elif event_type == 'arena_battle':
+                # 檢查競技場對戰成就
+                result = self.check_and_update_achievement(user_id, 'ACH-ARENA-001')
+                if result.get('status') == 'success' and result.get('completed'):
+                    triggered_achievements.append(result)
+                
+                # 檢查其他競技場成就
+                arena_achievements = ['ACH-ARENA-002', 'ACH-ARENA-003', 'ACH-ARENA-004']
+                for ach_id in arena_achievements:
+                    result = self.check_and_update_achievement(user_id, ach_id)
+                    if result.get('status') == 'success' and result.get('completed'):
+                        triggered_achievements.append(result)
+            
+            elif event_type == 'arena_victory':
+                # 檢查競技場勝利成就
+                victory_achievements = ['ACH-VICTORY-001', 'ACH-VICTORY-002', 'ACH-VICTORY-003', 'ACH-VICTORY-004']
+                for ach_id in victory_achievements:
+                    result = self.check_and_update_achievement(user_id, ach_id)
+                    if result.get('status') == 'success' and result.get('completed'):
+                        triggered_achievements.append(result)
+            
+            elif event_type == 'friend_added':
+                # 檢查交友成就
+                friend_achievements = ['ACH-FRIEND-001', 'ACH-FRIEND-002', 'ACH-FRIEND-003', 'ACH-FRIEND-004']
+                for ach_id in friend_achievements:
+                    result = self.check_and_update_achievement(user_id, ach_id)
+                    if result.get('status') == 'success' and result.get('completed'):
+                        triggered_achievements.append(result)
+            
+            elif event_type == 'gym_occupied':
+                # 檢查道館佔領成就
+                gym_achievements = ['ACH-GYM-001', 'ACH-GYM-002', 'ACH-GYM-003', 'ACH-GYM-004']
+                for ach_id in gym_achievements:
+                    result = self.check_and_update_achievement(user_id, ach_id)
+                    if result.get('status') == 'success' and result.get('completed'):
+                        triggered_achievements.append(result)
+            
+            elif event_type == 'daily_login':
+                # 檢查登入天數成就
+                login_days = self._get_user_login_days(user_id)
+                login_achievements = ['ACH-LOGIN-001', 'ACH-LOGIN-002', 'ACH-LOGIN-003', 'ACH-LOGIN-004', 'ACH-LOGIN-005']
+                
+                for ach_id in login_achievements:
+                    achievement_def = get_achievement_by_id(ach_id)
+                    if achievement_def and login_days >= achievement_def.target_value:
+                        result = self.check_and_update_achievement(user_id, ach_id, achievement_def.target_value)
+                        if result.get('status') == 'success' and result.get('completed'):
+                            triggered_achievements.append(result)
+            
+            elif event_type == 'login_after_long_absence':
+                # 檢查特殊成就：長時間未登入後回歸
+                result = self.check_and_update_achievement(user_id, 'ACH-SPEC-001')
+                if result.get('status') == 'success' and result.get('completed'):
+                    triggered_achievements.append(result)
+            
+            return triggered_achievements
+            
+        except Exception as e:
+            print(f"觸發成就檢查失敗: {e}")
+            return []
+    
+    def _get_user_creatures_count(self, user_id):
+        """獲取用戶精靈數量"""
+        try:
+            user_ref = self.firestore_db.collection('users').document(user_id)
+            creatures_ref = user_ref.collection('user_creatures')
+            creatures = creatures_ref.get()
+            return len(creatures)
+        except Exception as e:
+            print(f"獲取用戶精靈數量失敗: {e}")
+            return 0
+    
+    def _check_element_type_achievements(self, user_id, element_type, triggered_achievements):
+        """檢查屬性類型相關成就"""
+        try:
+            from app.models.achievement import get_achievement_by_id
+            
+            # 檢查單一屬性成就
+            element_achievement_map = {
+                'grass': 'ACH-TYPE-002',
+                'water': 'ACH-TYPE-003', 
+                'fire': 'ACH-TYPE-004',
+                'light': 'ACH-TYPE-005',
+                'dark': 'ACH-TYPE-006',
+                'normal': 'ACH-TYPE-007'
+            }
+            
+            if element_type in element_achievement_map:
+                ach_id = element_achievement_map[element_type]
+                # 檢查是否收集了該屬性的所有精靈
+                if self._has_all_creatures_of_type(user_id, element_type):
+                    result = self.check_and_update_achievement(user_id, ach_id, 1)
+                    if result.get('status') == 'success' and result.get('completed'):
+                        triggered_achievements.append(result)
+            
+            # 檢查全屬性成就
+            all_types = ['fire', 'water', 'grass', 'light', 'dark', 'normal']
+            if self._has_creatures_of_all_types(user_id, all_types):
+                result = self.check_and_update_achievement(user_id, 'ACH-TYPE-001', len(all_types))
+                if result.get('status') == 'success' and result.get('completed'):
+                    triggered_achievements.append(result)
+                    
+        except Exception as e:
+            print(f"檢查屬性成就失敗: {e}")
+    
+    def _has_all_creatures_of_type(self, user_id, element_type):
+        """檢查是否擁有某屬性的所有精靈"""
+        # 這裡需要根據實際的精靈數據結構來實現
+        # 暫時返回False，實際實現時需要查詢所有該屬性的精靈種類
+        return False
+    
+    def _has_creatures_of_all_types(self, user_id, element_types):
+        """檢查是否擁有所有屬性的精靈"""
+        try:
+            user_ref = self.firestore_db.collection('users').document(user_id)
+            creatures_ref = user_ref.collection('user_creatures')
+            creatures = creatures_ref.get()
+            
+            # 統計用戶擁有的精靈屬性
+            user_element_types = set()
+            for creature_doc in creatures:
+                creature_data = creature_doc.to_dict()
+                element_type = creature_data.get('element_type')
+                if element_type:
+                    user_element_types.add(element_type)
+            
+            # 檢查是否包含所有要求的屬性
+            return all(element_type in user_element_types for element_type in element_types)
+            
+        except Exception as e:
+            print(f"檢查全屬性精靈失敗: {e}")
+            return False
+    
+    def _get_user_login_days(self, user_id):
+        """獲取用戶登入天數"""
+        try:
+            user_ref = self.firestore_db.collection('users').document(user_id)
+            user_doc = user_ref.get()
+            
+            if user_doc.exists:
+                user_data = user_doc.to_dict()
+                return user_data.get('login_days', 0)
+            
+            return 0
+            
+        except Exception as e:
+            print(f"獲取用戶登入天數失敗: {e}")
+            return 0
+    
+    def update_user_login_stats(self, user_id):
+        """更新用戶登入統計"""
+        try:
+            user_ref = self.firestore_db.collection('users').document(user_id)
+            user_doc = user_ref.get()
+            
+            current_time = time.time()
+            today = int(current_time // (24 * 60 * 60))  # 以天為單位的時間戳
+            
+            if user_doc.exists:
+                user_data = user_doc.to_dict()
+                last_login_day = user_data.get('last_login_day', 0)
+                login_days = user_data.get('login_days', 0)
+                last_active = user_data.get('last_active', 0)
+                
+                # 檢查是否為新的一天登入
+                if last_login_day != today:
+                    login_days += 1
+                    user_ref.update({
+                        'last_login_day': today,
+                        'login_days': login_days,
+                        'last_active': current_time
+                    })
+                    
+                    # 檢查是否為長時間未登入後回歸
+                    days_since_last_login = (current_time - last_active) / (24 * 60 * 60)
+                    if days_since_last_login >= 14:
+                        # 觸發特殊成就檢查
+                        self.trigger_achievement_check(user_id, 'login_after_long_absence')
+                    
+                    # 觸發登入成就檢查
+                    self.trigger_achievement_check(user_id, 'daily_login')
+                else:
+                    # 同一天內的登入，只更新最後活動時間
+                    user_ref.update({
+                        'last_active': current_time
+                    })
+            else:
+                # 首次登入
+                user_ref.update({
+                    'last_login_day': today,
+                    'login_days': 1,
+                    'last_active': current_time
+                })
+                
+        except Exception as e:
+            print(f"更新用戶登入統計失敗: {e}")

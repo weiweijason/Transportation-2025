@@ -325,9 +325,39 @@ def accept_request(request_id):
                 'added_at': firebase_admin.firestore.SERVER_TIMESTAMP,
                 'status': 'active'
             })
-        
-        # 刪除好友申請記錄（從子集合中移除）
+          # 刪除好友申請記錄（從子集合中移除）
         request_doc_ref.delete()
+        
+        # 觸發成就檢查 - 交友成就
+        try:
+            # 為雙方都觸發交友成就檢查
+            triggered_achievements_current = firebase_service.trigger_achievement_check(
+                current_user.id, 
+                'friend_added',
+                {
+                    'friend_player_id': requester_player_id,
+                    'friend_username': requester_data.get('username', '未知用戶')
+                }
+            )
+            
+            triggered_achievements_requester = firebase_service.trigger_achievement_check(
+                requester_doc_id,  # 使用文檔ID而不是current_user.id
+                'friend_added',
+                {
+                    'friend_player_id': current_player_id,
+                    'friend_username': current_user_data.get('username', '未知用戶')
+                }
+            )
+            
+            # 記錄新獲得的成就
+            if triggered_achievements_current:
+                logger.info(f"用戶 {current_player_id} 獲得交友成就: {[ach.get('achievement_name', ach.get('achievement_id')) for ach in triggered_achievements_current]}")
+            if triggered_achievements_requester:
+                logger.info(f"用戶 {requester_player_id} 獲得交友成就: {[ach.get('achievement_name', ach.get('achievement_id')) for ach in triggered_achievements_requester]}")
+                
+        except Exception as achievement_error:
+            logger.error(f"觸發交友成就檢查失敗: {achievement_error}")
+            # 不影響交友結果，僅記錄錯誤
         
         requester_username = requester_data.get('username', '未知用戶')
         flash(f'已接受 {requester_username} 的好友申請', 'success')

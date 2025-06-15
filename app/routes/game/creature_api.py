@@ -150,8 +150,7 @@ def capture_interactive_api():
             )
             
             current_app.logger.info(f"捕捉結果: {result}")
-            
-            # 處理結果中的 Sentinel 對象 (Firebase 伺服器時間戳記)
+              # 處理結果中的 Sentinel 對象 (Firebase 伺服器時間戳記)
             # 如果結果中包含精靈資料且有 captured_at 字段是 Sentinel 對象
             if result.get('success') and 'creature' in result:
                 creature_data = result['creature']
@@ -161,6 +160,28 @@ def capture_interactive_api():
                         # 將 Sentinel 替換為當前時間的字符串表示
                         from datetime import datetime
                         creature_data['captured_at'] = datetime.now().isoformat()
+                
+                # 觸發成就檢查 - 精靈捕捉相關成就
+                try:
+                    current_app.logger.info(f"觸發精靈捕捉成就檢查，用戶ID: {current_user.id}")
+                    triggered_achievements = firebase_service.trigger_achievement_check(
+                        current_user.id, 
+                        'creature_captured',
+                        {
+                            'creature_id': creature_id,
+                            'element_type': creature_data.get('element_type', 'normal'),
+                            'rarity': creature_data.get('rarity', 1)
+                        }
+                    )
+                    
+                    # 將新獲得的成就添加到回應中
+                    if triggered_achievements:
+                        result['new_achievements'] = triggered_achievements
+                        current_app.logger.info(f"用戶獲得新成就: {[ach.get('achievement_name', ach.get('achievement_id')) for ach in triggered_achievements]}")
+                        
+                except Exception as achievement_error:
+                    current_app.logger.error(f"觸發成就檢查失敗: {achievement_error}")
+                    # 不影響捕捉結果，僅記錄錯誤
             
             return jsonify(result)
         except Exception as catch_error:

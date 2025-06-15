@@ -1,0 +1,408 @@
+{% extends "base.html" %}
+
+{% block title %}成就總結 - 精靈公車{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/achievement/achievement.css') }}">
+<style>
+.achievement-summary {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.summary-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 3rem 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.summary-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.summary-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    margin-bottom: 2rem;
+}
+
+.overall-progress {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.progress-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(#ffd700 0deg calc(var(--progress) * 3.6deg), rgba(255, 255, 255, 0.3) calc(var(--progress) * 3.6deg) 360deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    position: relative;
+}
+
+.progress-circle::before {
+    content: '';
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    background: #667eea;
+    border-radius: 50%;
+}
+
+.progress-text {
+    position: relative;
+    z-index: 1;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+}
+
+.category-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.category-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+}
+
+.category-card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.category-card-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+}
+
+.category-card-info h3 {
+    margin: 0 0 0.5rem 0;
+    color: #2c3e50;
+    font-size: 1.3rem;
+}
+
+.category-card-progress {
+    margin-bottom: 1rem;
+}
+
+.mini-progress-bar {
+    height: 8px;
+    background: #ecf0f1;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.mini-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transition: width 0.3s ease;
+}
+
+.achievement-highlights {
+    margin-top: 3rem;
+}
+
+.highlights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.highlight-card {
+    background: linear-gradient(135deg, #ffd700 0%, #ff6b6b 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.highlight-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.quick-actions {
+    margin-top: 3rem;
+    text-align: center;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+
+.action-btn {
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.action-btn.primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.action-btn.secondary {
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+}
+
+.action-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    color: white;
+}
+
+/* 深色模式適配 */
+[data-theme="dark"] .category-card {
+    background: #2d3436;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .category-card-info h3 {
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .action-btn.secondary {
+    background: #34495e;
+    color: #e0e0e0;
+    border-color: #e0e0e0;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+    .achievement-summary {
+        padding: 1rem;
+    }
+    
+    .summary-header {
+        padding: 2rem 1rem;
+    }
+    
+    .summary-title {
+        font-size: 2rem;
+    }
+    
+    .category-summary {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="achievement-summary">
+    <!-- 總結標題 -->
+    <div class="summary-header">
+        <h1 class="summary-title">
+            <i class="fas fa-trophy"></i>
+            成就總結
+        </h1>
+        <p class="summary-subtitle">追蹤你在精靈公車世界中的成就進度</p>
+        
+        {% if achievement_data and achievement_data.stats %}
+        <div class="overall-progress">
+            <div class="progress-circle" style="--progress: {{ achievement_data.stats.completion_rate }}">
+                <div class="progress-text">{{ achievement_data.stats.completion_rate }}%</div>
+            </div>
+            <div class="progress-details">
+                <span>已完成 {{ achievement_data.stats.completed }} / {{ achievement_data.stats.total }} 個成就</span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if achievement_data and achievement_data.categories %}
+    <!-- 類別總結 -->
+    <section class="category-summary">
+        {% for category_key, category_data in achievement_data.categories.items() %}
+        {% set completed_count = category_data.achievements | selectattr('completed') | list | length %}
+        {% set total_count = category_data.achievements | length %}
+        {% set completion_rate = (completed_count / total_count * 100) if total_count > 0 else 0 %}
+        
+        <div class="category-card">
+            <div class="category-card-header">
+                <div class="category-card-icon">
+                    <i class="{{ category_data.icon }}"></i>
+                </div>
+                <div class="category-card-info">
+                    <h3>{{ category_data.display_name }}</h3>
+                    <span class="text-muted">{{ completed_count }}/{{ total_count }} 已完成</span>
+                </div>
+            </div>
+            
+            <div class="category-card-progress">
+                <div class="mini-progress-bar">
+                    <div class="mini-progress-fill" style="width: {{ completion_rate }}%"></div>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <small>進度</small>
+                    <small>{{ "%.1f"|format(completion_rate) }}%</small>
+                </div>
+            </div>
+
+            <!-- 顯示最近完成的成就 -->
+            {% set recent_achievements = category_data.achievements | selectattr('completed') | list %}
+            {% if recent_achievements %}
+            <div class="recent-achievements">
+                <h6 class="text-muted mb-2">最近完成:</h6>
+                {% for achievement in recent_achievements[:2] %}
+                <div class="small mb-1">
+                    <i class="{{ achievement.icon }} text-warning"></i>
+                    {{ achievement.name }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </section>
+
+    <!-- 成就亮點 -->
+    <section class="achievement-highlights">
+        <h2 class="text-center mb-4">
+            <i class="fas fa-star"></i>
+            成就亮點
+        </h2>
+        
+        <div class="highlights-grid">
+            {% if achievement_data.stats.completed > 0 %}
+            <div class="highlight-card">
+                <div class="highlight-icon">🏆</div>
+                <h4>成就大師</h4>
+                <p>已完成 {{ achievement_data.stats.completed }} 個成就</p>
+            </div>
+            {% endif %}
+
+            {% if achievement_data.stats.completion_rate >= 50 %}
+            <div class="highlight-card">
+                <div class="highlight-icon">⭐</div>
+                <h4>半程英雄</h4>
+                <p>完成率超過 50%</p>
+            </div>
+            {% endif %}
+
+            {% if achievement_data.stats.recent > 0 %}
+            <div class="highlight-card">
+                <div class="highlight-icon">🔥</div>
+                <h4>活躍玩家</h4>
+                <p>最近完成 {{ achievement_data.stats.recent }} 個成就</p>
+            </div>
+            {% endif %}
+
+            {% if achievement_data.stats.completion_rate == 100 %}
+            <div class="highlight-card">
+                <div class="highlight-icon">👑</div>
+                <h4>完美主義者</h4>
+                <p>解鎖所有成就！</p>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- 快速操作 -->
+    <section class="quick-actions">
+        <h2>
+            <i class="fas fa-bolt"></i>
+            快速操作
+        </h2>
+        
+        <div class="action-buttons">
+            <a href="{{ url_for('achievement.achievement_page') }}" class="action-btn primary">
+                <i class="fas fa-trophy"></i>
+                查看詳細成就
+            </a>
+            
+            <a href="{{ url_for('achievement.achievement_demo') }}" class="action-btn secondary">
+                <i class="fas fa-eye"></i>
+                預覽成就系統
+            </a>
+            
+            <a href="{{ url_for('main.index') }}" class="action-btn secondary">
+                <i class="fas fa-home"></i>
+                返回主頁
+            </a>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 動畫進度圓圈
+    const progressCircle = document.querySelector('.progress-circle');
+    if (progressCircle) {
+        const progress = parseFloat(progressCircle.style.getPropertyValue('--progress')) || 0;
+        progressCircle.style.setProperty('--progress', '0');
+        
+        setTimeout(() => {
+            progressCircle.style.transition = 'all 2s ease';
+            progressCircle.style.setProperty('--progress', progress.toString());
+        }, 500);
+    }
+    
+    // 動畫進度條
+    const progressBars = document.querySelectorAll('.mini-progress-fill');
+    progressBars.forEach((bar, index) => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        
+        setTimeout(() => {
+            bar.style.width = width;
+        }, 1000 + index * 200);
+    });
+});
+</script>
+{% endblock %}

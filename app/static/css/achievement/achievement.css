@@ -1,737 +1,820 @@
-/* Achievement Page Modern Design */
-body {
-  font-family: 'Noto Sans TC', sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #333;
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-}
+/* 成就系統 CSS 樣式 */
 
+/* 基礎容器 */
 .achievement-container {
-  min-height: 100vh;
-  padding-bottom: 8rem; /* 增加更多底部間距以避免被 footer 遮擋 */
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 0;
 }
 
 /* 頁面標題區域 */
 .achievement-header {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-  backdrop-filter: blur(10px);
-  padding: 2rem 0;
-  margin-bottom: 2rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 2rem 0;
+    margin-bottom: 2rem;
 }
 
 .achievement-title {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #2c3e50;
-  margin: 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    color: white;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
-.achievement-title-icon {
-  color: #f39c12;
-  animation: pulse 2s infinite;
-  margin-right: 1rem;
+.achievement-title i {
+    color: #ffd700;
+    font-size: 2.2rem;
+}
+
+.achievement-count {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    font-size: 1.2rem;
+    font-weight: 600;
 }
 
 .achievement-subtitle {
-  font-size: 1.1rem;
-  color: #7f8c8d;
-  margin: 0.5rem 0 0 0;
-  font-weight: 400;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.1rem;
+    margin: 0.5rem 0 0 0;
 }
 
-/* 搜尋框 */
+/* 搜尋區域 */
 .achievement-search-container {
-  position: relative;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
 }
 
-.achievement-search {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50px;
-  background: rgba(255, 255, 255, 0.9);
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  min-height: 44px;
+.search-box {
+    position: relative;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 25px;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.achievement-search:focus {
-  outline: none;
-  border-color: #3498db;
-  background: white;
-  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
-  transform: translateY(-2px);
+.search-box i {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.search-box input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 1rem;
+    width: 250px;
+}
+
+.search-box input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
 }
 
 /* 統計儀表板 */
 .achievement-stats-dashboard {
-  margin-bottom: 2rem;
+    margin-bottom: 3rem;
 }
 
 .stat-card {
-  background: linear-gradient(145deg, #ffffff, #f8f9fa);
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.3s ease;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #3498db, #9b59b6);
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
 }
 
 .stat-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-}
-
-.stat-card.total-achievements::before {
-  background: linear-gradient(90deg, #3498db, #2980b9);
-}
-
-.stat-card.completed-achievements::before {
-  background: linear-gradient(90deg, #27ae60, #2ecc71);
-}
-
-.stat-card.completion-rate::before {
-  background: linear-gradient(90deg, #f39c12, #e67e22);
-}
-
-.stat-card.recent-achievements::before {
-  background: linear-gradient(90deg, #e74c3c, #c0392b);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
 }
 
 .stat-icon {
-  font-size: 2.5rem;
-  margin-right: 1.5rem;
-  width: 60px;
-  height: 60px;
-  border-radius: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(155, 89, 182, 0.1));
-  color: #3498db;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
 }
 
 .stat-content {
-  flex: 1;
+    flex: 1;
 }
 
 .stat-number {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #2c3e50;
-  line-height: 1;
-  margin-bottom: 0.5rem;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    line-height: 1;
 }
 
 .stat-label {
-  font-size: 0.9rem;
-  color: #7f8c8d;
-  text-transform: uppercase;
-  font-weight: 600;
-  letter-spacing: 1px;
+    color: #718096;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
+}
+
+/* 不同統計卡片的特殊顏色 */
+.stat-card.total-achievements .stat-icon {
+    background: linear-gradient(135deg, #ffd700, #ffa500);
+}
+
+.stat-card.completed-achievements .stat-icon {
+    background: linear-gradient(135deg, #48bb78, #38a169);
+}
+
+.stat-card.completion-rate .stat-icon {
+    background: linear-gradient(135deg, #4299e1, #3182ce);
+}
+
+.stat-card.recent-achievements .stat-icon {
+    background: linear-gradient(135deg, #ed8936, #dd6b20);
 }
 
 /* 篩選選項 */
 .achievement-filters {
-  margin-bottom: 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 1rem;
+    margin-bottom: 2rem;
 }
 
 .filter-tabs {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  flex-wrap: wrap;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 .filter-tab {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 50px;
-  background: rgba(255, 255, 255, 0.9);
-  color: #7f8c8d;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  min-height: 44px; /* 符合觸控標準的最小尺寸 */
-  touch-action: manipulation;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid transparent;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .filter-tab:hover {
-  background: white;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
 }
 
 .filter-tab.active {
-  background: linear-gradient(135deg, #3498db, #2980b9);
-  color: white;
-  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+    background: white;
+    color: #667eea;
+    border-color: #667eea;
 }
 
-/* 成就分類手風琴 */
-.achievement-accordion {
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-.accordion-item {
-  background: transparent;
-  border: none;
-  margin-bottom: 1.5rem;
-}
-
-.accordion-header {
-  background: linear-gradient(135deg, #ffffff, #f8f9fa);
-  border-radius: 15px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  padding: 1.5rem 2rem;
-  font-size: 1.3rem;
-  font-weight: 700;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  user-select: none;
-  transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  position: relative;
-  overflow: hidden;
-  min-height: 60px; /* 確保足夠的觸控區域 */
-  touch-action: manipulation; /* 避免雙擊縮放 */
-}
-
-.accordion-header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #3498db, #9b59b6);
-}
-
-.accordion-header:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
-  background: linear-gradient(135deg, #ffffff, #ffffff);
-}
-
-.accordion-header::after {
-  content: "▼";
-  font-size: 1rem;
-  transition: transform 0.3s ease;
-  color: #3498db;
-  font-weight: bold;
-}
-
-.accordion-header.active::after {
-  transform: rotate(-180deg);
-}
-
-.accordion-content {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s ease, padding 0.4s ease;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 249, 250, 0.95));
-  backdrop-filter: blur(10px);
-  border-radius: 0 0 15px 15px;
-  margin-top: -5px;
-  scroll-behavior: smooth;
-}
-
-.accordion-content.active {
-  max-height: 2000px; /* 增加最大高度以容納更多內容 */
-  padding: 2rem;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  margin-bottom: 1rem; /* 增加底部邊距 */
-}
-
-/* 成就分類展示區域 */
+/* 成就分類 */
 .achievement-categories {
-  margin-bottom: 4rem; /* 增加底部間距避免被 footer 遮擋 */
+    padding-bottom: 3rem;
 }
 
-/* 確保最後的手風琴項目有足夠的底部空間 */
-.accordion-item:last-child .accordion-content.active {
-  margin-bottom: 2rem;
+.achievement-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
-/* 針對手機設備的額外底部間距 */
-@media (max-width: 768px) {
-  .achievement-categories {
-    margin-bottom: 5rem;
-  }
-  
-  .accordion-item:last-child .accordion-content.active {
-    margin-bottom: 3rem;
-  }
+.achievement-category {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-@media (max-width: 480px) {
-  .achievement-categories {
-    margin-bottom: 6rem;
-  }
-  
-  .accordion-item:last-child .accordion-content.active {
-    margin-bottom: 4rem;
-  }
+.category-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 1.5rem 2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.3s ease;
 }
 
-/* 成就列表 */
-.achievement-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* 調整最小寬度以適應手機 */
-  gap: 1.5rem;
-  padding-bottom: 1rem; /* 增加底部間距 */
+.category-header:hover {
+    background: linear-gradient(135deg, #5a67d8, #6b46c1);
 }
 
-.achievement-item {
-  background: linear-gradient(135deg, #ffffff, #f8f9fa);
-  border-radius: 15px;
-  padding: 1.5rem;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
+.category-info {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex: 1;
 }
 
-.achievement-item::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #27ae60, #2ecc71);
+.category-icon {
+    background: rgba(255, 255, 255, 0.2);
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
 }
 
-.achievement-item.not-completed {
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-  opacity: 0.7;
+.category-details {
+    flex: 1;
 }
 
-.achievement-item.not-completed::before {
-  background: linear-gradient(90deg, #bdc3c7, #95a5a6);
+.category-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.3rem;
+    font-weight: 600;
 }
 
-.achievement-item:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+.category-progress {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
-.achievement-header-content {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
+.progress-text {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    min-width: 80px;
+}
+
+.progress-bar-container {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.2);
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    max-width: 200px;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, #ffd700, #ffa500);
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.progress-percent {
+    font-size: 0.9rem;
+    font-weight: 600;
+    min-width: 45px;
+    text-align: right;
+}
+
+.category-toggle {
+    color: rgba(255, 255, 255, 0.8);
+    transition: transform 0.3s ease;
+}
+
+.category-header[aria-expanded="true"] .category-toggle {
+    transform: rotate(180deg);
+}
+
+/* 成就內容區域 */
+.category-content {
+    padding: 2rem;
+    background: white;
+}
+
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+/* 成就卡片 */
+.achievement-card {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 15px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.achievement-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border-color: #667eea;
+}
+
+.achievement-card.completed {
+    background: linear-gradient(135deg, #f7fafc, #edf2f7);
+    border-color: #48bb78;
+}
+
+.achievement-card.completed::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #48bb78, #38a169);
 }
 
 .achievement-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  margin-right: 1rem;
-  background: linear-gradient(135deg, #3498db, #2980b9);
-  color: white;
-  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    position: relative;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.achievement-card.completed .achievement-icon {
+    background: linear-gradient(135deg, #48bb78, #38a169);
+}
+
+.completion-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ffd700;
+    color: #2d3748;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    border: 2px solid white;
 }
 
 .achievement-content {
-  flex: 1;
+    flex: 1;
 }
 
-.achievement-code {
-  font-weight: 700;
-  color: #7f8c8d;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 0.25rem;
-}
-
-.achievement-title {
-  font-size: 1.1rem;
-  margin: 0 0 0.5rem 0;
-  color: #2c3e50;
-  font-weight: 700;
-}
-
-.achievement-desc {
-  font-size: 0.9rem;
-  color: #7f8c8d;
-  line-height: 1.5;
-  margin-bottom: 1rem;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  hyphens: auto;
-}
-
-.achievement-status {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.status-badge {
-  padding: 0.4rem 1rem;
-  border-radius: 50px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.status-badge.completed {
-  background: linear-gradient(135deg, #27ae60, #2ecc71);
-  color: white;
-}
-
-.status-badge.incomplete {
-  background: linear-gradient(135deg, #bdc3c7, #95a5a6);
-  color: white;
-}
-
-.achievement-rarity {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.rarity-stars {
-  color: #f39c12;
-}
-
-/* 動畫效果 */
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.achievement-item {
-  animation: fadeInUp 0.6s ease forwards;
-}
-
-/* 響應式設計 */
-@media (max-width: 992px) {
-  .achievement-title {
-    font-size: 2.2rem;
-  }
-  
-  .achievement-list {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.2rem;
-  }
-  
-  .accordion-content.active {
-    padding: 1.5rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .achievement-container {
-    padding-bottom: 5rem; /* 手機版增加更多底部間距 */
-  }
-  
-  .achievement-header {
-    padding: 1.5rem 0;
-  }
-  
-  .achievement-title {
-    font-size: 1.8rem;
-    text-align: center;
-  }
-  
-  .achievement-subtitle {
-    text-align: center;
-    font-size: 1rem;
-  }
-  
-  .stat-card {
-    padding: 1.2rem;
-    margin-bottom: 1rem;
-  }
-  
-  .stat-icon {
-    font-size: 1.8rem;
-    width: 45px;
-    height: 45px;
-    margin-right: 1rem;
-  }
-  
-  .stat-number {
-    font-size: 1.4rem;
-  }
-  
-  .stat-label {
-    font-size: 0.8rem;
-  }
-  
-  .filter-tabs {
-    justify-content: center;
-    padding: 0 1rem;
-  }
-  
-  .filter-tab {
-    padding: 0.6rem 1rem;
-    font-size: 0.85rem;
-    margin: 0.25rem;
-  }
-  
-  .accordion-header {
-    padding: 1rem 1.2rem;
-    font-size: 1rem;
-  }
-  
-  .accordion-content.active {
-    padding: 1.2rem;
-    max-height: 2500px; /* 手機版增加更多高度 */
-  }
-  
-  .achievement-list {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  
-  .achievement-item {
-    padding: 1rem;
-  }
-  
-  .achievement-header-content {
-    flex-direction: column;
-    text-align: center;
-    margin-bottom: 0.8rem;
-  }
-  
-  .achievement-icon {
-    margin-right: 0;
-    margin-bottom: 0.5rem;
-    width: 40px;
-    height: 40px;
+.achievement-name {
     font-size: 1.2rem;
-  }
-  
-  .achievement-title {
-    font-size: 1rem;
-    margin-bottom: 0.3rem;
-  }
-  
-  .achievement-desc {
-    font-size: 0.85rem;
-    margin-bottom: 0.8rem;
-  }
-  
-  .achievement-status {
-    flex-direction: column;
-    gap: 0.5rem;
-    align-items: center;
-  }
-  
-  .achievement-search {
-    margin-top: 1rem;
-    font-size: 0.9rem;
-  }
-  
-  .achievement-search-container {
-    text-align: center;
-  }
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0 0 0.5rem 0;
 }
 
-@media (max-width: 480px) {
-  .achievement-container {
-    padding-bottom: 6rem;
-  }
-  
-  .achievement-header {
-    padding: 1rem 0;
-  }
-  
-  .achievement-title {
-    font-size: 1.6rem;
-  }
-  
-  .achievement-subtitle {
+.achievement-description {
+    color: #718096;
+    font-size: 0.95rem;
+    margin: 0 0 1rem 0;
+    line-height: 1.5;
+}
+
+.achievement-progress {
+    margin-bottom: 1rem;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.achievement-progress .progress-text {
+    color: #4a5568;
+    font-weight: 600;
     font-size: 0.9rem;
-  }
-  
-  .stat-card {
-    padding: 1rem;
-  }
-  
-  .stat-icon {
-    width: 40px;
-    height: 40px;
+}
+
+.achievement-progress .progress-percent {
+    color: #667eea;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.achievement-progress .progress-bar-container {
+    background: #e2e8f0;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.achievement-progress .progress-bar {
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.achievement-card.completed .achievement-progress .progress-bar {
+    background: linear-gradient(90deg, #48bb78, #38a169);
+}
+
+.achievement-completion {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #4a5568;
+}
+
+.achievement-completion i {
+    color: #48bb78;
+    margin-right: 0.5rem;
+}
+
+.reward-points {
+    background: linear-gradient(135deg, #ffd700, #ffa500);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.achievement-hidden {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #718096;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* 成就通知系統 */
+.achievement-notifications {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.achievement-notifications.show {
+    opacity: 1;
+}
+
+.notification-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+}
+
+.notification-content {
+    position: relative;
+    background: linear-gradient(145deg, #ffffff, #f8f9ff);
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 450px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    transform: scale(0.8);
+    animation: notification-appear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    border: 3px solid #ffd700;
+}
+
+@keyframes notification-appear {
+    to {
+        transform: scale(1);
+    }
+}
+
+.notification-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.achievement-trophy {
+    font-size: 3rem;
+    color: #ffd700;
+    margin-bottom: 0.5rem;
+    animation: trophy-bounce 2s infinite;
+}
+
+@keyframes trophy-bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+}
+
+.notification-header h3 {
+    color: #2c3e50;
     font-size: 1.5rem;
-  }
-  
-  .stat-number {
-    font-size: 1.3rem;
-  }
-  
-  .filter-tab {
-    padding: 0.5rem 0.8rem;
-    font-size: 0.8rem;
-  }
-  
-  .accordion-header {
-    padding: 0.8rem 1rem;
-    font-size: 0.95rem;
-  }
-  
-  .accordion-content.active {
-    padding: 1rem;
-    max-height: 3000px;
-  }
-  
-  .achievement-item {
-    padding: 0.8rem;
-  }
-  
-  .achievement-icon {
-    width: 35px;
-    height: 35px;
-    font-size: 1.1rem;
-  }
-  
-  .achievement-code {
-    font-size: 0.7rem;
-  }
-  
-  .achievement-title {
-    font-size: 0.95rem;
-  }
-  
-  .achievement-desc {
-    font-size: 0.8rem;
-  }
-  
-  .status-badge {
-    padding: 0.3rem 0.8rem;
-    font-size: 0.7rem;
-  }
+    font-weight: bold;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.notification-close {
+    position: absolute;
+    top: -1rem;
+    right: -1rem;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.notification-close:hover {
+    background: #c0392b;
+    transform: scale(1.1);
+}
+
+.achievement-notification-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1.5rem;
+    border-radius: 15px;
+    color: white;
+    margin-bottom: 1rem;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.achievement-notification-icon {
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    backdrop-filter: blur(10px);
+    animation: icon-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes icon-glow {
+    from { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+    to { box-shadow: 0 0 30px rgba(255, 215, 0, 0.8); }
+}
+
+.achievement-notification-info {
+    flex: 1;
+}
+
+.achievement-notification-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 0 0 0.5rem 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.achievement-notification-description {
+    font-size: 0.9rem;
+    margin: 0 0 0.75rem 0;
+    opacity: 0.9;
+    line-height: 1.4;
+}
+
+.achievement-notification-reward {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: bold;
+    color: #ffd700;
+}
+
+.achievement-notification-reward i {
+    animation: star-twinkle 1.5s ease-in-out infinite;
+}
+
+@keyframes star-twinkle {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.2) rotate(180deg); }
+}
+
+.notification-footer {
+    text-align: center;
+}
+
+.notification-footer .btn {
+    padding: 0.75rem 2rem;
+    font-weight: bold;
+    border-radius: 25px;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.notification-footer .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* 慶祝粒子動畫 */
+@keyframes celebrate {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--dx), var(--dy)) scale(0);
+        opacity: 0;
+    }
 }
 
 /* 深色模式適配 */
-[data-theme="dark"] body {
-  background: linear-gradient(135deg, #2c3e50 0%, #4a6741 100%);
-  color: #ecf0f1;
+[data-theme="dark"] .notification-content {
+    background: linear-gradient(145deg, #2d3436, #34495e);
+    border-color: #f39c12;
 }
 
-[data-theme="dark"] .achievement-header {
-  background: linear-gradient(135deg, rgba(44, 62, 80, 0.3), rgba(74, 103, 65, 0.3));
+[data-theme="dark"] .notification-header h3 {
+    color: #ecf0f1;
 }
 
-[data-theme="dark"] .achievement-title {
-  color: #ecf0f1;
+[data-theme="dark"] .achievement-notification-card {
+    background: linear-gradient(135deg, #2980b9 0%, #8e44ad 100%);
 }
 
-[data-theme="dark"] .achievement-subtitle {
-  color: #bdc3c7;
+/* 響應式設計 */
+@media (max-width: 768px) {
+    .achievement-title {
+        font-size: 2rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+    
+    .achievement-count {
+        font-size: 1rem;
+    }
+    
+    .search-box input {
+        width: 200px;
+    }
+    
+    .stat-card {
+        padding: 1.5rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .achievements-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .category-header {
+        padding: 1rem 1.5rem;
+    }
+    
+    .category-content {
+        padding: 1.5rem;
+    }
+    
+    .filter-tabs {
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+    
+    .filter-tab {
+        flex-shrink: 0;
+    }
+    
+    .notification-content {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+    
+    .achievement-notification-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .achievement-notification-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+    
+    .achievement-trophy {
+        font-size: 2.5rem;
+    }
 }
 
-[data-theme="dark"] .achievement-search {
-  background: rgba(52, 73, 94, 0.9);
-  border-color: rgba(52, 152, 219, 0.3);
-  color: #ecf0f1;
+@media (max-width: 576px) {
+    .achievement-header {
+        padding: 1.5rem 0;
+    }
+    
+    .search-box {
+        width: 100%;
+        margin-top: 1rem;
+    }
+    
+    .search-box input {
+        width: 100%;
+    }
+    
+    .achievement-search-container {
+        justify-content: stretch;
+    }
+    
+    .category-progress {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: stretch;
+    }
+    
+    .progress-bar-container {
+        max-width: none;
+    }
 }
 
-[data-theme="dark"] .achievement-search::placeholder {
-  color: #95a5a6;
+/* 載入動畫 */
+@keyframes shimmer {
+    0% {
+        background-position: -200px 0;
+    }
+    100% {
+        background-position: calc(200px + 100%) 0;
+    }
 }
 
-[data-theme="dark"] .stat-card {
-  background: linear-gradient(145deg, #34495e, #2c3e50);
-  border-color: rgba(52, 152, 219, 0.2);
+.loading-shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200px 100%;
+    animation: shimmer 1.5s infinite;
 }
 
-[data-theme="dark"] .stat-number {
-  color: #ecf0f1;
+/* 錯誤提示 */
+.alert {
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    border: none;
+    font-size: 1rem;
 }
 
-[data-theme="dark"] .stat-label {
-  color: #bdc3c7;
+.alert-danger {
+    background: linear-gradient(135deg, #fc8181, #f56565);
+    color: white;
 }
 
-[data-theme="dark"] .filter-tab {
-  background: rgba(52, 73, 94, 0.9);
-  color: #bdc3c7;
-}
-
-[data-theme="dark"] .filter-tab:hover {
-  background: rgba(52, 73, 94, 1);
-}
-
-[data-theme="dark"] .accordion-header {
-  background: linear-gradient(135deg, #34495e, #2c3e50);
-  color: #ecf0f1;
-}
-
-[data-theme="dark"] .accordion-header:hover {
-  background: linear-gradient(135deg, #3a536b, #34495e);
-}
-
-[data-theme="dark"] .accordion-content {
-  background: linear-gradient(135deg, rgba(52, 73, 94, 0.95), rgba(44, 62, 80, 0.95));
-}
-
-[data-theme="dark"] .accordion-content.active {
-  margin-bottom: 1rem;
-}
-
-[data-theme="dark"] .achievement-item {
-  background: linear-gradient(135deg, #34495e, #2c3e50);
-  border-color: rgba(52, 152, 219, 0.2);
-}
-
-[data-theme="dark"] .achievement-item.not-completed {
-  background: linear-gradient(135deg, #2c3e50, #1a252f);
-}
-
-[data-theme="dark"] .achievement-title {
-  color: #ecf0f1;
-}
-
-[data-theme="dark"] .achievement-desc {
-  color: #bdc3c7;
-}
-
-[data-theme="dark"] .achievement-code {
-  color: #95a5a6;
+.alert i {
+    margin-right: 0.5rem;
 }

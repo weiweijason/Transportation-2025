@@ -7,17 +7,17 @@
     <!-- 頁面標題 -->
     <div class="achievement-header">
         <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-8">
+            <div class="row align-items-center">                <div class="col-md-8">
                     <h1 class="achievement-title">
-                        <i class="fas fa-trophy achievement-title-icon"></i>
-                        遊戲成就殿堂
+                        <i class="fas fa-trophy"></i>
+                        我的成就
+                        <span class="achievement-count">載入中...</span>
                     </h1>
                     <p class="achievement-subtitle">收集成就，見證你的冒險歷程</p>
                 </div>
                 <div class="col-md-4 text-end">
                     <div class="achievement-search-container">
-                        <input type="text" id="achievementSearch" class="achievement-search" placeholder="🔍 搜尋成就...">
+                        <!-- 搜尋框將由JavaScript動態生成 -->
                     </div>
                 </div>
             </div>
@@ -79,15 +79,15 @@
     <!-- 篩選選項 -->
     <div class="achievement-filters">
         <div class="container">
-            <div class="filter-tabs">
-                <button class="filter-tab active" data-filter="all">
+            <div class="filter-tabs">                <button class="filter-tab active" data-filter="all">
                     <i class="fas fa-th"></i> 全部
                 </button>
                 <button class="filter-tab" data-filter="completed">
                     <i class="fas fa-check"></i> 已完成
                 </button>
                 <button class="filter-tab" data-filter="incomplete">
-                    <i class="fas fa-clock"></i> 未完成
+                    <i class="fas fa-hourglass-half"></i> 未完成
+                </button>
                 </button>
             </div>
         </div>
@@ -124,12 +124,17 @@
     messagingSenderId: "{{ firebase_config.messagingSenderId }}",
     appId: "{{ firebase_config.appId }}"
   };
-
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
   }
   var db = firebase.firestore();
+  {% if is_demo %}
+  window.currentUserId = "demo_user";
+  window.isDemoMode = true;
+  {% else %}
   window.currentUserId = "{{ session['user']['uid'] }}";
+  window.isDemoMode = false;
+  {% endif %}
 </script>
 
 <script src="{{ url_for('static', filename='js/achievement/achievement.js') }}"></script>

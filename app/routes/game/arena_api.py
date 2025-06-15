@@ -148,8 +148,7 @@ def challenge_arena():
         if user_data:
             user_data['player_id'] = player_id
             firebase_service.update_user_info(current_user.id, {'player_id': player_id})
-    
-    # 進行挑戰 (使用支援 player_id 的新方法)
+      # 進行挑戰 (使用支援 player_id 的新方法)
     result, message = arena.challenge_with_player_id(
         challenger_id=data.get('creatureId'),
         challenger_name=data.get('creatureName'),
@@ -158,12 +157,55 @@ def challenge_arena():
         challenger_player_id=player_id
     )
     
-    return jsonify({
-        'success': True,
-        'result': result,
-        'message': message,
-        'arena': arena.to_dict()
-    })
+    # 觸發成就檢查 - 競技場相關成就
+    try:
+        current_app.logger.info(f"觸發競技場成就檢查，用戶ID: {current_user.id}")
+        triggered_achievements = firebase_service.trigger_achievement_check(
+            current_user.id,
+            'arena_battle',
+            {
+                'result': result,
+                'arena_name': arena_name,
+                'creature_power': data.get('creaturePower')
+            }
+        )
+        
+        # 如果是勝利，也觸發勝利成就檢查
+        if result == 'victory':
+            victory_achievements = firebase_service.trigger_achievement_check(
+                current_user.id,
+                'arena_victory',
+                {
+                    'arena_name': arena_name,
+                    'creature_power': data.get('creaturePower')
+                }
+            )
+            triggered_achievements.extend(victory_achievements)
+        
+        # 準備回應數據
+        response_data = {
+            'success': True,
+            'result': result,
+            'message': message,
+            'arena': arena.to_dict()
+        }
+        
+        # 將新獲得的成就添加到回應中
+        if triggered_achievements:
+            response_data['new_achievements'] = triggered_achievements
+            current_app.logger.info(f"用戶獲得新成就: {[ach.get('achievement_name', ach.get('achievement_id')) for ach in triggered_achievements]}")
+            
+    except Exception as achievement_error:
+        current_app.logger.error(f"觸發競技場成就檢查失敗: {achievement_error}")
+        # 不影響挑戰結果，僅記錄錯誤
+        response_data = {
+            'success': True,
+            'result': result,
+            'message': message,
+            'arena': arena.to_dict()
+        }
+    
+    return jsonify(response_data)
 
 @arena_bp.route('/cached-levels')
 def get_cached_arena_levels():

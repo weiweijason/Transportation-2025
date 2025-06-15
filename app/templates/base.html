@@ -46,8 +46,7 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    {% if 'user' in session %}
-                    <li class="nav-item">
+                    {% if 'user' in session %}                    <li class="nav-item">
                         <a class="nav-link game-nav-link" href="{{ url_for('main.home') }}">
                             <i class="fas fa-home me-1"></i> 主頁
                         </a>
@@ -60,6 +59,11 @@
                     <li class="nav-item">
                         <a class="nav-link game-nav-link" href="{{ url_for('game.catch') }}">
                             <i class="fas fa-search me-1"></i> 探索捕捉
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link game-nav-link" href="{{ url_for('achievement.achievement_page') }}">
+                            <i class="fas fa-trophy me-1"></i> 成就
                         </a>
                     </li>
                     {% endif %}
@@ -154,10 +158,10 @@
                 <a href="#" class="mx-2"><i class="fab fa-line"></i></a>
             </div>
         </div>
-    </footer>
-
-    <!-- Bootstrap JS -->
+    </footer>    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- 全域成就處理器 -->
+    <script src="{{ url_for('static', filename='js/global-achievement-handler.js') }}"></script>
     <!-- 自定義JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     
