@@ -15,9 +15,9 @@
 
 {% block content %}
 <!-- 動態背景粒子 -->
-<div class="mybag-particles"></div>
+<div class="mybag-particles">
+</div>
 
-<!-- 載入動畫 -->
 <div id="loading-overlay" class="loading-overlay">
   <div class="loading-content">
     <div class="loading-spinner"></div>
@@ -46,7 +46,6 @@
           </div>
         </div>
       </div>
-
       <!-- 頁面標題 -->
       <div class="mybag-header">
         <div class="header-animation-wrapper">
@@ -135,7 +134,7 @@
         </div>
       </div>
 
-      <!-- 展開區塊 -->
+      <!-- 展開區塊 (現在主要用於搜尋/過濾和一個理論上不再直接可見的道具列表行) -->
       <div id="item-detail-container" class="fade-slide" style="display: none;">
         <div class="detail-section-title">
           <div class="title-decoration left"></div>
@@ -146,9 +145,15 @@
           </h3>
           <div class="title-decoration right"></div>
         </div>
-        
-        <!-- 搜尋和過濾區 -->
+          <!-- 搜尋和過濾區 -->
         <div class="search-filter-area">
+          <!-- 返回按鈕 -->
+          <div class="back-to-main">
+            <button class="back-to-main-btn" id="back-to-main-btn">
+              <i class="fas fa-arrow-left"></i> 返回道具選擇
+            </button>
+          </div>
+          
           <div class="search-bar">
             <i class="fas fa-search search-icon"></i>
             <input type="text" id="item-search" placeholder="搜尋道具...">
@@ -177,17 +182,19 @@
           </div>
         </div>
         
-        <!-- 道具詳情模態框 -->
-        <div class="item-detail-modal" id="item-detail-modal">
-          <div class="modal-content">
-            <div class="modal-close"><i class="fas fa-times"></i></div>
-            <div class="modal-body" id="modal-body">
-              <!-- 由JS填充 -->
-            </div>
+        <!-- 原道具詳情模態框位置 (已移出) -->
+      </div> <!-- End of item-detail-container -->
+      
+      <!-- 道具詳情模態框 (已移至此處，成為 item-detail_container 的同級元素) -->
+      <div class="item-detail-modal" id="item-detail-modal">
+        <div class="modal-content">
+          <div class="modal-close"><i class="fas fa-times"></i></div>
+          <div class="modal-body" id="modal-body">
+            <!-- 由JS填充 -->
           </div>
         </div>
       </div>
-      
+
       <!-- 浮動動作按鈕 -->
       <div class="floating-action-btn" id="scroll-top-btn">
         <i class="fas fa-arrow-up"></i>
@@ -199,10 +206,16 @@
 <!-- 添加底部空間，避免與 base.html 重疊 -->
 <div class="page-bottom-space"></div>
 
-<!-- 交互式提示 -->
-<div class="interactive-tips" id="interactive-tips">
-  <div class="tip-icon"><i class="fas fa-lightbulb"></i></div>
-  <div class="tip-content">點擊道具卡片可以展開更多選項</div>
+<!-- 簡化提示框 - 顯示道具類別數量摘要 -->
+<div class="compact-summary" id="compact-summary">
+  <div class="summary-item">
+    <i class="fas fa-circle-notch"></i>
+    <span id="magic-circle-count">--</span>
+  </div>
+  <div class="summary-item">
+    <i class="fas fa-flask"></i>
+    <span id="potion-count">--</span>
+  </div>
 </div>
 
 {% endblock %}

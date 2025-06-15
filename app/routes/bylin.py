@@ -130,3 +130,15 @@ def use_item():
             'success': False,
             'message': f'使用道具時發生錯誤: {str(e)}'
         })
+
+@bylin.route('/magic-circle-details')
+@login_required
+def magic_circle_details():
+    """魔法陣詳情頁面"""
+    return render_template('bylin/magic_circle_details.html', firebase_config=FIREBASE_CONFIG)
+
+@bylin.route('/potion-details')
+@login_required
+def potion_details():
+    """藥水詳情頁面"""
+    return render_template('bylin/potion_details.html', firebase_config=FIREBASE_CONFIG)

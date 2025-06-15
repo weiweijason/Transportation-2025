@@ -1,0 +1,695 @@
+{% extends "base.html" %}
+{% block title %}藥水收藏 - 精靈公車{% endblock %}
+
+{% block extra_css %}
+{{ super() }}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/bylin/item_details.css') }}?v={{ range(1000,9999) | random }}" rel="stylesheet">
+<style>
+/* 完整的詳情頁面樣式 - 內嵌確保載入 */
+* {
+  box-sizing: border-box;
+}
+
+/* CSS載入測試 */
+#css-test {
+  display: none !important;
+}
+
+/* 深色主題變量 */
+:root {
+  --border-radius: 16px;
+  --transition-speed: 0.3s;
+  --primary-gradient: linear-gradient(135deg, #6a3093 0%, #a044ff 50%, #6a3093 100%);
+  --accent-color: #ffd700;
+  --accent-secondary: #ff7e5f;
+  --details-text-color: #ffffff;
+  --details-text-color-secondary: rgba(255, 255, 255, 0.85);
+  --card-bg: rgba(61, 66, 96, 0.7);
+  --shadow-color: rgba(0, 0, 0, 0.35);
+  --border-color: rgba(255, 255, 255, 0.25);
+  --button-bg: rgba(255, 255, 255, 0.2);
+  --button-hover-bg: rgba(255, 255, 255, 0.3);
+  --overlay-bg: rgba(20, 24, 40, 0.8);
+  --page-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* 淺色主題變量 */
+[data-theme="light"] {
+  --accent-color: #ff6f00;
+  --accent-secondary: #e91e63;
+  --details-text-color: #1a1a1a;
+  --details-text-color-secondary: rgba(26, 26, 26, 0.85);
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --shadow-color: rgba(0, 0, 0, 0.15);
+  --border-color: rgba(0, 0, 0, 0.15);
+  --button-bg: rgba(0, 0, 0, 0.1);
+  --button-hover-bg: rgba(0, 0, 0, 0.15);
+  --overlay-bg: rgba(240, 240, 240, 0.9);
+  --page-bg: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+}
+
+/* 背景 */
+body {
+  background: var(--page-bg) !important;
+  color: var(--details-text-color) !important;
+  font-family: 'Nunito', sans-serif;
+  min-height: 100vh;
+}
+
+/* 容器 */
+.item-details-container {
+  padding: 20px 0;
+  min-height: 100vh;
+  border: 2px solid lime !important;
+}
+
+/* 載入動畫 */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--page-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading-content {
+  text-align: center;
+  color: var(--details-text-color) !important;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid var(--border-color);
+  border-top: 3px solid var(--accent-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--details-text-color) !important;
+}
+
+.loading-subtitle {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  color: var(--details-text-color-secondary) !important;
+}
+
+/* 頂部導航 */
+.top-navigation-area {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 0 15px;
+}
+
+.back-btn {
+  background: var(--button-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 25px;
+  padding: 0;
+  text-decoration: none;
+  color: var(--details-text-color) !important;
+  transition: all var(--transition-speed);
+  backdrop-filter: blur(10px);
+}
+
+.back-btn-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  color: var(--details-text-color) !important;
+}
+
+.back-btn:hover {
+  background: var(--button-hover-bg);
+  transform: translateY(-2px);
+  color: var(--accent-color) !important;
+  text-decoration: none;
+}
+
+.back-btn:hover .back-btn-inner {
+  color: var(--accent-color) !important;
+}
+
+/* 頁面標題 */
+.page-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.header-icon {
+  font-size: 3rem;
+  color: var(--accent-color) !important;
+  margin-bottom: 10px;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 10px;
+}
+
+.header-subtitle {
+  font-size: 1.1rem;
+  color: var(--details-text-color-secondary) !important;
+}
+
+/* 狀態指示器 */
+.status-pill {
+  background: var(--overlay-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  color: var(--details-text-color) !important;
+  backdrop-filter: blur(10px);
+}
+
+/* 道具網格 */
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+  padding: 20px;
+}
+
+/* 道具卡片 */
+.item-detail-card {
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  transition: all var(--transition-speed);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transform: translateY(30px);
+  animation: cardFadeIn 0.6s ease forwards;
+}
+
+.item-detail-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-color), var(--accent-secondary));
+  opacity: 0;
+  transition: opacity var(--transition-speed);
+  z-index: 1;
+}
+
+.item-detail-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 35px var(--shadow-color);
+}
+
+.item-detail-card:hover::before {
+  opacity: 1;
+}
+
+.item-detail-card[data-rarity="legendary"] {
+  box-shadow: 0 4px 20px rgba(245, 124, 0, 0.3);
+}
+
+.item-detail-card[data-rarity="legendary"]:hover {
+  box-shadow: 0 12px 40px rgba(245, 124, 0, 0.5);
+}
+
+.item-detail-card[data-rarity="rare"] {
+  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.2);
+}
+
+.item-detail-card[data-rarity="rare"]:hover {
+  box-shadow: 0 12px 35px rgba(25, 118, 210, 0.4);
+}
+
+.item-detail-card[data-rarity="common"] {
+  box-shadow: 0 4px 12px rgba(96, 125, 139, 0.2);
+}
+
+.item-detail-card[data-rarity="common"]:hover {
+  box-shadow: 0 12px 30px rgba(96, 125, 139, 0.3);
+}
+
+.item-image-section {
+  position: relative;
+  height: 220px;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+.item-image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.8) 100%);
+  display: flex;
+  align-items: flex-end;
+  padding: 20px;
+}
+
+.item-name {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--details-text-color) !important;
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  line-height: 1.2;
+  transition: all 0.3s ease;
+}
+
+.item-detail-card:hover .item-name {
+  transform: translateY(-2px);
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+}
+
+.item-rarity {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.item-content {
+  padding: 24px;
+  color: var(--details-text-color) !important;
+  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+}
+
+.item-function {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border-left: 4px solid var(--accent-color);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.item-function::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.item-detail-card:hover .item-function::before {
+  left: 100%;
+}
+
+.item-function h4 {
+  color: var(--accent-color) !important;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.item-function h4::before {
+  content: "🧪";
+  font-size: 1.2rem;
+}
+
+.item-function p {
+  color: var(--details-text-color-secondary) !important;
+  margin: 0;
+  font-weight: 500;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.item-story {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border-left: 4px solid var(--accent-secondary);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.item-story::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.item-detail-card:hover .item-story::before {
+  left: 100%;
+}
+
+.item-story h4 {
+  color: var(--accent-secondary) !important;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.item-story h4::before {
+  content: "📜";
+  font-size: 1.1rem;
+}
+
+.item-story p {
+  color: var(--details-text-color-secondary) !important;
+  margin: 0;
+  line-height: 1.6;
+  font-style: italic;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.item-quantity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0 0 0;
+  border-top: 2px solid rgba(255, 255, 255, 0.1);
+  margin-top: 16px;
+}
+
+.quantity-label {
+  color: var(--details-text-color-secondary) !important;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.quantity-label::before {
+  content: "📦";
+  font-size: 1rem;
+}
+
+.quantity-value {
+  color: var(--accent-secondary) !important;
+  font-weight: 800;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, var(--accent-secondary), var(--accent-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.quantity-value::before {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-color), var(--accent-secondary));
+  transition: width 0.3s ease;
+}
+
+.item-detail-card:hover .quantity-value::before {
+  width: 100%;
+}
+
+/* 使用藥水按鈕 */
+.use-potion-btn {
+  width: 100%;
+  background: var(--primary-gradient);
+  border: none;
+  border-radius: 25px;
+  padding: 10px 20px;
+  color: white !important;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.use-potion-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+.use-potion-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 卡片出現動畫 */
+.item-detail-card {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: cardFadeIn 0.6s ease forwards;
+}
+
+.item-detail-card:nth-child(1) { animation-delay: 0.1s; }
+.item-detail-card:nth-child(2) { animation-delay: 0.2s; }
+.item-detail-card:nth-child(3) { animation-delay: 0.3s; }
+.item-detail-card:nth-child(4) { animation-delay: 0.4s; }
+.item-detail-card:nth-child(5) { animation-delay: 0.5s; }
+.item-detail-card:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes cardFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 淺色主題特殊修復 */
+[data-theme="light"] body,
+[data-theme="light"] .item-details-container,
+[data-theme="light"] .loading-content,
+[data-theme="light"] .loading-text,
+[data-theme="light"] .loading-subtitle,
+[data-theme="light"] .page-header,
+[data-theme="light"] .header-subtitle,
+[data-theme="light"] .status-pill,
+[data-theme="light"] .item-content,
+[data-theme="light"] .item-function p,
+[data-theme="light"] .item-story p,
+[data-theme="light"] .quantity-label,
+[data-theme="light"] .item-name {
+  color: #1a1a1a !important;
+}
+
+[data-theme="light"] .back-btn {
+  background: rgba(0, 0, 0, 0.15) !important;
+  border: 2px solid rgba(0, 0, 0, 0.2) !important;
+  color: #1a1a1a !important;
+}
+
+[data-theme="light"] .back-btn:hover {
+  background: rgba(0, 0, 0, 0.25) !important;
+  border: 2px solid #ff6f00 !important;
+  color: #ff6f00 !important;
+}
+
+[data-theme="light"] .back-btn-inner {
+  color: #1a1a1a !important;
+}
+
+[data-theme="light"] .back-btn:hover .back-btn-inner {
+  color: #ff6f00 !important;
+}
+
+[data-theme="light"] .item-function h4,
+[data-theme="light"] .item-story h4,
+[data-theme="light"] .header-icon {
+  color: #ff6f00 !important;
+}
+
+[data-theme="light"] .item-image-overlay {
+  background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.9) 100%);
+}
+
+[data-theme="light"] .use-potion-btn {
+  color: white !important;
+}
+
+/* 響應式 */
+@media (max-width: 768px) {
+  .items-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 15px;
+  }
+  
+  .item-content {
+    padding: 20px;
+  }
+  
+  .item-function,
+  .item-story {
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .item-name {
+    font-size: 1.2rem;
+  }
+  
+  .quantity-value {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .item-image-section {
+    height: 180px;
+  }
+  
+  .item-content {
+    padding: 16px;
+  }
+  
+  .item-function h4,
+  .item-story h4 {
+    font-size: 1rem;
+  }
+  
+  .item-function p,
+  .item-story p {
+    font-size: 0.85rem;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- CSS載入測試 -->
+<div id="css-test" style="position: fixed; top: 10px; right: 10px; background: red; color: white; padding: 5px; z-index: 9999; font-size: 12px;">
+  CSS未載入
+</div>
+
+<!-- 動態背景粒子 -->
+<div class="item-details-particles"></div>
+
+<!-- 載入動畫 -->
+<div id="loading-overlay" class="loading-overlay">
+  <div class="loading-content">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">載入藥水收藏中...</div>
+    <div class="loading-subtitle">準備展示神奇的煉金藥劑</div>
+  </div>
+</div>
+
+<div class="item-details-container container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-lg-10 col-md-11 col-sm-12">
+      <!-- 頂部導航 -->
+      <div class="top-navigation-area">
+        <a href="{{ url_for('bylin.backpack') }}" class="back-btn" aria-label="返回包包">
+          <div class="back-btn-inner">
+            <i class="fas fa-arrow-left"></i>
+            <span class="back-text">返回包包</span>
+          </div>
+        </a>
+        
+        <div class="status-indicator">
+          <div class="status-pill">
+            <i class="fas fa-flask fa-bounce"></i> 藥水收藏
+          </div>
+        </div>
+      </div>
+
+      <!-- 頁面標題 -->
+      <div class="page-header">
+        <div class="header-animation-wrapper">
+          <div class="header-icon">
+            <i class="fas fa-flask fa-bounce"></i>
+          </div>
+        </div>
+        <h1>藥水收藏</h1>
+        <p class="header-subtitle">收集珍貴的煉金術藥劑與魔法藥水</p>
+      </div>
+
+      <div class="section-divider">
+        <div class="divider-ornament left"></div>
+        <div class="divider-line"></div>
+        <div class="divider-ornament right"></div>
+      </div>
+
+      <!-- 藥水列表 -->
+      <div class="items-grid" id="potion-grid">
+        <!-- 道具卡片將由 JavaScript 生成 -->
+      </div>
+
+      <!-- 浮動動作按鈕 -->
+      <div class="floating-action-btn" id="scroll-top-btn">
+        <i class="fas fa-arrow-up"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 簡化摘要 -->
+<div class="compact-summary" id="compact-summary">
+  <div class="summary-item">
+    <i class="fas fa-flask"></i>
+    <span id="total-potions">--</span>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // 設置用戶ID供JS使用
+  document.body.setAttribute('data-user-id', "{{ session['user']['uid'] if session.get('user') else '' }}");
+</script>
+<script src="{{ url_for('static', filename='js/bylin/potion_details.js') }}"></script>
+{% endblock %}

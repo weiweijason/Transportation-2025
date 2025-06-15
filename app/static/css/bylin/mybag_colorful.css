@@ -1075,7 +1075,6 @@ body.game-background::before {
   z-index: 1000;
   backdrop-filter: blur(5px);
   pointer-events: none;
-  border: 1px solid var(--border-color);
 }
 
 .tooltip-custom:hover::after {
@@ -1313,73 +1312,225 @@ body.game-background::before {
   box-shadow: 0 8px 25px var(--shadow-color), 0 0 15px rgba(255, 255, 255, 0.5);
 }
 
-/* 交互式提示 - 彩色邊框 */
-.interactive-tips {
+/* 簡化提示框樣式 - 顯示道具類別數量 */
+.compact-summary {
   position: fixed;
   bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 20px;
   background: var(--overlay-bg);
   backdrop-filter: blur(10px);
-  border-radius: 50px;
-  padding: 12px 20px;
+  border-radius: 12px;
+  padding: 8px 12px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  box-shadow: 0 5px 20px var(--shadow-color);
+  gap: 15px;
+  box-shadow: 0 4px 15px var(--shadow-color);
   z-index: 1000;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
   border: 1px solid var(--border-color);
+  font-size: 0.85rem;
+  opacity: 0.9;
+  transition: all 0.3s ease;
+}
+
+.compact-summary:hover {
+  opacity: 1;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--shadow-color);
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.summary-item i {
+  font-size: 1rem;
+  color: var(--accent-color);
+}
+
+.summary-item span {
+  min-width: 20px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 2px 6px;
+  font-size: 0.8rem;
+}
+
+/* 簡化道具卡片樣式 */
+.simplified-item-card {
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  padding: 16px;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  border: 1px solid var(--border-color);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   position: relative;
   overflow: hidden;
 }
 
-/* 添加彩色邊框效果 */
-.interactive-tips::before {
+.simplified-item-card::before {
   content: '';
   position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(45deg, 
-    var(--decoration-color-1),
-    var(--decoration-color-2),
-    var(--decoration-color-3),
-    var(--decoration-color-4),
-    var(--decoration-color-5));
-  background-size: 400% 400%;
-  animation: gradientAnimation 8s ease infinite;
-  z-index: -1;
-  border-radius: 52px;
-  opacity: 0.7;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-color), var(--accent-secondary));
+  opacity: 0;
+  transition: opacity var(--transition-speed);
 }
 
-.interactive-tips.visible {
+.simplified-item-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px var(--shadow-color);
+  background: var(--card-hover-bg);
+}
+
+.simplified-item-card:hover::before {
   opacity: 1;
-  visibility: visible;
 }
 
-.tip-icon {
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  gap: 8px;
+}
+
+.item-name {
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 1rem;
+  line-height: 1.2;
+  flex: 1;
+}
+
+.item-rarity {
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  white-space: nowrap;
+}
+
+.item-count {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  color: var(--text-color-secondary);
+  font-size: 0.9rem;
+}
+
+.item-count i {
   color: var(--accent-color);
-  font-size: 1.1rem;
-  animation: tipIconPulse 2s ease-in-out infinite;
+  font-size: 0.8rem;
 }
 
-@keyframes tipIconPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.2); }
+.item-bonus {
+  color: var(--text-color-muted);
+  font-size: 0.85rem;
+  line-height: 1.3;
+  font-style: italic;
 }
 
-.tip-content {
+/* 返回主選單按鈕樣式 */
+.back-to-main {
+  margin-bottom: 15px;
+}
+
+.back-to-main-btn {
+  background: var(--button-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 25px;
+  padding: 8px 16px;
   color: var(--text-color);
   font-size: 0.9rem;
   font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(10px);
 }
 
-/* 媒體查詢 - 響應式設計 */
+.back-to-main-btn:hover {
+  background: var(--button-hover-bg);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px var(--shadow-color);
+  color: var(--accent-color);
+}
+
+.back-to-main-btn i {
+  font-size: 0.8rem;
+  transition: transform var(--transition-speed);
+}
+
+.back-to-main-btn:hover i {
+  transform: translateX(-2px);
+}
+
+@media (max-width: 768px) {
+  .back-to-main-btn {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+  }
+}
+
+/* 響應式調整 */
+@media (max-width: 768px) {
+  .compact-summary {
+    bottom: 15px;
+    right: 15px;
+    padding: 6px 10px;
+    gap: 12px;
+  }
+  
+  .summary-item {
+    gap: 4px;
+  }
+  
+  .summary-item i {
+    font-size: 0.9rem;
+  }
+  
+  .summary-item span {
+    font-size: 0.75rem;
+    padding: 1px 4px;
+  }
+  
+  .simplified-item-card {
+    padding: 12px;
+  }
+  
+  .item-name {
+    font-size: 0.9rem;
+  }
+  
+  .item-rarity {
+    font-size: 0.75rem;
+  }
+  
+  .item-count {
+    font-size: 0.8rem;
+  }
+  
+  .item-bonus {
+    font-size: 0.8rem;
+  }
+}
+
 @media (max-width: 991.98px) {
   .mybag-header h1 {
     font-size: 2.5rem;
@@ -1647,3 +1798,340 @@ body.game-background::before {
   來控制在不同螢幕尺寸下一行顯示多少個魔法陣。
   這部分通常在生成 HTML 的 JavaScript 中設定。
 */
+
+/* 道具詳情模態框基礎樣式 */
+.item-detail-modal {
+  display: none; /* JS 會切換到 flex */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.75); /* 半透明背景 */
+  z-index: 1050; /* 確保在頂層 */
+  /* Flexbox 用於完美居中 */
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  /* 確保模態框覆蓋整個視窗 */
+  margin: 0;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* 當模態框激活時的樣式 */
+.item-detail-modal.active {
+  display: flex !important;
+  /* 使用 place-items 作為 flexbox 的補充 */
+  place-items: center;
+  /* 確保模態框永遠在視窗中央 */
+  align-content: center;
+  justify-content: center;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition: all 0.4s ease-out;
+}
+
+/* 模態框內容區域 */
+.item-detail-modal .modal-content {
+  background-color: var(--card-bg); /* 使用 CSS 變量 */
+  padding: 25px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 10px 30px var(--shadow-color);
+  width: 100%;
+  max-width: min(500px, 95vw); /* 調整最大寬度讓內容更集中 */
+  max-height: min(80vh, 600px); /* 防止模態框內容超出視窗邊界 */
+  overflow-y: auto; /* 內容過多時可滾動 */
+  position: relative; /* 為了 .modal-close 的絕對定位 */
+  transform: scale(0.9); /* 初始動畫狀態 */
+  transition: transform 0.4s ease-out;
+  display: flex; /* 使得 modal-body 能更好地填充 */
+  flex-direction: column; /* 讓 modal-body 垂直排列 */
+  /* 確保在各種情況下都能居中 */
+  margin: auto;
+  /* 添加邊框確保視覺完整性 */
+  border: 1px solid var(--border-color);
+}
+
+.item-detail-modal.active .modal-content {
+  transform: scale(1); /* 激活時的動畫狀態 */
+}
+
+/* 模態框關閉按鈕 */
+.item-detail-modal .modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 1.5rem;
+  color: var(--text-color-muted);
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.item-detail-modal .modal-close:hover {
+  color: var(--text-color);
+}
+
+/* 模態框主體，確保 JS 填充的內容正確顯示 */
+.item-detail-modal .modal-body {
+  flex-grow: 1; /* 允許 modal-body 填滿 modal-content 的剩餘空間 */
+  overflow-y: auto; /* 如果 modal-body 內部也需要滾動 (雖然通常是 modal-content 滾動) */
+  padding: 10px; /* 給 body 一些內邊距 */
+}
+
+/* 簡化模態框樣式 */
+.simplified-modal-content {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  min-height: 400px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.modal-overlay {
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  padding: 25px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  color: var(--text-color);
+}
+
+.modal-title h2 {
+  color: var(--accent-color);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  text-align: center;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.modal-function,
+.modal-story,
+.modal-quantity {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-function h3,
+.modal-story h3,
+.modal-quantity h3 {
+  color: var(--accent-color);
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-function h3 i,
+.modal-story h3 i,
+.modal-quantity h3 i {
+  font-size: 0.9rem;
+}
+
+.modal-function p,
+.modal-story p {
+  margin: 0;
+  line-height: 1.5;
+  color: var(--text-color-secondary);
+}
+
+.quantity-number {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent-secondary);
+  margin: 0;
+  text-align: center;
+}
+
+.modal-item-actions {
+  margin-top: auto;
+  padding-top: 10px;
+}
+
+.modal-action-btn {
+  width: 100%;
+  background: var(--primary-gradient);
+  border: none;
+  border-radius: 25px;
+  padding: 12px 20px;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.modal-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--shadow-color);
+  filter: brightness(1.1);
+}
+
+/* 響應式調整 */
+@media (max-width: 768px) {
+  .simplified-modal-content {
+    min-height: 350px;
+  }
+  
+  .modal-overlay {
+    padding: 20px;
+    gap: 15px;
+  }
+  
+  .modal-title h2 {
+    font-size: 1.3rem;
+  }
+  
+  .modal-function,
+  .modal-story,
+  .modal-quantity {
+    padding: 12px;
+  }
+  
+  .modal-function h3,
+  .modal-story h3,
+  .modal-quantity h3 {
+    font-size: 0.9rem;
+  }
+  
+  .modal-function p,
+  .modal-story p {
+    font-size: 0.9rem;
+  }
+  
+  .quantity-number {
+    font-size: 1.1rem;
+  }
+  
+  .modal-action-btn {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .simplified-modal-content {
+    min-height: 320px;
+  }
+  
+  .modal-overlay {
+    padding: 15px;
+    gap: 12px;
+  }
+  
+  .modal-title h2 {
+    font-size: 1.2rem;
+  }
+  
+  .modal-function,
+  .modal-story,
+  .modal-quantity {
+    padding: 10px;
+  }
+}
+
+/* 模態框響應式居中調整 */
+@media (max-width: 768px) {
+  .item-detail-modal {
+    padding: 15px;
+  }
+  
+  .item-detail-modal .modal-content {
+    max-width: 95%;
+    max-height: 85vh;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .item-detail-modal {
+    padding: 10px;
+  }
+  
+  .item-detail-modal .modal-content {
+    max-width: 98%;
+    max-height: 90vh;
+    padding: 15px;
+  }
+}
+
+/* 確保模態框在任何情況下都完美居中 */
+@media (max-height: 600px) {
+  .item-detail-modal .modal-content {
+    max-height: 95vh;
+  }
+}
+
+/* 優化模態框顯示動畫，配合滾動 */
+.item-detail-modal {
+  /* 初始狀態：隱藏並稍微向下偏移 */
+  transform: translateY(20px);
+}
+
+.item-detail-modal.active {
+  /* 激活狀態：回到正常位置 */
+  transform: translateY(0);
+  transition: all 0.4s ease-out;
+}
+
+.item-detail-modal .modal-content {
+  /* 調整初始縮放動畫時間，配合滾動延遲 */
+  transition: transform 0.4s ease-out;
+}
+
+.item-detail_modal.active .modal-content {
+  /* 確保動畫順暢 */
+  transform: scale(1);
+}
+
+/* 載入提示框時的視覺指示 */
+.loading-modal-indicator {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--overlay-bg);
+  color: var(--accent-color);
+  padding: 15px 25px;
+  border-radius: 25px;
+  z-index: 1049; /* 比模態框稍低 */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.loading-modal-indicator.active {
+  opacity: 1;
+}
+
+.loading-modal-indicator i {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
