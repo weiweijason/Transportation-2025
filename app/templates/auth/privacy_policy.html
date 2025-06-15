@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}隱私政策 - 精靈公車{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg">
+                <div class="card-header bg-info text-white text-center p-4">
+                    <h2 class="mb-0">
+                        <i class="fas fa-user-shield me-2"></i>隱私政策
+                    </h2>
+                    <p class="mb-0 mt-2">Privacy Policy | プライバシーポリシー</p>
+                </div>                <div class="card-body p-5">
+                    <div class="privacy-content">
+                        <div class="section mb-5">
+                            <h3 class="text-info mb-3">
+                                <i class="fas fa-database me-2"></i>1. 收集的資訊
+                            </h3>
+                            <div class="lang-section">
+                                <h5>Information Collected</h5>
+                                <h6 class="text-muted">収集する情報</h6>
+                                <p><strong>本遊戲可能收集：裝置資訊、使用記錄、錯誤日誌。</strong></p>
+                                <p class="text-muted"><em>The game may collect: device info, usage data, crash logs.</em></p>
+                                <p class="text-muted"><em>ゲームは端末情報、使用履歴、エラーログなどを収集する場合があります。</em></p>
+                            </div>
+                        </div>
+
+                        <div class="section mb-5">
+                            <h3 class="text-info mb-3">
+                                <i class="fas fa-cogs me-2"></i>2. 資料用途
+                            </h3>
+                            <div class="lang-section">
+                                <h5>Data Usage</h5>
+                                <h6 class="text-muted">データの利用目的</h6>
+                                <p><strong>這些資訊僅用於改善遊戲品質與除錯。</strong></p>
+                                <p class="text-muted"><em>The data is only used for improving the game and debugging.</em></p>
+                                <p class="text-muted"><em>これらの情報はゲームの品質向上と不具合修正のためにのみ使用されます。</em></p>
+                            </div>
+                        </div>
+
+                        <div class="section mb-5">
+                            <h3 class="text-info mb-3">
+                                <i class="fas fa-external-link-alt me-2"></i>3. 第三方服務
+                            </h3>
+                            <div class="lang-section">
+                                <h5>Third-party Services</h5>
+                                <h6 class="text-muted">サードパーティサービス</h6>
+                                <p><strong>本遊戲可能整合第三方工具（如分析、廣告），請參閱其隱私條款。</strong></p>
+                                <p class="text-muted"><em>Third-party tools (e.g., analytics, ads) may be integrated. Please refer to their privacy policies.</em></p>
+                                <p class="text-muted"><em>分析や広告などのサードパーティツールが組み込まれている可能性があります。それぞれのポリシーをご確認ください。</em></p>
+                            </div>
+                        </div>
+
+                        <div class="section mb-5">
+                            <h3 class="text-info mb-3">
+                                <i class="fas fa-shield-alt me-2"></i>4. 資料安全
+                            </h3>
+                            <div class="lang-section">
+                                <h5>Data Security</h5>
+                                <h6 class="text-muted">データの安全性</h6>
+                                <p><strong>我們承諾不會將您的個人資料出售或公開。</strong></p>
+                                <p class="text-muted"><em>We will never sell or share your personal information.</em></p>
+                                <p class="text-muted"><em>個人情報を販売または外部公開することはありません。</em></p>
+                            </div>
+                        </div>
+
+                        <div class="section mb-5">
+                            <h3 class="text-info mb-3">
+                                <i class="fas fa-user-check me-2"></i>5. 使用者權利
+                            </h3>
+                            <div class="lang-section">
+                                <h5>Your Rights</h5>
+                                <h6 class="text-muted">ユーザーの権利</h6>
+                                <p><strong>您可隨時要求查詢或刪除我們所儲存的資料（若有）。</strong></p>
+                                <p class="text-muted"><em>You may request to view or delete stored data at any time (if applicable).</em></p>
+                                <p class="text-muted"><em>保存されている情報について、確認・削除をリクエストすることが可能です。</em></p>
+                            </div>
+                        </div>
+
+                        <div class="section mb-5 bg-light p-4 rounded">
+                            <h3 class="text-success mb-3">
+                                <i class="fas fa-envelope me-2"></i>📮 聯絡方式 / Contact / 連絡先
+                            </h3>
+                            <div class="contact-section">
+                                <p class="mb-2"><strong>如您對上述條款有任何疑問，請透過遊戲內聯絡方式與我們聯繫。</strong></p>
+                                <p class="mb-2 text-muted"><em>If you have any questions, feel free to contact us via the in-game support.</em></p>
+                                <p class="mb-0 text-muted"><em>ご不明点がある場合は、ゲーム内のサポートよりお問い合わせください。</em></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-5">
+                        <hr>
+                        <p class="text-muted">
+                            <i class="fas fa-clock me-2"></i>最後更新：2025年6月16日
+                        </p>
+                        <div class="mt-4">
+                            <a href="{{ url_for('auth.register') }}" class="btn btn-info me-3">
+                                <i class="fas fa-arrow-left me-2"></i>返回註冊
+                            </a>
+                            <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-home me-2"></i>回到首頁
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .privacy-content {
+        line-height: 1.8;
+    }
+    
+    .section {
+        border-left: 4px solid #17a2b8;
+        padding-left: 20px;
+        margin-bottom: 2rem;
+    }
+    
+    .lang-section {
+        background-color: #f8f9fa;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        border-left: 3px solid #17a2b8;
+    }
+      .lang-section h5 {
+        color: #495057;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+    
+    .lang-section h6 {
+        color: #6c757d;
+        margin-bottom: 8px;
+        font-weight: 500;
+        font-size: 0.9em;
+    }
+    
+    .lang-section p {
+        margin-bottom: 0;
+        color: #333;
+    }
+    
+    .contact-section {
+        background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+        padding: 20px;
+        border-radius: 10px;
+        border-left: 4px solid #4caf50;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 15px;
+    }
+    
+    .card-header {
+        border-radius: 15px 15px 0 0 !important;
+    }
+    
+    /* 深色模式適配 */
+    [data-theme="dark"] .card {
+        background-color: #2d3436;
+        border-color: #4d5656;
+    }
+    
+    [data-theme="dark"] .lang-section {
+        background-color: #3a3f47;
+        border-left-color: #17a2b8;
+    }
+      [data-theme="dark"] .lang-section h5 {
+        color: #e0e0e0;
+    }
+    
+    [data-theme="dark"] .lang-section h6 {
+        color: #b0b0b0;
+    }
+    
+    [data-theme="dark"] .lang-section p {
+        color: #d0d0d0;
+    }
+    
+    [data-theme="dark"] .contact-section {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        border-left-color: #4caf50;
+    }
+    
+    [data-theme="dark"] .section {
+        border-left-color: #17a2b8;
+    }
+    
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 2rem 1.5rem;
+        }
+        
+        .section {
+            padding-left: 15px;
+        }
+        
+        .lang-section {
+            padding: 10px;
+        }
+    }
+</style>
+{% endblock %}

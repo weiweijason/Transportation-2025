@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}服務條款 - 精靈公車{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white text-center p-4">
+                    <h2 class="mb-0">
+                        <i class="fas fa-file-contract me-2"></i>服務條款
+                    </h2>
+                    <p class="mb-0 mt-2">Terms of Service | 利用規約</p>
+                </div>
+                <div class="card-body p-5">
+                    <div class="terms-content">
+                        <div class="section mb-5">
+                            <h3 class="text-primary mb-3">
+                                <i class="fas fa-user-check me-2"></i>1. 使用者資格
+                            </h3>
+                            <div class="lang-section">
+                                <h5>中文 (繁體)</h5>
+                                <p>使用本遊戲即表示您同意本條款。如您未滿13歲，請取得監護人同意。</p>
+                            </div>
+                            <div class="lang-section">
+                                <h5>English</h5>
+                                <p>By playing this game, you agree to these terms. If you are under 13, please obtain guardian consent.</p>
+                            </div>
+                            <div class="lang-section">
+                                <h5>日本語</h5>
+                                <p>本ゲームをプレイすることで、本規約に同意したものとみなします。13歳未満の方は保護者の同意を得てください。</p>
+                            </div>
+                        </div>
+
+                        <div class="section mb-5">
+                            <h3 class="text-primary mb-3">
+                                <i class="fas fa-copyright me-2"></i>2. 遊戲內容與智慧財產
+                            </h3>
+                            <div class="lang-section">
+                                <h5>中文 (繁體)</h5>
+                                <p>所有角色、場景、劇情等均屬開發團隊所有，禁止未經授權使用。</p>
+                            </div>
+                            <div class="lang-section">
+                                <h5>English</h5>
+                                <p>All characters, scenes, and stories are owned by the development team and may not be used without permission.</p>
+                            </div>
+                            <div class="lang-section">
+                                <h5>日本語</h5>
+                                <p>キャラクター、シーン、ストーリーなどはすべて開発チームに帰属し、無断使用を禁じます。</p>
+                            </div>
+                        </div>
+
+                        <div class="section mb-5">
+                            <h3 class="text-primary mb-3">
+                                <i class="fas fa-shield-alt me-2"></i>3. 使用行為守則
+                            </h3>
+                            <div class="lang-section">
+                                <h5>中文 (繁體)</h5>
+                                <p>請勿在遊戲中發表不當言論、使用外掛或破壞其他玩家體驗。</p>
+                            </div>
+                            <div class="lang-section">
+                                <h5>English</h5>
+                                <p>Do not engage in inappropriate behavior, cheating, or actions that harm other players' experience.</p>
+                            </div>
+                            <div class="lang-section">
+                                <h5>日本語</h5>
+                                <p>不適切な言動、チート行為、他のプレイヤーへの迷惑行為は禁止します。</p>
+                            </div>
+                        </div>
+
+                        <div class="section mb-5">
+                            <h3 class="text-primary mb-3">
+                                <i class="fas fa-database me-2"></i>4. 資料與帳號管理
+                            </h3>
+                            <div class="lang-section">
+                                <h5>中文 (繁體)</h5>
+                                <p>如有帳號系統，請妥善保管密碼，遺失風險由玩家自行負責。</p>
+                            </div>
+                            <div class="lang-section">
+                                <h5>English</h5>
+                                <p>If accounts are used, keep your password secure. Losses are the player's responsibility.</p>
+                            </div>
+                            <div class="lang-section">
+                                <h5>日本語</h5>
+                                <p>アカウント機能がある場合、パスワードは自己責任で管理してください。</p>
+                            </div>
+                        </div>
+
+                        <div class="section mb-5">
+                            <h3 class="text-primary mb-3">
+                                <i class="fas fa-exclamation-triangle me-2"></i>5. 責任限制
+                            </h3>
+                            <div class="lang-section">
+                                <h5>中文 (繁體)</h5>
+                                <p>本遊戲盡力維護穩定，但不對資料遺失、閃退或其他技術問題負責。</p>
+                            </div>
+                            <div class="lang-section">
+                                <h5>English</h5>
+                                <p>We strive for stability but are not responsible for data loss, crashes, or technical issues.</p>
+                            </div>
+                            <div class="lang-section">
+                                <h5>日本語</h5>
+                                <p>ゲームの安定性には最善を尽くしますが、データ損失やクラッシュなどに対して責任を負いません。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-5">
+                        <hr>
+                        <p class="text-muted">
+                            <i class="fas fa-clock me-2"></i>最後更新：2025年6月16日
+                        </p>
+                        <div class="mt-4">
+                            <a href="{{ url_for('auth.register') }}" class="btn btn-success me-3">
+                                <i class="fas fa-arrow-left me-2"></i>返回註冊
+                            </a>
+                            <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-home me-2"></i>回到首頁
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .terms-content {
+        line-height: 1.8;
+    }
+    
+    .section {
+        border-left: 4px solid #007bff;
+        padding-left: 20px;
+        margin-bottom: 2rem;
+    }
+    
+    .lang-section {
+        background-color: #f8f9fa;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        border-left: 3px solid #28a745;
+    }
+    
+    .lang-section h5 {
+        color: #495057;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+    
+    .lang-section p {
+        margin-bottom: 0;
+        color: #333;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 15px;
+    }
+    
+    .card-header {
+        border-radius: 15px 15px 0 0 !important;
+    }
+    
+    /* 深色模式適配 */
+    [data-theme="dark"] .card {
+        background-color: #2d3436;
+        border-color: #4d5656;
+    }
+    
+    [data-theme="dark"] .lang-section {
+        background-color: #3a3f47;
+        border-left-color: #28a745;
+    }
+    
+    [data-theme="dark"] .lang-section h5 {
+        color: #e0e0e0;
+    }
+    
+    [data-theme="dark"] .lang-section p {
+        color: #d0d0d0;
+    }
+    
+    [data-theme="dark"] .section {
+        border-left-color: #007bff;
+    }
+    
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 2rem 1.5rem;
+        }
+        
+        .section {
+            padding-left: 15px;
+        }
+        
+        .lang-section {
+            padding: 10px;
+        }
+    }
+</style>
+{% endblock %}

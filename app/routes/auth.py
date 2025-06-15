@@ -575,3 +575,13 @@ def tutorial_interactive_capture(creature_id):
     }
     
     return render_template('auth/tutorial_capture.html', creature=creature)
+
+@auth.route('/terms-of-service')
+def terms_of_service():
+    """顯示服務條款頁面"""
+    return render_template('auth/terms_of_service.html')
+
+@auth.route('/privacy-policy')
+def privacy_policy():
+    """顯示隱私政策頁面"""
+    return render_template('auth/privacy_policy.html')

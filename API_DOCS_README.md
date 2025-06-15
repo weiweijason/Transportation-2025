@@ -75,6 +75,8 @@ python run_app.py
 
 ### 🔐 認證 (auth)
 - 登入、註冊、登出相關
+- **NEW!** 服務條款頁面 (`/auth/terms-of-service`)
+- **NEW!** 隱私政策頁面 (`/auth/privacy-policy`)
 
 ### 🎮 遊戲功能 (bylin)
 - 精靈、道館、背包等遊戲功能
@@ -113,6 +115,16 @@ python run_app.py
 3. **響應格式**：系統會自動檢測並美化 JSON 響應
 
 ## 🆘 常見問題
+
+### Q: 服務條款和隱私政策頁面無法訪問？
+A: 確保這些路由已添加到 `app.py` 的 `public_paths` 清單中，以允許未登入用戶訪問。可以使用 `test_legal_pages.py` 腳本進行測試驗證。
+
+### Q: 如何測試新增的法律文件頁面？
+A: 運行專用測試腳本：
+```bash
+python test_legal_pages.py
+```
+該腳本會自動測試服務條款和隱私政策頁面的可訪問性，以及註冊頁面的連結功能。
 
 ### Q: 為什麼某些 API 測試失敗？
 A: 可能是因為：

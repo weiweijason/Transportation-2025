@@ -44,10 +44,9 @@
                             <i class="fas fa-shield-alt me-2 text-success"></i>確認密碼
                         </label>
                         <input type="password" class="form-control game-input" id="confirm_password" name="confirm_password" placeholder="再次輸入你的密碼" required>
-                    </div>
-                    <div class="mb-3 form-check">
+                    </div>                    <div class="mb-3 form-check">
                         <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
-                        <label class="form-check-label" for="terms">我已閱讀並同意<a href="#" class="game-link">服務條款</a>和<a href="#" class="game-link">隱私政策</a></label>
+                        <label class="form-check-label" for="terms">我已閱讀並同意<a href="{{ url_for('auth.terms_of_service') }}" class="game-link" target="_blank">服務條款</a>和<a href="{{ url_for('auth.privacy_policy') }}" class="game-link" target="_blank">隱私政策</a></label>
                     </div>
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-success btn-lg game-button">

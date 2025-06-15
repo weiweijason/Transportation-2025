@@ -1134,8 +1134,7 @@ class FirebaseService:
                                     creature_data['element_type'] = element_type_str
                                 except (ValueError, AttributeError):
                                     creature_data['element_type'] = 'normal'
-                        
-                        creatures.append(creature_data)
+                            creatures.append(creature_data)
                         
                 print(f"從Firestore簡單查詢後過濾獲得了 {len(creatures)} 隻未過期的精靈")
                 return creatures
@@ -1166,14 +1165,26 @@ class FirebaseService:
                 'expires_at', '<=', current_timestamp
             ).get()
             
-            # 刪除已過期的精靈
+            # 刪除已過期的精靈（包括子集合）
             count = 0
             for doc in expired_ref:
-                doc.reference.delete()
-                count += 1
+                try:
+                    # 首先刪除 captured_players 子集合中的所有文檔
+                    captured_players_ref = doc.reference.collection('captured_players').get()
+                    for captured_player_doc in captured_players_ref:
+                        captured_player_doc.reference.delete()
+                    
+                    # 然後刪除主精靈文檔
+                    doc.reference.delete()
+                    count += 1
+                    
+                except Exception as delete_error:
+                    print(f"刪除精靈 {doc.id} 時發生錯誤: {delete_error}")
+                    # 即使單個精靈刪除失敗，也繼續處理其他精靈
+                    continue
             
             if count > 0:
-                print(f"已刪除 {count} 隻過期精靈")
+                print(f"已刪除 {count} 隻過期精靈（包括其 captured_players 子集合）")
             
             return count
         except Exception as e:
