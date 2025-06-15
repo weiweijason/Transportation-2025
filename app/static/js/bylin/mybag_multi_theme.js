@@ -103,10 +103,13 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // 初始化動畫效果
   initVisualEffects();
-  
-  // 初始化事件監聽
+    // 初始化事件監聽
   initEventListeners();
-    // 初始化包包狀態摘要
+  
+  // 載入Firebase數據
+  loadBackpackData();
+  
+  // 初始化包包狀態摘要
   initBagStatusSummary();
   
   // 初始化提示顯示
@@ -366,548 +369,127 @@ function handleItemCardClick() {
   }
 }
 
-// 載入道具詳情
-function loadItemDetails(itemType) {
-  console.log(`📦 載入 ${itemType} 道具詳情`);
+// 從Firebase API載入背包數據
+async function loadBackpackData() {
+  console.log('🔄 正在從Firebase載入背包數據...');
   
-  const detailRow = document.getElementById('item-detail-row');
-  if (!detailRow) return;
-
-  // 清空現有的道具列表，確保每次只顯示當前選擇的分類
-  detailRow.innerHTML = ''; 
-  
-  const items = itemMeta[itemType] || [];
-  
-  if (items.length === 0) {
-    // 如果該分類下沒有道具，顯示空狀態提示
-    // 可以檢查 detailRow 內是否已經有 .empty-state 元素，或者動態創建
-    const existingEmptyState = detailRow.querySelector('.empty-state');
-    if (existingEmptyState) {
-      existingEmptyState.style.display = 'block';
-    } else {
-      // 如果 HTML 結構中沒有預設的 .empty-state 結構在 #item-detail-row 內，
-      // 則可能需要動態創建或確保 mybag.html 中 #item-detail-row 包含一個可顯示的 .empty-state div
-      detailRow.innerHTML = '<div class="col-12 empty-state" style="display: block;"><div class="empty-state-content"><i class="fas fa-search fa-3x"></i><h4>沒有找到符合的道具</h4><p>請嘗試其他分類或稍後再試</p></div></div>';
-    }
-    return;
-  }
-  
-  // 如果有道具，確保空狀態是隱藏的
-  const emptyStateInRow = detailRow.querySelector('.empty-state');
-  if (emptyStateInRow) {
-    emptyStateInRow.style.display = 'none';
-  }
-  
-  items.forEach((item, index) => {
-    const itemCol = document.createElement('div');
-    // 使用之前確認過的響應式 class
-    itemCol.className = 'col-lg-4 col-md-6 col-sm-12 mb-4 item-detail-col magic-circle-display-card'; 
-    itemCol.setAttribute('data-rarity', item.rarity);
-    itemCol.setAttribute('data-date', item.dateAcquired);
-    itemCol.setAttribute('data-name', item.name.toLowerCase());
+  try {
+    const response = await fetch('/bylin/api/backpack');
+    const data = await response.json();
     
-    const rarityColors = {
-      common: 'var(--rarity-common)',
-      rare: 'var(--rarity-rare)',
-      legendary: 'var(--rarity-legendary)'
-    };
-    const rarityText = {
-      common: '普通',
-      rare: '稀有',
-      legendary: '傳說'
+    if (!data.success) {
+      throw new Error(data.message || '載入失敗');
+    }
+    
+    console.log('✅ Firebase數據載入成功:', data.backpack);
+    
+    // 更新全局數據，合併靜態元數據與Firebase數量數據
+    userItemsData = {
+      'magic-circle': itemMeta['magic-circle'].map(item => {
+        const quantity = data.backpack['magic-circle'][item.key] || 0;
+        return {
+          ...item,
+          quantity: quantity,
+          usageCount: quantity // 兼容舊版本
+        };
+      }),
+      'potion': itemMeta['potion'].map(item => {
+        const quantity = data.backpack['potion'][item.key] || 0;
+        return {
+          ...item,
+          quantity: quantity,
+          usageCount: quantity // 兼容舊版本
+        };
+      })
     };
     
-    let actionsHTML = '';
-    // 魔法陣只有詳情按鈕
-    if (itemType === 'magic-circle') {
-      actionsHTML = `
-          <button class="action-btn info-btn" data-item-index="${index}" data-item-type="${itemType}">
-            <i class="fas fa-info-circle"></i> 詳情
-          </button>
-      `;
-    } else if (itemType === 'potion') { // 藥水有使用和詳情按鈕
-        actionsHTML = `
-            <button class="action-btn use-btn">
-              <i class="fas fa-magic"></i> 使用
-            </button>
-            <button class="action-btn info-btn" data-item-index="${index}" data-item-type="${itemType}">
-              <i class="fas fa-info-circle"></i> 詳情
-            </button>
-        `;
-    }
-
-    itemCol.innerHTML = `
-      <div class="item-detail-card" data-key="${item.key}"> {/* 移除 magic-circle-display-card，因為已加在 itemCol 上 */}
-        <div class="rarity-badge" style="background: ${rarityColors[item.rarity] || 'var(--rarity-common)'}">
-          ${rarityText[item.rarity] || '普通'}
-        </div>
-        <div class="item-detail-image">
-          {/* 確保圖片有 class，例如 magic-circle-image，以便 CSS 控制 */}
-          <img src="${item.img}" alt="${item.name}" class="magic-circle-image"> 
-          <div class="item-detail-glow" style="background: radial-gradient(circle at center, ${rarityColors[item.rarity] || 'var(--rarity-common)'}80, transparent 70%);"></div>
-        </div>
-        <div class="item-detail-info">
-          {/* 確保名稱有 class，例如 magic-circle-name */}
-          <h4 class="magic-circle-name">${item.name}</h4> 
-          <div class="item-detail-stats">
-            <div class="stat-badge">
-              <i class="fas fa-bolt"></i> ${item.bonus}
-            </div>
-            <div class="stat-badge">
-              <i class="fas fa-history"></i> 已使用 ${item.usageCount} 次
-            </div>
-          </div>
-          <p>${item.description}</p>
-          <div class="item-detail-actions">
-            ${actionsHTML}
-          </div>
-        </div>
-      </div>
-    `;
+    console.log('🎮 合併後的用戶數據:', userItemsData);
     
-    detailRow.appendChild(itemCol);
+    // 重新渲染包包內容
+    refreshBagDisplay();
     
-    // 卡片出現動畫
-    setTimeout(() => {
-      itemCol.style.animation = `fadeSlideIn 0.5s ease-out ${index * 0.1}s forwards`;
-    }, 50);
-  });
-  
-  // 為新生成的詳情按鈕添加事件監聽
-  const infoButtons = detailRow.querySelectorAll('.info-btn');
-  infoButtons.forEach(button => {
-    button.addEventListener('click', showItemDetailModal);
-  });
-  
-  // 為新生成的使用按鈕添加事件監聽 (如果有的話)
-  const useButtons = detailRow.querySelectorAll('.use-btn');
-  useButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      const itemCardElement = this.closest('.item-detail-card');
-      if (itemCardElement) {
-        const itemNameElement = itemCardElement.querySelector('h4'); // 或者更精確的 selector
-        if (itemNameElement) {
-            const itemName = itemNameElement.textContent;
-            showNotification(`已選擇使用 ${itemName}`, 'success');
-            console.log(`🔮 使用道具: ${itemName}`);
-            // 可以在這裡添加實際使用道具的邏輯，例如更新 usageCount
-        }
-      }
-    });
-  });
-}
-
-// 新增一個函數，可以直接用數據來顯示模態框
-function showItemDetailModalWithData(item, itemType, itemIndex) {
-  if (!item) return;
-
-  const modalBody = document.getElementById('modal-body');
-  if (modalBody) {
-    // 根據 itemType 決定是否顯示模態框中的 "使用道具" 按鈕
-    let modalActionsHTML = '';
-    if (itemType === 'potion') { // 只在藥水時顯示使用按鈕
-        modalActionsHTML = `
-        <div class="modal-item-actions">
-            <button class="modal-action-btn modal-use-btn">
-            <i class="fas fa-magic"></i> 使用道具
-            </button>
-        </div>
-        `;
-    }
-
-    // 準備故事內容（稍後補上）
-    const storyContent = item.story || '神秘的故事等待被發現...';
-
-    modalBody.innerHTML = `
-      <div class="simplified-modal-content" style="background-image: url('${item.img}')">
-        <div class="modal-overlay">
-          <div class="modal-title">
-            <h2>${item.name}</h2>
-          </div>
-          
-          <div class="modal-function">
-            <h3><i class="fas fa-magic"></i> 功能效果</h3>
-            <p>${item.bonus}</p>
-          </div>
-          
-          <div class="modal-story">
-            <h3><i class="fas fa-book"></i> 道具故事</h3>
-            <p>${storyContent}</p>
-          </div>
-          
-          <div class="modal-quantity">
-            <h3><i class="fas fa-box"></i> 剩餘數量</h3>
-            <p class="quantity-number">${item.usageCount || 1} 個</p>
-          </div>
-          
-          ${modalActionsHTML}
-        </div>
-      </div>
-    `;
+    // 更新狀態摘要
+    updateBagStatusSummary();
     
-    // 為模態框中的使用按鈕添加事件監聽 (如果存在)
-    const modalUseBtn = modalBody.querySelector('.modal-use-btn');
-    if (modalUseBtn) {
-      modalUseBtn.addEventListener('click', function() {
-        showNotification(`已選擇使用 ${item.name}`, 'success');
-        closeItemDetailModal();
-        console.log(`🔮 使用道具: ${item.name}`);
-      });
-    }
-  }
-  const modal = document.getElementById('item-detail-modal');
-  if (modal) {
-    // 顯示載入提示
-    showNotification('正在載入道具詳情...', 'info');
+  } catch (error) {
+    console.error('❌ 載入Firebase數據失敗:', error);
     
-    // 先滾動到頂部，確保用戶能看到提示框
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-    
-    // 延遲一點時間後顯示模態框，讓滾動動畫有時間完成
-    setTimeout(() => {
-      modal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }, 300);
-  }
-}
-
-// 替代方案：根據點擊位置動態調整模態框位置
-function showItemDetailModalAtPosition(item, itemType, itemIndex, clickEvent) {
-  if (!item) return;
-
-  // 準備故事內容（稍後補上）
-  const storyContent = item.story || '神秘的故事等待被發現...';
-  
-  // 根據 itemType 決定是否顯示模態框中的 "使用道具" 按鈕
-  let modalActionsHTML = '';
-  if (itemType === 'potion') {
-    modalActionsHTML = `
-      <div class="modal-item-actions">
-          <button class="modal-action-btn modal-use-btn">
-          <i class="fas fa-magic"></i> 使用道具
-          </button>
-      </div>
-    `;
-  }
-
-  const modalBody = document.getElementById('modal-body');
-  if (modalBody) {
-    modalBody.innerHTML = `
-      <div class="simplified-modal-content" style="background-image: url('${item.img}')">
-        <div class="modal-overlay">
-          <div class="modal-title">
-            <h2>${item.name}</h2>
-          </div>
-          
-          <div class="modal-function">
-            <h3><i class="fas fa-magic"></i> 功能效果</h3>
-            <p>${item.bonus}</p>
-          </div>
-          
-          <div class="modal-story">
-            <h3><i class="fas fa-book"></i> 道具故事</h3>
-            <p>${storyContent}</p>
-          </div>
-          
-          <div class="modal-quantity">
-            <h3><i class="fas fa-box"></i> 剩餘數量</h3>
-            <p class="quantity-number">${item.usageCount || 1} 個</p>
-          </div>
-          
-          ${modalActionsHTML}
-        </div>
-      </div>
-    `;
-    
-    // 為模態框中的使用按鈕添加事件監聽
-    const modalUseBtn = modalBody.querySelector('.modal-use-btn');
-    if (modalUseBtn) {
-      modalUseBtn.addEventListener('click', function() {
-        showNotification(`已選擇使用 ${item.name}`, 'success');
-        closeItemDetailModal();
-        console.log(`🔮 使用道具: ${item.name}`);
-      });
-    }
-  }
-  
-  const modal = document.getElementById('item-detail-modal');
-  if (modal) {
-    // 如果有點擊事件，可以根據點擊位置調整顯示
-    if (clickEvent) {
-      const viewportHeight = window.innerHeight;
-      const clickY = clickEvent.clientY;
-      
-      // 如果點擊位置在視窗下半部，就滾動到頂部
-      if (clickY > viewportHeight * 0.6) {
-        showNotification('正在載入道具詳情...', 'info');
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth'
-        });
-        
-        setTimeout(() => {
-          modal.classList.add('active');
-          document.body.style.overflow = 'hidden';
-        }, 300);
-      } else {
-        // 如果點擊位置在上半部，直接顯示
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-      }
-    } else {
-      // 預設行為：滾動到頂部
-      showNotification('正在載入道具詳情...', 'info');
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-      
-      setTimeout(() => {
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-      }, 300);
-    }
-  }
-}
-
-// 顯示道具詳情模態框 (原來的函數，由道具卡片上的詳情按鈕觸發)
-function showItemDetailModal(e) {
-  if (e) e.stopPropagation(); // 確保事件對象存在
-  
-  const itemIndex = this.getAttribute('data-item-index');
-  const itemType = this.getAttribute('data-item-type');
-  
-  const item = itemMeta[itemType][itemIndex];
-  if (!item) return;
-  
-  // 直接調用新的帶數據的模態框顯示函數
-  showItemDetailModalWithData(item, itemType, itemIndex);
-}
-
-// 關閉道具詳情模態框
-function closeItemDetailModal() {
-  const modal = document.getElementById('item-detail-modal');
-  if (modal) {
-    modal.classList.remove('active');
-    document.body.style.overflow = ''; // 恢復背景滾動
-    
-    // 可選：關閉模態框後滾動回到道具列表區域
-    // 如果用戶正在查看道具列表，滾動回去讓他們繼續瀏覽
-    const detailContainer = document.getElementById('item-detail-container');
-    if (detailContainer && detailContainer.style.display !== 'none') {
-      setTimeout(() => {
-        detailContainer.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
-      }, 100);
-    }
-  }
-}
-
-// 載入簡化的道具列表
-function loadSimplifiedItemList(itemType) {
-  console.log(`📦 載入簡化的 ${itemType} 道具列表`);
-  
-  const detailRow = document.getElementById('item-detail-row');
-  if (!detailRow) return;
-
-  // 清空現有內容
-  detailRow.innerHTML = ''; 
-  
-  const items = itemMeta[itemType] || [];
-  
-  if (items.length === 0) {
-    detailRow.innerHTML = `
-      <div class="col-12 empty-state" style="display: block;">
-        <div class="empty-state-content">
-          <i class="fas fa-search fa-3x"></i>
-          <h4>此分類下暫無道具</h4>
-          <p>請嘗試其他分類或稍後再試</p>
-        </div>
-      </div>
-    `;
-    return;
-  }
-  
-  items.forEach((item, index) => {
-    const itemCol = document.createElement('div');
-    itemCol.className = 'col-lg-3 col-md-4 col-sm-6 col-12 mb-3';
-    
-    const rarityColors = {
-      common: '#78909c',
-      rare: '#29b6f6', 
-      legendary: '#ffb74d'
-    };
-    
-    const rarityText = {
-      common: '普通',
-      rare: '稀有',
-      legendary: '傳說'
-    };
-    
-    itemCol.innerHTML = `
-      <div class="simplified-item-card" data-item-index="${index}" data-item-type="${itemType}">
-        <div class="item-header">
-          <span class="item-name">${item.name}</span>
-          <span class="item-rarity" style="color: ${rarityColors[item.rarity]}">${rarityText[item.rarity]}</span>
-        </div>
-        <div class="item-count">
-          <i class="fas fa-box"></i>
-          <span>剩餘: ${item.usageCount || 1}個</span>
-        </div>
-        <div class="item-bonus">
-          ${item.bonus}
-        </div>
-      </div>
-    `;
-      // 添加點擊事件，點擊時顯示詳細資訊
-    const card = itemCol.querySelector('.simplified-item-card');
-    card.addEventListener('click', function(event) {
-      // 使用新的動態定位函數
-      showItemDetailModalAtPosition(item, itemType, index, event);
-    });
-    
-    detailRow.appendChild(itemCol);
-  });
-}
-
-// 處理搜尋
-function handleSearch() {
-  const searchTerm = this.value.toLowerCase().trim();
-  const detailItems = document.querySelectorAll('.item-detail-col');
-  
-  let hasResults = false;
-  
-  detailItems.forEach(item => {
-    const itemName = item.getAttribute('data-name') || '';
-    
-    if (itemName.includes(searchTerm)) {
-      item.style.display = '';
-      hasResults = true;
-    } else {
-      item.style.display = 'none';
-    }
-  });
-  
-  // 顯示或隱藏空狀態
-  const emptyState = document.querySelector('.empty-state');
-  if (emptyState) {
-    emptyState.style.display = hasResults ? 'none' : 'block';
-  }
-}
-
-// 處理過濾
-function handleFilter() {
-  // 移除所有過濾按鈕的活躍狀態
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.classList.remove('active');
-  });
-  
-  // 添加當前按鈕的活躍狀態
-  this.classList.add('active');
-  
-  const filterType = this.getAttribute('data-filter');
-  const detailItems = document.querySelectorAll('.item-detail-col');
-  
-  if (filterType === 'all') {
-    // 顯示所有項目
-    detailItems.forEach(item => {
-      item.style.display = '';
-    });
-  } else if (filterType === 'rarity') {
-    // 按稀有度排序（從高到低）
-    const sortedItems = Array.from(detailItems).sort((a, b) => {
-      const rarityA = a.getAttribute('data-rarity');
-      const rarityB = b.getAttribute('data-rarity');
-      
-      const rarityOrder = {
-        legendary: 3,
-        rare: 2,
-        common: 1
-      };
-      
-      return rarityOrder[rarityB] - rarityOrder[rarityA];
-    });
-    
-    // 重新排列項目
-    const parent = detailItems[0].parentNode;
-    sortedItems.forEach(item => {
-      parent.appendChild(item);
-    });
-  } else if (filterType === 'recent') {
-    // 按日期排序（從新到舊）
-    const sortedItems = Array.from(detailItems).sort((a, b) => {
-      const dateA = new Date(a.getAttribute('data-date'));
-      const dateB = new Date(b.getAttribute('data-date'));
-      
-      return dateB - dateA;
-    });
-    
-    // 重新排列項目
-    const parent = detailItems[0].parentNode;
-    sortedItems.forEach(item => {
-      parent.appendChild(item);
-    });
-  }
-  
-  showNotification(`已應用 ${this.textContent.trim()} 過濾器`, 'info');
-}
-
-// 初始化包包狀態摘要
-function initBagStatusSummary() {
-  // 初始化 userItemsData 
-  userItemsData = [];
-  
-  // 將 itemMeta 轉換為 userItemsData 格式
-  Object.keys(itemMeta).forEach(type => {
-    const items = itemMeta[type];
-    items.forEach(item => {
-      userItemsData.push({
+    // 載入失敗時使用靜態數據
+    userItemsData = {
+      'magic-circle': itemMeta['magic-circle'].map(item => ({
         ...item,
-        itemType: type
-      });
-    });
-  });
-  
-  // 計算總道具數量
-  let totalItems = 0;
-  let rareItems = 0;
-  let powerLevel = 0;
-  
-  // 計算所有類型的道具數量
-  Object.keys(itemMeta).forEach(type => {
-    const items = itemMeta[type];
-    totalItems += items.length;
+        quantity: item.usageCount || 0
+      })),
+      'potion': itemMeta['potion'].map(item => ({
+        ...item,
+        quantity: item.usageCount || 0
+      }))
+    };
     
-    // 計算稀有和傳說道具
-    items.forEach(item => {
-      if (item.rarity === 'rare' || item.rarity === 'legendary') {
-        rareItems++;
-      }
-      
-      // 計算力量指數（基於稀有度）
-//       if (item.rarity === 'common') {
-//         powerLevel += 10;
-//       } else if (item.rarity === 'rare') {
-//         powerLevel += 50;
-//       } else if (item.rarity === 'legendary') {
-//         powerLevel += 100;
-//       }
-    });
+    // 顯示錯誤通知
+    showNotification(`數據載入失敗: ${error.message}`, 'warning');
+    
+    // 仍然渲染包包（使用靜態數據）
+    refreshBagDisplay();
+  }
+}
+
+// 重新渲染包包顯示
+function refreshBagDisplay() {
+  console.log('🔄 更新包包顯示狀態...');
+  
+  // mybag頁面不需要重新渲染卡片，只需要更新數量顯示
+  // 實際的卡片是靜態HTML，只需要更新數量和狀態
+  
+  updateBagStatusSummary();
+  
+  console.log('✅ 包包狀態更新完成');
+}
+
+// 更新狀態摘要
+function updateBagStatusSummary() {
+  if (!userItemsData) return;
+  
+  // 計算總數量
+  const totalMagicCircles = userItemsData['magic-circle']?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
+  const totalPotions = userItemsData['potion']?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
+  const totalItems = totalMagicCircles + totalPotions;
+  
+  // 計算稀有道具數量
+  const rareItems = [...(userItemsData['magic-circle'] || []), ...(userItemsData['potion'] || [])]
+    .filter(item => (item.rarity === 'rare' || item.rarity === 'legendary') && (item.quantity || 0) > 0)
+    .reduce((sum, item) => sum + (item.quantity || 0), 0);
+  
+  // 計算力量指數（簡單計算：普通道具1分，稀有2分，傳說3分）
+  const powerLevel = [...(userItemsData['magic-circle'] || []), ...(userItemsData['potion'] || [])]
+    .reduce((sum, item) => {
+      const quantity = item.quantity || 0;
+      const multiplier = item.rarity === 'legendary' ? 3 : item.rarity === 'rare' ? 2 : 1;
+      return sum + (quantity * multiplier);
+    }, 0);
+  
+  // 更新頁面上的數量顯示
+  const elements = {
+    'total-items-count': totalItems,
+    'rare-items-count': rareItems,
+    'power-level': powerLevel,
+    'magic-circle-count': totalMagicCircles,
+    'potion-count': totalPotions
+  };
+  
+  Object.entries(elements).forEach(([id, value]) => {
+    const element = document.getElementById(id);
+    if (element) {
+      // 添加動畫效果
+      element.style.transform = 'scale(1.1)';
+      element.textContent = value;
+      setTimeout(() => {
+        element.style.transform = 'scale(1)';
+      }, 200);
+    }
   });
   
-  // 更新摘要數據
-  const totalItemsCount = document.getElementById('total-items-count');
-  const rareItemsCount = document.getElementById('rare-items-count');
-  const powerLevelElem = document.getElementById('power-level');
-  
-  if (totalItemsCount) totalItemsCount.textContent = totalItems;
-  if (rareItemsCount) rareItemsCount.textContent = rareItems;
-  if (powerLevelElem) powerLevelElem.textContent = powerLevel;
+  console.log(`📊 狀態更新: 總計 ${totalItems}個, 魔法陣 ${totalMagicCircles}個, 藥水 ${totalPotions}個, 稀有 ${rareItems}個, 力量 ${powerLevel}`);
 }
 
 // 初始化提示顯示 - 更新為簡化版本

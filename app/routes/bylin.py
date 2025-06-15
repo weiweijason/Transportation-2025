@@ -48,8 +48,7 @@ def get_backpack():
         backpack_data = {
             'magic-circle': {},
             'potion': {}
-        }
-        
+        }        
         for doc in backpack_docs:
             item_id = doc.id
             item_data = doc.to_dict()
@@ -57,10 +56,11 @@ def get_backpack():
             
             # 根據道具類型分類
             if item_id in ['normal', 'advanced', 'premium']:
+                # 魔法陣類型
                 backpack_data['magic-circle'][item_id] = count
-            elif item_id in ['normal_drink', 'advanced_drink', 'premium_drink']:
-                # 移除 _drink 後綴以符合前端期望的格式
-                key = item_id.replace('_drink', '')
+            elif item_id in ['normal_potion', 'advanced_potion', 'premium_potion']:
+                # 藥水類型，移除 _potion 後綴以符合前端期望的格式
+                key = item_id.replace('_potion', '')
                 backpack_data['potion'][key] = count
         
         return jsonify({
@@ -96,11 +96,10 @@ def use_item():
         if not firebase_admin._apps:
             firebase_admin.initialize_app()
         db = firestore.client()
-        
-        # 轉換道具鍵名以符合 Firebase 格式
+          # 轉換道具鍵名以符合 Firebase 格式
         firebase_key = item_key
         if item_type == 'potion':
-            firebase_key = f"{item_key}_drink"
+            firebase_key = f"{item_key}_potion"
         
         # 獲取當前道具數量
         item_ref = db.collection('users').document(user_id).collection('user_backpack').document(firebase_key)
@@ -142,3 +141,88 @@ def magic_circle_details():
 def potion_details():
     """藥水詳情頁面"""
     return render_template('bylin/potion_details.html', firebase_config=FIREBASE_CONFIG)
+
+@bylin.route('/api/magic-circle-data', methods=['GET'])
+@login_required
+def get_magic_circle_data():
+    """獲取魔法陣詳情數據的API"""
+    try:
+        # 獲取使用者ID
+        user_id = session.get('user', {}).get('uid')
+        if not user_id:
+            return jsonify({'success': False, 'message': '使用者未登入'})
+        
+        # 初始化 Firestore 客戶端
+        if not firebase_admin._apps:
+            firebase_admin.initialize_app()
+        db = firestore.client()
+        
+        # 獲取魔法陣數據
+        magic_circle_data = []
+        magic_circle_types = ['normal', 'advanced', 'premium']
+        
+        for mc_type in magic_circle_types:
+            # 從背包中獲取數量
+            item_ref = db.collection('users').document(user_id).collection('user_backpack').document(mc_type)
+            item_doc = item_ref.get()
+            count = item_doc.to_dict().get('count', 0) if item_doc.exists else 0
+            
+            magic_circle_data.append({
+                'key': mc_type,
+                'count': count
+            })
+        
+        return jsonify({
+            'success': True,
+            'magic_circles': magic_circle_data
+        })
+        
+    except Exception as e:
+        print(f"獲取魔法陣數據錯誤: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': f'獲取魔法陣數據失敗: {str(e)}'
+        })
+
+@bylin.route('/api/potion-data', methods=['GET'])
+@login_required
+def get_potion_data():
+    """獲取藥水詳情數據的API"""
+    try:
+        # 獲取使用者ID
+        user_id = session.get('user', {}).get('uid')
+        if not user_id:
+            return jsonify({'success': False, 'message': '使用者未登入'})
+        
+        # 初始化 Firestore 客戶端
+        if not firebase_admin._apps:
+            firebase_admin.initialize_app()
+        db = firestore.client()
+        
+        # 獲取藥水數據
+        potion_data = []
+        potion_types = ['normal', 'advanced', 'premium']
+        
+        for potion_type in potion_types:
+            # 從背包中獲取數量（Firebase中存儲為 {type}_potion）
+            firebase_key = f"{potion_type}_potion"
+            item_ref = db.collection('users').document(user_id).collection('user_backpack').document(firebase_key)
+            item_doc = item_ref.get()
+            count = item_doc.to_dict().get('count', 0) if item_doc.exists else 0
+            
+            potion_data.append({
+                'key': potion_type,
+                'count': count
+            })
+        
+        return jsonify({
+            'success': True,
+            'potions': potion_data
+        })
+        
+    except Exception as e:
+        print(f"獲取藥水數據錯誤: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': f'獲取藥水數據失敗: {str(e)}'
+        })

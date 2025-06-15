@@ -86,14 +86,71 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // 載入藥水列表
-function loadPotions() {
+async function loadPotions() {
   const grid = document.getElementById('potion-grid');
   if (!grid) return;
   
-  potionData.forEach((item, index) => {
-    const card = createItemCard(item, index);
-    grid.appendChild(card);
-  });
+  try {
+    // 從API獲取藥水數據
+    const response = await fetch('/bylin/api/potion-data');
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(data.message);
+    }
+    
+    // 清空現有內容
+    grid.innerHTML = '';
+    
+    // 合併API數據與靜態數據
+    const combinedData = potionData.map(staticItem => {
+      const apiItem = data.potions.find(api => api.key === staticItem.key);
+      return {
+        ...staticItem,
+        quantity: apiItem ? apiItem.count : 0
+      };
+    });
+    
+    combinedData.forEach((item, index) => {
+      const card = createItemCard(item, index);
+      grid.appendChild(card);
+    });
+    
+    // 應用主題到新內容
+    grid.querySelectorAll('.item-detail-card').forEach(card => {
+      applyThemeToNewContent(card);
+    });
+    
+    console.log('✅ 藥水數據載入完成:', combinedData);
+    
+  } catch (error) {
+    console.error('❌ 載入藥水數據失敗:', error);
+    // 顯示錯誤消息
+    grid.innerHTML = `
+      <div class="error-message" style="
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 40px;
+        background: var(--card-bg);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        color: var(--details-text-color);
+      ">
+        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #ff6b6b; margin-bottom: 10px;"></i>
+        <h3>載入失敗</h3>
+        <p>無法從伺服器獲取藥水數據：${error.message}</p>
+        <button onclick="loadPotions()" style="
+          margin-top: 10px;
+          padding: 8px 16px;
+          background: var(--accent-color);
+          color: white;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+        ">重新載入</button>
+      </div>
+    `;
+  }
 }
 
 // 創建道具卡片
@@ -129,18 +186,17 @@ function createItemCard(item, index) {
         <h4><i class="fas fa-book"></i> 道具故事</h4>
         <p>${item.story}</p>
       </div>
-      
-      <div class="item-quantity">
+        <div class="item-quantity">
         <span class="quantity-label">剩餘數量</span>
         <span class="quantity-value">
           <i class="fas fa-box"></i>
-          ${item.usageCount} 個
+          ${item.quantity || 0} 瓶
         </span>
       </div>
       
       <div class="item-actions">
-        <button class="use-potion-btn" data-item-index="${index}">
-          <i class="fas fa-magic"></i> 使用藥水
+        <button class="use-potion-btn" data-item-key="${item.key}" ${(item.quantity || 0) <= 0 ? 'disabled' : ''}>
+          <i class="fas fa-magic"></i> ${(item.quantity || 0) <= 0 ? '已用完' : '使用藥水'}
         </button>
       </div>
     </div>
@@ -185,32 +241,74 @@ function applyThemeToNewContent(element) {
 }
 
 // 初始化使用按鈕事件
-function initUseButtons() {
-  // 使用事件委派處理動態生成的按鈕
+function initUseButtons() {  // 使用事件委派處理動態生成的按鈕
   document.addEventListener('click', function(e) {
     if (e.target.classList.contains('use-potion-btn') || e.target.closest('.use-potion-btn')) {
       const btn = e.target.classList.contains('use-potion-btn') ? e.target : e.target.closest('.use-potion-btn');
-      const itemIndex = parseInt(btn.getAttribute('data-item-index'));
-      const item = potionData[itemIndex];
+      const itemKey = btn.getAttribute('data-item-key');
       
-      if (item && item.usageCount > 0) {
-        usePotionItem(item, itemIndex, btn);
-      } else {
+      if (btn.disabled) {
         showNotification('此藥水已用完！', 'warning');
+        return;
       }
+      
+      usePotionItem(itemKey, btn);
     }
   });
 }
 
 // 使用藥水
-function usePotionItem(item, index, button) {
-  // 減少使用次數
-  item.usageCount--;
+async function usePotionItem(itemKey, button) {
+  if (!itemKey) {
+    showNotification('道具資訊錯誤', 'warning');
+    return;
+  }
   
-  // 更新顯示
-  const card = button.closest('.item-detail-card');
-  const quantityElement = card.querySelector('.quantity-value');
-  quantityElement.innerHTML = `<i class="fas fa-box"></i> ${item.usageCount} 個`;
+  // 禁用按鈕防止重複點擊
+  button.disabled = true;
+  const originalText = button.innerHTML;
+  button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 使用中...';
+  
+  try {
+    const response = await fetch('/bylin/use-item', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        type: 'potion',
+        key: itemKey
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      showNotification(`成功使用 ${getPotionName(itemKey)}！`, 'success');
+      // 重新載入數據以更新數量
+      await loadPotions();
+    } else {
+      throw new Error(data.message || '使用失敗');
+    }
+    
+  } catch (error) {
+    console.error('使用藥水失敗:', error);
+    showNotification(`使用失敗: ${error.message}`, 'warning');
+    
+    // 恢復按鈕狀態
+    button.disabled = false;
+    button.innerHTML = originalText;
+  }
+}
+
+// 獲取藥水名稱
+function getPotionName(key) {
+  const names = {
+    'normal': '普通藥水',
+    'advanced': '進階藥水',
+    'premium': '高級藥水'
+  };
+  return names[key] || '未知藥水';
   
   // 如果用完了，禁用按鈕
   if (item.usageCount <= 0) {

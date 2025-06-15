@@ -83,14 +83,48 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // 載入魔法陣列表
-function loadMagicCircles() {
+async function loadMagicCircles() {
   const grid = document.getElementById('magic-circle-grid');
   if (!grid) return;
   
-  magicCircleData.forEach((item, index) => {
-    const card = createItemCard(item, index);
-    grid.appendChild(card);
-  });
+  try {
+    // 從API獲取魔法陣數據
+    const response = await fetch('/bylin/api/magic-circle-data');
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(data.message);
+    }
+    
+    // 清空現有內容
+    grid.innerHTML = '';
+    
+    // 合併API數據與靜態數據
+    const combinedData = magicCircleData.map(staticItem => {
+      const apiItem = data.magic_circles.find(api => api.key === staticItem.key);
+      return {
+        ...staticItem,
+        quantity: apiItem ? apiItem.count : 0
+      };
+    });    
+    combinedData.forEach((item, index) => {
+      const card = createItemCard(item, index);
+      grid.appendChild(card);
+    });
+    
+    // 更新統計數據
+    updateSummary();
+    
+  } catch (error) {
+    console.error('載入魔法陣數據失敗:', error);
+    showNotification('載入數據失敗: ' + error.message, 'warning');
+    
+    // 載入失敗時使用預設數據
+    magicCircleData.forEach((item, index) => {
+      const card = createItemCard(item, index);
+      grid.appendChild(card);
+    });
+  }
 }
 
 // 創建道具卡片
@@ -126,12 +160,11 @@ function createItemCard(item, index) {
         <h4><i class="fas fa-book"></i> 道具故事</h4>
         <p>${item.story}</p>
       </div>
-      
-      <div class="item-quantity">
+        <div class="item-quantity">
         <span class="quantity-label">剩餘數量</span>
         <span class="quantity-value">
           <i class="fas fa-box"></i>
-          ${item.usageCount} 個
+          ${item.quantity || 0} 個
         </span>
       </div>
     </div>
