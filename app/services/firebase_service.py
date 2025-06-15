@@ -1883,9 +1883,29 @@ class FirebaseService:
                         'completed_at': time.time()
                     }
                 })
-            
             print(f">>> DEBUG: 基地道館保存成功: {gym_data.get('gym_name')}")
             print(f">>> DEBUG: 已保存到 user_base_gyms 集合和 users/{user_id}/user_arenas 子集合")
+            
+            # 觸發成就檢查 - 道館佔領成就
+            try:
+                print(f">>> DEBUG: 觸發道館佔領成就檢查，用戶ID: {user_id}")
+                triggered_achievements = self.trigger_achievement_check(
+                    user_id,
+                    'gym_occupied',
+                    {
+                        'gym_id': gym_data.get('gym_id'),
+                        'gym_name': gym_data.get('gym_name'),
+                        'is_base_gym': True
+                    }
+                )
+                
+                # 記錄新獲得的成就
+                if triggered_achievements:
+                    print(f">>> DEBUG: 用戶獲得道館成就: {[ach.get('achievement_name', ach.get('achievement_id')) for ach in triggered_achievements]}")
+                    
+            except Exception as achievement_error:
+                print(f">>> ERROR: 觸發道館佔領成就檢查失敗: {achievement_error}")
+                # 不影響道館建立結果，僅記錄錯誤
             
             return {
                 'status': 'success',
@@ -2380,22 +2400,28 @@ class FirebaseService:
                     result = self.check_and_update_achievement(user_id, ach_id)
                     if result.get('status') == 'success' and result.get('completed'):
                         triggered_achievements.append(result)
-            
             elif event_type == 'friend_added':
                 # 檢查交友成就
+                user_friends_count = self._get_user_friends_count(user_id)
                 friend_achievements = ['ACH-FRIEND-001', 'ACH-FRIEND-002', 'ACH-FRIEND-003', 'ACH-FRIEND-004']
+                
                 for ach_id in friend_achievements:
-                    result = self.check_and_update_achievement(user_id, ach_id)
-                    if result.get('status') == 'success' and result.get('completed'):
-                        triggered_achievements.append(result)
-            
+                    achievement_def = get_achievement_by_id(ach_id)
+                    if achievement_def and user_friends_count >= achievement_def.target_value:
+                        result = self.check_and_update_achievement(user_id, ach_id, achievement_def.target_value)
+                        if result.get('status') == 'success' and result.get('completed'):
+                            triggered_achievements.append(result)
             elif event_type == 'gym_occupied':
                 # 檢查道館佔領成就
+                user_gyms_count = self._get_user_gyms_count(user_id)
                 gym_achievements = ['ACH-GYM-001', 'ACH-GYM-002', 'ACH-GYM-003', 'ACH-GYM-004']
+                
                 for ach_id in gym_achievements:
-                    result = self.check_and_update_achievement(user_id, ach_id)
-                    if result.get('status') == 'success' and result.get('completed'):
-                        triggered_achievements.append(result)
+                    achievement_def = get_achievement_by_id(ach_id)
+                    if achievement_def and user_gyms_count >= achievement_def.target_value:
+                        result = self.check_and_update_achievement(user_id, ach_id, achievement_def.target_value)
+                        if result.get('status') == 'success' and result.get('completed'):
+                            triggered_achievements.append(result)
             
             elif event_type == 'daily_login':
                 # 檢查登入天數成就
@@ -2556,3 +2582,37 @@ class FirebaseService:
                 
         except Exception as e:
             print(f"更新用戶登入統計失敗: {e}")
+    
+    def _get_user_gyms_count(self, user_id):
+        """獲取用戶佔領的道館數量
+        
+        Args:
+            user_id (str): 用戶ID
+            
+        Returns:
+            int: 道館數量
+        """
+        try:
+            user_ref = self.firestore_db.collection('users').document(user_id)
+            user_arenas = user_ref.collection('user_arenas').where('status', '==', 'occupied').get()
+            return len(user_arenas)
+        except Exception as e:
+            print(f"獲取用戶道館數量失敗: {e}")
+            return 0
+    
+    def _get_user_friends_count(self, user_id):
+        """獲取用戶好友數量
+        
+        Args:
+            user_id (str): 用戶ID
+            
+        Returns:
+            int: 好友數量
+        """
+        try:
+            user_ref = self.firestore_db.collection('users').document(user_id)
+            friends = user_ref.collection('friends').where('status', '==', 'active').get()
+            return len(friends)
+        except Exception as e:
+            print(f"獲取用戶好友數量失敗: {e}")
+            return 0

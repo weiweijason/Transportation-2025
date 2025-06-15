@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 測試介面 - Spirit Bus</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .test-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .method-select {
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .method-select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+        }
+        
+        .url-input {
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+        }
+        
+        .url-input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+        }
+        
+        .test-btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .test-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+        
+        .response-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .status-success { color: #28a745; font-weight: bold; }
+        .status-error { color: #dc3545; font-weight: bold; }
+        .status-warning { color: #ffc107; font-weight: bold; }
+        
+        .headers-section {
+            background: #f1f3f4;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .json-viewer {
+            background: #282c34;
+            color: #abb2bf;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            max-height: 400px;
+        }
+        
+        .quick-tests {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .quick-test-btn {
+            margin: 5px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .quick-test-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .parameter-input {
+            margin-bottom: 10px;
+        }
+        
+        .parameter-input label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .auth-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="test-container">
+            <!-- 標題 -->
+            <div class="text-center mb-4">
+                <h1 class="display-5">
+                    <i class="fas fa-flask text-primary"></i>
+                    API 測試介面
+                </h1>
+                <p class="text-muted">測試您的 API 端點並查看響應結果</p>
+                <a href="/api-docs" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> 返回文檔
+                </a>
+            </div>
+            
+            <!-- 快速測試按鈕 -->
+            <div class="quick-tests">
+                <h5 class="mb-3">
+                    <i class="fas fa-zap text-warning"></i>
+                    快速測試
+                </h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-outline-primary quick-test-btn" onclick="quickTest('/bylin/api/backpack', 'GET')">
+                            <i class="fas fa-backpack"></i> 背包 API
+                        </button>
+                        <button class="btn btn-outline-success quick-test-btn" onclick="quickTest('/achievement/api/user_achievements', 'GET')">
+                            <i class="fas fa-trophy"></i> 成就 API
+                        </button>
+                        <button class="btn btn-outline-info quick-test-btn" onclick="quickTest('/friend-fight/room_status/test', 'GET')">
+                            <i class="fas fa-users"></i> 房間狀態
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-outline-warning quick-test-btn" onclick="quickTest('/community/friends', 'GET')">
+                            <i class="fas fa-user-friends"></i> 好友列表
+                        </button>
+                        <button class="btn btn-outline-secondary quick-test-btn" onclick="quickTest('/', 'GET')">
+                            <i class="fas fa-home"></i> 首頁
+                        </button>
+                        <button class="btn btn-outline-dark quick-test-btn" onclick="quickTest('/bylin/myelf', 'GET')">
+                            <i class="fas fa-dragon"></i> 我的精靈
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 測試表單 -->
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-cog"></i>
+                                請求設定
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="test-form">
+                                <!-- HTTP 方法 -->
+                                <div class="mb-3">
+                                    <label for="method-select" class="form-label">HTTP 方法</label>
+                                    <select class="form-select method-select" id="method-select">
+                                        <option value="GET">GET</option>
+                                        <option value="POST">POST</option>
+                                        <option value="PUT">PUT</option>
+                                        <option value="DELETE">DELETE</option>
+                                        <option value="PATCH">PATCH</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- URL -->
+                                <div class="mb-3">
+                                    <label for="url-input" class="form-label">API URL</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-link"></i>
+                                        </span>
+                                        <input type="text" 
+                                               class="form-control url-input" 
+                                               id="url-input" 
+                                               placeholder="/api/endpoint"
+                                               value="">
+                                    </div>
+                                </div>
+                                
+                                <!-- 請求標頭 -->
+                                <div class="mb-3">
+                                    <label for="headers-input" class="form-label">
+                                        請求標頭 (JSON 格式)
+                                    </label>
+                                    <textarea class="form-control" 
+                                              id="headers-input" 
+                                              rows="3" 
+                                              placeholder='{"Content-Type": "application/json"}'></textarea>
+                                </div>
+                                
+                                <!-- 請求主體 -->
+                                <div class="mb-3" id="body-section">
+                                    <label for="body-input" class="form-label">
+                                        請求主體 (JSON 格式)
+                                    </label>
+                                    <textarea class="form-control" 
+                                              id="body-input" 
+                                              rows="5" 
+                                              placeholder='{"key": "value"}'></textarea>
+                                </div>
+                                
+                                <!-- 認證警告 -->
+                                <div class="auth-section">
+                                    <i class="fas fa-info-circle text-warning"></i>
+                                    <strong>注意：</strong> 某些 API 需要登入才能訪問。請確保您已登入系統。
+                                </div>
+                                
+                                <!-- 測試按鈕 -->
+                                <button type="submit" class="btn test-btn w-100">
+                                    <i class="fas fa-play"></i>
+                                    發送請求
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-line"></i>
+                                響應結果
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="response-container">
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-arrow-left fa-2x mb-3"></i>
+                                    <p>在左側設定請求參數並點擊「發送請求」</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        // 從 URL 參數獲取預設值
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                url: params.get('url') || '',
+                method: params.get('method') || 'GET'
+            };
+        }
+        
+        // 初始化表單
+        function initializeForm() {
+            const params = getUrlParams();
+            if (params.url) {
+                document.getElementById('url-input').value = params.url;
+            }
+            if (params.method) {
+                document.getElementById('method-select').value = params.method;
+            }
+            
+            // 根據方法顯示/隱藏請求主體
+            toggleBodySection();
+        }
+        
+        // 切換請求主體區域顯示
+        function toggleBodySection() {
+            const method = document.getElementById('method-select').value;
+            const bodySection = document.getElementById('body-section');
+            
+            if (method === 'GET' || method === 'DELETE') {
+                bodySection.style.display = 'none';
+            } else {
+                bodySection.style.display = 'block';
+            }
+        }
+        
+        // 快速測試
+        function quickTest(url, method) {
+            document.getElementById('url-input').value = url;
+            document.getElementById('method-select').value = method;
+            toggleBodySection();
+            
+            // 自動發送請求
+            setTimeout(() => {
+                document.getElementById('test-form').dispatchEvent(new Event('submit'));
+            }, 100);
+        }
+        
+        // 發送 API 請求
+        async function sendRequest(method, url, headers, body) {
+            const requestOptions = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...headers
+                },
+                credentials: 'same-origin' // 包含 cookies 以保持登入狀態
+            };
+            
+            if (body && (method !== 'GET' && method !== 'DELETE')) {
+                requestOptions.body = JSON.stringify(body);
+            }
+            
+            const startTime = Date.now();
+            
+            try {
+                const response = await fetch(url, requestOptions);
+                const endTime = Date.now();
+                const responseTime = endTime - startTime;
+                
+                // 獲取響應標頭
+                const responseHeaders = {};
+                response.headers.forEach((value, key) => {
+                    responseHeaders[key] = value;
+                });
+                
+                // 嘗試解析 JSON 響應
+                let responseData;
+                const contentType = response.headers.get('content-type');
+                
+                if (contentType && contentType.includes('application/json')) {
+                    responseData = await response.json();
+                } else {
+                    responseData = await response.text();
+                }
+                
+                return {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: responseHeaders,
+                    data: responseData,
+                    responseTime: responseTime,
+                    ok: response.ok
+                };
+            } catch (error) {
+                return {
+                    error: true,
+                    message: error.message,
+                    responseTime: Date.now() - startTime
+                };
+            }
+        }
+        
+        // 顯示響應結果
+        function displayResponse(result) {
+            const container = document.getElementById('response-container');
+            
+            if (result.error) {
+                container.innerHTML = `
+                    <div class="response-section">
+                        <h6 class="status-error">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            請求失敗
+                        </h6>
+                        <p><strong>錯誤訊息：</strong> ${result.message}</p>
+                        <p><strong>響應時間：</strong> ${result.responseTime}ms</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const statusClass = result.ok ? 'status-success' : 
+                               result.status >= 400 ? 'status-error' : 'status-warning';
+            
+            let dataDisplay;
+            if (typeof result.data === 'object') {
+                dataDisplay = `
+                    <div class="json-viewer">
+                        <pre><code class="language-json">${JSON.stringify(result.data, null, 2)}</code></pre>
+                    </div>
+                `;
+            } else {
+                dataDisplay = `
+                    <div class="json-viewer">
+                        <pre><code>${result.data}</code></pre>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = `
+                <div class="response-section">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="${statusClass}">
+                            <i class="fas fa-check-circle"></i>
+                            ${result.status} ${result.statusText}
+                        </h6>
+                        <small class="text-muted">${result.responseTime}ms</small>
+                    </div>
+                    
+                    <div class="headers-section">
+                        <h6><i class="fas fa-list"></i> 響應標頭</h6>
+                        <pre><code class="language-json">${JSON.stringify(result.headers, null, 2)}</code></pre>
+                    </div>
+                    
+                    <div>
+                        <h6><i class="fas fa-database"></i> 響應資料</h6>
+                        ${dataDisplay}
+                    </div>
+                </div>
+            `;
+            
+            // 重新高亮代碼
+            Prism.highlightAll();
+        }
+        
+        // 顯示載入狀態
+        function showLoading() {
+            document.getElementById('response-container').innerHTML = `
+                <div class="text-center">
+                    <div class="loading-spinner"></div>
+                    <p class="text-muted">正在發送請求...</p>
+                </div>
+            `;
+        }
+        
+        // 事件監聽器
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeForm();
+            
+            // 方法選擇變更時切換請求主體顯示
+            document.getElementById('method-select').addEventListener('change', toggleBodySection);
+            
+            // 表單提交
+            document.getElementById('test-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const method = document.getElementById('method-select').value;
+                const url = document.getElementById('url-input').value;
+                const headersText = document.getElementById('headers-input').value;
+                const bodyText = document.getElementById('body-input').value;
+                
+                if (!url) {
+                    alert('請輸入 API URL');
+                    return;
+                }
+                
+                // 解析標頭和主體
+                let headers = {};
+                let body = null;
+                
+                try {
+                    if (headersText.trim()) {
+                        headers = JSON.parse(headersText);
+                    }
+                } catch (e) {
+                    alert('請求標頭格式錯誤，請使用有效的 JSON 格式');
+                    return;
+                }
+                
+                try {
+                    if (bodyText.trim() && method !== 'GET' && method !== 'DELETE') {
+                        body = JSON.parse(bodyText);
+                    }
+                } catch (e) {
+                    alert('請求主體格式錯誤，請使用有效的 JSON 格式');
+                    return;
+                }
+                
+                showLoading();
+                
+                const result = await sendRequest(method, url, headers, body);
+                displayResponse(result);
+            });
+        });
+    </script>
+</body>
+</html>
