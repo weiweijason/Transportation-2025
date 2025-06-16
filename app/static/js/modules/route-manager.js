@@ -180,56 +180,80 @@ function loadBrown3Route() {
     console.log('載入棕3路線');
     showLoading();
     
-    fetch('/game/api/bus/brown-3-route')
-        .then(response => response.json())
-        .then(data => {
-            console.log('獲取到棕3路線資料:', data);
-            
-            // 解析路線座標
-            if (data && Array.isArray(data)) {
-                let coordinates = [];
-                
-                // 提取路線座標點
-                data.forEach(point => {
-                    if (point.PositionLat && point.PositionLon) {
-                        coordinates.push([point.PositionLat, point.PositionLon]);
-                    }
-                });
-                
-                if (coordinates.length > 0) {
-                    // 儲存路線座標
-                    routeCoordinates['brown-3'] = coordinates;
-                    
-                    // 創建路線
-                    const polyline = L.polyline(coordinates, {
-                        color: routeColors['brown-3'],
-                        weight: 5,
-                        opacity: 0.8
-                    }).addTo(routeLayer);
-                    
-                    // 添加路線資訊彈窗
-                    polyline.bindPopup(`
-                        <div style="font-weight:bold;font-size:16px;">棕3路線</div>
-                        <div>方向: 起點 → 終點</div>
-                    `);
-                    
-                    console.log('棕3路線繪製完成，座標點數量:', coordinates.length);
-                } else {
-                    console.warn('棕3路線座標解析失敗，使用備用座標');
-                    useBackupRoute('brown-3');
+    // 添加重試機制
+    const attemptLoad = (attempt = 1, maxAttempts = 3) => {
+        console.log(`嘗試載入棕3路線 (第${attempt}次)`);
+        
+        fetch('/game/api/bus/brown-3-route')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
-            } else {
-                console.warn('棕3路線資料格式不正確，使用備用資料');
-                useBackupRoute('brown-3');
-            }
-        })
-        .catch(error => {
-            console.error('獲取棕3路線資料失敗:', error);
-            useBackupRoute('brown-3');
-        })
-        .finally(() => {
-            hideLoading();
-        });
+                return response.json();
+            })
+            .then(data => {
+                console.log('獲取到棕3路線資料:', data);
+                
+                // 解析路線座標
+                if (data && Array.isArray(data) && data.length > 0) {
+                    let coordinates = [];
+                    
+                    // 提取路線座標點
+                    data.forEach(point => {
+                        if (point.PositionLat && point.PositionLon) {
+                            coordinates.push([point.PositionLat, point.PositionLon]);
+                        }
+                    });
+                    
+                    if (coordinates.length > 0) {
+                        // 儲存路線座標
+                        routeCoordinates['brown-3'] = coordinates;
+                        
+                        // 創建路線
+                        const polyline = L.polyline(coordinates, {
+                            color: routeColors['brown-3'],
+                            weight: 5,
+                            opacity: 0.8
+                        }).addTo(routeLayer);
+                        
+                        // 添加路線資訊彈窗
+                        polyline.bindPopup(`
+                            <div style="font-weight:bold;font-size:16px;">棕3路線</div>
+                            <div>方向: 起點 → 終點</div>
+                        `);
+                        
+                        console.log('✅ 棕3路線繪製完成，座標點數量:', coordinates.length);
+                        hideLoading();
+                        return; // 成功載入，退出函數
+                    }
+                }
+                
+                // 資料不完整，嘗試重試或使用備用資料
+                if (attempt < maxAttempts) {
+                    console.warn(`棕3路線資料不完整，將進行第${attempt + 1}次重試`);
+                    setTimeout(() => attemptLoad(attempt + 1, maxAttempts), 2000);
+                } else {
+                    console.warn('棕3路線資料載入失敗，使用備用座標');
+                    useBackupRoute('brown-3');
+                    hideLoading();
+                }
+            })
+            .catch(error => {
+                console.error(`獲取棕3路線資料失敗 (第${attempt}次):`, error);
+                
+                if (attempt < maxAttempts) {
+                    console.log(`將在2秒後進行第${attempt + 1}次重試`);
+                    setTimeout(() => attemptLoad(attempt + 1, maxAttempts), 2000);
+                } else {
+                    console.error('棕3路線載入重試次數已用盡，使用備用資料');
+                    useBackupRoute('brown-3');
+                    hideLoading();
+                }
+            });
+    };
+    
+    // 開始首次載入嘗試
+    attemptLoad();
 }
 
 // 使用備用路線資料（當API獲取失敗時）
@@ -247,15 +271,15 @@ function useBackupRoute(routeKey) {
                 [25.0273, 121.5321]  // 動物園站
             ];
             break;
-            
-        case 'cat-left':
+              case 'cat-left':
             coordinates = [
                 [25.0273, 121.5321], // 動物園站
                 [25.0298, 121.5332], // 中途點
                 [25.0323, 121.5342]  // 貓空站
             ];
             break;
-              case 'cat-left-zhinan':
+            
+        case 'cat-left-zhinan':
             // 修正貓空左線(指南宮)的備用路線座標
             coordinates = [
                 [25.0323, 121.5342], // 貓空站
@@ -272,14 +296,6 @@ function useBackupRoute(routeKey) {
                 [25.0420, 121.5520], // 中途點1
                 [25.0440, 121.5540], // 中途點2
                 [25.0460, 121.5560]  // 終點站
-            ];
-            break;
-            
-        case 'brown-3':
-            coordinates = [
-                [25.0330, 121.5350], // 起點
-                [25.0340, 121.5360], // 中途點
-                [25.0350, 121.5370], // 終點
             ];
             break;
     }
@@ -305,15 +321,13 @@ function useBackupRoute(routeKey) {
             break;
         case 'cat-left':
             routeName = '貓空纜車左線(動物園)';
-            direction = '動物園 → 貓空';
-            break;        case 'cat-left-zhinan':
+            direction = '動物園 → 貓空';            break;
+            
+        case 'cat-left-zhinan':
             routeName = '貓空纜車左線(指南宮)';
             direction = '貓空 → 指南宮';
             break;
-        case 'brown-3':
-            routeName = '棕3路線';
-            direction = '起點 → 終點';
-            break;
+            
         case 'brown-3':
             routeName = '棕3路線';
             direction = '起點 → 終點';

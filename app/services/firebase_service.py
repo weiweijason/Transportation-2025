@@ -944,7 +944,7 @@ class FirebaseService:
                 print("警告: 無法從路線數據中獲取座標點，使用預設位置範圍")
                 # 使用硬編碼的預設位置範圍 (台北市範圍)
                 for _ in range(count):
-                    lat = random.uniform(25.01, 25.10)  # 台北市緯度範圍
+                    lat = random.uniform(25.01, 25.10)  # 台北市緫度範圍
                     lng = random.uniform(121.50, 121.60)  # 台北市經度範圍
                     positions.append({'lat': lat, 'lng': lng})
             
@@ -1637,7 +1637,7 @@ class FirebaseService:
             print(f">>> DEBUG: 錯誤詳情: {traceback.format_exc()}")
             return {
                 'status': 'error',
-                'message': f'捕捉教學精靈失敗: {str(e)}'
+                               'message': f'捕捉教學精靈失敗: {str(e)}'
             }
 
     def save_tutorial_creature(self, user_id, creature_data):
@@ -2229,8 +2229,7 @@ class FirebaseService:
             total_achievements = len(ACHIEVEMENTS)
             completed_achievements = sum(1 for ach in user_achievements.values() if ach['completed'])
             completion_rate = (completed_achievements / total_achievements * 100) if total_achievements > 0 else 0
-            
-            # 獲取最近完成的成就（最近7天）
+              # 獲取最近完成的成就（最近7天）
             recent_time = time.time() - (7 * 24 * 60 * 60)  # 7天前
             recent_achievements = sum(1 for ach in user_achievements.values() 
                                    if ach['completed'] and ach.get('completed_at', 0) > recent_time)
@@ -2346,8 +2345,7 @@ class FirebaseService:
                     'achievement_points': current_points + points
                 })
             else:
-                user_ref.update({
-                    'achievement_points': points
+                user_ref.update({                    'achievement_points': points
                 })
                 
         except Exception as e:
@@ -2365,6 +2363,7 @@ class FirebaseService:
             list: 觸發的成就列表
         """
         try:
+            from app.models.achievement import get_achievement_by_id
             triggered_achievements = []
             
             # 根據事件類型檢查相應的成就
@@ -2396,8 +2395,7 @@ class FirebaseService:
                 result = self.check_and_update_achievement(user_id, 'ACH-ARENA-001')
                 if result.get('status') == 'success' and result.get('completed'):
                     triggered_achievements.append(result)
-                
-                # 檢查其他競技場成就
+                  # 檢查其他競技場成就
                 arena_achievements = ['ACH-ARENA-002', 'ACH-ARENA-003', 'ACH-ARENA-004']
                 for ach_id in arena_achievements:
                     result = self.check_and_update_achievement(user_id, ach_id)
@@ -2410,7 +2408,7 @@ class FirebaseService:
                 for ach_id in victory_achievements:
                     result = self.check_and_update_achievement(user_id, ach_id)
                     if result.get('status') == 'success' and result.get('completed'):
-                        triggered_achievements.append(result)
+                        triggered_achievements.append(result)            
             elif event_type == 'friend_added':
                 # 檢查交友成就
                 user_friends_count = self._get_user_friends_count(user_id)
@@ -2419,7 +2417,7 @@ class FirebaseService:
                 for ach_id in friend_achievements:
                     achievement_def = get_achievement_by_id(ach_id)
                     if achievement_def and user_friends_count >= achievement_def.target_value:
-                        result = self.check_and_update_achievement(user_id, ach_id, achievement_def.target_value)
+                        result = self._check_and_complete_achievement(user_id, ach_id, user_friends_count)
                         if result.get('status') == 'success' and result.get('completed'):
                             triggered_achievements.append(result)
             elif event_type == 'gym_occupied':
@@ -2627,3 +2625,84 @@ class FirebaseService:
         except Exception as e:
             print(f"獲取用戶好友數量失敗: {e}")
             return 0
+
+    def _check_and_complete_achievement(self, user_id, achievement_id, current_count):
+        """檢查並完成成就（用於絕對值檢查）
+        
+        Args:
+            user_id (str): 用戶ID
+            achievement_id (str): 成就ID
+            current_count (int): 當前數量
+            
+        Returns:
+            dict: 更新結果
+        """
+        try:
+            from app.models.achievement import get_achievement_by_id
+            
+            user_ref = self.firestore_db.collection('users').document(user_id)
+            achievement_ref = user_ref.collection('user_achievements').document(achievement_id)
+            achievement_doc = achievement_ref.get()
+            
+            if not achievement_doc.exists:
+                # 如果成就不存在，初始化用戶成就
+                self.initialize_user_achievements(user_id)
+                achievement_doc = achievement_ref.get()
+            
+            achievement_data = achievement_doc.to_dict()
+            achievement_def = get_achievement_by_id(achievement_id)
+            
+            if not achievement_def:
+                return {'status': 'error', 'message': '成就定義不存在'}
+            
+            # 如果已經完成，不需要更新
+            if achievement_data.get('completed', False):
+                return {'status': 'already_completed'}
+            
+            # 檢查是否達到目標
+            target_value = achievement_def.target_value
+            completed = current_count >= target_value
+            
+            if completed:
+                update_data = {
+                    'progress': target_value,
+                    'completed': True,
+                    'completed_at': time.time()
+                }
+                
+                achievement_ref.update(update_data)
+                
+                # 更新用戶總成就點數
+                self._add_achievement_points(user_id, achievement_def.reward_points)
+                
+                return {
+                    'status': 'success',
+                    'achievement_id': achievement_id,
+                    'progress': target_value,
+                    'target_value': target_value,
+                    'completed': True,
+                    'achievement_name': achievement_def.name,
+                    'reward_points': achievement_def.reward_points,
+                    'message': f'恭喜！獲得成就「{achievement_def.name}」！'
+                }
+            else:
+                # 更新進度但未完成
+                update_data = {
+                    'progress': current_count
+                }
+                achievement_ref.update(update_data)
+                
+                return {
+                    'status': 'progress_updated',
+                    'achievement_id': achievement_id,
+                    'progress': current_count,
+                    'target_value': target_value,
+                    'completed': False
+                }
+                
+        except Exception as e:
+            print(f"檢查成就完成狀態失敗: {e}")
+            return {
+                'status': 'error',
+                'message': f'檢查成就失敗: {str(e)}'
+            }

@@ -307,3 +307,188 @@ def sync_arena_to_firebase(arena_id):
             'success': False,
             'message': f'同步道館資料時發生錯誤: {str(e)}'
         }), 500
+
+@arena_bp.route('/check-exists', methods=['POST'])
+def check_arena_exists():
+    """檢查道館是否存在"""
+    try:
+        data = request.json
+        arena_name = data.get('name')
+        
+        if not arena_name:
+            return jsonify({'success': False, 'message': '缺少道館名稱'}), 400
+        
+        firebase_service = FirebaseService()
+        
+        # 檢查 Firestore 中是否存在
+        arenas_ref = firebase_service.firestore_db.collection('arenas')
+        query = arenas_ref.where('name', '==', arena_name).limit(1)
+        docs = query.get()
+        
+        if docs:
+            arena_data = docs[0].to_dict()
+            return jsonify({
+                'success': True,
+                'exists': True,
+                'arena': arena_data
+            })
+        else:
+            return jsonify({
+                'success': True,
+                'exists': False
+            })
+            
+    except Exception as e:
+        current_app.logger.error(f"檢查道館存在時出錯: {e}")
+        return jsonify({'success': False, 'message': f'檢查失敗: {str(e)}'}), 500
+
+@arena_bp.route('/save-to-firebase', methods=['POST'])
+@login_required
+def save_arena_to_firebase():
+    """保存道館到 Firebase"""
+    try:
+        data = request.json
+        
+        # 驗證必要欄位
+        required_fields = ['id', 'name', 'position', 'level']
+        if not all(data.get(field) for field in required_fields):
+            return jsonify({'success': False, 'message': '缺少必要資訊'}), 400
+        
+        firebase_service = FirebaseService()
+        
+        # 檢查是否已存在
+        arenas_ref = firebase_service.firestore_db.collection('arenas')
+        existing_query = arenas_ref.where('name', '==', data['name']).limit(1)
+        existing_docs = existing_query.get()
+        
+        if existing_docs:
+            return jsonify({
+                'success': True,
+                'message': '道館已存在，無需保存',
+                'exists': True
+            })
+        
+        # 準備道館數據
+        arena_data = {
+            'id': data['id'],
+            'name': data['name'],
+            'position': data['position'],
+            'level': data['level'],
+            'routes': data.get('routes', []),
+            'routeName': data.get('routeName', ''),
+            'stopIds': data.get('stopIds', []),
+            'stopName': data.get('stopName', ''),
+            'owner': None,
+            'ownerPlayerId': None,
+            'ownerCreature': None,
+            'challengers': [],
+            'updatedAt': firebase_service.firestore_db.SERVER_TIMESTAMP,
+            'createdAt': firebase_service.firestore_db.SERVER_TIMESTAMP
+        }
+        
+        # 保存到 Firestore
+        arena_ref = arenas_ref.document(data['id'])
+        arena_ref.set(arena_data)
+        
+        # 驗證保存結果
+        saved_doc = arena_ref.get()
+        if saved_doc.exists:
+            return jsonify({
+                'success': True,
+                'message': '道館已成功保存',
+                'arena': saved_doc.to_dict()
+            })
+        else:
+            return jsonify({'success': False, 'message': '保存後驗證失敗'}), 500
+            
+    except Exception as e:
+        current_app.logger.error(f"保存道館到Firebase時出錯: {e}")
+        return jsonify({'success': False, 'message': f'保存失敗: {str(e)}'}), 500
+
+@arena_bp.route('/check/<arena_name>')
+def check_arena_by_name(arena_name):
+    """檢查道館是否存在 (GET方式)"""
+    try:
+        if not arena_name:
+            return jsonify({'success': False, 'message': '缺少道館名稱'}), 400
+        
+        firebase_service = FirebaseService()
+        
+        # 檢查 Firestore 中是否存在
+        arenas_ref = firebase_service.firestore_db.collection('arenas')
+        query = arenas_ref.where('name', '==', arena_name).limit(1)
+        docs = query.get()
+        
+        if docs:
+            arena_data = docs[0].to_dict()
+            return jsonify({
+                'success': True,
+                'exists': True,
+                'arena': arena_data
+            })
+        else:
+            return jsonify({
+                'success': True,
+                'exists': False
+            })
+            
+    except Exception as e:
+        current_app.logger.error(f"檢查道館時出錯: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@arena_bp.route('/update-routes', methods=['POST'])
+@login_required
+def update_arena_routes():
+    """更新道館路線"""
+    try:
+        data = request.json
+        arena_id = data.get('arenaId')
+        route_name = data.get('routeName')
+        
+        if not arena_id or not route_name:
+            return jsonify({'success': False, 'message': '缺少必要參數'}), 400
+        
+        firebase_service = FirebaseService()
+        
+        # 獲取道館文檔
+        arena_ref = firebase_service.firestore_db.collection('arenas').document(arena_id)
+        arena_doc = arena_ref.get()
+        
+        if not arena_doc.exists:
+            return jsonify({'success': False, 'message': '找不到指定道館'}), 404
+        
+        arena_data = arena_doc.to_dict()
+        
+        # 更新路線列表
+        routes = arena_data.get('routes', [])
+        if route_name not in routes:
+            routes.append(route_name)
+            
+            # 更新等級
+            level = len(routes)
+            
+            # 更新 Firestore
+            arena_ref.update({
+                'routes': routes,
+                'level': level,
+                'updatedAt': firebase_service.get_server_timestamp()
+            })
+            
+            arena_data['routes'] = routes
+            arena_data['level'] = level
+            
+            return jsonify({
+                'success': True,
+                'message': '道館路線更新成功',
+                'arena': arena_data
+            })
+        else:
+            return jsonify({
+                'success': True,
+                'message': '路線已存在，無需更新',
+                'arena': arena_data
+            })
+            
+    except Exception as e:
+        current_app.logger.error(f"更新道館路線時出錯: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500

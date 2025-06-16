@@ -4,15 +4,16 @@
 
 {% block extra_css %}
 <style>
-  /* 基礎樣式 */
+  /* 響應式基礎樣式 */
   .battle-wrapper {
-    background-image: url('https://placehold.co/1920x1080/1a1a2e/ffffff?text=');
+    background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     background-size: cover;
     background-position: center;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
     overflow: hidden;
     position: relative;
+    min-height: 100vh;
   }
   
   .battle-wrapper::before {
@@ -22,31 +23,32 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.7));
+    background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.4));
     z-index: 0;
   }
   
   .battle-content {
     position: relative;
     z-index: 1;
-    padding: 20px;
+    padding: 15px;
   }
   
-  /* 擂台信息樣式 */
+  /* 道館頭部 - 響應式設計 */
   .arena-header {
     background-size: cover;
     background-position: center;
-    height: 180px;
+    height: 200px;
     position: relative;
-    border-radius: 15px;
+    border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
   }
   
   .arena-header:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
   }
   
   .arena-header-overlay {
@@ -55,130 +57,160 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.4);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6));
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     color: white;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    text-align: center;
   }
   
   .arena-header-overlay h2 {
-    margin-bottom: 5px;
+    margin-bottom: 10px;
     font-weight: 700;
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
   }
   
   .arena-badge {
     position: absolute;
     top: 15px;
     right: 15px;
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.9);
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     color: #333;
     font-weight: bold;
-    font-size: 20px;
+    font-size: 18px;
     z-index: 2;
-    animation: pulse 2s infinite;
+    animation: levelPulse 3s infinite;
   }
   
-  @keyframes pulse {
-    0% {
-      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
-    }
-    70% {
-      box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
-    }
-    100% {
-      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  @keyframes levelPulse {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);    }
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
     }
   }
   
+  /* 道館資訊卡片 - 響應式設計 */
   .arena-info {
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     padding: 25px;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    margin-top: -30px;
-    position: relative;
-    z-index: 2;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
   }
   
   .arena-owner-status {
-    width: fit-content;
-    padding: 5px 10px;
-    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 25px;
     font-weight: 600;
     font-size: 0.9rem;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
   }
   
   .status-free {
-    background-color: rgba(76, 175, 80, 0.2);
-    color: #388e3c;
-    border: 1px solid rgba(76, 175, 80, 0.3);
+    background: linear-gradient(135deg, #4caf50, #66bb6a);
+    color: white;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
   }
   
   .status-occupied {
-    background-color: rgba(244, 67, 54, 0.2);
-    color: #d32f2f;
-    border: 1px solid rgba(244, 67, 54, 0.3);
+    background: linear-gradient(135deg, #f44336, #e57373);
+    color: white;
+    box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
   }
-
-  /* 守護精靈卡片樣式 */
+  /* 守護精靈卡片 - 響應式優化 */
   .guardian-card {
-    border-radius: 15px;
+    border-radius: 20px;
     overflow: hidden;
     background: white;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
     height: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.05);
   }
   
   .guardian-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
   }
   
   .guardian-header {
-    background: linear-gradient(45deg, #ff5722, #ff9800);
+    background: linear-gradient(135deg, #ff5722, #ff9800);
     color: white;
-    padding: 15px;
+    padding: 20px 15px;
     text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .guardian-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+  }
+  
+  .guardian-header h5 {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    font-weight: 600;
   }
   
   .guardian-img-container {
-    height: 130px;
+    height: 150px;
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #f8f9fa;
-    padding: 15px 0;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    padding: 20px;
     position: relative;
     overflow: hidden;
   }
   
   .guardian-img {
-    max-height: 120px;
-    max-width: 80%;
+    max-height: 130px;
+    max-width: 90%;
     object-fit: contain;
-    filter: drop-shadow(0px 5px 10px rgba(0, 0, 0, 0.2));
-    animation: float 3s ease-in-out infinite;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2));
+    animation: guardianFloat 4s ease-in-out infinite;
+    transition: all 0.3s ease;
   }
   
-  @keyframes float {
+  @keyframes guardianFloat {
     0%, 100% {
-      transform: translateY(0);
+      transform: translateY(0) rotate(0deg);
+    }
+    25% {
+      transform: translateY(-5px) rotate(1deg);
     }
     50% {
-      transform: translateY(-10px);
+      transform: translateY(-10px) rotate(0deg);
+    }
+    75% {
+      transform: translateY(-5px) rotate(-1deg);
     }
   }
   
@@ -188,79 +220,98 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 20px;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.05), transparent);
+    height: 30px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.08), transparent);
   }
-  
-  .guardian-stats {
-    padding: 15px;
+    .guardian-stats {
+    padding: 20px;
     background: white;
   }
   
+  /* 統計項目 - 響應式設計 */
   .stat-item {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
   }
   
   .stat-item:last-child {
     margin-bottom: 0;
+    border-bottom: none;
+  }
+  
+  .stat-item:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin: 0 -12px 12px -12px;
   }
   
   .stat-icon {
-    width: 30px;
-    height: 30px;
+    width: 35px;
+    height: 35px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 10px;
+    margin-right: 12px;
     font-size: 0.9rem;
     color: white;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+  }
+  
+  .stat-item:hover .stat-icon {
+    transform: scale(1.1);
   }
   
   .power-icon {
-    background: linear-gradient(45deg, #f44336, #d32f2f);
+    background: linear-gradient(135deg, #f44336, #d32f2f);
   }
   
   .type-icon {
-    background: linear-gradient(45deg, #2196f3, #1976d2);
+    background: linear-gradient(135deg, #2196f3, #1976d2);
   }
   
   .rarity-icon {
-    background: linear-gradient(45deg, #ff9800, #f57c00);
+    background: linear-gradient(135deg, #ff9800, #f57c00);
   }
   
   .stat-value {
     font-weight: 600;
+    color: #333;
+    font-size: 0.95rem;
   }
   
-  /* 精靈選擇區域 */
+  /* 精靈選擇區域 - 響應式優化 */
   .creature-selection {
     background: white;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    padding: 0;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     overflow: hidden;
-    margin-top: 30px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
   }
   
   .creature-selection-header {
-    background: linear-gradient(45deg, #2196f3, #1976d2);
+    background: linear-gradient(135deg, #2196f3, #1976d2);
     color: white;
-    padding: 15px 20px;
+    padding: 20px;
     position: relative;
     overflow: hidden;
   }
   
-  .creature-selection-header::after {
+  .creature-selection-header::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: linear-gradient(120deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
     z-index: 0;
   }
   
@@ -268,238 +319,203 @@
     position: relative;
     z-index: 1;
     margin: 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
   }
   
+  .creature-selection-header h5::before {
+    content: '⚔️';
+    margin-right: 10px;    font-size: 1.2em;
+  }
+  
+  /* 精靈卡片 - 響應式設計 */
   .creature-card {
-    border-radius: 15px;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     background: white;
+    border: 2px solid transparent;
+    position: relative;
   }
   
   .creature-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    border-color: rgba(33, 150, 243, 0.3);
+  }
+  
+  .creature-card:active {
+    transform: translateY(-4px) scale(1.01);
   }
   
   .creature-selected {
-    border: 3px solid #f44336;
-    box-shadow: 0 5px 15px rgba(244, 67, 54, 0.3);
+    border-color: #f44336 !important;
+    box-shadow: 0 8px 25px rgba(244, 67, 54, 0.4) !important;
+    transform: translateY(-5px) scale(1.05);
+  }
+  
+  .creature-selected::before {
+    content: '✓';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    background: #f44336;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    z-index: 10;
+    animation: selectPulse 0.6s ease;
+  }
+  
+  @keyframes selectPulse {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
   }
   
   .creature-image {
-    height: 120px;
+    height: 140px;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    background-color: #f8f9fa;
-    padding: 10px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    padding: 15px;
+    position: relative;
   }
   
   .creature-image img {
-    max-height: 100px;
+    max-height: 120px;
     max-width: 100%;
     object-fit: contain;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
   }
   
   .creature-card:hover .creature-image img {
     transform: scale(1.1);
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.2));
   }
   
   .creature-card-body {
-    padding: 15px;
+    padding: 16px;
+    background: white;
   }
   
   .creature-card-body .card-title {
     font-size: 1rem;
     font-weight: 600;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    color: #333;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
   
-  /* 戰鬥區域 */
-  .battle-area {
-    margin-top: 30px;
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
+  .creature-stats {
+    font-size: 0.85rem;
+    color: #666;
+    line-height: 1.4;
   }
   
-  .battle-area-header {
-    background: linear-gradient(45deg, #d32f2f, #f44336);
-    color: white;
-    padding: 15px 20px;
-    position: relative;
-    overflow: hidden;
+  /* 按鈕區域 - 響應式設計 */
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
   }
   
-  .battle-area-header::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: linear-gradient(120deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
-    z-index: 0;
-  }
-  
-  .battle-area-header h4 {
-    position: relative;
-    z-index: 1;
-    margin: 0;
-  }
-  
-  .battle-area-content {
-    padding: 20px;
-    text-align: center;
-  }
-  
-  .battle-button {
-    padding: 12px 30px;
-    font-size: 1.2rem;
+  .action-btn {
+    padding: 14px 24px;
+    font-size: 1rem;
     font-weight: 600;
-    border-radius: 50px;
-    box-shadow: 0 5px 15px rgba(244, 67, 54, 0.3);
-    transition: all 0.3s;
-    background: linear-gradient(45deg, #d32f2f, #f44336);
+    border-radius: 12px;
     border: none;
-  }
-  
-  .battle-button:hover:not(:disabled) {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(244, 67, 54, 0.4);
-  }
-  
-  .battle-button:disabled {
-    background: linear-gradient(45deg, #9e9e9e, #757575);
-    box-shadow: 0 5px 15px rgba(158, 158, 158, 0.3);
-  }
-  
-  /* 戰鬥結果 */
-  .battle-result {
-    display: none;
-  }
-  
-  .result-success .card-header {
-    background: linear-gradient(45deg, #4caf50, #388e3c);
-  }
-  
-  .result-fail .card-header {
-    background: linear-gradient(45deg, #f44336, #d32f2f);
-  }
-  
-  .vs-container {
+    transition: all 0.3s ease;
     position: relative;
-    width: 80px;
-    height: 80px;
-    margin: 0 auto;
-  }
-  
-  .vs-badge {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(45deg, #ff9800, #f57c00);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 1.5rem;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    z-index: 2;
-  }
-  
-  .fighter-container {
-    background: white;
-    border-radius: 15px;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s;
-  }
-  
-  .fighter-image {
-    width: 120px;
-    height: 120px;
-    margin: 0 auto 15px;
-    border-radius: 15px;
     overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f8f9fa;
+    text-transform: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   }
   
-  .fighter-image img {
-    max-width: 90%;
-    max-height: 90%;
-    object-fit: contain;
+  .action-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   }
   
-  .fighter-name {
-    font-weight: 600;
-    font-size: 1.1rem;
-    margin-bottom: 5px;
+  .action-btn:active:not(:disabled) {
+    transform: translateY(0);
   }
   
-  .fighter-power {
-    background: rgba(244, 67, 54, 0.1);
-    color: #d32f2f;
-    padding: 3px 10px;
+  .action-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+  
+  .btn-occupy {
+    background: linear-gradient(135deg, #4caf50, #66bb6a);
+    color: white;
+  }
+  
+  .btn-battle {
+    background: linear-gradient(135deg, #f44336, #e57373);
+    color: white;
+  }
+  
+  .btn-reward {
+    background: linear-gradient(135deg, #ff9800, #ffb74d);
+    color: white;
+  }
+  
+  /* 獎勵區塊 */
+  .reward-block {
+    background: white;
     border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    margin-top: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .reward-header {
+    background: linear-gradient(135deg, #ff9800, #ffb74d);
+    color: white;
+    padding: 16px 20px;
     font-weight: 600;
-    display: inline-block;
-    margin-top: 5px;
   }
   
-  .fighter-owner {
-    font-size: 0.9rem;
-    color: #757575;
-    margin-top: 5px;
-  }
-  
-  /* 加載動畫 */
-  .loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
+  .reward-item {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    z-index: 9999;
-    visibility: hidden;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   }
   
-  .loading-spinner {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: conic-gradient(transparent, #f44336);
-    -webkit-mask: radial-gradient(white, transparent 70%);
-    animation: spin 1s linear infinite;
+  .reward-item:last-child {
+    border-bottom: none;
   }
   
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  .reward-badge {
+    background: linear-gradient(135deg, #2196f3, #64b5f6);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
   }
-  
+
   /* 動畫效果 */
   .battle-animation {
     position: fixed;
@@ -511,14 +527,15 @@
     justify-content: center;
     align-items: center;
     z-index: 10000;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.9);
     visibility: hidden;
+    backdrop-filter: blur(5px);
   }
   
   .battle-animation-content {
     position: relative;
-    width: 300px;
-    height: 300px;
+    width: min(90vw, 400px);
+    height: min(90vh, 400px);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -529,174 +546,177 @@
     position: absolute;
     width: 100%;
     height: 100%;
-    background: white;
+    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
     opacity: 0;
     border-radius: 50%;
     z-index: 1;
+    animation: flashPulse 0.5s ease;
+  }
+  
+  @keyframes flashPulse {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 0; }
   }
   
   .challenger-img, .defender-img {
     position: absolute;
-    width: 120px;
-    height: 120px;
+    width: clamp(80px, 20vw, 120px);
+    height: clamp(80px, 20vw, 120px);
     object-fit: contain;
     z-index: 2;
-    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.7));
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px;
   }
   
   .challenger-img {
-    left: 0;
-    transform: translateX(-50px);
+    left: 20%;
+    transform: translateX(-50%);
   }
   
   .defender-img {
-    right: 0;
-    transform: translateX(50px);
+    right: 20%;
+    transform: translateX(50%);
   }
   
   .vs-text {
     position: absolute;
-    font-size: 5rem;
+    font-size: clamp(3rem, 10vw, 6rem);
     font-weight: bold;
     color: white;
-    text-shadow: 0 0 20px rgba(255, 152, 0, 0.8);
+    text-shadow: 0 0 30px rgba(255, 152, 0, 0.9);
     z-index: 3;
     opacity: 0;
+    animation: vsGlow 1s infinite alternate;
+  }
+  
+  @keyframes vsGlow {
+    from { text-shadow: 0 0 20px rgba(255, 152, 0, 0.8); }
+    to { text-shadow: 0 0 40px rgba(255, 152, 0, 1), 0 0 60px rgba(255, 152, 0, 0.8); }
   }
   
   .result-text {
     position: absolute;
-    font-size: 3rem;
+    font-size: clamp(2rem, 8vw, 4rem);
     font-weight: bold;
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.9);
     z-index: 3;
     opacity: 0;
+    animation: resultPulse 1s ease infinite;
+  }
+  
+  @keyframes resultPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
   }
   
   .win-text {
     color: #4caf50;
+    text-shadow: 0 0 30px rgba(76, 175, 80, 0.9);
   }
   
   .lose-text {
     color: #f44336;
+    text-shadow: 0 0 30px rgba(244, 67, 54, 0.9);
   }
   
-  /* 深色模式適配 */
-  [data-theme="dark"] .section-title {
-    color: #f0f0f0;
+  /* 加載覆蓋層優化 */
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.9));
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    color: white;
+    font-size: clamp(1rem, 3vw, 1.3rem);
+    backdrop-filter: blur(10px);
   }
   
-  [data-theme="dark"] .arena-info {
-    background: rgba(45, 52, 54, 0.95);
-    color: #e0e0e0;
+  .loading-spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #2196f3;
+    border-radius: 50%;
+    width: clamp(40px, 10vw, 60px);
+    height: clamp(40px, 10vw, 60px);
+    animation: loadingSpin 1s linear infinite;
+    margin-right: 15px;
   }
   
-  [data-theme="dark"] .arena-info h4 {
-    color: #f0f0f0;
+  @keyframes loadingSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
   
-  [data-theme="dark"] .arena-info strong {
-    color: #f5f5f5;
+  /* 觸摸優化 */
+  @media (hover: none) and (pointer: coarse) {
+    .creature-card:hover {
+      transform: none;
+    }
+    
+    .creature-card:active {
+      transform: scale(0.98);
+    }
+    
+    .action-btn:hover {
+      transform: none;
+    }
+    
+    .action-btn:active {
+      transform: scale(0.98);
+    }
+    
+    .guardian-card:hover {
+      transform: none;
+    }
   }
   
-  [data-theme="dark"] .status-free {
-    background-color: rgba(76, 175, 80, 0.15);
-    color: #81c784;
+  /* 高對比度模式支援 */
+  @media (prefers-contrast: high) {
+    .arena-header-overlay {
+      background: rgba(0, 0, 0, 0.8);
+    }
+    
+    .creature-card {
+      border: 2px solid #000;
+    }
+    
+    .action-btn {
+      border: 2px solid currentColor;
+    }
   }
   
-  [data-theme="dark"] .status-occupied {
-    background-color: rgba(244, 67, 54, 0.15);
-    color: #e57373;
+  /* 減少動畫偏好設定 */
+  @media (prefers-reduced-motion: reduce) {
+    .guardian-img,
+    .creature-card,
+    .action-btn,
+    .arena-header,
+    .battle-animation *,
+    .loading-spinner {
+      animation: none !important;
+      transition: none !important;
+    }
+    
+    .creature-card:hover,
+    .action-btn:hover,
+    .guardian-card:hover {
+      transform: none !important;
+    }
   }
-  
-  [data-theme="dark"] .guardian-card {
-    background: #2d3436;
-  }
-  
-  [data-theme="dark"] .guardian-stats {
-    background: #2d3436;
-    color: #e0e0e0;
-  }
-  
-  [data-theme="dark"] .guardian-img-container {
-    background-color: #3d4852;
-  }
-  
-  [data-theme="dark"] .creature-selection {
-    background: #2d3436;
-  }
-  
-  [data-theme="dark"] .creature-card {
-    background: #3d4852;
-  }
-  
-  [data-theme="dark"] .creature-image {
-    background-color: #2d3436;
-  }
-  
-  [data-theme="dark"] .creature-card-body {
-    color: #e0e0e0;
-  }
-  
-  [data-theme="dark"] .card-title {
-    color: #f0f0f0;
-  }
-  
-  [data-theme="dark"] .battle-area {
-    background: #2d3436;
-  }
-  
-  [data-theme="dark"] .battle-area-content {
-    color: #e0e0e0;
-  }
-  
-  [data-theme="dark"] .fighter-container {
-    background: #3d4852;
-    color: #e0e0e0;
-  }
-  
-  [data-theme="dark"] .fighter-image {
-    background-color: #2d3436;
-  }
-  
-  [data-theme="dark"] .fighter-name {
-    color: #f0f0f0;
-  }
-  
-  [data-theme="dark"] .fighter-owner {
-    color: #adb5bd;
-  }
-  
-  [data-theme="dark"] .alert-success {
-    background-color: rgba(76, 175, 80, 0.15);
-    color: #81c784;
-    border-color: rgba(76, 175, 80, 0.3);
-  }
-  
-  [data-theme="dark"] .alert-warning {
-    background-color: rgba(255, 152, 0, 0.15);
-    color: #ffb74d;
-    border-color: rgba(255, 152, 0, 0.3);
-  }
-  
-  [data-theme="dark"] .alert-danger {
-    background-color: rgba(244, 67, 54, 0.15);
-    color: #e57373;
-    border-color: rgba(244, 67, 54, 0.3);
-  }
-  
-  [data-theme="dark"] .alert-info {
-    background-color: rgba(33, 150, 243, 0.15);
-    color: #64b5f6;
-    border-color: rgba(33, 150, 243, 0.3);
-  }
-  
-  [data-theme="dark"] .text-muted {
-    color: #adb5bd !important;
-  }
-  
-  /* 移動設備適配 */
+
+  /* 響應式基礎樣式 */
   @media (max-width: 767.98px) {
+    .battle-wrapper {
+      border-radius: 10px;
+    }
+    
     .arena-header {
       height: 150px;
     }
@@ -819,151 +839,305 @@
     75% { transform: translateX(-5px); }
     100% { transform: translateX(0); }
   }
+
+  /* 行動裝置響應式設計 */
+  @media (max-width: 768px) {
+    .battle-content {
+      padding: 10px;
+    }
+    
+    .arena-header {
+      height: 150px;
+      margin-bottom: 15px;
+    }
+    
+    .arena-header-overlay h2 {
+      font-size: 1.5rem;
+    }
+    
+    .arena-badge {
+      width: 45px;
+      height: 45px;
+      font-size: 14px;
+      top: 10px;
+      right: 10px;
+    }
+    
+    .arena-info {
+      padding: 20px 15px;
+      margin-bottom: 15px;
+    }
+    
+    .guardian-img-container {
+      height: 120px;
+    }
+    
+    .guardian-img {
+      max-height: 100px;
+    }
+    
+    .creature-selection-header {
+      padding: 15px;
+    }
+    
+    .creature-image {
+      height: 100px;
+    }
+    
+    .creature-image img {
+      max-height: 80px;
+    }
+    
+    .creature-card-body {
+      padding: 12px;
+    }
+    
+    .action-btn {
+      padding: 12px 20px;
+      font-size: 0.95rem;
+    }
+    
+    .stat-item {
+      margin-bottom: 8px;
+    }
+    
+    .stat-icon {
+      width: 30px;
+      height: 30px;
+      margin-right: 10px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .container {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    
+    .battle-content {
+      padding: 8px;
+    }
+    
+    .arena-header {
+      height: 120px;
+      border-radius: 15px;
+    }
+    
+    .arena-header-overlay h2 {
+      font-size: 1.25rem;
+    }
+    
+    .arena-badge {
+      width: 40px;
+      height: 40px;
+      font-size: 12px;
+    }
+    
+    .arena-info {
+      padding: 15px;
+    }
+    
+    .guardian-stats {
+      padding: 15px;
+    }
+    
+    .creature-selection-header h5 {
+      font-size: 1rem;
+    }
+    
+    .creature-card {
+      margin-bottom: 10px;
+    }
+    
+    .creature-image {
+      height: 80px;
+      padding: 10px;
+    }
+    
+    .creature-image img {
+      max-height: 60px;
+    }
+    
+    .creature-card-body {
+      padding: 10px;
+    }
+    
+    .creature-card-body .card-title {
+      font-size: 0.9rem;
+    }
+    
+    .creature-stats {
+      font-size: 0.8rem;
+    }
+    
+    .action-btn {
+      padding: 10px 16px;
+      font-size: 0.9rem;
+    }
+    
+    .stat-item {
+      padding: 6px 0;
+    }
+    
+    .stat-value {
+      font-size: 0.85rem;
+    }
+  }
+  
+  /* 超小屏幕優化 */
+  @media (max-width: 400px) {
+    .arena-header-overlay h2 {
+      font-size: 1.1rem;
+    }
+    
+    .creature-selection-header h5::before {
+      display: none;
+    }
+    
+    .action-btn {
+      padding: 8px 12px;
+      font-size: 0.85rem;
+    }
+  }
+  
+  /* 深色模式適配 */
+  @media (prefers-color-scheme: dark) {
+    .arena-info {
+      background: rgba(45, 52, 54, 0.95);
+      color: #e0e0e0;
+    }
+    
+    .guardian-card,
+    .creature-selection,
+    .reward-block {
+      background: #2d3436;
+      color: #ddd;
+    }
+    
+    .creature-card {
+      background: #636e72;
+      color: #ddd;
+    }
+    
+    .creature-card-body {
+      background: #636e72;
+    }
+    
+    .stat-value {
+      color: #ddd;
+    }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2 class="section-title text-center mb-4"><i class="fas fa-trophy me-2"></i>站點擂台戰鬥</h2>
-  
-  <!-- 用戶ID隱藏字段 -->
-  <input type="hidden" id="user-id" value="{{ session['user']['uid'] }}">
-  
-  <!-- 擂台ID隱藏字段 -->
-  <input type="hidden" id="arena-id" value="{{ arena_id }}">
-  
-  <!-- 戰鬥頁面主體 -->
+<div class="container-fluid px-2 px-md-3 mt-2 mt-md-4">
   <div class="battle-wrapper">
     <div class="battle-content">
-      <!-- 擂台信息 -->
-      <div class="arena-header" id="arenaHeader" style="background-image: url('https://placehold.co/1200x300/e91e63/ffffff?text=Loading...');">
-        <div class="arena-badge">
-          <i class="fas fa-trophy"></i>
-        </div>
+      <!-- 道館資訊頭部 -->
+      <div class="arena-header" id="arenaHeader">
         <div class="arena-header-overlay">
-          <h2 id="arenaName">載入中...</h2>
-          <p id="arenaLevel" class="mb-0">等級: 載入中...</p>
+          <h2 id="arenaName">道館名稱</h2>
+          <p class="mb-0 opacity-75 d-none d-md-block">挑戰你的極限</p>
+          <span class="arena-badge" id="arenaLevelInfo">Lv.1</span>
         </div>
       </div>
       
-      <div class="arena-info mb-4">
-        <div class="row">
-          <div class="col-md-6">
-            <div class="arena-owner-status" id="arenaStatusBadge">
-              <i class="fas fa-info-circle me-1"></i> 載入中...
-            </div>
-            <h4 class="mb-3">擂台資訊</h4>
-            <div class="mb-2">
-              <i class="fas fa-map-marker-alt me-2 text-danger"></i><strong>站點：</strong> <span id="arenaStopId">載入中...</span>
-            </div>
-            <div class="mb-2">
-              <i class="fas fa-user me-2 text-primary"></i><strong>擂台主：</strong> <span id="arenaOwner">載入中...</span>
-            </div>
-            <div class="mb-2">
-              <i class="fas fa-info-circle me-2 text-info"></i><strong>挑戰狀態：</strong> <span id="arenaStatus">載入中...</span>
-            </div>
-            <div class="mb-2">
-              <i class="fas fa-star me-2 text-warning"></i><strong>道館等級：</strong> <span id="arenaLevelInfo">載入中...</span>
-            </div>
+      <!-- 道館基本資訊 -->
+      <div class="arena-info">
+        <div class="row align-items-center g-2">
+          <div class="col-12 col-md-auto">
+            <span id="arenaStatusBadge" class="arena-owner-status status-free">
+              <i class="fas fa-unlock me-2"></i> 無人佔領
+            </span>
           </div>
-          <div class="col-md-6" id="guardianContainer">
-            <h4 class="mb-3">守護精靈</h4>
-            <div id="guardianInfo">
-              <p>此擂台暫無守護精靈，你可以占領它！</p>
+          <div class="col-12 col-md">
+            <div class="row g-1 text-sm">
+              <div class="col-12 col-sm-4">
+                <small class="text-muted">擁有者：<strong id="arenaOwner">無</strong></small>
+              </div>
+              <div class="col-6 col-sm-4">
+                <small class="text-muted">等級：<strong id="arenaLevel">1</strong></small>
+              </div>
+              <div class="col-6 col-sm-4">
+                <small class="text-muted">站點：<strong id="arenaStopId">-</strong></small>
+              </div>
             </div>
           </div>
         </div>
       </div>
       
-      <!-- 選擇戰鬥精靈 -->
-      <div class="creature-selection mb-4">
-        <div class="creature-selection-header">
-          <h5 class="mb-0"><i class="fas fa-hand-pointer me-2"></i>選擇挑戰精靈</h5>
+      <!-- 主要內容區域 -->
+      <div class="row g-3">
+        <!-- 守護精靈區域 -->
+        <div class="col-12 col-lg-6 order-2 order-lg-1">
+          <div id="guardianInfo" class="mb-3">
+            <!-- 守護精靈信息將在這裡動態載入 -->
+          </div>
+          
+          <!-- 獎勵區塊 -->
+          <div id="arenaRewardBlock" class="reward-block" style="display:none;">
+            <div class="reward-header">
+              <i class="fas fa-gift me-2"></i>道館獎勵
+            </div>
+            <div class="p-3" id="arenaRewardList">
+              <!-- 獎勵列表將在這裡動態載入 -->
+            </div>
+          </div>
         </div>
-        <div class="card-body p-4">          <!-- 精靈類型過濾器 -->
-          <div class="creature-filter mb-3">
-            <div class="btn-group" role="group">
-              <button type="button" class="btn btn-outline-primary active" data-filter="all">全部</button>
-              <button type="button" class="btn btn-outline-primary" data-filter="water">水系</button>
-              <button type="button" class="btn btn-outline-danger" data-filter="fire">火系</button>
-              <button type="button" class="btn btn-outline-success" data-filter="wood">草系</button>
-              <button type="button" class="btn btn-outline-warning" data-filter="light">光系</button>
-              <button type="button" class="btn btn-outline-dark" data-filter="dark">暗系</button>
-              <button type="button" class="btn btn-outline-secondary" data-filter="normal">一般</button>
+        
+        <!-- 精靈選擇和操作區域 -->
+        <div class="col-12 col-lg-6 order-1 order-lg-2">
+          <!-- 精靈選擇區塊 -->
+          <div class="creature-selection">
+            <div class="creature-selection-header">
+              <h5>選擇你的精靈</h5>
+            </div>
+            <div class="p-3">
+              <div id="creatureList" class="row g-2">
+                <!-- 精靈列表將在這裡動態載入 -->
+              </div>
             </div>
           </div>
           
-          <div class="row" id="creatureList">
-            <div class="col-12 text-center py-5">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">正在載入精靈...</span>
-              </div>
-              <p class="mt-2">正在載入您的精靈...</p>
-            </div>
+          <!-- 操作按鈕區域 -->
+          <div class="action-buttons">
+            <button id="occupyBtn" class="action-btn btn-occupy" style="display:none;">
+              <i class="fas fa-flag me-2"></i>直接佔領道館
+            </button>
+            <button id="battleBtn" class="action-btn btn-battle" style="display:none;">
+              <i class="fas fa-sword me-2"></i>發起挑戰
+            </button>
+            <button id="collectRewardBtn" class="action-btn btn-reward" style="display:none;">
+              <i class="fas fa-gift me-2"></i>領取獎勵
+            </button>
           </div>
         </div>
       </div>
       
-      <!-- 戰鬥區域 -->
-      <div class="battle-area">
-        <div class="battle-area-header">
-          <h4 class="mb-0"><i class="fas fa-fire me-2"></i>準備戰鬥</h4>
-        </div>
-        <div class="battle-area-content">
-          <p class="mb-4">選擇一隻精靈進行挑戰！擊敗守護精靈即可成為新擂主！</p>
-          <button id="battleButton" class="btn btn-danger btn-lg battle-button" disabled onclick="startBattle()">
-            <i class="fas fa-bolt me-2"></i>開始戰鬥
-          </button>
-        </div>
-        
-        <!-- 戰鬥結果 -->
-        <div class="battle-result mt-4" id="battleResult">
-          <div class="card">
-            <div class="card-header text-white" id="battleResultHeader">
-              <h5 class="card-title mb-0" id="battleResultTitle">戰鬥結果</h5>
-            </div>
-            <div class="card-body p-4">
-              <div class="alert alert-info" id="battleResultMessage">
-                <!-- 戰鬥結果訊息 -->
-              </div>
-              
-              <div class="row align-items-center mb-4">
-                <div class="col-md-5">
-                  <div class="fighter-container challenger-container">
-                    <h5 class="fighter-role mb-2 text-primary">挑戰者</h5>
-                    <div class="fighter-image">
-                      <img id="challengerImg" src="https://placehold.co/200x200?text=挑戰者" alt="挑戰者精靈">
-                    </div>                    <div class="fighter-name" id="challengerName">--</div>
-                    <div class="fighter-power" id="challengerPower">ATK: -- | HP: --</div>
-                    <div class="fighter-owner" id="challengerOwner">挑戰者: 你</div>
-                  </div>
-                </div>
-                
-                <div class="col-md-2">
-                  <div class="vs-container">
-                    <div class="vs-badge">VS</div>
-                  </div>
-                </div>
-                
-                <div class="col-md-5">
-                  <div class="fighter-container defender-container">
-                    <h5 class="fighter-role mb-2 text-danger">守護者</h5>
-                    <div class="fighter-image">
-                      <img id="defenderImg" src="https://placehold.co/200x200?text=守護者" alt="守護者精靈">
-                    </div>                    <div class="fighter-name" id="defenderName">--</div>
-                    <div class="fighter-power" id="defenderPower">ATK: -- | HP: --</div>
-                    <div class="fighter-owner" id="defenderOwner">擁有者: --</div>
-                  </div>
+      <!-- 戰鬥結果顯示 -->
+      <div id="battleResult" class="battle-result mt-4" style="display:none;">
+        <div class="card border-0 shadow">
+          <div id="battleResultHeader" class="card-header border-0">
+            <h5 id="battleResultTitle" class="mb-0"></h5>
+          </div>
+          <div class="card-body">
+            <div id="battleResultMessage" class="mb-3"></div>
+            <div class="row g-3">
+              <div class="col-6">
+                <div class="text-center p-3 bg-light rounded-3">
+                  <img id="challengerImg" src="" class="img-fluid mb-2" style="max-height:80px;">
+                  <div class="fw-bold small" id="challengerName">挑戰者</div>
+                  <small class="text-muted" id="challengerPower">ATK: - | HP: -</small>
                 </div>
               </div>
-              
-              <div class="d-flex justify-content-center gap-3 mt-4">
-                <button class="btn btn-primary" onclick="location.reload()">
-                  <i class="fas fa-redo me-1"></i>再次挑戰
-                </button>
-                <a href="/game/catch" class="btn btn-secondary">
-                  <i class="fas fa-map-marked-alt me-1"></i>返回地圖
-                </a>
+              <div class="col-6">
+                <div class="text-center p-3 bg-light rounded-3">
+                  <img id="defenderImg" src="" class="img-fluid mb-2" style="max-height:80px;">
+                  <div class="fw-bold small" id="defenderName">守護者</div>
+                  <small class="text-muted" id="defenderPower">ATK: - | HP: -</small>
+                  <small class="text-muted d-block" id="defenderOwner">擁有者: -</small>
+                </div>
               </div>
             </div>
           </div>
@@ -972,50 +1146,31 @@
     </div>
   </div>
 </div>
-
 <!-- 加載中遮罩 -->
 <div id="loadingOverlay" class="loading-overlay">
   <div class="loading-spinner"></div>
+  <span>載入中...</span>
 </div>
-
 <!-- 戰鬥動畫 -->
 <div class="battle-animation" id="battleAnimation">
   <div class="battle-animation-content">
-    <img class="challenger-img" id="animationChallengerImg" src="" alt="挑戰者">
-    <img class="defender-img" id="animationDefenderImg" src="" alt="守護者">
-    <div class="battle-flash" id="battleFlash"></div>
-    <div class="vs-text" id="vsText">VS</div>
-    <div class="result-text win-text" id="winText">勝利！</div>
-    <div class="result-text lose-text" id="loseText">失敗！</div>
+    <img id="animationChallengerImg" class="challenger-img" src="" style="opacity:0;">
+    <img id="animationDefenderImg" class="defender-img" src="" style="opacity:0;">
+    <div id="vsText" class="vs-text">VS</div>
+    <div id="winText" class="result-text win-text">勝利！</div>
+    <div id="loseText" class="result-text lose-text">失敗</div>
+    <div id="battleFlash" class="battle-flash"></div>
   </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script>
-    // 初始化Firebase
-    var firebaseConfig = {
-        apiKey: "{{ firebase_config.apiKey }}",
-        authDomain: "{{ firebase_config.authDomain }}",
-        projectId: "{{ firebase_config.projectId }}",
-        storageBucket: "{{ firebase_config.storageBucket }}",
-        messagingSenderId: "{{ firebase_config.messagingSenderId }}",
-        appId: "{{ firebase_config.appId }}"
-    };
-    
-    // 初始化Firebase應用
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-</script>
-
 <script>
 // 全局變數
 let arenaData = null;
 let battleAnimationTimeout = null;
+let userCreatures = [];
+let selectedCreature = null;
 
 // 頁面載入完成事件
 document.addEventListener('DOMContentLoaded', function() {
@@ -1031,12 +1186,76 @@ document.addEventListener('DOMContentLoaded', function() {
   } else {
     alert('缺少擂台ID參數，無法顯示擂台資訊');
   }
+  
+  // 初始化按鈕事件
+  initButtonEvents();
 });
+
+// 初始化按鈕事件
+function initButtonEvents() {
+  // 佔領按鈕
+  document.getElementById('occupyBtn').addEventListener('click', function() {
+    if (!selectedCreature) {
+      alert('請先選擇一隻精靈');
+      return;
+    }
+    occupyArena();
+  });
+  
+  // 挑戰按鈕
+  document.getElementById('battleBtn').addEventListener('click', function() {
+    if (!selectedCreature) {
+      alert('請先選擇一隻精靈');
+      return;
+    }
+    battleArena();
+  });
+  
+  // 領取獎勵按鈕
+  document.getElementById('collectRewardBtn').addEventListener('click', function() {
+    collectRewards();
+  });
+}
+
+// 安全設置文本內容
+function setTextContent(elementId, text) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.textContent = text;
+  }
+}
+
+// 安全設置HTML內容
+function setHTML(elementId, html) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.innerHTML = html;
+  }
+}
+
+// 安全獲取元素
+function safeGetElement(elementId) {
+  return document.getElementById(elementId);
+}
+
+// 顯示/隱藏加載中
+function showLoading() {
+  const loadingOverlay = document.getElementById('loadingOverlay');
+  if (loadingOverlay) {
+    loadingOverlay.style.display = 'flex';
+  }
+}
+
+function hideLoading() {
+  const loadingOverlay = document.getElementById('loadingOverlay');
+  if (loadingOverlay) {
+    loadingOverlay.style.display = 'none';
+  }
+}
 
 // 設置擂台背景顏色，根據等級而非路線
 function setArenaBackground(level) {
   const arenaHeader = document.getElementById('arenaHeader');
-  const headerOverlay = document.querySelector('.arena-header-overlay');
   const battleWrapper = document.querySelector('.battle-wrapper');
   
   let bgColor, bgImage;
@@ -1068,85 +1287,184 @@ function setArenaBackground(level) {
       bgImage = 'linear-gradient(rgba(63, 81, 181, 0.1), rgba(63, 81, 181, 0.3))';
   }
   
-  arenaHeader.style.backgroundColor = bgColor;
+  if (arenaHeader) {
+    arenaHeader.style.backgroundColor = bgColor;
+    // 設置道館等級背景圖
+    const backgroundImage = `https://placehold.co/1200x300/${bgColor.replace('#', '')}/ffffff?text=等級 ${level} 道館`;
+    arenaHeader.style.backgroundImage = `url('${backgroundImage}')`;
+  }
+  
   if (battleWrapper) {
     battleWrapper.style.backgroundImage = bgImage;
   }
-  
-  // 設置道館等級背景圖
-  const backgroundImage = `https://placehold.co/1200x300/${bgColor.replace('#', '')}/ffffff?text=等級 ${level} 道館`;
-  arenaHeader.style.backgroundImage = `url('${backgroundImage}')`;
 }
 
-// 通過ID直接獲取道館
+// 通過API獲取道館資料
 function fetchArenaById(arenaId) {
-  console.log('通過ID獲取道館:', arenaId);
+  console.log('通過API獲取道館:', arenaId);
   showLoading();
   
-  try {
-    const db = firebase.firestore();
-    
-    db.collection('arenas').doc(arenaId)
-      .get()
-      .then((doc) => {
-        if (doc.exists) {
-          const data = doc.data();
-          data.id = doc.id;
-          console.log('找到道館:', data);
-          // 更新擂台數據
-          arenaData = data;
-          updateArenaDisplay(data);
-          
-          // 更新頁面顯示
-          document.getElementById('arenaName').textContent = data.name;
-          document.getElementById('arenaStopId').textContent = data.stopIds ? data.stopIds[0] : '';
-          
-          // 根據等級設置背景顏色
-          setArenaBackground(data.level || 1);
-          
-          // 顯示道館等級
-          document.getElementById('arenaLevel').textContent = '等級: ' + (data.level || 1);
-          document.getElementById('arenaLevelInfo').textContent = data.level || 1;
-        } else {
-          console.log('未找到該ID的道館:', arenaId);
-          showError404Page();
+  fetch(`/game/api/arena-battle/get-arena/${arenaId}`)
+    .then(response => response.json())
+    .then(data => {
+      hideLoading();
+      if (data.success) {
+        console.log('找到道館:', data.arena);
+        arenaData = data.arena;
+        updateArenaDisplay(data.arena);
+        loadUserCreatures(data.arena.level || 1);
+        
+        if (data.created) {
+          console.log('道館已新建');
         }
-        hideLoading();
-      })
-      .catch(error => {
-        console.error('獲取道館錯誤:', error);
-        showError500Page();
-        hideLoading();
-      });
-  } catch (error) {
-    console.error('Firebase訪問錯誤:', error);
-    showError500Page();
-    hideLoading();
+      } else {
+        console.error('獲取道館失敗:', data.message);
+        alert('獲取道館資料失敗: ' + data.message);
+      }
+    })
+    .catch(error => {
+      hideLoading();
+      console.error('獲取道館錯誤:', error);
+      alert('獲取道館資料時發生錯誤');
+    });
+}
+
+// 載入用戶精靈
+function loadUserCreatures(arenaLevel) {
+  console.log('載入用戶精靈，道館等級:', arenaLevel);
+  
+  fetch(`/game/api/arena-battle/get-user-creatures?arena_level=${arenaLevel}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        userCreatures = data.creatures;
+        renderCreatureList(userCreatures);
+      } else {
+        console.error('獲取精靈失敗:', data.message);
+        document.getElementById('creatureList').innerHTML = `
+          <div class="col-12 text-center py-4">
+            <p class="text-danger">載入精靈失敗: ${data.message}</p>
+          </div>
+        `;
+      }
+    })
+    .catch(error => {
+      console.error('載入精靈錯誤:', error);
+      document.getElementById('creatureList').innerHTML = `
+        <div class="col-12 text-center py-4">
+          <p class="text-danger">載入精靈時發生錯誤</p>
+        </div>
+      `;
+    });
+}
+
+// 渲染精靈列表
+function renderCreatureList(creatures) {
+  const creatureList = document.getElementById('creatureList');
+  
+  if (!creatures || creatures.length === 0) {
+    creatureList.innerHTML = `
+      <div class="col-12 text-center py-4">
+        <p class="text-muted">您目前沒有符合此道館等級要求的精靈</p>
+      </div>
+    `;
+    return;
   }
+  
+  creatureList.innerHTML = '';
+  
+  creatures.forEach(creature => {
+    const creatureCard = document.createElement('div');
+    creatureCard.className = 'col-6 col-md-4 col-lg-3 mb-2';
+    
+    const attack = creature.attack || creature.power || 100;
+    const hp = creature.hp || (creature.power || 100) * 10;
+    const rarity = creature.rarity || creature.rate || 'N';
+    
+    creatureCard.innerHTML = `
+      <div class="creature-card" data-creature-id="${creature.id}">
+        <div class="creature-image">
+          <img src="${creature.image_url || '/static/img/creature.PNG'}" alt="${creature.name}">
+        </div>
+        <div class="creature-card-body">
+          <div class="card-title">${creature.name}</div>
+          <small class="text-muted">ATK: ${attack} | HP: ${hp}</small><br>
+          <small class="text-muted">稀有度: ${rarity}</small>
+        </div>
+      </div>
+    `;
+    
+    // 添加點擊事件
+    creatureCard.addEventListener('click', function() {
+      selectCreature(creature);
+    });
+    
+    creatureList.appendChild(creatureCard);
+  });
+}
+
+// 選擇精靈
+function selectCreature(creature) {
+  // 移除之前的選擇
+  const previousSelected = document.querySelector('.creature-selected');
+  if (previousSelected) {
+    previousSelected.classList.remove('creature-selected');
+  }
+  
+  // 添加新選擇
+  const creatureCard = document.querySelector(`[data-creature-id="${creature.id}"]`);
+  if (creatureCard) {
+    creatureCard.classList.add('creature-selected');
+  }
+  
+  selectedCreature = creature;
+  console.log('選擇精靈:', creature.name);
+  
+  // 更新按鈕顯示
+  updateButtonDisplay();
 }
 
 // 更新擂台顯示
 function updateArenaDisplay(arena) {
+  console.log('更新道館顯示:', arena);
+  
+  // 安全地更新元素
+  const setTextContent = (id, text) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = text;
+  };
+  
+  const setInnerHTML = (id, html) => {
+    const element = document.getElementById(id);
+    if (element) element.innerHTML = html;
+  };
+  
+  // 更新基本資訊
+  setTextContent('arenaName', arena.name || '未知道館');
+  setTextContent('arenaLevel', `等級: ${arena.level || 1}`);
+  setTextContent('arenaLevelInfo', arena.level || 1);
+  setTextContent('arenaStopId', arena.stop_ids ? arena.stop_ids[0] : arena.id);
+  
+  // 根據等級設置背景顏色
+  setArenaBackground(arena.level || 1);
+  
   // 更新擂台狀態
-  const arenaStatus = document.getElementById('arenaStatus');
-  const arenaOwner = document.getElementById('arenaOwner');
   const arenaStatusBadge = document.getElementById('arenaStatusBadge');
-  const guardianContainer = document.getElementById('guardianContainer');
   const guardianInfo = document.getElementById('guardianInfo');
   
   if (arena.owner) {
-    arenaStatus.textContent = '已被佔領';
-    arenaStatus.className = 'text-danger';
-    arenaOwner.textContent = arena.owner;
+    setTextContent('arenaOwner', arena.owner);
     
-    // 更新狀態徽章
-    arenaStatusBadge.className = 'arena-owner-status status-occupied';
-    arenaStatusBadge.innerHTML = '<i class="fas fa-lock me-1"></i> 已被佔領';
+    if (arenaStatusBadge) {
+      arenaStatusBadge.className = 'arena-owner-status status-occupied';
+      arenaStatusBadge.innerHTML = '<i class="fas fa-lock me-1"></i> 已被佔領';
+    }
     
     // 顯示守護精靈信息
-    if (arena.ownerCreature) {
-      // 決定精靈類型的顏色
-      const typeColor = getTypeColor(arena.ownerCreature.type || '未知');
+    if (arena.owner_creature && guardianInfo) {
+      const creature = arena.owner_creature;
+      const attack = creature.attack || creature.power || 100;
+      const hp = creature.hp || (creature.power || 100) * 10;
       
       guardianInfo.innerHTML = `
         <div class="guardian-card">
@@ -1154,63 +1472,233 @@ function updateArenaDisplay(arena) {
             <h5 class="mb-0">守護精靈</h5>
           </div>
           <div class="guardian-img-container">
-            <img class="guardian-img" src="${arena.ownerCreature.img || 'https://placehold.co/200x200/e91e63/ffffff?text=' + encodeURIComponent(arena.ownerCreature.name)}" 
-                alt="${arena.ownerCreature.name}">
+            <img class="guardian-img" src="${creature.image_url || creature.img || '/static/img/creature.PNG'}" alt="${creature.name}">
           </div>
           <div class="guardian-stats">
-            <h5 class="mb-3 text-center">${arena.ownerCreature.name}</h5>
-              <div class="stat-item">
+            <h5 class="mb-3 text-center">${creature.name}</h5>
+            <div class="stat-item">
               <div class="stat-icon power-icon">
                 <i class="fas fa-fist-raised"></i>
               </div>
-              <div class="stat-value">ATK：${arena.ownerCreature.attack || arena.ownerCreature.power || 100}</div>
+              <div class="stat-value">ATK：${attack}</div>
             </div>
-            
             <div class="stat-item">
               <div class="stat-icon power-icon">
                 <i class="fas fa-heart"></i>
               </div>
-              <div class="stat-value">HP：${arena.ownerCreature.hp || (arena.ownerCreature.power || 100) * 10}</div>
+              <div class="stat-value">HP：${hp}</div>
             </div>
-            
             <div class="stat-item">
               <div class="stat-icon type-icon">
                 <i class="fas fa-fire-alt"></i>
               </div>
-              <div class="stat-value">類型：${arena.ownerCreature.type || '未知'}</div>
+              <div class="stat-value">類型：${creature.type || creature.element_type || '未知'}</div>
             </div>
-            
             <div class="stat-item">
               <div class="stat-icon rarity-icon">
                 <i class="fas fa-star"></i>
               </div>
-              <div class="stat-value">稀有度：${arena.ownerCreature.rarity || '普通'}</div>
+              <div class="stat-value">稀有度：${creature.rarity || creature.rate || 'N'}</div>
             </div>
           </div>
         </div>
       `;
-    } else {
+    }
+  } else {
+    setTextContent('arenaOwner', '無');
+    
+    if (arenaStatusBadge) {
+      arenaStatusBadge.className = 'arena-owner-status status-free';
+      arenaStatusBadge.innerHTML = '<i class="fas fa-unlock me-1"></i> 無人佔領';
+    }
+    
+    if (guardianInfo) {
       guardianInfo.innerHTML = `
-        <div class="alert alert-warning">
-          <i class="fas fa-exclamation-triangle me-2"></i> 擁有者尚未指派守護精靈
+        <div class="alert alert-success">
+          <i class="fas fa-info-circle me-2"></i> 此道館暫無守護精靈，你可以佔領它！
         </div>
       `;
     }
-  } else {
-    arenaStatus.textContent = '無人佔領';
-    arenaStatus.className = 'text-success';
-    arenaOwner.textContent = '無';
-    
-    // 更新狀態徽章
-    arenaStatusBadge.className = 'arena-owner-status status-free';
-    arenaStatusBadge.innerHTML = '<i class="fas fa-unlock me-1"></i> 無人佔領';
-    
-    guardianInfo.innerHTML = `
-      <div class="alert alert-success">
-        <i class="fas fa-info-circle me-2"></i> 此擂台暫無守護精靈，你可以占領它！
-      </div>
-    `;
   }
+  
+  // 更新按鈕顯示
+  updateButtonDisplay();
+  
+  // 更新獎勵顯示
+  updateRewardDisplay(arena);
+}
+
+// 更新按鈕顯示
+function updateButtonDisplay() {
+  const occupyBtn = document.getElementById('occupyBtn');
+  const battleBtn = document.getElementById('battleBtn');
+  const collectRewardBtn = document.getElementById('collectRewardBtn');
+  
+  if (!arenaData) return;
+  
+  // 隱藏所有按鈕
+  if (occupyBtn) occupyBtn.style.display = 'none';
+  if (battleBtn) battleBtn.style.display = 'none';
+  if (collectRewardBtn) collectRewardBtn.style.display = 'none';
+  
+  if (!arenaData.owner) {
+    // 無人佔領，顯示佔領按鈕
+    if (occupyBtn) occupyBtn.style.display = 'block';
+  } else {
+    // 已被佔領，顯示挑戰按鈕
+    if (battleBtn) battleBtn.style.display = 'block';
+    
+    // 如果是自己的道館，顯示獎勵按鈕（這裡需要檢查用戶身份）
+    // 暫時先顯示，實際需要後端驗證
+    if (collectRewardBtn) collectRewardBtn.style.display = 'block';
+  }
+}
+
+// 更新獎勵顯示
+function updateRewardDisplay(arena) {
+  const rewardBlock = document.getElementById('arenaRewardBlock');
+  const rewardList = document.getElementById('arenaRewardList');
+  
+  if (!arena.owner || !arena.rewards || !rewardBlock || !rewardList) {
+    if (rewardBlock) rewardBlock.style.display = 'none';
+    return;
+  }
+  
+  const rewards = arena.rewards;
+  
+  if (rewards.available_rewards && rewards.available_rewards.length > 0) {
+    rewardBlock.style.display = 'block';
+    
+    let rewardHTML = '';
+    rewards.available_rewards.forEach(reward => {
+      rewardHTML += `
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span>${reward.description}</span>
+          <span class="badge bg-primary">${reward.quantity}</span>
+        </div>
+      `;
+    });
+    
+    rewardList.innerHTML = rewardHTML;
+  } else {
+    rewardBlock.style.display = 'block';
+    rewardList.innerHTML = '<p class="text-muted mb-0">目前沒有可領取的獎勵</p>';
+  }
+}
+
+// 佔領道館
+function occupyArena() {
+  if (!selectedCreature || !arenaData) return;
+  
+  showLoading();
+  
+  fetch('/game/api/arena-battle/occupy', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      arena_id: arenaData.id,
+      creature_id: selectedCreature.id
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    hideLoading();
+    if (data.success) {
+      alert('成功佔領道館！');
+      arenaData = data.arena;
+      updateArenaDisplay(data.arena);
+    } else {
+      alert('佔領失敗: ' + data.message);
+    }
+  })
+  .catch(error => {
+    hideLoading();
+    console.error('佔領道館錯誤:', error);
+    alert('佔領道館時發生錯誤');
+  });
+}
+
+// 挑戰道館
+function battleArena() {
+  if (!selectedCreature || !arenaData) return;
+  
+  showLoading();
+  
+  fetch('/game/api/arena-battle/battle', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      arena_id: arenaData.id,
+      creature_id: selectedCreature.id
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    hideLoading();
+    if (data.success) {
+      // 播放戰鬥動畫
+      const defender = arenaData.owner_creature;
+      playBattleAnimation(data.is_win, selectedCreature, defender, () => {
+        // 動畫結束後顯示結果
+        showBattleResult(data.is_win, data.message, selectedCreature, arenaData);
+        
+        // 更新道館資料
+        if (data.arena) {
+          arenaData = data.arena;
+          updateArenaDisplay(data.arena);
+        }
+      });
+    } else {
+      alert('挑戰失敗: ' + data.message);
+    }
+  })
+  .catch(error => {
+    hideLoading();
+    console.error('挑戰道館錯誤:', error);
+    alert('挑戰道館時發生錯誤');
+  });
+}
+
+// 領取獎勵
+function collectRewards() {
+  if (!arenaData) return;
+  
+  showLoading();
+  
+  fetch('/game/api/arena-battle/collect-rewards', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      arena_id: arenaData.id
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    hideLoading();
+    if (data.success) {
+      let message = '成功領取獎勵！\n';
+      data.collected_items.forEach(item => {
+        message += `- ${item.description}\n`;
+      });
+      alert(message);
+      
+      // 重新載入道館資料以更新獎勵狀態
+      fetchArenaById(arenaData.id);
+    } else {
+      alert('領取獎勵失敗: ' + data.message);
+    }
+  })
+  .catch(error => {
+    hideLoading();
+    console.error('領取獎勵錯誤:', error);
+    alert('領取獎勵時發生錯誤');
+  });
 }
 
 // 播放戰鬥動畫
@@ -1224,12 +1712,12 @@ function playBattleAnimation(isWin, challenger, defender, callback) {
   const battleFlash = document.getElementById('battleFlash');
   
   // 設置精靈圖片
-  challengerImg.src = challenger.image_url || `https://placehold.co/200x200/e74c3c/white?text=${encodeURIComponent(challenger.name)}`;
+  challengerImg.src = challenger.image_url || '/static/img/creature.PNG';
   
   if (defender) {
-    defenderImg.src = defender.image_url || defender.img || `https://placehold.co/200x200/3498db/white?text=${encodeURIComponent(defender.name)}`;
+    defenderImg.src = defender.image_url || defender.img || '/static/img/creature.PNG';
   } else {
-    defenderImg.src = `https://placehold.co/200x200/cccccc/ffffff?text=無守護者`;
+    defenderImg.src = '/static/img/creature.PNG';
   }
   
   // 重置所有動畫元素
@@ -1243,118 +1731,37 @@ function playBattleAnimation(isWin, challenger, defender, callback) {
   // 顯示動畫容器
   battleAnimation.style.visibility = 'visible';
   
-  // 定義動畫序列
-  const animationSteps = [
-    // 步驟1：顯示挑戰者
-    function() {
-      challengerImg.style.transition = 'all 0.5s ease-out';
-      challengerImg.style.opacity = '1';
-      challengerImg.style.transform = 'translateX(-20px)';
-    },
-    
-    // 步驟2：顯示守護者
-    function() {
-      defenderImg.style.transition = 'all 0.5s ease-out';
-      defenderImg.style.opacity = '1';
-      defenderImg.style.transform = 'translateX(20px)';
-    },
-    
-    // 步驟3：顯示VS文字
-    function() {
-      vsText.style.transition = 'all 0.5s ease-out';
-      vsText.style.opacity = '1';
-      vsText.style.transform = 'scale(1.2)';
-    },
-    
-    // 步驟4：閃光效果
-    function() {
-      battleFlash.style.transition = 'all 0.3s ease-out';
-      battleFlash.style.opacity = '1';
-      battleFlash.style.transform = 'scale(1.5)';
-      
-      // 精靈震動
-      challengerImg.style.transition = 'all 0.1s ease-in-out';
-      defenderImg.style.transition = 'all 0.1s ease-in-out';
-      
-      let shakeCount = 0;
-      const maxShakes = 5;
-      
-      const shakeInterval = setInterval(() => {
-        if (shakeCount >= maxShakes) {
-          clearInterval(shakeInterval);
-          return;
-        }
-        
-        // 隨機偏移
-        const offsetX1 = (Math.random() - 0.5) * 10;
-        const offsetY1 = (Math.random() - 0.5) * 10;
-        const offsetX2 = (Math.random() - 0.5) * 10;
-        const offsetY2 = (Math.random() - 0.5) * 10;
-        
-        challengerImg.style.transform = `translateX(${-20 + offsetX1}px) translateY(${offsetY1}px)`;
-        defenderImg.style.transform = `translateX(${20 + offsetX2}px) translateY(${offsetY2}px)`;
-        
-        shakeCount++;
-      }, 100);
-    },
-    
-    // 步驟5：閃光消失
-    function() {
-      battleFlash.style.transition = 'all 0.3s ease-in';
-      battleFlash.style.opacity = '0';
-      vsText.style.opacity = '0';
-    },
-    
-    // 步驟6：顯示結果
-    function() {
-      if (isWin) {
-        winText.style.transition = 'all 0.5s ease-out';
-        winText.style.opacity = '1';
-        
-        // 守護者消失
-        defenderImg.style.transition = 'all 0.8s ease-in';
-        defenderImg.style.opacity = '0';
-        defenderImg.style.transform = 'translateX(50px) scale(0.5)';
-        
-        // 挑戰者放大
-        challengerImg.style.transition = 'all 0.8s ease-out';
-        challengerImg.style.transform = 'translateX(0) scale(1.2)';
-      } else {
-        loseText.style.transition = 'all 0.5s ease-out';
-        loseText.style.opacity = '1';
-        
-        // 挑戰者消失
-        challengerImg.style.transition = 'all 0.8s ease-in';
-        challengerImg.style.opacity = '0';
-        challengerImg.style.transform = 'translateX(-50px) scale(0.5)';
-        
-        // 守護者放大
-        defenderImg.style.transition = 'all 0.8s ease-out';
-        defenderImg.style.transform = 'translateX(0) scale(1.2)';
-      }
-    }
-  ];
+  // 簡化動畫序列
+  setTimeout(() => {
+    challengerImg.style.opacity = '1';
+    defenderImg.style.opacity = '1';
+  }, 500);
   
-  // 執行動畫序列
-  let stepIndex = 0;
-  const stepInterval = 1000; // 每步間隔1秒
+  setTimeout(() => {
+    vsText.style.opacity = '1';
+  }, 1000);
   
-  function runNextStep() {
-    if (stepIndex < animationSteps.length) {
-      animationSteps[stepIndex]();
-      stepIndex++;
-      battleAnimationTimeout = setTimeout(runNextStep, stepInterval);
+  setTimeout(() => {
+    battleFlash.style.opacity = '1';
+  }, 1500);
+  
+  setTimeout(() => {
+    battleFlash.style.opacity = '0';
+    vsText.style.opacity = '0';
+    
+    if (isWin) {
+      winText.style.opacity = '1';
+      defenderImg.style.opacity = '0';
     } else {
-      // 動畫結束，延遲關閉
-      setTimeout(() => {
-        battleAnimation.style.visibility = 'hidden';
-        if (callback) callback();
-      }, 1000);
+      loseText.style.opacity = '1';
+      challengerImg.style.opacity = '0';
     }
-  }
+  }, 2000);
   
-  // 開始動畫
-  runNextStep();
+  setTimeout(() => {
+    battleAnimation.style.visibility = 'hidden';
+    if (callback) callback();
+  }, 3500);
 }
 
 // 顯示戰鬥結果
@@ -1364,56 +1771,57 @@ function showBattleResult(isWin, message, challenger, arena) {
   const resultTitle = document.getElementById('battleResultTitle');
   const resultMessage = document.getElementById('battleResultMessage');
   
-  // 設置挑戰者信息  document.getElementById('challengerImg').src = challenger.image_url || `https://placehold.co/200x200/e74c3c/white?text=${encodeURIComponent(challenger.name)}`;
-  document.getElementById('challengerName').textContent = challenger.name;
-  document.getElementById('challengerPower').textContent = `ATK: ${challenger.attack || challenger.power || 100} | HP: ${challenger.hp || (challenger.power || 100) * 10}`;
+  // 設置挑戰者信息
+  const challengerImg = document.getElementById('challengerImg');
+  const challengerName = document.getElementById('challengerName');
+  const challengerPower = document.getElementById('challengerPower');
+  
+  if (challengerImg) challengerImg.src = challenger.image_url || '/static/img/creature.PNG';
+  if (challengerName) challengerName.textContent = challenger.name;
+  if (challengerPower) challengerPower.textContent = `ATK: ${challenger.attack || challenger.power || 100} | HP: ${challenger.hp || (challenger.power || 100) * 10}`;
   
   // 設置守護者信息
-  if (arena.ownerCreature) {
-    document.getElementById('defenderImg').src = arena.ownerCreature.image_url || arena.ownerCreature.img || `https://placehold.co/200x200/3498db/white?text=${encodeURIComponent(arena.ownerCreature.name)}`;
-    document.getElementById('defenderName').textContent = arena.ownerCreature.name;
-    document.getElementById('defenderPower').textContent = `ATK: ${arena.ownerCreature.attack || arena.ownerCreature.power || 100} | HP: ${arena.ownerCreature.hp || (arena.ownerCreature.power || 100) * 10}`;
-    document.getElementById('defenderOwner').textContent = '擁有者: ' + arena.owner;
+  const defenderImg = document.getElementById('defenderImg');
+  const defenderName = document.getElementById('defenderName');
+  const defenderPower = document.getElementById('defenderPower');
+  const defenderOwner = document.getElementById('defenderOwner');
+  
+  if (arena.owner_creature) {
+    const defender = arena.owner_creature;
+    if (defenderImg) defenderImg.src = defender.image_url || defender.img || '/static/img/creature.PNG';
+    if (defenderName) defenderName.textContent = defender.name;
+    if (defenderPower) defenderPower.textContent = `ATK: ${defender.attack || defender.power || 100} | HP: ${defender.hp || (defender.power || 100) * 10}`;
+    if (defenderOwner) defenderOwner.textContent = '擁有者: ' + arena.owner;
   } else {
-    document.getElementById('defenderImg').src = 'https://placehold.co/200x200/cccccc/ffffff?text=無守護者';
-    document.getElementById('defenderName').textContent = '無守護者';
-    document.getElementById('defenderPower').textContent = 'ATK: 0 | HP: 0';
-    document.getElementById('defenderOwner').textContent = '擁有者: 無';
+    if (defenderImg) defenderImg.src = '/static/img/creature.PNG';
+    if (defenderName) defenderName.textContent = '無守護者';
+    if (defenderPower) defenderPower.textContent = 'ATK: 0 | HP: 0';
+    if (defenderOwner) defenderOwner.textContent = '擁有者: 無';
   }
   
   // 設置結果樣式
   if (isWin) {
-    battleResult.className = 'battle-result mt-4 result-success';
-    resultHeader.className = 'card-header bg-success text-white';
-    resultTitle.innerHTML = '<i class="fas fa-trophy me-2"></i>挑戰成功！';
-    resultMessage.className = 'alert alert-success';
+    if (battleResult) battleResult.className = 'battle-result mt-4 result-success';
+    if (resultHeader) resultHeader.className = 'card-header bg-success text-white';
+    if (resultTitle) resultTitle.innerHTML = '<i class="fas fa-trophy me-2"></i>挑戰成功！';
+    if (resultMessage) resultMessage.className = 'alert alert-success';
   } else {
-    battleResult.className = 'battle-result mt-4 result-fail';
-    resultHeader.className = 'card-header bg-danger text-white';
-    resultTitle.innerHTML = '<i class="fas fa-times-circle me-2"></i>挑戰失敗！';
-    resultMessage.className = 'alert alert-danger';
+    if (battleResult) battleResult.className = 'battle-result mt-4 result-fail';
+    if (resultHeader) resultHeader.className = 'card-header bg-danger text-white';
+    if (resultTitle) resultTitle.innerHTML = '<i class="fas fa-times-circle me-2"></i>挑戰失敗！';
+    if (resultMessage) resultMessage.className = 'alert alert-danger';
   }
   
   // 設置結果消息
-  resultMessage.innerHTML = `<i class="fas fa-info-circle me-2"></i>${message}`;
+  if (resultMessage) resultMessage.innerHTML = `<i class="fas fa-info-circle me-2"></i>${message}`;
   
   // 顯示結果
-  battleResult.style.display = 'block';
-  
-  // 滾動到結果區域
-  setTimeout(() => {
-    battleResult.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 300);
-}
-
-// 顯示404錯誤頁面
-function showError404Page() {
-  // ...略過現有的錯誤處理代碼...
-}
-
-// 顯示500錯誤頁面
-function showError500Page() {
-  // ...略過現有的錯誤處理代碼...
+  if (battleResult) {
+    battleResult.style.display = 'block';
+    setTimeout(() => {
+      battleResult.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+  }
 }
 
 // 當頁面離開時，清除所有定時器
@@ -1422,25 +1830,5 @@ window.addEventListener('beforeunload', function() {
     clearTimeout(battleAnimationTimeout);
   }
 });
-
-// 根據精靈類型獲取顏色
-function getTypeColor(type) {
-  switch(String(type).toLowerCase()) {
-    case 'water': return 'primary';
-    case '水系': return 'primary';
-    case 'fire': return 'danger';
-    case '火系': return 'danger';
-    case 'earth': return 'warning';
-    case '土系': return 'warning';
-    case 'air': return 'success';
-    case '風系': return 'success';
-    case 'electric': return 'info';
-    case '電系': return 'info';
-    default: return 'secondary';
-  }
-}
 </script>
-
-<!-- 引入精靈選擇功能的JS文件 -->
-<script src="{{ url_for('static', filename='js/game/battle-creatures.js') }}"></script>
 {% endblock %}

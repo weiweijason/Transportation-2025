@@ -327,12 +327,11 @@ def accept_request(request_id):
             })
           # 刪除好友申請記錄（從子集合中移除）
         request_doc_ref.delete()
-        
-        # 觸發成就檢查 - 交友成就
+          # 觸發成就檢查 - 交友成就
         try:
             # 為雙方都觸發交友成就檢查
             triggered_achievements_current = firebase_service.trigger_achievement_check(
-                current_user.id, 
+                current_user_doc_id,  # 使用統一的文檔ID
                 'friend_added',
                 {
                     'friend_player_id': requester_player_id,
@@ -341,7 +340,7 @@ def accept_request(request_id):
             )
             
             triggered_achievements_requester = firebase_service.trigger_achievement_check(
-                requester_doc_id,  # 使用文檔ID而不是current_user.id
+                requester_doc_id,  # 使用文檔ID
                 'friend_added',
                 {
                     'friend_player_id': current_player_id,

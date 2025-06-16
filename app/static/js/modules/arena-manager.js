@@ -135,27 +135,36 @@ function createArena(stop, color, routeName, isBackup = false) {
     return null;
 }
 
-// 檢查Firebase中是否存在道館
+// 檢查道館是否存在（通過後端API）
 async function checkArenaInFirebase(arenaName) {
     try {
-        // 獲取Firebase Firestore數據庫引用
-        const db = firebase.firestore();
+        console.log(`通過後端API檢查道館: ${arenaName}`);
         
-        // 查詢是否已存在同名道館
-        const querySnapshot = await db.collection('arenas')
-            .where('name', '==', arenaName)
-            .limit(1)
-            .get();
-            
-        if (!querySnapshot.empty) {
-            // 存在同名道館，返回道館數據
-            return querySnapshot.docs[0].data();
+        const response = await fetch('/game/api/arena/check-exists', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name: arenaName })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         
-        // 不存在同名道館
-        return null;
+        const result = await response.json();
+        
+        if (result.success && result.exists) {
+            console.log(`✅ 道館存在: ${arenaName}`);
+            return result.arena;
+        } else {
+            console.log(`ℹ️ 道館不存在: ${arenaName}`);
+            return null;
+        }
+        
     } catch (error) {
-        console.error(`查詢Firebase道館時出錯: ${error}`);
+        console.warn(`檢查道館時出錯: ${error.message}`);
+        // 在錯誤情況下返回null，讓應用繼續運行
         return null;
     }
 }
@@ -163,11 +172,16 @@ async function checkArenaInFirebase(arenaName) {
 // 創建道館圖標並添加到地圖
 function createArenaMarker(stop, routeName, arenaId, level, arenaData) {
     // 使用統一的顏色 - 深藍色
-    const arenaColor = '#1565C0';
+    const arenaColor = '#1565C0';    // 確保使用正確的等級 - 基於路線數量計算
+    const arenaRoutes = arenaData.routes || [];
+    const calculatedLevel = arenaRoutes.length > 0 ? arenaRoutes.length : 1;
+    const displayLevel = calculatedLevel; // 使用計算出的等級
     
-    // 確保使用正確的等級 - 從 arena_levels.json 中獲取的等級值
-    const displayLevel = arenaData.level || level || 1;
-    console.log(`創建道館標記: ${arenaData.name}, 等級: ${displayLevel}, id: ${arenaId}`);
+    console.log(`創建道館標記: ${arenaData.name}`);
+    console.log(`  路線列表: ${JSON.stringify(arenaRoutes)}`);
+    console.log(`  計算等級: ${calculatedLevel} (基於 ${arenaRoutes.length} 條路線)`);
+    console.log(`  顯示等級: ${displayLevel}`);
+    console.log(`  道館ID: ${arenaId}`);
     
     // 創建道館圖標
     const iconSize = 36 + (displayLevel - 1) * 6; // 基礎大小36px，每增加一級增加6px
@@ -208,21 +222,23 @@ function createArenaMarker(stop, routeName, arenaId, level, arenaData) {
     if (!window.busStopsArenas) {
         window.busStopsArenas = {};
     }
-    window.busStopsArenas[arenaId] = arenaData;
+    window.busStopsArenas[arenaId] = arenaData;    // 綁定彈出信息 - 包含詳細的路線和等級資訊
+    const popupRoutes = arenaData.routes || [];
+    const routesText = popupRoutes.length > 0 ? popupRoutes.join(', ') : '無路線';
     
-    // 綁定彈出信息 - 包含道館等級的解釋
     let levelDescription = '';
     if (displayLevel === 1) {
-        levelDescription = '基礎道館';
-    } else if (displayLevel > 1) {
-        levelDescription = `${displayLevel} 級道館 (經過 ${displayLevel} 條路線)`;
+        levelDescription = popupRoutes.length === 0 ? '基礎道館 (無路線)' : '1級道館 (1條路線)';
+    } else {
+        levelDescription = `${displayLevel}級道館 (${popupRoutes.length}條路線)`;
     }
     
     arenaMarker.bindPopup(`
         <div style="text-align:center;">
             <h5>${arenaData.name}</h5>
-            <p>等級: ${displayLevel} 級</p>
+            <p><strong>等級: ${displayLevel} 級</strong></p>
             <p><small>${levelDescription}</small></p>
+            <p><small>通過路線: ${routesText}</small></p>
             <p><small>道館ID: ${arenaId}</small></p>
             <button class="btn btn-danger mt-2 challenge-arena-btn" 
                     onclick="goToArena('${stop.id}', '${stop.name}', '${routeName}')">
@@ -243,89 +259,54 @@ window.createArena = createArena;
 window.checkExistingArenaForStop = checkExistingArenaForStop;
 window.updateArenaRoutes = updateArenaRoutes;
 
-// 保存道館信息到Firebase
-function saveArenaToFirebase(arena) {
+// 保存道館信息到後端
+async function saveArenaToFirebase(arena) {
     try {
-        console.log(`開始嘗試保存道館 ${arena.name} 到Firebase...`);
+        console.log(`嘗試保存道館 ${arena.name} 到後端...`);
         
-        // 確認Firebase是否已初始化
-        if (typeof firebase === 'undefined' || !firebase.firestore) {
-            console.error(`Firebase未初始化，無法保存道館: ${arena.name}`);
-            return;
+        // 準備道館數據
+        const arenaData = {
+            id: arena.id,
+            name: arena.name,
+            position: [arena.position[0], arena.position[1]],
+            level: arena.level,
+            routes: arena.routes || [arena.routeName],
+            routeName: arena.routeName,
+            stopIds: [arena.stopId],
+            stopName: arena.stopName,
+            owner: null,
+            ownerPlayerId: null,
+            ownerCreature: null,
+            challengers: []
+        };
+        
+        console.log(`道館數據已準備好:`, JSON.stringify(arenaData, null, 2));
+        
+        // 通過後端 API 保存道館
+        const response = await fetch('/game/api/arena/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(arenaData)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         
-        // 獲取Firebase Firestore數據庫引用
-        const db = firebase.firestore();
-        console.log(`成功獲取Firebase Firestore引用`);
+        const result = await response.json();
         
-        // 首先查詢是否已存在同名道館
-        db.collection('arenas')
-            .where('name', '==', arena.name)
-            .limit(1)
-            .get()
-            .then((querySnapshot) => {
-                if (!querySnapshot.empty) {
-                    console.log(`Firebase中已存在同名道館: ${arena.name}，不進行保存`);
-                    return;
-                }
-                
-                console.log(`Firebase中不存在道館: ${arena.name}，準備上傳數據`);
-                
-                // 準備道館數據
-                const arenaData = {
-                    id: arena.id,
-                    name: arena.name,
-                    position: [arena.position[0], arena.position[1]],
-                    level: arena.level,
-                    routes: arena.routes || [arena.routeName], // 確保routes屬性存在
-                    routeName: arena.routeName,
-                    stopIds: [arena.stopId],
-                    stopName: arena.stopName,
-                    owner: null,
-                    ownerPlayerId: null,
-                    ownerCreature: null,
-                    challengers: [],
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                
-                console.log(`道館數據已準備好: `, JSON.stringify(arenaData, null, 2));
-                
-                // 保存到Firestore
-                return db.collection('arenas').doc(arena.id).set(arenaData)
-                    .then(() => {
-                        console.log(`✅ 道館 ${arena.name} 已成功保存至Firebase Firestore!`);
-                        // 嘗試檢查是否確實保存成功
-                        return db.collection('arenas').doc(arena.id).get();
-                    })
-                    .then((docSnapshot) => {
-                        if (docSnapshot && docSnapshot.exists) {
-                            console.log(`✅ 確認道館 ${arena.name} 已存在於Firebase中，數據驗證成功!`);
-                            console.log(`Firebase文檔ID: ${docSnapshot.id}`);
-                        } else {
-                            console.warn(`⚠️ 道館似乎已保存，但無法立即驗證: ${arena.name}`);
-                        }
-                    })
-                    .catch(error => {
-                        console.error(`❌ 保存道館到Firebase時出錯: ${error.message}`);
-                        console.error(`錯誤詳情:`, error);
-                    });
-            })
-            .catch(error => {
-                console.error(`❌ 查詢Firebase道館時出錯: ${error.message}`);
-                console.error(`錯誤詳情:`, error);
-                
-                // 嘗試打印Firebase連接狀態
-                try {
-                    const authStatus = firebase.auth().currentUser ? '已登入' : '未登入';
-                    console.log(`Firebase認證狀態: ${authStatus}`);
-                } catch (e) {
-                    console.log(`無法獲取Firebase認證狀態: ${e.message}`);
-                }
-            });
+        if (result.success) {
+            console.log(`✅ 道館 ${arena.name} 已成功保存至後端!`);
+            return true;
+        } else {
+            console.warn(`⚠️ 保存道館失敗: ${result.message}`);
+            return false;
+        }
+        
     } catch (error) {
-        console.error(`❌ 存取Firebase時出錯: ${error.message}`);
-        console.error(`錯誤詳情:`, error);
+        console.warn(`保存道館到後端時出錯: ${error.message}`);        return false;
     }
 }
 
@@ -360,57 +341,46 @@ function showArenaInfo(stopId, stopName, routeName) {
     // 道館名稱
     const arenaName = `${stopName}道館`;
     
-    try {
-        // 從Firebase獲取道館當前狀況
-        const db = firebase.firestore();
-        
-        db.collection('arenas')
-            .where('name', '==', arenaName)
-            .limit(1)
-            .get()
-            .then((querySnapshot) => {
-                let arenaData = null;
+    // 通過後端 API 獲取道館資料
+    fetch(`/game/api/arena/get-by-name/${encodeURIComponent(arenaName)}`)
+        .then(response => response.json())
+        .then(result => {
+            let arenaData = null;
+            
+            if (result.success && result.arena) {
+                // 如果找到了道館資料
+                arenaData = result.arena;
+                console.log(`找到現有道館資料: ${arenaName}`, arenaData);
                 
-                if (!querySnapshot.empty) {
-                    // 如果找到了道館資料
-                    arenaData = querySnapshot.docs[0].data();
-                    console.log(`找到現有道館資料: ${arenaName}`, arenaData);
-                    
-                    // 保存道館數據到查詢參數
-                    const params = new URLSearchParams();
-                    params.append('stopId', stopId);
-                    params.append('stopName', stopName);
-                    params.append('routeName', routeName);
-                    params.append('arenaId', arenaData.id);
-                    
-                    if (arenaData.owner) {
-                        params.append('arenaOwner', arenaData.owner);
-                        params.append('arenaOwnerPlayerId', arenaData.ownerPlayerId || '');
-                    }
-                    
-                    if (arenaData.ownerCreature) {
-                        params.append('ownerCreatureName', arenaData.ownerCreature.name || '');
-                        params.append('ownerCreaturePower', arenaData.ownerCreature.power || 0);
-                    }
-                    
-                    // 跳轉到戰鬥頁面
-                    window.location.href = `/game/battle?${params.toString()}`;
-                } else {
-                    // 道館不存在於Firebase中，顯示404錯誤頁面
-                    console.log(`道館 ${arenaName} 不存在於Firebase中，顯示404錯誤頁面`);
-                    window.location.href = `/game/battle?error=404&stopId=${stopId}&stopName=${encodeURIComponent(stopName)}&routeName=${encodeURIComponent(routeName)}`;
+                // 保存道館數據到查詢參數
+                const params = new URLSearchParams();
+                params.append('stopId', stopId);
+                params.append('stopName', stopName);
+                params.append('routeName', routeName);
+                params.append('arenaId', arenaData.id);
+                  if (arenaData.owner) {
+                    params.append('arenaOwner', arenaData.owner);
+                    params.append('arenaOwnerPlayerId', arenaData.ownerPlayerId || '');
                 }
-            })
-            .catch(error => {
-                console.error(`獲取道館資訊時出錯: ${error}`);
-                // 錯誤時顯示錯誤頁面
-                window.location.href = `/game/battle?error=500&stopId=${stopId}&stopName=${encodeURIComponent(stopName)}&routeName=${encodeURIComponent(routeName)}`;
-            });
-    } catch (error) {
-        console.error(`存取Firebase時出錯: ${error}`);
-        // 錯誤時顯示錯誤頁面
-        window.location.href = `/game/battle?error=500&stopId=${stopId}&stopName=${encodeURIComponent(stopName)}&routeName=${encodeURIComponent(routeName)}`;
-    }
+                
+                if (arenaData.ownerCreature) {
+                    params.append('ownerCreatureName', arenaData.ownerCreature.name || '');
+                    params.append('ownerCreaturePower', arenaData.ownerCreature.power || 0);
+                }
+                
+                // 跳轉到戰鬥頁面
+                window.location.href = `/game/battle?${params.toString()}`;
+            } else {
+                // 道館不存在於後端中，顯示404錯誤頁面
+                console.log(`道館 ${arenaName} 不存在於後端中，顯示404錯誤頁面`);
+                window.location.href = `/game/battle?error=404&stopId=${stopId}&stopName=${encodeURIComponent(stopName)}&routeName=${encodeURIComponent(routeName)}`;
+            }
+        })
+        .catch(error => {
+            console.error(`獲取道館資訊時出錯: ${error}`);
+            // 錯誤時顯示錯誤頁面
+            window.location.href = `/game/battle?error=500&stopId=${stopId}&stopName=${encodeURIComponent(stopName)}&routeName=${encodeURIComponent(routeName)}`;
+        });
 }
 
 // 直接前往指定道館頁面
@@ -420,40 +390,28 @@ function goToArena(stopId, stopName, routeName) {
     // 道館名稱
     const arenaName = `${stopName}道館`;
     
-    try {
-        // 從Firebase獲取道館當前狀況
-        const db = firebase.firestore();
-        
-        db.collection('arenas')
-            .where('name', '==', arenaName)
-            .limit(1)
-            .get()
-            .then((querySnapshot) => {
-                let arenaData = null;
+    // 通過後端 API 獲取道館資料
+    fetch(`/game/api/arena/get-by-name/${encodeURIComponent(arenaName)}`)
+        .then(response => response.json())
+        .then(result => {
+            if (result.success && result.arena) {
+                // 如果找到了道館資料
+                const arenaData = result.arena;
+                console.log(`找到現有道館資料: ${arenaName}`, arenaData);
                 
-                if (!querySnapshot.empty) {
-                    // 如果找到了道館資料
-                    arenaData = querySnapshot.docs[0].data();
-                    console.log(`找到現有道館資料: ${arenaName}`, arenaData);
-                    
-                    // 直接導航到擂台頁面，而不是道館列表頁面
-                    window.location.href = `/game/battle?arena_id=${arenaData.id}`;
-                } else {
-                    // 道館不存在於Firebase中，顯示404錯誤頁面
-                    console.log(`道館 ${arenaName} 不存在於Firebase中，顯示404錯誤頁面`);
-                    window.location.href = `/game/battle?error=404&stopId=${stopId}&stopName=${encodeURIComponent(stopName)}&routeName=${encodeURIComponent(routeName)}`;
-                }
-            })
-            .catch(error => {
-                console.error(`獲取道館資訊時出錯: ${error}`);
-                // 錯誤時顯示錯誤頁面
-                window.location.href = `/game/battle?error=500&stopId=${stopId}&stopName=${encodeURIComponent(stopName)}&routeName=${encodeURIComponent(routeName)}`;
-            });
-    } catch (error) {
-        console.error(`存取Firebase時出錯: ${error}`);
-        // 錯誤時顯示錯誤頁面
-        window.location.href = `/game/battle?error=500&stopId=${stopId}&stopName=${encodeURIComponent(stopName)}&routeName=${encodeURIComponent(routeName)}`;
-    }
+                // 直接導航到擂台頁面，而不是道館列表頁面
+                window.location.href = `/game/battle?arena_id=${arenaData.id}`;
+            } else {
+                // 道館不存在於後端中，顯示404錯誤頁面
+                console.log(`道館 ${arenaName} 不存在於後端中，顯示404錯誤頁面`);
+                window.location.href = `/game/battle?error=404&stopId=${stopId}&stopName=${encodeURIComponent(stopName)}&routeName=${encodeURIComponent(routeName)}`;
+            }
+        })
+        .catch(error => {
+            console.error(`獲取道館資訊時出錯: ${error}`);
+            // 錯誤時顯示錯誤頁面
+            window.location.href = `/game/battle?error=500&stopId=${stopId}&stopName=${encodeURIComponent(stopName)}&routeName=${encodeURIComponent(routeName)}`;
+        });
 }
 
 // 將goToArena函數暴露為全域函數
@@ -463,101 +421,57 @@ window.goToArena = goToArena;
 function checkExistingArenaForStop(stopName) {
     // 使用Promise包裝，以便於處理異步操作
     return new Promise((resolve, reject) => {
-        try {
-            // 使用Firebase查詢是否已存在同名道館
-            const db = firebase.firestore();
-            const arenaName = `${stopName}道館`;
-            
-            db.collection('arenas')
-                .where('name', '==', arenaName)
-                .limit(1)
-                .get()
-                .then((querySnapshot) => {
-                    if (!querySnapshot.empty) {
-                        // 找到現有道館
-                        const arenaData = querySnapshot.docs[0].data();
-                        console.log(`找到現有道館: ${arenaName}`, arenaData);
-                        resolve(arenaData);
-                    } else {
-                        // 沒有找到道館
-                        console.log(`沒有找到道館: ${arenaName}`);
-                        resolve(null);
-                    }
-                })
-                .catch(error => {
-                    console.error(`查詢Firebase道館時出錯: ${error}`);
+        const arenaName = `${stopName}道館`;
+        
+        // 通過後端 API 檢查道館是否存在
+        fetch(`/game/api/arena/check/${encodeURIComponent(arenaName)}`)
+            .then(response => response.json())
+            .then(result => {
+                if (result.success && result.exists) {
+                    // 找到現有道館
+                    console.log(`找到現有道館: ${arenaName}`, result.arena);
+                    resolve(result.arena);
+                } else {
+                    // 沒有找到道館
+                    console.log(`沒有找到道館: ${arenaName}`);
                     resolve(null);
-                });
-        } catch (error) {
-            console.error(`檢查現有道館時出錯: ${error}`);
-            resolve(null);
-        }
+                }
+            })
+            .catch(error => {
+                console.error(`檢查道館時出錯: ${error}`);
+                resolve(null);
+            });
     });
 }
 
 // 更新道館路線
 function updateArenaRoutes(arenaId, routeName) {
     return new Promise((resolve, reject) => {
-        try {
-            const db = firebase.firestore();
-            
-            // 獲取道館參考
-            const arenaRef = db.collection('arenas').doc(arenaId);
-            
-            // 獲取當前道館數據
-            arenaRef.get().then(doc => {
-                if (doc.exists) {
-                    const arenaData = doc.data();
-                    console.log(`更新道館路線: ${arenaId}`, arenaData);
-                    
-                    // 檢查是否已有routes屬性，並確保是數組
-                    let routes = Array.isArray(arenaData.routes) ? [...arenaData.routes] : [];
-                    
-                    // 檢查路線是否已存在
-                    if (!routes.includes(routeName)) {
-                        routes.push(routeName);
-                        
-                        // 更新等級
-                        const level = routes.length;
-                        
-                        // 更新Firebase文檔
-                        arenaRef.update({
-                            routes: routes,
-                            level: level,
-                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                        })
-                        .then(() => {
-                            console.log(`✅ 道館 ${arenaData.name} 路線更新為: ${routes.join(', ')}, 等級: ${level}`);
-                            resolve({
-                                success: true,
-                                routes: routes,
-                                level: level
-                            });
-                        })
-                        .catch(error => {
-                            console.error(`❌ 更新道館路線時出錯: ${error}`);
-                            reject(error);
-                        });
-                    } else {
-                        console.log(`道館 ${arenaData.name} 已有路線 ${routeName}，無需更新`);
-                        resolve({
-                            success: true,
-                            routes: routes,
-                            level: routes.length
-                        });
-                    }
-                } else {
-                    console.error(`找不到道館文檔: ${arenaId}`);
-                    reject(new Error('找不到道館文檔'));
-                }
-            }).catch(error => {
-                console.error(`獲取道館數據時出錯: ${error}`);
-                reject(error);
-            });
-        } catch (error) {
+        // 通過後端 API 更新道館路線
+        fetch('/game/api/arena/update-routes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                arenaId: arenaId,
+                routeName: routeName
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                console.log(`✅ 道館路線更新成功: ${arenaId}, 新路線: ${routeName}`);
+                resolve(result.arena);
+            } else {
+                console.error(`❌ 道館路線更新失敗: ${result.message}`);
+                reject(new Error(result.message));
+            }
+        })
+        .catch(error => {
             console.error(`更新道館路線時出錯: ${error}`);
             reject(error);
-        }
+        });
     });
 }
 

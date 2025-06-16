@@ -5,6 +5,7 @@ from app.routes.game.views import views_bp
 from app.routes.game.creature_api import creature_bp
 from app.routes.game.bus_api import bus_bp
 from app.routes.game.arena_api import arena_bp
+from app.routes.game.arena_battle_api import arena_battle_bp
 from app.routes.game.route_creatures_api import route_creatures_bp
 from app.routes.game.user_api import user_bp
 
@@ -26,11 +27,11 @@ def init_app(app):
     
     # 註冊主遊戲藍圖
     app.register_blueprint(game_bp)
-    
-    # 註冊 API 藍圖
+      # 註冊 API 藍圖
     app.register_blueprint(creature_bp)
     app.register_blueprint(bus_bp)
     app.register_blueprint(arena_bp)
+    app.register_blueprint(arena_battle_bp)
     app.register_blueprint(route_creatures_bp)
     app.register_blueprint(user_bp)
     

@@ -6,7 +6,8 @@ import { updateUserLocation } from './modules/user-location.js';
 import { loadAllRoutes, loadCatRightRoute, loadCatLeftRoute, loadCatLeftZhinanRoute, loadBrown3Route } from './modules/route-manager.js';
 import { loadAllBusStops } from './modules/stop-manager.js';
 import { createArena, showArenaInfo, renderAllArenas } from './modules/arena-manager.js';
-import { showLoading, hideLoading, showErrorMessage } from './modules/ui-utils.js';
+import { showLoading, hideLoading, showErrorMessage, showSuccessMessage } from './modules/ui-utils.js';
+import firebaseOfflineHandler from './modules/firebase-offline-handler.js';
 import { 
     routeLayer,
     stopsLayer,
@@ -35,6 +36,7 @@ window.createArena = createArena;
 window.showLoading = showLoading;
 window.hideLoading = hideLoading;
 window.showErrorMessage = showErrorMessage;
+window.showSuccessMessage = showSuccessMessage;
 window.renderAllArenas = renderAllArenas; // 暴露新函數
 
 // 暴露道館等級相關的新函數
@@ -122,12 +124,14 @@ function initApp() {
                             console.log('站點載入完成，開始從緩存中載入並繪製道館...');
                             renderAllArenas();
                         }, 2000); // 給予2秒的時間讓站點完全載入
-                        
-                        // 初始化精靈圖層，但不生成精靈
+                          // 初始化精靈圖層，但不生成精靈
                         console.log('初始化精靈圖層，等待從Firebase加載精靈');
                         if (!window.creaturesLayer) {
                             window.creaturesLayer = L.layerGroup().addTo(window.busMap);
                         }
+                        
+                        // 設置路線恢復機制
+                        setupRouteRecovery();
                                                 
                         // 隱藏加載中提示
                         hideLoading();
@@ -246,6 +250,89 @@ function tryCreateEmergencyMap() {
         console.error('緊急備用地圖創建失敗:', emergencyError);
     }
 }
+
+// 路線恢復機制 - 處理路線消失問題
+function setupRouteRecovery() {
+    console.log('設置路線恢復機制...');
+    
+    // 定期檢查路線是否還在地圖上
+    setInterval(() => {
+        checkAndRecoverRoutes();
+    }, 30000); // 每30秒檢查一次
+    
+    // 監聽頁面可見性變化
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            // 頁面變為可見時，檢查路線
+            setTimeout(() => {
+                checkAndRecoverRoutes();
+            }, 1000);
+        }
+    });
+}
+
+function checkAndRecoverRoutes() {
+    if (!window.busMap || !window.routeLayer) {
+        console.log('地圖或路線圖層尚未初始化，跳過路線檢查');
+        return;
+    }
+    
+    const currentLayers = window.routeLayer.getLayers();
+    console.log(`當前路線圖層數量: ${currentLayers.length}`);
+    
+    // 如果路線圖層為空或路線數量不足，重新載入路線
+    if (currentLayers.length < 4) { // 應該有4條路線
+        console.warn('檢測到路線遺失，開始恢復路線...');
+        
+        try {
+            // 重新載入所有路線
+            loadAllRoutes();
+            
+            // 顯示通知
+            if (typeof window.showSuccessMessage === 'function') {
+                window.showSuccessMessage('路線已自動恢復載入');
+            }
+            
+        } catch (error) {
+            console.error('路線恢復失敗:', error);
+        }
+    }
+}
+
+// 強制重新載入棕3路線的函數
+function forceReloadBrown3Route() {
+    console.log('強制重新載入棕3路線...');
+    
+    try {
+        // 清除現有的棕3路線
+        if (window.routeLayer) {
+            window.routeLayer.eachLayer((layer) => {
+                if (layer.options && layer.options.color === '#8B4513') {
+                    window.routeLayer.removeLayer(layer);
+                }
+            });
+        }
+        
+        // 重新載入棕3路線
+        loadBrown3Route();
+        
+        // 顯示成功訊息
+        if (typeof window.showSuccessMessage === 'function') {
+            window.showSuccessMessage('棕3路線已重新載入');
+        }
+        
+    } catch (error) {
+        console.error('重新載入棕3路線失敗:', error);
+        
+        if (typeof window.showErrorMessage === 'function') {
+            window.showErrorMessage('棕3路線載入失敗，請重新整理頁面');
+        }
+    }
+}
+
+// 暴露恢復函數給全局
+window.forceReloadBrown3Route = forceReloadBrown3Route;
+window.checkAndRecoverRoutes = checkAndRecoverRoutes;
 
 // 設置初始化和事件綁定
 document.addEventListener('DOMContentLoaded', function() {
