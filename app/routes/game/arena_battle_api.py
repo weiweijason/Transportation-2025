@@ -108,9 +108,10 @@ def extract_arena_name(arena_id):
 @arena_battle_bp.route('/get-user-creatures')
 @login_required
 def get_user_creatures():
-    """獲取用戶的精靈，根據道館等級進行過濾"""
+    """獲取用戶的精靈，根據道館等級進行過濾，並排除已佔領道館的精靈"""
     try:
         arena_level = request.args.get('arena_level', 1, type=int)
+        include_occupied = request.args.get('include_occupied', 'false').lower() == 'true'
         
         firebase_service = FirebaseService()
         
@@ -118,10 +119,27 @@ def get_user_creatures():
         user_ref = firebase_service.firestore_db.collection('users').document(current_user.id)
         user_creatures_ref = user_ref.collection('user_creatures').get()
         
+        # 獲取已佔領道館的精靈ID列表
+        occupied_creature_ids = set()
+        if not include_occupied:
+            user_arenas = user_ref.collection('user_arenas').where('status', '==', 'occupied').get()
+            for arena_doc in user_arenas:
+                arena_data = arena_doc.to_dict()
+                creature_id = arena_data.get('guardian_creature_id')
+                if creature_id:
+                    occupied_creature_ids.add(creature_id)
+        
         creatures_list = []
         for creature_doc in user_creatures_ref:
             creature_data = creature_doc.to_dict()
             creature_data['id'] = creature_doc.id
+            
+            # 檢查精靈是否已被用於佔領道館
+            if not include_occupied and creature_doc.id in occupied_creature_ids:
+                creature_data['is_occupied'] = True
+                continue  # 跳過已佔領道館的精靈
+            else:
+                creature_data['is_occupied'] = False
             
             # 根據道館等級過濾精靈
             if is_creature_allowed_in_arena(creature_data, arena_level):
@@ -129,7 +147,9 @@ def get_user_creatures():
         
         return jsonify({
             'success': True,
-            'creatures': creatures_list
+            'creatures': creatures_list,
+            'total_available': len(creatures_list),
+            'occupied_count': len(occupied_creature_ids)
         })
         
     except Exception as e:
@@ -211,6 +231,13 @@ def occupy_arena():
                 'message': f'此精靈不符合等級 {arena_level} 道館的使用要求'
             }), 400
         
+        # 檢查精靈是否已被用於佔領其他道館
+        if is_creature_already_occupying(current_user.id, creature_id, firebase_service):
+            return jsonify({
+                'success': False,
+                'message': '此精靈已被用於佔領其他道館，不可重複使用'
+            }), 400
+        
         # 獲取用戶資料
         user_data = firebase_service.get_user_info(current_user.id)
         username = user_data.get('username', '未知玩家')
@@ -227,6 +254,9 @@ def occupy_arena():
             'rewards.last_collected': occupy_time,
             'rewards.accumulated_hours': 0
         })
+        
+        # 保存到用戶的 user_arenas 子集合中
+        save_user_arena_occupation(current_user.id, arena_id, creature_id, firebase_service)
         
         # 獲取更新後的道館資料
         updated_arena = arena_ref.get().to_dict()
@@ -304,13 +334,19 @@ def battle_arena():
         
         challenger_creature = challenger_creature_doc.to_dict()
         challenger_creature['id'] = challenger_creature_id
-        
-        # 檢查精靈是否符合道館等級要求
+          # 檢查精靈是否符合道館等級要求
         arena_level = arena_data.get('level', 1)
         if not is_creature_allowed_in_arena(challenger_creature, arena_level):
             return jsonify({
                 'success': False,
                 'message': f'此精靈不符合等級 {arena_level} 道館的使用要求'
+            }), 400
+        
+        # 檢查精靈是否已被用於佔領其他道館
+        if is_creature_already_occupying(current_user.id, challenger_creature_id, firebase_service):
+            return jsonify({
+                'success': False,
+                'message': '此精靈已被用於佔領其他道館，不可重複使用'
             }), 400
         
         # 獲取守護者精靈資料
@@ -324,9 +360,11 @@ def battle_arena():
             'total_battles': arena_data.get('total_battles', 0) + 1,
             'last_updated': datetime.now().isoformat()
         })
-        
-        # 處理戰鬥結果
+          # 處理戰鬥結果
         if battle_result['winner'] == 'host':  # 挑戰者獲勝
+            # 移除原擁有者的 user_arenas 記錄
+            remove_user_arena_occupation(arena_data.get('owner_player_id'), arena_id, firebase_service)
+            
             # 更新道館擁有者
             username = user_data.get('username', '未知玩家')
             occupy_time = datetime.now().isoformat()
@@ -340,6 +378,9 @@ def battle_arena():
                 'rewards.last_collected': occupy_time,
                 'rewards.accumulated_hours': 0
             })
+            
+            # 保存到新擁有者的 user_arenas 子集合中
+            save_user_arena_occupation(current_user.id, arena_id, challenger_creature_id, firebase_service)
             
             message = f'恭喜！您成功佔領了道館！'
             is_win = True
@@ -527,3 +568,203 @@ def calculate_arena_rewards(arena_data):
         current_app.logger.error(f"計算獎勵時發生錯誤: {e}")
     
     return rewards
+
+def is_creature_already_occupying(user_id, creature_id, firebase_service):
+    """檢查精靈是否已被用於佔領其他道館
+    
+    Args:
+        user_id (str): 用戶ID
+        creature_id (str): 精靈ID
+        firebase_service: Firebase服務實例
+        
+    Returns:
+        bool: 如果精靈已被用於佔領道館則返回True，否則返回False
+    """
+    try:
+        user_ref = firebase_service.firestore_db.collection('users').document(user_id)
+        user_arenas = user_ref.collection('user_arenas').where('status', '==', 'occupied').get()
+        
+        for arena_doc in user_arenas:
+            arena_data = arena_doc.to_dict()
+            if arena_data.get('guardian_creature_id') == creature_id:
+                return True
+        
+        return False
+    except Exception as e:
+        current_app.logger.error(f"檢查精靈佔領狀態失敗: {e}")
+        return False
+
+def save_user_arena_occupation(user_id, arena_id, creature_id, firebase_service):
+    """保存用戶道館佔領記錄到 user_arenas 子集合
+    
+    Args:
+        user_id (str): 用戶ID
+        arena_id (str): 道館ID
+        creature_id (str): 精靈ID
+        firebase_service: Firebase服務實例
+    """
+    try:
+        user_ref = firebase_service.firestore_db.collection('users').document(user_id)
+        user_arena_ref = user_ref.collection('user_arenas').document(arena_id)
+        
+        user_arena_data = {
+            'arena_id': arena_id,
+            'guardian_creature_id': creature_id,
+            'occupied_at': datetime.now().isoformat(),
+            'status': 'occupied'
+        }
+        
+        user_arena_ref.set(user_arena_data)
+        current_app.logger.info(f"已保存用戶道館佔領記錄: {user_id} -> {arena_id}")
+        
+    except Exception as e:
+        current_app.logger.error(f"保存用戶道館佔領記錄失敗: {e}")
+
+def remove_user_arena_occupation(user_id, arena_id, firebase_service):
+    """移除用戶道館佔領記錄
+    
+    Args:
+        user_id (str): 用戶ID
+        arena_id (str): 道館ID
+        firebase_service: Firebase服務實例
+    """
+    try:
+        if not user_id:
+            return
+            
+        user_ref = firebase_service.firestore_db.collection('users').document(user_id)
+        user_arena_ref = user_ref.collection('user_arenas').document(arena_id)
+        
+        # 檢查文檔是否存在
+        if user_arena_ref.get().exists:
+            user_arena_ref.delete()
+            current_app.logger.info(f"已移除用戶道館佔領記錄: {user_id} -> {arena_id}")
+        
+    except Exception as e:
+        current_app.logger.error(f"移除用戶道館佔領記錄失敗: {e}")
+
+def get_user_occupied_arenas(user_id, firebase_service):
+    """獲取用戶已佔領的道館列表
+    
+    Args:
+        user_id (str): 用戶ID
+        firebase_service: Firebase服務實例
+        
+    Returns:
+        list: 已佔領的道館ID列表
+    """
+    try:
+        user_ref = firebase_service.firestore_db.collection('users').document(user_id)
+        user_arenas = user_ref.collection('user_arenas').where('status', '==', 'occupied').get()
+        
+        occupied_arenas = []
+        for arena_doc in user_arenas:
+            arena_data = arena_doc.to_dict()
+            occupied_arenas.append(arena_data.get('arena_id'))
+        
+        return occupied_arenas
+    except Exception as e:
+        current_app.logger.error(f"獲取用戶已佔領道館列表失敗: {e}")
+        return []
+
+@arena_battle_bp.route('/user-arenas')
+@login_required
+def get_user_arenas():
+    """獲取用戶已佔領的道館列表"""
+    try:
+        firebase_service = FirebaseService()
+        occupied_arenas = get_user_occupied_arenas(current_user.id, firebase_service)
+        
+        # 獲取詳細的道館資訊
+        arena_details = []
+        for arena_id in occupied_arenas:
+            arena_ref = firebase_service.firestore_db.collection('arenas').document(arena_id)
+            arena_doc = arena_ref.get()
+            
+            if arena_doc.exists:
+                arena_data = arena_doc.to_dict()
+                arena_data['id'] = arena_id
+                arena_details.append(arena_data)
+        
+        return jsonify({
+            'success': True,
+            'occupied_arenas': arena_details,
+            'total_count': len(arena_details)
+        })
+        
+    except Exception as e:
+        current_app.logger.error(f"獲取用戶道館列表失敗: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'獲取用戶道館列表失敗: {str(e)}'
+        }), 500
+
+@arena_battle_bp.route('/release', methods=['POST'])
+@login_required
+def release_arena():
+    """釋放道館（讓玩家主動放棄道館）"""
+    try:
+        data = request.json
+        arena_id = data.get('arena_id')
+        
+        if not arena_id:
+            return jsonify({
+                'success': False,
+                'message': '缺少道館ID'
+            }), 400
+        
+        firebase_service = FirebaseService()
+        
+        # 獲取道館資料
+        arena_ref = firebase_service.firestore_db.collection('arenas').document(arena_id)
+        arena_doc = arena_ref.get()
+        
+        if not arena_doc.exists:
+            return jsonify({
+                'success': False,
+                'message': '道館不存在'
+            }), 404
+        
+        arena_data = arena_doc.to_dict()
+        
+        # 檢查是否為道館擁有者
+        user_data = firebase_service.get_user_info(current_user.id)
+        player_id = user_data.get('player_id', current_user.id)
+        
+        if arena_data.get('owner_player_id') != player_id:
+            return jsonify({
+                'success': False,
+                'message': '只有道館擁有者才能釋放道館'
+            }), 403
+        
+        # 釋放道館
+        arena_ref.update({
+            'owner': None,
+            'owner_player_id': None,
+            'owner_creature': None,
+            'occupied_at': None,
+            'last_updated': datetime.now().isoformat(),
+            'rewards.last_collected': None,
+            'rewards.accumulated_hours': 0,
+            'rewards.available_rewards': []
+        })
+        
+        # 移除用戶的 user_arenas 記錄
+        remove_user_arena_occupation(current_user.id, arena_id, firebase_service)
+        
+        # 獲取更新後的道館資料
+        updated_arena = arena_ref.get().to_dict()
+        updated_arena['id'] = arena_id
+        
+        return jsonify({
+            'success': True,
+            'message': '成功釋放道館！',
+            'arena': updated_arena
+        })
+        
+    except Exception as e:
+        current_app.logger.error(f"釋放道館失敗: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'釋放道館失敗: {str(e)}'
+        }), 500
