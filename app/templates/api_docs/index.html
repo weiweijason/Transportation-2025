@@ -163,13 +163,32 @@
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <!-- 標題區域 -->
+    <div class="container-fluid">        <!-- 標題區域 -->
         <div class="api-docs-header text-center">
-            <h1 class="display-4 mb-3">
-                <i class="fas fa-code text-primary"></i>
-                Spirit Bus API 文檔
-            </h1>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div></div> <!-- 左邊佔位 -->
+                <h1 class="display-4 mb-0">
+                    <i class="fas fa-code text-primary"></i>
+                    Spirit Bus API 文檔
+                </h1>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="apiDocsMenu" data-bs-toggle="dropdown">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">                        <li>
+                            <a class="dropdown-item" href="{{ url_for('api_docs.test_interface') }}">
+                                <i class="fas fa-vial text-success"></i> 測試介面
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="{{ url_for('api_docs.logout') }}">
+                                <i class="fas fa-sign-out-alt"></i> 登出
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
             <p class="lead text-muted">完整的 API 端點文檔與測試介面</p>
             
             <!-- 統計資訊 -->

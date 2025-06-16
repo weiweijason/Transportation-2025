@@ -1,18 +1,55 @@
-from flask import Blueprint, render_template, jsonify, request
+from flask import Blueprint, render_template, jsonify, request, session, redirect, url_for, flash, current_app
 from flask_login import login_required
 import inspect
 import os
+from functools import wraps
 from app import create_app
 
 # 創建API文檔藍圖
 api_docs = Blueprint('api_docs', __name__, url_prefix='/api-docs')
 
+def api_docs_required(f):
+    """API 文檔認證裝飾器"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # 檢查是否已通過認證
+        if not session.get('api_docs_authenticated'):
+            return redirect(url_for('api_docs.login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+@api_docs.route('/login', methods=['GET', 'POST'])
+def login():
+    """API 文檔登入頁面"""
+    if request.method == 'POST':
+        password = request.form.get('password')
+        # 從配置中獲取密碼
+        api_docs_password = current_app.config.get('API_DOCS_PASSWORD', 'devdocs2024')
+        
+        if password == api_docs_password:
+            session['api_docs_authenticated'] = True
+            flash('成功進入 API 文檔系統', 'success')
+            return redirect(url_for('api_docs.index'))
+        else:
+            flash('密碼錯誤', 'danger')
+    
+    return render_template('api_docs/login.html')
+
+@api_docs.route('/logout')
+def logout():
+    """API 文檔登出"""
+    session.pop('api_docs_authenticated', None)
+    flash('已登出 API 文檔系統', 'info')
+    return redirect(url_for('api_docs.login'))
+
 @api_docs.route('/')
+@api_docs_required
 def index():
     """API文檔主頁"""
     return render_template('api_docs/index.html')
 
 @api_docs.route('/api/endpoints')
+@api_docs_required
 def get_endpoints():
     """獲取所有API端點資訊"""
     from flask import current_app
@@ -87,7 +124,7 @@ def _requires_authentication(view_func):
         return False
 
 @api_docs.route('/test')
-@login_required
+@api_docs_required
 def test_interface():
     """API測試介面"""
     return render_template('api_docs/test.html')

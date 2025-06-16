@@ -143,17 +143,36 @@
 </head>
 <body>
     <div class="container-fluid">
-        <div class="test-container">
-            <!-- 標題 -->
+        <div class="test-container">            <!-- 標題 -->
             <div class="text-center mb-4">
-                <h1 class="display-5">
-                    <i class="fas fa-flask text-primary"></i>
-                    API 測試介面
-                </h1>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <a href="/api-docs" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> 返回文檔
+                    </a>
+                    <h1 class="display-5 mb-0">
+                        <i class="fas fa-flask text-primary"></i>
+                        API 測試介面
+                    </h1>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('api_docs.index') }}">
+                                    <i class="fas fa-book text-primary"></i> API 文檔
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="{{ url_for('api_docs.logout') }}">
+                                    <i class="fas fa-sign-out-alt"></i> 登出
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
                 <p class="text-muted">測試您的 API 端點並查看響應結果</p>
-                <a href="/api-docs" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left"></i> 返回文檔
-                </a>
             </div>
             
             <!-- 快速測試按鈕 -->
