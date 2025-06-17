@@ -181,12 +181,27 @@ function displayCreaturesOnMap(creatures) {
   });
   
   console.log(`成功創建 ${createdMarkers.length} 個精靈標記`);
-  
-  // 如果有精靈，平移到第一個精靈的位置
+    // 如果有精靈，平移到第一個精靈的位置
   if (createdMarkers.length > 0 && creatures[0] && creatures[0].position) {
     const pos = creatures[0].position;
     console.log(`平移到第一個精靈位置:`, pos);
-    gameMap.setView([parseFloat(pos.lat), parseFloat(pos.lng)], 16);
+    
+    // 使用安全的 setView 函數
+    if (window.safeSetMapView && window.isMapInstanceValid && window.isMapInstanceValid(gameMap)) {
+      const success = window.safeSetMapView(gameMap, [parseFloat(pos.lat), parseFloat(pos.lng)], 16);
+      if (!success) {
+        console.warn('無法安全地設置地圖視圖到精靈位置');
+      }
+    } else {
+      // 備用方案：直接嘗試 setView，但包裝在 try-catch 中
+      try {
+        if (gameMap && gameMap.setView) {
+          gameMap.setView([parseFloat(pos.lat), parseFloat(pos.lng)], 16);
+        }
+      } catch (error) {
+        console.error('設置地圖視圖到精靈位置時發生錯誤:', error);
+      }
+    }
     
     // 添加大型閃爍圈圈指示器來標示精靈位置
     const animatedCircle = L.circleMarker([parseFloat(pos.lat), parseFloat(pos.lng)], {

@@ -42,18 +42,106 @@ function initializeMap(containerId = 'map') {
 
 // 備用：直接創建地圖（不依賴模組）
 function createDirectMap(containerId = 'map') {
-  console.log('使用直接方法初始化地圖');
-  try {    // 如果已經有地圖實例，先移除
-    if (gameMap && typeof gameMap.remove === 'function') {
-      gameMap.remove();
-    }
-    if (window.gameMap && typeof window.gameMap.remove === 'function') {
-      window.gameMap.remove();
-    }
-    if (window.busMap && typeof window.busMap.remove === 'function') {
-      window.busMap.remove();
+  console.log('使用直接方法初始化地圖，容器ID:', containerId);
+  try {
+    // 確保容器存在且有效
+    const mapContainer = document.getElementById(containerId);
+    if (!mapContainer) {
+      throw new Error('地圖容器不存在: ' + containerId);
     }
     
+    // 徹底清理容器，移除任何 Leaflet 相關的屬性和事件
+    function thoroughlyCleanContainer(container) {
+      try {
+        // 移除所有 Leaflet 相關的數據屬性
+        delete container._leaflet_id;
+        delete container._leaflet;
+        
+        // 移除 Leaflet 的 CSS 類
+        container.classList.remove('leaflet-container', 'leaflet-touch', 'leaflet-fade-anim', 'leaflet-grab', 'leaflet-touch-drag', 'leaflet-touch-zoom');
+        
+        // 清空容器內容
+        container.innerHTML = '';
+        
+        // 重置樣式
+        container.style.cssText = '';
+        container.style.width = '100%';
+        container.style.height = '100vh';
+        container.style.minHeight = '400px';
+        container.style.position = 'relative';
+        
+        console.log('容器已徹底清理:', containerId);
+      } catch (cleanError) {
+        console.warn('清理容器時出錯:', cleanError);
+      }
+    }
+    
+    // 徹底清理並移除現有地圖實例
+    const instancesToClean = [gameMap, window.gameMap, window.busMap];
+    
+    for (let i = 0; i < instancesToClean.length; i++) {
+      const mapInstance = instancesToClean[i];
+      if (mapInstance && typeof mapInstance.remove === 'function') {
+        try {
+          mapInstance.off(); // 移除所有事件監聽器
+          mapInstance.remove();
+          console.log(`地圖實例 ${i} 已移除`);
+        } catch (removeError) {
+          console.warn(`移除地圖實例 ${i} 時出錯:`, removeError);
+          
+          // 如果 remove() 失敗，嘗試手動清理
+          try {
+            if (mapInstance._container) {
+              thoroughlyCleanContainer(mapInstance._container);
+            }
+          } catch (manualCleanError) {
+            console.warn('手動清理失敗:', manualCleanError);
+          }
+        }
+      }
+    }
+    
+    // 清理全局變量
+    gameMap = null;
+    window.gameMap = null;
+    window.busMap = null;
+    
+    // 徹底清理目標容器
+    thoroughlyCleanContainer(mapContainer);
+    
+    // 等待一小段時間確保清理完成
+    setTimeout(() => {
+      console.log('開始創建新地圖實例...');
+      
+      // 再次確保容器有尺寸
+      const rect = mapContainer.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) {
+        console.warn('地圖容器尺寸為0，設置預設尺寸');
+        mapContainer.style.width = '100%';
+        mapContainer.style.height = '100vh';
+        mapContainer.style.minHeight = '400px';
+      }
+      
+      // 創建新地圖實例
+      try {
+        createNewMapInstance(containerId);
+      } catch (createError) {
+        console.error('創建新地圖實例失敗:', createError);
+        hideLoading();
+        showGameAlert('地圖創建失敗，請刷新頁面重試', 'error');
+      }
+    }, 100);
+    
+  } catch (error) {
+    console.error('地圖初始化失敗:', error);
+    hideLoading();
+    showGameAlert('地圖初始化失敗，請刷新頁面重試', 'error');
+  }
+}
+
+// 創建新地圖實例的獨立函數
+function createNewMapInstance(containerId) {
+  try {
     // 創建新的地圖實例
     gameMap = L.map(containerId, {
       center: [25.0165, 121.5375],
@@ -113,11 +201,11 @@ function createDirectMap(containerId = 'map') {
     
     // 完成初始化
     finishMapInitialization();
-  } catch (directError) {
-    console.error('備用地圖初始化也失敗:', directError);
+    
+  } catch (createInstanceError) {
+    console.error('創建地圖實例失敗:', createInstanceError);
     hideLoading();
-    showGameAlert('地圖初始化失敗，請檢查網絡連接並刷新頁面重試。', 'danger');
-    throw directError; // 重新拋出錯誤以便於調試
+    showGameAlert('地圖實例創建失敗，請刷新頁面重試', 'error');
   }
 }
 
@@ -244,9 +332,16 @@ function addDefaultLocationMarker() {
     fillOpacity: 0.1,
     weight: 1
   }).addTo(gameMap);
-  
-  // 更新地圖視角
-  gameMap.setView(defaultPos, 14);
+    // 更新地圖視角
+  if (window.safeSetMapView) {
+    window.safeSetMapView(gameMap, defaultPos, 14);
+  } else {
+    try {
+      gameMap.setView(defaultPos, 14);
+    } catch (error) {
+      console.error('設置預設位置視圖時發生錯誤:', error);
+    }
+  }
   
   // 更新位置顯示
   const locationElement = document.getElementById('currentLocation');
@@ -300,9 +395,16 @@ function updateUserLocation() {
             weight: 1
           }).addTo(gameMap);
         }
-        
-        // 更新地圖視角
-        gameMap.setView([lat, lng], 16);
+          // 更新地圖視角
+        if (window.safeSetMapView) {
+          window.safeSetMapView(gameMap, [lat, lng], 16);
+        } else {
+          try {
+            gameMap.setView([lat, lng], 16);
+          } catch (error) {
+            console.error('設置用戶位置視圖時發生錯誤:', error);
+          }
+        }
         
         // 更新位置顯示
         const locationElement = document.getElementById('currentLocation');
@@ -342,3 +444,131 @@ function getRouteColorByName(routeName) {
   }
   return '#3498db'; // 預設藍色
 }
+
+// 安全的地圖操作函數，避免 _leaflet_pos 錯誤
+function safeSetMapView(map, center, zoom) {
+  if (!map || !center) {
+    console.warn('safeSetMapView: 無效的地圖實例或座標');
+    return false;
+  }
+  
+  try {
+    // 檢查地圖實例是否有效
+    if (!map.getContainer || !map.getContainer()) {
+      console.warn('safeSetMapView: 地圖容器無效');
+      return false;
+    }
+    
+    // 檢查容器是否在 DOM 中且有尺寸
+    const container = map.getContainer();
+    if (!container.parentNode || container.offsetWidth === 0 || container.offsetHeight === 0) {
+      console.warn('safeSetMapView: 地圖容器尺寸無效或不在 DOM 中');
+      return false;
+    }
+    
+    // 檢查地圖是否已經初始化完成
+    if (!map._loaded) {
+      console.warn('safeSetMapView: 地圖尚未完全載入，延遲執行');
+      setTimeout(() => safeSetMapView(map, center, zoom), 100);
+      return false;
+    }
+    
+    // 檢查地圖的內部狀態
+    if (!map._panes || !map._panes.mapPane) {
+      console.warn('safeSetMapView: 地圖內部結構不完整');
+      return false;
+    }
+    
+    // 強制重新計算容器位置
+    if (map._resetView) {
+      try {
+        map.invalidateSize();
+      } catch (invalidateError) {
+        console.warn('地圖尺寸重新計算失敗:', invalidateError);
+      }
+    }
+    
+    // 使用更安全的方式設置視圖
+    // 如果直接 setView 失敗，嘗試分步設置
+    try {
+      map.setView(center, zoom);
+      return true;
+    } catch (setViewError) {
+      console.warn('直接 setView 失敗，嘗試分步設置:', setViewError);
+      
+      try {
+        // 分步設置：先設置中心點，再設置縮放級別
+        map.panTo(center);
+        setTimeout(() => {
+          try {
+            map.setZoom(zoom);
+          } catch (zoomError) {
+            console.warn('設置縮放級別失敗:', zoomError);
+          }
+        }, 50);
+        return true;
+      } catch (panError) {
+        console.error('分步設置也失敗:', panError);
+        return false;
+      }
+    }
+    
+  } catch (error) {
+    console.error('safeSetMapView 發生錯誤:', error);
+    return false;
+  }
+}
+
+// 安全的地圖縮放函數
+function safeSetMapZoom(map, zoom) {
+  if (!map) {
+    console.warn('safeSetMapZoom: 無效的地圖實例');
+    return false;
+  }
+  
+  try {
+    if (!map.getContainer || !map.getContainer()) {
+      console.warn('safeSetMapZoom: 地圖容器無效');
+      return false;
+    }
+    
+    const container = map.getContainer();
+    if (!container.parentNode || container.offsetWidth === 0 || container.offsetHeight === 0) {
+      console.warn('safeSetMapZoom: 地圖容器尺寸無效');
+      return false;
+    }
+    
+    if (!map._loaded) {
+      console.warn('safeSetMapZoom: 地圖尚未完全載入，延遲執行');
+      setTimeout(() => safeSetMapZoom(map, zoom), 100);
+      return false;
+    }
+    
+    map.setZoom(zoom);
+    return true;
+    
+  } catch (error) {
+    console.error('safeSetMapZoom 發生錯誤:', error);
+    return false;
+  }
+}
+
+// 檢查地圖實例是否有效
+function isMapInstanceValid(map) {
+  try {
+    return map && 
+           typeof map.getContainer === 'function' && 
+           map.getContainer() && 
+           map.getContainer().parentNode &&
+           map.getContainer().offsetWidth > 0 &&
+           map.getContainer().offsetHeight > 0;
+  } catch (error) {
+    console.warn('檢查地圖實例時發生錯誤:', error);
+    return false;
+  }
+}
+
+// 全局導出安全函數
+window.safeSetMapView = safeSetMapView;
+window.safeSetMapZoom = safeSetMapZoom;
+window.isMapInstanceValid = isMapInstanceValid;
