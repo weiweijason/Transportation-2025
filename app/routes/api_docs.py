@@ -128,3 +128,192 @@ def _requires_authentication(view_func):
 def test_interface():
     """API測試介面"""
     return render_template('api_docs/test.html')
+
+@api_docs.route('/daily-checkin-apis')
+@api_docs_required
+def daily_checkin_apis():
+    """每日簽到系統API文檔"""
+    return render_template('api_docs/daily_checkin_apis.html')
+
+@api_docs.route('/exchange-shop-apis')
+@api_docs_required
+def exchange_shop_apis():
+    """兌換商店系統API文檔"""
+    return render_template('api_docs/exchange_shop_apis.html')
+
+@api_docs.route('/api/daily-checkin-endpoints')
+@api_docs_required
+def get_daily_checkin_endpoints():
+    """獲取每日簽到相關API端點資訊"""
+    daily_checkin_apis = [
+        {
+            'endpoint': '/daily-migration/',
+            'method': 'GET',
+            'description': '每日簽到頁面',
+            'auth_required': True,
+            'parameters': [],
+            'response_example': {
+                'type': 'HTML',
+                'description': '返回每日簽到頁面的HTML內容'
+            }
+        },
+        {
+            'endpoint': '/daily-migration/api/get-migration-status',
+            'method': 'GET',
+            'description': '獲取用戶的每日簽到狀態',
+            'auth_required': True,
+            'parameters': [],
+            'response_example': {
+                'success': True,
+                'migration_data': {
+                    'user_id': 'user123',
+                    'username': '玩家名稱',
+                    'today': '2025-06-17',
+                    'has_migrated_today': False,
+                    'total_migrations': 15,
+                    'consecutive_days': 3,
+                    'last_migration_date': '2025-06-16'
+                }
+            }
+        },
+        {
+            'endpoint': '/daily-migration/api/perform-migration',
+            'method': 'POST',
+            'description': '執行每日簽到',
+            'auth_required': True,
+            'parameters': [],
+            'response_example': {
+                'success': True,
+                'message': '簽到完成！獲得了豐富的獎勵！',
+                'rewards': {
+                    'experience': 100,
+                    'items': [
+                        {
+                            'item_id': 'normal_potion_fragment',
+                            'quantity': 1,
+                            'name': '普通藥水碎片'
+                        }
+                    ],
+                    'consecutive_days': 3,
+                    'bonus_multiplier': 1.3
+                },
+                'new_experience': 1500,
+                'triggered_achievements': []
+            }
+        },
+        {
+            'endpoint': '/daily-migration/api/get-migration-history',
+            'method': 'GET',
+            'description': '獲取簽到歷史記錄',
+            'auth_required': True,
+            'parameters': [],
+            'response_example': {
+                'success': True,
+                'history': [
+                    {
+                        'date': '2025-06-16',
+                        'experience': 100,
+                        'items': [
+                            {
+                                'item_id': 'normal_potion_fragment',
+                                'quantity': 1,
+                                'name': '普通藥水碎片'
+                            }
+                        ],
+                        'time': '2025-06-16T10:30:00'
+                    }
+                ]
+            }
+        }
+    ]
+    
+    return jsonify({
+        'apis': daily_checkin_apis,
+        'total': len(daily_checkin_apis)
+    })
+
+@api_docs.route('/api/exchange-shop-endpoints')
+@api_docs_required
+def get_exchange_shop_endpoints():
+    """獲取兌換商店相關API端點資訊"""
+    exchange_shop_apis = [
+        {
+            'endpoint': '/exchange-shop/',
+            'method': 'GET',
+            'description': '兌換商店頁面',
+            'auth_required': True,
+            'parameters': [],
+            'response_example': {
+                'type': 'HTML',
+                'description': '返回兌換商店頁面的HTML內容'
+            }
+        },
+        {
+            'endpoint': '/exchange-shop/api/get-exchange-data',
+            'method': 'GET',
+            'description': '獲取兌換相關數據',
+            'auth_required': True,
+            'parameters': [],
+            'response_example': {
+                'success': True,
+                'exchange_data': {
+                    'normal_potion_fragments': 15,
+                    'normal_potions': 2,
+                    'magic_circle_normal': 25,
+                    'magic_circle_advanced': 3,
+                    'magic_circle_legendary': 0
+                }
+            }
+        },
+        {
+            'endpoint': '/exchange-shop/api/exchange-potion-fragments',
+            'method': 'POST',
+            'description': '兌換普通藥水碎片為普通藥水（7碎片 = 1藥水）',
+            'auth_required': True,
+            'parameters': [],
+            'response_example': {
+                'success': True,
+                'message': '成功兌換2瓶普通藥水！',
+                'exchanged_potions': 2,
+                'remaining_fragments': 1,
+                'total_potions': 4
+            },
+            'error_example': {
+                'success': False,
+                'message': '碎片不足！需要7個碎片，目前只有3個'
+            }
+        },
+        {
+            'endpoint': '/exchange-shop/api/exchange-magic-circles',
+            'method': 'POST',
+            'description': '兌換魔法陣（10普通 = 1進階，10進階 = 1高級）',
+            'auth_required': True,
+            'parameters': [
+                {
+                    'name': 'exchange_type',
+                    'type': 'string',
+                    'required': True,
+                    'description': '兌換類型：normal_to_advanced 或 advanced_to_legendary'
+                }
+            ],
+            'request_example': {
+                'exchange_type': 'normal_to_advanced'
+            },
+            'response_example': {
+                'success': True,
+                'message': '成功兌換2個進階魔法陣！',
+                'exchanged_amount': 2,
+                'remaining_normal': 5,
+                'total_advanced': 5
+            },
+            'error_example': {
+                'success': False,
+                'message': '普通魔法陣不足！需要10個，目前只有8個'
+            }
+        }
+    ]
+    
+    return jsonify({
+        'apis': exchange_shop_apis,
+        'total': len(exchange_shop_apis)
+    })

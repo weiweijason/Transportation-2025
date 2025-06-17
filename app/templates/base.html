@@ -44,8 +44,7 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
+            <div class="collapse navbar-collapse" id="navbarNav">                <ul class="navbar-nav me-auto">
                     {% if 'user' in session %}                    <li class="nav-item">
                         <a class="nav-link game-nav-link" href="{{ url_for('main.home') }}">
                             <i class="fas fa-home me-1"></i> 主頁
@@ -61,6 +60,10 @@
                             <i class="fas fa-search me-1"></i> 探索捕捉
                         </a>
                     </li>                    <li class="nav-item">
+                        <a class="nav-link game-nav-link" href="{{ url_for('daily_migration.daily_migration_page') }}">
+                            <i class="fas fa-calendar-check me-1"></i> 每日簽到
+                        </a>
+                    </li><li class="nav-item">
                         <a class="nav-link game-nav-link" href="{{ url_for('achievement.achievement_page') }}">
                             <i class="fas fa-trophy me-1"></i> 成就
                         </a>
@@ -121,9 +124,7 @@
 
         <!-- 頁面內容 -->
         {% block content %}{% endblock %}
-    </div>
-
-    <!-- 快速操作浮動按鈕 (適應性地顯示在移動設備上) -->
+    </div>    <!-- 快速操作浮動按鈕 (適應性地顯示在移動設備上) -->
     {% if 'user' in session %}
     <div class="fab-container d-md-none">
         <button class="btn btn-primary btn-fab main">
@@ -132,11 +133,13 @@
         <div class="sub-button-container">
             <a href="{{ url_for('game.catch') }}" class="btn btn-success btn-fab-sub" style="--i:1" data-toggle="tooltip" title="捕捉精靈">
                 <i class="fas fa-search"></i>
+            </a>            <a href="{{ url_for('daily_migration.daily_migration_page') }}" class="btn btn-warning btn-fab-sub" style="--i:2" data-toggle="tooltip" title="每日簽到">
+                <i class="fas fa-calendar-check"></i>
             </a>
-            <a href="{{ url_for('main.profile') }}" class="btn btn-info btn-fab-sub" style="--i:2" data-toggle="tooltip" title="個人資料">
+            <a href="{{ url_for('main.profile') }}" class="btn btn-info btn-fab-sub" style="--i:3" data-toggle="tooltip" title="個人資料">
                 <i class="fas fa-user"></i>
             </a>
-            <a href="{{ url_for('game.catch') }}#arenas-tab" class="btn btn-danger btn-fab-sub" style="--i:3" data-toggle="tooltip" title="擂台挑戰">
+            <a href="{{ url_for('game.catch') }}#arenas-tab" class="btn btn-danger btn-fab-sub" style="--i:4" data-toggle="tooltip" title="擂台挑戰">
                 <i class="fas fa-trophy"></i>
             </a>        </div>
     </div>

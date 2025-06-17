@@ -187,9 +187,57 @@
                             </a>
                         </li>
                     </ul>
+                </div>            </div>
+            <p class="lead text-muted">完整的 API 端點文檔與測試介面</p>
+            
+            <!-- 新增的API專區導航 -->
+            <div class="row mt-4">
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 border-primary">
+                        <div class="card-header bg-primary text-white text-center">
+                            <h5><i class="fas fa-calendar-check"></i> 每日簽到系統</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <p class="card-text">
+                                每日簽到、獎勵發放、經驗值管理相關API
+                            </p>
+                            <a href="{{ url_for('api_docs.daily_checkin_apis') }}" class="btn btn-primary">
+                                <i class="fas fa-book"></i> 查看文檔
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 border-success">
+                        <div class="card-header bg-success text-white text-center">
+                            <h5><i class="fas fa-exchange-alt"></i> 兌換商店系統</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <p class="card-text">
+                                碎片兌換、魔法陣升級、道具管理相關API
+                            </p>
+                            <a href="{{ url_for('api_docs.exchange_shop_apis') }}" class="btn btn-success">
+                                <i class="fas fa-book"></i> 查看文檔
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 border-info">
+                        <div class="card-header bg-info text-white text-center">
+                            <h5><i class="fas fa-flask"></i> API 測試工具</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <p class="card-text">
+                                互動式API測試介面，快速驗證API功能
+                            </p>
+                            <a href="{{ url_for('api_docs.test_interface') }}" class="btn btn-info">
+                                <i class="fas fa-play"></i> 開始測試
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <p class="lead text-muted">完整的 API 端點文檔與測試介面</p>
             
             <!-- 統計資訊 -->
             <div class="row mt-4" id="stats-section">

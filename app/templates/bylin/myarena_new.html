@@ -108,32 +108,6 @@
         font-weight: bold;
         color: #d63031;
     }
-    /* 道館卡片懸停效果 */
-    .arena-card[onclick] {
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    
-    .arena-card[onclick]:hover {
-        transform: translateY(-5px) scale(1.02);
-        box-shadow: 0 12px 35px rgba(0,0,0,0.2);
-    }
-    
-    .arena-card[onclick]:hover .arena-level {
-        background: rgba(0,0,0,0.9);
-    }
-    
-    /* 點擊提示樣式 */
-    .click-hint {
-        opacity: 0.7;
-        font-size: 0.8rem;
-        margin-top: 0.5rem;
-        transition: opacity 0.3s ease;
-    }
-    
-    .arena-card:hover .click-hint {
-        opacity: 1;
-    }
 </style>
 {% endblock %}
 
@@ -248,17 +222,12 @@
         // 更新統計資料
         document.getElementById('total-arenas').textContent = data.total_arenas;
         document.getElementById('total-bases').textContent = data.total_base_gyms;
-          // 計算總可收集獎勵
+        
+        // 計算總可收集獎勵
         let totalRewards = 0;
         data.arenas.forEach(arena => {
             if (arena.hours_occupied > 0) {
                 totalRewards += arena.hours_occupied;
-            }
-        });
-        // 基地道館也可能有獎勵
-        data.base_gyms.forEach(base => {
-            if (base.hours_occupied > 0) {
-                totalRewards += base.hours_occupied;
             }
         });
         document.getElementById('total-rewards').textContent = totalRewards;
@@ -291,7 +260,9 @@
             const baseCard = createBaseGymCard(base);
             container.appendChild(baseCard);
         });
-    }    // 創建基地道館卡片
+    }
+
+    // 創建基地道館卡片
     function createBaseGymCard(base) {
         const col = document.createElement('div');
         col.className = 'col-lg-6 col-xl-4';
@@ -301,18 +272,16 @@
         if (occupiedAt) {
             const occupiedDate = new Date(occupiedAt);
             timeInfo = `建立於 ${occupiedDate.toLocaleDateString()} ${occupiedDate.toLocaleTimeString()}`;
-        }        const hoursOccupied = base.hours_occupied || 0;
-        const canCollect = hoursOccupied > 0;
-        const rewardType = getRewardType(base.level || 5); // 基地道館通常等級較高
+        }
 
         col.innerHTML = `
-            <div class="arena-card base-gym-card position-relative" onclick="goToArena('${base.id}')" style="cursor: pointer;">
+            <div class="arena-card base-gym-card position-relative">
                 <div class="arena-level">
                     <i class="fas fa-star"></i> 基地
                 </div>
                 <h4 class="mb-3">
                     <i class="fas fa-home text-success"></i>
-                    ${base.arena_name || base.gym_name || base.name || '我的基地'}
+                    ${base.arena_name || base.gym_name || '我的基地'}
                 </h4>
                 <div class="row">
                     <div class="col-6">
@@ -337,23 +306,9 @@
                             <i class="fas fa-coins text-warning"></i>
                             <strong>基地資源</strong>
                         </div>
-                        <span class="time-info">${hoursOccupied} 小時</span>
+                        <span class="badge bg-success">持續產出</span>
                     </div>
-                    <div class="mt-2">
-                        ${canCollect ? 
-                            `<div class="mb-2">
-                                <i class="fas fa-magic"></i> ${hoursOccupied} 個 ${rewardType} 魔法陣
-                            </div>
-                            <button class="btn collect-btn" onclick="event.stopPropagation(); collectRewards('${base.id}')">
-                                <i class="fas fa-hand-holding"></i> 收集獎勵
-                            </button>` :                            `<div class="text-muted">基地道館為您提供穩定的資源來源</div>`
-                        }
-                        <div class="mt-2">
-                            <small class="text-info click-hint">
-                                <i class="fas fa-mouse-pointer"></i> 點擊道館卡片進入詳細頁面
-                            </small>
-                        </div>
-                    </div>
+                    <small class="text-muted">基地道館為您提供穩定的資源來源</small>
                 </div>
             </div>
         `;
@@ -381,12 +336,14 @@
         if (occupiedAt) {
             const occupiedDate = new Date(occupiedAt);
             timeInfo = `佔領於 ${occupiedDate.toLocaleDateString()} ${occupiedDate.toLocaleTimeString()}`;
-        }        const hoursOccupied = arena.hours_occupied || 0;
+        }
+
+        const hoursOccupied = arena.hours_occupied || 0;
         const canCollect = hoursOccupied > 0;
         const rewardType = getRewardType(arena.level || 1);
 
         col.innerHTML = `
-            <div class="arena-card normal-arena-card position-relative" onclick="goToArena('${arena.id}')" style="cursor: pointer;">
+            <div class="arena-card normal-arena-card position-relative">
                 <div class="arena-level">
                     Lv.${arena.level || 1}
                 </div>
@@ -426,15 +383,11 @@
                             `<div class="mb-2">
                                 <i class="fas fa-magic"></i> ${hoursOccupied} 個 ${rewardType} 魔法陣
                             </div>
-                            <button class="btn collect-btn" onclick="event.stopPropagation(); collectRewards('${arena.id}')">
+                            <button class="btn collect-btn" onclick="collectRewards('${arena.id}')">
                                 <i class="fas fa-hand-holding"></i> 收集獎勵
-                            </button>` :                            `<div class="text-muted">目前沒有可收集的獎勵</div>`
+                            </button>` :
+                            `<div class="text-muted">目前沒有可收集的獎勵</div>`
                         }
-                        <div class="mt-2">
-                            <small class="text-info click-hint">
-                                <i class="fas fa-mouse-pointer"></i> 點擊道館卡片進入詳細頁面
-                            </small>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -518,10 +471,6 @@
                 alert.parentNode.removeChild(alert);
             }
         }, 5000);
-    }    // 跳轉到道館詳細頁面
-    function goToArena(arenaId) {
-        // 跳轉到 battle.html 頁面，並傳遞道館ID作為查詢參數
-        window.location.href = '/game/battle?arena_id=' + arenaId;
     }
 </script>
 {% endblock %}

@@ -18,7 +18,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932737
+    "updatedAt": 1749959163367
   },
   "arena-14719": {
     "id": "arena-14719",
@@ -39,7 +39,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932737
+    "updatedAt": 1750040083534
   },
   "arena-200269": {
     "id": "arena-200269",
@@ -60,7 +60,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932737
+    "updatedAt": 1749959163367
   },
   "arena-14709": {
     "id": "arena-14709",
@@ -81,7 +81,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932738
+    "updatedAt": 1750040083537
   },
   "arena-14707": {
     "id": "arena-14707",
@@ -102,7 +102,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932738
+    "updatedAt": 1750040083537
   },
   "arena-58815": {
     "id": "arena-58815",
@@ -116,15 +116,15 @@
     ],
     "stopName": "圓山",
     "routes": [
-      "貓空左線(動物園)",
-      "貓空左線(指南宮)"
+      "貓空左線(指南宮)",
+      "貓空左線(動物園)"
     ],
     "level": 2,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932738
+    "updatedAt": 1749733252654
   },
   "arena-197399": {
     "id": "arena-197399",
@@ -145,7 +145,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932738
+    "updatedAt": 1749959163367
   },
   "arena-58822": {
     "id": "arena-58822",
@@ -159,15 +159,15 @@
     ],
     "stopName": "大誠高中",
     "routes": [
-      "貓空左線(動物園)",
-      "棕3"
+      "棕3",
+      "貓空左線(動物園)"
     ],
     "level": 2,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932738
+    "updatedAt": 1749733252654
   },
   "arena-58811": {
     "id": "arena-58811",
@@ -181,15 +181,15 @@
     ],
     "stopName": "天恩宮",
     "routes": [
-      "貓空左線(動物園)",
-      "貓空左線(指南宮)"
+      "貓空左線(指南宮)",
+      "貓空左線(動物園)"
     ],
     "level": 2,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932739
+    "updatedAt": 1749733252654
   },
   "arena-216113": {
     "id": "arena-216113",
@@ -203,15 +203,15 @@
     ],
     "stopName": "富德",
     "routes": [
-      "貓空左線(動物園)",
-      "棕3"
+      "棕3",
+      "貓空左線(動物園)"
     ],
     "level": 2,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932739
+    "updatedAt": 1749733252655
   },
   "arena-200268": {
     "id": "arena-200268",
@@ -232,7 +232,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932739
+    "updatedAt": 1749959163370
   },
   "arena-214296": {
     "id": "arena-214296",
@@ -246,15 +246,15 @@
     ],
     "stopName": "岐山",
     "routes": [
-      "貓空左線(動物園)",
-      "貓空左線(指南宮)"
+      "貓空左線(指南宮)",
+      "貓空左線(動物園)"
     ],
     "level": 2,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932739
+    "updatedAt": 1749733252655
   },
   "arena-200273": {
     "id": "arena-200273",
@@ -275,7 +275,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932739
+    "updatedAt": 1749959163370
   },
   "arena-14689": {
     "id": "arena-14689",
@@ -296,7 +296,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932739
+    "updatedAt": 1750040083537
   },
   "arena-14743": {
     "id": "arena-14743",
@@ -317,7 +317,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932739
+    "updatedAt": 1750040083537
   },
   "arena-200262": {
     "id": "arena-200262",
@@ -331,15 +331,15 @@
     ],
     "stopName": "捷運動物園站",
     "routes": [
-      "貓空左線(動物園)",
-      "棕3"
+      "棕3",
+      "貓空左線(動物園)"
     ],
     "level": 2,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932740
+    "updatedAt": 1749733252656
   },
   "arena-14701": {
     "id": "arena-14701",
@@ -360,7 +360,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932740
+    "updatedAt": 1750040083537
   },
   "arena-58820": {
     "id": "arena-58820",
@@ -374,15 +374,15 @@
     ],
     "stopName": "政大",
     "routes": [
-      "貓空左線(動物園)",
-      "棕3"
+      "棕3",
+      "貓空左線(動物園)"
     ],
     "level": 2,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932740
+    "updatedAt": 1749733252656
   },
   "arena-200267": {
     "id": "arena-200267",
@@ -403,7 +403,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932740
+    "updatedAt": 1749959163370
   },
   "arena-200271": {
     "id": "arena-200271",
@@ -424,7 +424,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932740
+    "updatedAt": 1749959163370
   },
   "arena-14693": {
     "id": "arena-14693",
@@ -445,7 +445,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932740
+    "updatedAt": 1750040083537
   },
   "arena-14687": {
     "id": "arena-14687",
@@ -466,7 +466,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932740
+    "updatedAt": 1750040083537
   },
   "arena-180071": {
     "id": "arena-180071",
@@ -487,7 +487,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932740
+    "updatedAt": 1749733252658
   },
   "arena-14691": {
     "id": "arena-14691",
@@ -508,7 +508,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932741
+    "updatedAt": 1750040083537
   },
   "arena-14699": {
     "id": "arena-14699",
@@ -529,7 +529,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932741
+    "updatedAt": 1750040083537
   },
   "arena-45829": {
     "id": "arena-45829",
@@ -550,7 +550,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932741
+    "updatedAt": 1749733252658
   },
   "arena-45828": {
     "id": "arena-45828",
@@ -571,7 +571,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932741
+    "updatedAt": 1749733252659
   },
   "arena-200274": {
     "id": "arena-200274",
@@ -592,7 +592,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932741
+    "updatedAt": 1749959163370
   },
   "arena-45827": {
     "id": "arena-45827",
@@ -614,7 +614,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932741
+    "updatedAt": 1749733252659
   },
   "arena-45830": {
     "id": "arena-45830",
@@ -635,7 +635,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932742
+    "updatedAt": 1749733252660
   },
   "arena-45831": {
     "id": "arena-45831",
@@ -656,7 +656,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932742
+    "updatedAt": 1749733252660
   },
   "arena-200272": {
     "id": "arena-200272",
@@ -677,7 +677,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932742
+    "updatedAt": 1749959163370
   },
   "arena-14741": {
     "id": "arena-14741",
@@ -698,7 +698,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932742
+    "updatedAt": 1750040083537
   },
   "arena-58814": {
     "id": "arena-58814",
@@ -712,15 +712,15 @@
     ],
     "stopName": "涼亭站",
     "routes": [
-      "貓空左線(動物園)",
-      "貓空左線(指南宮)"
+      "貓空左線(指南宮)",
+      "貓空左線(動物園)"
     ],
     "level": 2,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932742
+    "updatedAt": 1749733252661
   },
   "arena-215393": {
     "id": "arena-215393",
@@ -741,7 +741,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932742
+    "updatedAt": 1749733252661
   },
   "arena-45826": {
     "id": "arena-45826",
@@ -763,7 +763,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932742
+    "updatedAt": 1749733252661
   },
   "arena-58812": {
     "id": "arena-58812",
@@ -777,15 +777,15 @@
     ],
     "stopName": "茶推廣中心",
     "routes": [
-      "貓空左線(動物園)",
-      "貓空左線(指南宮)"
+      "貓空左線(指南宮)",
+      "貓空左線(動物園)"
     ],
     "level": 2,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932742
+    "updatedAt": 1749733252661
   },
   "arena-58816": {
     "id": "arena-58816",
@@ -799,15 +799,15 @@
     ],
     "stopName": "草湳",
     "routes": [
-      "貓空左線(動物園)",
-      "貓空左線(指南宮)"
+      "貓空左線(指南宮)",
+      "貓空左線(動物園)"
     ],
     "level": 2,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932742
+    "updatedAt": 1749733252662
   },
   "arena-200264": {
     "id": "arena-200264",
@@ -821,15 +821,15 @@
     ],
     "stopName": "萬壽橋頭(新光)",
     "routes": [
-      "貓空左線(動物園)",
-      "棕3"
+      "棕3",
+      "貓空左線(動物園)"
     ],
     "level": 2,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932743
+    "updatedAt": 1749733252662
   },
   "arena-14695": {
     "id": "arena-14695",
@@ -850,7 +850,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932743
+    "updatedAt": 1750040083551
   },
   "arena-200265": {
     "id": "arena-200265",
@@ -864,15 +864,15 @@
     ],
     "stopName": "萬壽橋頭(秀明)",
     "routes": [
-      "貓空左線(動物園)",
-      "棕3"
+      "棕3",
+      "貓空左線(動物園)"
     ],
     "level": 2,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932743
+    "updatedAt": 1749733252662
   },
   "arena-14711": {
     "id": "arena-14711",
@@ -893,7 +893,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932743
+    "updatedAt": 1750040083551
   },
   "arena-14713": {
     "id": "arena-14713",
@@ -914,7 +914,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932743
+    "updatedAt": 1750040083551
   },
   "arena-216115": {
     "id": "arena-216115",
@@ -928,15 +928,15 @@
     ],
     "stopName": "萬福橋",
     "routes": [
-      "貓空左線(動物園)",
-      "棕3"
+      "棕3",
+      "貓空左線(動物園)"
     ],
     "level": 2,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932743
+    "updatedAt": 1749733252663
   },
   "arena-14717": {
     "id": "arena-14717",
@@ -957,7 +957,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932743
+    "updatedAt": 1750040083551
   },
   "arena-200266": {
     "id": "arena-200266",
@@ -971,15 +971,15 @@
     ],
     "stopName": "萬興國小",
     "routes": [
-      "貓空左線(動物園)",
-      "棕3"
+      "棕3",
+      "貓空左線(動物園)"
     ],
     "level": 2,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932744
+    "updatedAt": 1749733252664
   },
   "arena-58821": {
     "id": "arena-58821",
@@ -993,15 +993,15 @@
     ],
     "stopName": "萬興圖書館",
     "routes": [
-      "貓空左線(動物園)",
-      "棕3"
+      "棕3",
+      "貓空左線(動物園)"
     ],
     "level": 2,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932744
+    "updatedAt": 1749733252664
   },
   "arena-14715": {
     "id": "arena-14715",
@@ -1022,7 +1022,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932744
+    "updatedAt": 1750040083551
   },
   "arena-14723": {
     "id": "arena-14723",
@@ -1043,7 +1043,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932744
+    "updatedAt": 1750040083551
   },
   "arena-14721": {
     "id": "arena-14721",
@@ -1064,7 +1064,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932744
+    "updatedAt": 1750040083551
   },
   "arena-14725": {
     "id": "arena-14725",
@@ -1085,7 +1085,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932744
+    "updatedAt": 1750040083551
   },
   "arena-14705": {
     "id": "arena-14705",
@@ -1106,7 +1106,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932745
+    "updatedAt": 1750040083551
   },
   "arena-14697": {
     "id": "arena-14697",
@@ -1127,7 +1127,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932745
+    "updatedAt": 1750040083551
   },
   "arena-216114": {
     "id": "arena-216114",
@@ -1141,15 +1141,15 @@
     ],
     "stopName": "象頭埔",
     "routes": [
-      "貓空左線(動物園)",
-      "棕3"
+      "棕3",
+      "貓空左線(動物園)"
     ],
     "level": 2,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932745
+    "updatedAt": 1749733252665
   },
   "arena-58827": {
     "id": "arena-58827",
@@ -1163,15 +1163,15 @@
     ],
     "stopName": "貓空壺穴站",
     "routes": [
-      "貓空左線(動物園)",
-      "貓空左線(指南宮)"
+      "貓空左線(指南宮)",
+      "貓空左線(動物園)"
     ],
     "level": 2,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932745
+    "updatedAt": 1749733252666
   },
   "arena-58813": {
     "id": "arena-58813",
@@ -1185,15 +1185,15 @@
     ],
     "stopName": "貓空站(小天空步道)",
     "routes": [
-      "貓空左線(動物園)",
-      "貓空左線(指南宮)"
+      "貓空左線(指南宮)",
+      "貓空左線(動物園)"
     ],
     "level": 2,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932745
+    "updatedAt": 1749733252666
   },
   "arena-45825": {
     "id": "arena-45825",
@@ -1207,16 +1207,16 @@
     ],
     "stopName": "貓空纜車站",
     "routes": [
+      "貓空左線(指南宮)",
       "貓空右線",
-      "貓空左線(動物園)",
-      "貓空左線(指南宮)"
+      "貓空左線(動物園)"
     ],
     "level": 3,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932745
+    "updatedAt": 1749733252667
   },
   "arena-200263": {
     "id": "arena-200263",
@@ -1230,15 +1230,15 @@
     ],
     "stopName": "貓纜動物園站",
     "routes": [
-      "貓空左線(動物園)",
-      "棕3"
+      "棕3",
+      "貓空左線(動物園)"
     ],
     "level": 2,
     "owner": null,
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932745
+    "updatedAt": 1749733252667
   },
   "arena-58907": {
     "id": "arena-58907",
@@ -1259,7 +1259,7 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932746
+    "updatedAt": 1750040083551
   },
   "arena-14703": {
     "id": "arena-14703",
@@ -1280,6 +1280,6 @@
     "ownerPlayerId": null,
     "ownerCreature": null,
     "challengers": [],
-    "updatedAt": 1750129932746
+    "updatedAt": 1750040083561
   }
 }

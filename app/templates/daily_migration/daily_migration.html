@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block title %}每日簽到 - 精靈公車{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/daily_migration.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="daily-migration-container">
+    <!-- 頁面標題 -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">                <h1 class="page-title">
+                    <i class="fas fa-calendar-check me-3"></i>每日簽到
+                </h1>
+                <p class="page-subtitle">每天登入獲得豐富獎勵，連續登入獲得額外加成！</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="migration-status-badge" id="migration-status-badge">
+                    <i class="fas fa-clock"></i>
+                    <span>載入中...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 每日遷移主要區域 -->
+    <div class="row">        <!-- 左側：簽到面板 -->
+        <div class="col-lg-8">
+            <div class="migration-panel">
+                <div class="panel-header">
+                    <h3><i class="fas fa-globe-asia me-2"></i>今日簽到</h3>
+                    <p class="text-muted">點擊下方按鈕完成今日的簽到任務</p>
+                </div>
+                
+                <div class="migration-content">
+                    <!-- 遷移動畫區域 -->
+                    <div class="migration-animation" id="migration-animation">
+                        <div class="globe-container">
+                            <div class="globe">
+                                <div class="globe-inner">
+                                    <div class="continent continent-1"></div>
+                                    <div class="continent continent-2"></div>
+                                    <div class="continent continent-3"></div>
+                                </div>
+                                <div class="orbit orbit-1">
+                                    <div class="satellite"></div>
+                                </div>
+                                <div class="orbit orbit-2">
+                                    <div class="satellite"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="migration-text">
+                            <h4 id="migration-title">準備開始新的一天</h4>
+                            <p id="migration-subtitle">每天都是全新的冒險開始</p>
+                        </div>
+                    </div>
+                      <!-- 簽到按鈕 -->
+                    <div class="migration-button-container">
+                        <button class="btn migration-btn" id="migration-btn">
+                            <i class="fas fa-rocket me-2"></i>
+                            <span>開始簽到</span>
+                            <div class="btn-glow"></div>
+                        </button>
+                    </div>
+                    
+                    <!-- 獎勵預覽 -->
+                    <div class="rewards-preview" id="rewards-preview">
+                        <h5><i class="fas fa-gift me-2"></i>今日獎勵預覽</h5>
+                        <div class="reward-items">                            <div class="reward-item">
+                                <i class="fas fa-star text-warning"></i>
+                                <span>經驗值 +100</span>
+                            </div>
+                            <div class="reward-item">
+                                <i class="fas fa-puzzle-piece text-success"></i>
+                                <span>普通藥水碎片 x1</span>
+                            </div>
+                            <div class="reward-item consecutive-bonus" style="display: none;">
+                                <i class="fas fa-fire text-danger"></i>
+                                <span>連續獎勵加成</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+          <!-- 右側：統計面板 -->
+        <div class="col-lg-4">
+            <div class="stats-panel">
+                <h4><i class="fas fa-chart-line me-2"></i>簽到統計</h4>
+                
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-day text-primary"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">總簽到天數</div>
+                        <div class="stat-value" id="total-migrations">0</div>
+                    </div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-fire text-danger"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">連續天數</div>
+                        <div class="stat-value" id="consecutive-days">0</div>
+                    </div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-star text-warning"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">累計經驗</div>
+                        <div class="stat-value" id="total-experience">0</div>
+                    </div>
+                </div>
+                
+                <!-- 連續獎勵進度條 -->
+                <div class="consecutive-progress">
+                    <h6>連續獎勵進度</h6>
+                    <div class="progress-container">
+                        <div class="progress">
+                            <div class="progress-bar" id="consecutive-progress-bar" style="width: 0%"></div>
+                        </div>
+                        <small class="text-muted">下一個里程碑：<span id="next-milestone">7天</span></small>
+                    </div>
+                </div>
+                
+                <!-- 成就提醒 -->
+                <div class="achievement-reminder" id="achievement-reminder" style="display: none;">
+                    <h6><i class="fas fa-trophy text-warning me-1"></i>即將解鎖成就</h6>
+                    <div class="upcoming-achievement" id="upcoming-achievement">
+                        <!-- 動態載入即將解鎖的成就 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+      <!-- 簽到歷史 -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="history-panel">
+                <div class="panel-header">
+                    <h4><i class="fas fa-history me-2"></i>簽到歷史</h4>
+                    <p class="text-muted">最近30天的簽到記錄</p>
+                </div>
+                
+                <div class="history-calendar" id="history-calendar">
+                    <!-- 動態載入歷史記錄 -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 成就彈窗 -->
+<div class="modal fade" id="achievementModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content achievement-modal">
+            <div class="modal-body text-center">
+                <div class="achievement-celebration">
+                    <i class="fas fa-trophy achievement-icon"></i>
+                    <h3>成就解鎖！</h3>
+                    <h5 id="achievement-name">成就名稱</h5>
+                    <p id="achievement-description">成就描述</p>
+                    <div class="celebration-particles">
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                    <i class="fas fa-check me-2"></i>太棒了！
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 簽到成功彈窗 -->
+<div class="modal fade" id="migrationSuccessModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content migration-success-modal">
+            <div class="modal-body text-center">
+                <div class="success-animation">
+                    <i class="fas fa-rocket success-icon"></i>
+                    <h3>簽到成功！</h3>
+                    <div class="rewards-display" id="rewards-display">
+                        <!-- 動態顯示獲得的獎勵 -->
+                    </div>
+                    <div class="success-particles">
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">
+                    <i class="fas fa-check me-2"></i>繼續冒險
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/daily_migration.js') }}"></script>
+{% endblock %}

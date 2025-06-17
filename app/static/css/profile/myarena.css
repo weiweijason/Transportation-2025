@@ -1,52 +1,279 @@
-.creature-tabs .nav-tabs {
-        border-bottom: none;
+/* 道館標籤頁樣式 */
+.arena-tabs .nav-tabs {
+    border-bottom: none;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px 10px 0 0;
+    padding: 5px;
+}
+
+.arena-tabs .nav-link {
+    border: none;
+    color: var(--text-color);
+    font-weight: 500;
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin: 0 2px;
+    transition: all 0.3s ease;
+}
+
+.arena-tabs .nav-link.active {
+    color: white;
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+    transform: translateY(-2px);
+}
+
+.arena-tabs .nav-link:hover:not(.active) {
+    background: rgba(220, 53, 69, 0.1);
+    transform: translateY(-1px);
+}
+
+/* 道館卡片樣式 */
+.arena-card {
+    transition: all 0.3s ease;
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    background: white;
+}
+
+.arena-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+/* 基地卡片特殊樣式 */
+.base-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.base-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+    transform: rotate(45deg);
+    animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+.base-card .card-body {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    margin: 10px;
+    position: relative;
+    z-index: 2;
+}
+
+.base-card .card-footer {
+    background: rgba(0,0,0,0.2);
+    border-top: 1px solid rgba(255,255,255,0.2);
+    position: relative;
+    z-index: 2;
+}
+
+/* 等級徽章樣式 */
+.level-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 3;
+    font-size: 0.8rem;
+    padding: 5px 10px;
+    border-radius: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+/* 精靈頭像樣式 */
+.creature-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid rgba(255,255,255,0.8);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+}
+
+.creature-avatar:hover {
+    transform: scale(1.1);
+}
+
+/* 獎勵提示動畫 */
+.reward-available {
+    animation: pulse 2s infinite;
+    border: none;
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    color: #d63384;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(214, 51, 132, 0.2);
+}
+
+@keyframes pulse {
+    0% { 
+        transform: scale(1);
+        box-shadow: 0 2px 10px rgba(214, 51, 132, 0.2);
+    }
+    50% { 
+        transform: scale(1.02);
+        box-shadow: 0 4px 20px rgba(214, 51, 132, 0.4);
+    }
+    100% { 
+        transform: scale(1);
+        box-shadow: 0 2px 10px rgba(214, 51, 132, 0.2);
+    }
+}
+
+/* 統計徽章樣式 */
+.card-header .badge {
+    font-size: 0.9rem;
+    padding: 8px 15px;
+    border-radius: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+}
+
+/* 按鈕組樣式 */
+.btn-group .btn {
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 0.8rem;
+    margin: 0 2px;
+    transition: all 0.3s ease;
+}
+
+.btn-group .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+/* 空狀態樣式 */
+.empty-state {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #dee2e6;
+    margin-bottom: 20px;
+}
+
+.empty-state h5 {
+    color: #6c757d;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: #adb5bd;
+    font-size: 0.9rem;
+}
+
+/* 載入動畫 */
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+}
+
+.loading-state .spinner-border {
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 20px;
+}
+
+/* 漸變背景 */
+.card-header.bg-gradient-danger {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-header.bg-gradient-danger::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: slide 3s infinite;
+}
+
+@keyframes slide {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+    .arena-tabs .nav-link {
+        padding: 8px 10px;
+        font-size: 0.8rem;
     }
     
-    .creature-tabs .nav-link {
-        border: none;
-        color: var(--text-color);
-        font-weight: 500;
-        padding: 12px 15px;
+    .creature-avatar {
+        width: 50px;
+        height: 50px;
     }
     
-    .creature-tabs .nav-link.active {
-        color: var(--primary-color);
-        background-color: transparent;
-        border-bottom: 3px solid var(--primary-color);
-    }
-    
-    .creature-tabs .nav-link:hover:not(.active) {
-        border-bottom: 3px solid #e9ecef;
-    }
-    
-    /* 精靈卡片樣式 - 針對直立獨角獸圖片優化 */
-    .power-value {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: var(--primary-color);
-    }
-    
-    .power-label {
+    .level-badge {
+        top: 10px;
+        right: 10px;
         font-size: 0.7rem;
-        color: #6c757d;
+        padding: 3px 8px;
     }
     
-    /* 深色模式適配 */
-    [data-theme="dark"] .profile-title {
-        color: var(--text-color);
+    .card-header .badge {
+        font-size: 0.7rem;
+        padding: 5px 10px;
     }
-    
-    [data-theme="dark"] .trainer-name {
-        color: var(--text-color);
-    }
-    
-    [data-theme="dark"] .stat-label {
-        color: #adb5bd;
-    }
-    
-    [data-theme="dark"] .text-muted {
-        color: #adb5bd !important;
-    }
+}
+
+/* 深色模式適配 */
+[data-theme="dark"] .arena-card {
+    background: #2d3748;
+    color: white;
+}
+
+[data-theme="dark"] .arena-tabs .nav-tabs {
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+}
+
+[data-theme="dark"] .arena-tabs .nav-link {
+    color: #cbd5e0;
+}
+
+[data-theme="dark"] .arena-tabs .nav-link:hover:not(.active) {
+    background: rgba(220, 53, 69, 0.2);
+}
+
+[data-theme="dark"] .empty-state i {
+    color: #4a5568;
+}
+
+[data-theme="dark"] .empty-state h5 {
+    color: #a0aec0;
+}
+
+[data-theme="dark"] .empty-state p {
+    color: #718096;
+}
     
     [data-theme="dark"] .card-footer.bg-light {
         background-color: #2c3035 !important;

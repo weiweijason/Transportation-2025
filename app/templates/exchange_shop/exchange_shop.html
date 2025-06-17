@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+{% block title %}兌換商店 - 精靈公車{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/exchange_shop/exchange_shop.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<!-- 動態背景粒子 -->
+<div class="exchange-particles"></div>
+
+<div id="loading-overlay" class="loading-overlay">
+    <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">載入兌換商店中...</div>
+        <div class="loading-subtitle">準備展示神奇的兌換魔法</div>
+    </div>
+</div>
+
+<div class="exchange-container container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-md-11 col-sm-12">            <!-- 頂部導航區域 -->
+            <div class="top-navigation-area">
+                <a href="{{ url_for('bylin.backpack') }}" class="back-btn" aria-label="返回我的包包">
+                    <div class="back-btn-inner">
+                        <i class="fas fa-arrow-left"></i>
+                        <span class="back-text">返回包包</span>
+                    </div>
+                </a>
+                
+                <div class="status-indicator">
+                    <div class="status-pill">
+                        <i class="fas fa-store"></i> 兌換商店
+                    </div>
+                </div>
+            </div>
+
+            <!-- 頁面標題 -->
+            <div class="exchange-header">
+                <div class="title-container">
+                    <div class="main-title">
+                        <i class="fas fa-exchange-alt magic-icon"></i>
+                        <span class="title-text">魔法兌換商店</span>
+                        <div class="title-glow"></div>
+                    </div>
+                    <div class="subtitle">使用您的收集品進行神奇兌換</div>
+                </div>
+            </div>
+
+            <!-- 兌換區域 -->
+            <div class="exchange-sections">
+                <!-- 藥水碎片兌換區 -->
+                <div class="exchange-section potion-section">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="fas fa-flask"></i>
+                        </div>
+                        <div class="section-title">
+                            <h3>藥水兌換</h3>
+                            <p>7個普通藥水碎片可兌換1瓶普通藥水</p>
+                        </div>
+                    </div>
+                    
+                    <div class="exchange-content">
+                        <div class="exchange-info">
+                            <div class="resource-display">
+                                <div class="resource-item">
+                                    <div class="resource-icon">
+                                        <i class="fas fa-puzzle-piece"></i>
+                                    </div>
+                                    <div class="resource-details">
+                                        <span class="resource-name">普通藥水碎片</span>
+                                        <span class="resource-count" id="potionFragmentsCount">0</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="exchange-arrow">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                                
+                                <div class="resource-item">
+                                    <div class="resource-icon">
+                                        <i class="fas fa-prescription-bottle"></i>
+                                    </div>
+                                    <div class="resource-details">
+                                        <span class="resource-name">普通藥水</span>
+                                        <span class="resource-count" id="normalPotionsCount">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="exchange-action">
+                                <button id="exchangePotionBtn" class="exchange-btn potion-btn" disabled>
+                                    <i class="fas fa-magic"></i>
+                                    <span>兌換藥水</span>
+                                    <div class="btn-glow"></div>
+                                </button>
+                                <div class="exchange-hint" id="potionExchangeHint">需要7個碎片才能兌換</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 魔法陣兌換區 -->
+                <div class="exchange-section magic-section">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="fas fa-magic"></i>
+                        </div>
+                        <div class="section-title">
+                            <h3>魔法陣兌換</h3>
+                            <p>提升您的魔法陣等級</p>
+                        </div>
+                    </div>
+                    
+                    <div class="exchange-content">
+                        <!-- 普通 -> 進階 -->
+                        <div class="magic-exchange-row">
+                            <div class="exchange-info">
+                                <div class="resource-display">
+                                    <div class="resource-item normal-magic">
+                                        <div class="resource-icon">
+                                            <i class="fas fa-circle"></i>
+                                        </div>
+                                        <div class="resource-details">
+                                            <span class="resource-name">普通魔法陣</span>
+                                            <span class="resource-count" id="normalMagicCount">0</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="exchange-arrow">
+                                        <i class="fas fa-arrow-right"></i>
+                                        <span class="exchange-ratio">10:1</span>
+                                    </div>
+                                    
+                                    <div class="resource-item advanced-magic">
+                                        <div class="resource-icon">
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                        <div class="resource-details">
+                                            <span class="resource-name">進階魔法陣</span>
+                                            <span class="resource-count" id="advancedMagicCount">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="exchange-action">
+                                    <button id="exchangeAdvancedBtn" class="exchange-btn magic-btn" disabled>
+                                        <i class="fas fa-level-up-alt"></i>
+                                        <span>升級為進階</span>
+                                        <div class="btn-glow"></div>
+                                    </button>
+                                    <div class="exchange-hint" id="advancedExchangeHint">需要10個普通魔法陣</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 進階 -> 高級 -->
+                        <div class="magic-exchange-row">
+                            <div class="exchange-info">
+                                <div class="resource-display">
+                                    <div class="resource-item advanced-magic">
+                                        <div class="resource-icon">
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                        <div class="resource-details">
+                                            <span class="resource-name">進階魔法陣</span>
+                                            <span class="resource-count" id="advancedMagicCount2">0</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="exchange-arrow">
+                                        <i class="fas fa-arrow-right"></i>
+                                        <span class="exchange-ratio">10:1</span>
+                                    </div>
+                                    
+                                    <div class="resource-item legendary-magic">
+                                        <div class="resource-icon">
+                                            <i class="fas fa-crown"></i>
+                                        </div>
+                                        <div class="resource-details">
+                                            <span class="resource-name">高級魔法陣</span>
+                                            <span class="resource-count" id="legendaryMagicCount">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="exchange-action">
+                                    <button id="exchangeLegendaryBtn" class="exchange-btn legendary-btn" disabled>
+                                        <i class="fas fa-crown"></i>
+                                        <span>升級為高級</span>
+                                        <div class="btn-glow"></div>
+                                    </button>
+                                    <div class="exchange-hint" id="legendaryExchangeHint">需要10個進階魔法陣</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 成功提示模態框 -->
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content success-modal">
+            <div class="modal-body">
+                <div class="success-animation">
+                    <div class="success-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="success-sparkles">
+                        <div class="sparkle"></div>
+                        <div class="sparkle"></div>
+                        <div class="sparkle"></div>
+                    </div>
+                </div>
+                <div class="success-message" id="successMessage">兌換成功！</div>
+                <button type="button" class="btn success-btn" data-bs-dismiss="modal">
+                    <i class="fas fa-thumbs-up"></i>
+                    太棒了！
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 錯誤提示模態框 -->
+<div class="modal fade" id="errorModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content error-modal">
+            <div class="modal-body">
+                <div class="error-animation">
+                    <div class="error-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+                <div class="error-message" id="errorMessage">兌換失敗</div>
+                <button type="button" class="btn error-btn" data-bs-dismiss="modal">
+                    <i class="fas fa-undo"></i>
+                    我知道了
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/exchange_shop/exchange_shop.js') }}"></script>
+{% endblock %}
