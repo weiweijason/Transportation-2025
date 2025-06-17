@@ -155,8 +155,11 @@ function showDragFixAlert() {
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     `;
     
-    // 找到適合插入提示的位置
-    const mapElement = document.getElementById('map');
+    // 動態尋找地圖容器 - 嘗試多個可能的ID
+    const mapElement = document.getElementById('map') || 
+                      document.getElementById('fullscreen-map') ||
+                      document.querySelector('.leaflet-container');
+    
     if (mapElement && mapElement.parentNode) {
       mapElement.parentNode.insertBefore(alertDiv, mapElement.nextSibling);
       

@@ -15,11 +15,12 @@ game_bp = Blueprint('game', __name__, url_prefix='/game')
 # 在主藍圖中註冊所有子藍圖
 def init_app(app):
     # 將 views_bp 的路由註冊到 game_bp 上
-    from app.routes.game.views import catch, game_home, battle, list_arenas, capture_interactive, catch_on_route
+    from app.routes.game.views import catch, game_home, battle, list_arenas, capture_interactive, catch_on_route, fullscreen_map
     
     # 手動註冊視圖路由到主藍圖
     game_bp.add_url_rule('/', 'game_home', game_home, methods=['GET'])
     game_bp.add_url_rule('/catch', 'catch', catch, methods=['GET'])
+    game_bp.add_url_rule('/map', 'fullscreen_map', fullscreen_map, methods=['GET'])
     game_bp.add_url_rule('/battle', 'battle', battle, methods=['GET'])
     game_bp.add_url_rule('/arenas', 'list_arenas', list_arenas, methods=['GET'])
     game_bp.add_url_rule('/capture-interactive/<creature_id>', 'capture_interactive', capture_interactive, methods=['GET'])

@@ -3,15 +3,20 @@
  * 處理地圖初始化、標記顯示和地理位置等功能
  */
 
+// 全局地圖變數 - 確保在 window 物件上也有備份
+let gameMap = null;
+window.gameMap = null;
+window.busMap = null;
+
 // 初始化地圖的函數
-function initializeMap() {
+function initializeMap(containerId = 'map') {
   console.log('開始初始化地圖...');
   showLoading();
   
   // 確認地圖容器存在
-  const mapContainer = document.getElementById('map');
+  const mapContainer = document.getElementById(containerId);
   if (!mapContainer) {
-    console.error('找不到地圖容器元素 #map');
+    console.error('找不到地圖容器元素 #' + containerId);
     hideLoading();
     showGameAlert('地圖容器元素不存在，請刷新頁面重試。', 'danger');
     return;
@@ -27,7 +32,7 @@ function initializeMap() {
   
   try {
     // 嘗試直接創建地圖，不再依賴模組導出的函數
-    createDirectMap();
+    createDirectMap(containerId);
   } catch (error) {
     console.error('初始化地圖時發生錯誤:', error);
     hideLoading();
@@ -36,27 +41,36 @@ function initializeMap() {
 }
 
 // 備用：直接創建地圖（不依賴模組）
-function createDirectMap() {
+function createDirectMap(containerId = 'map') {
   console.log('使用直接方法初始化地圖');
-  try {
-    // 如果已經有地圖實例，先移除
+  try {    // 如果已經有地圖實例，先移除
     if (gameMap && typeof gameMap.remove === 'function') {
       gameMap.remove();
     }
+    if (window.gameMap && typeof window.gameMap.remove === 'function') {
+      window.gameMap.remove();
+    }
+    if (window.busMap && typeof window.busMap.remove === 'function') {
+      window.busMap.remove();
+    }
     
     // 創建新的地圖實例
-    gameMap = L.map('map', {
+    gameMap = L.map(containerId, {
       center: [25.0165, 121.5375],
       zoom: 14,
       attributionControl: true,
       zoomControl: true,
-      dragging: true,      
-      scrollWheelZoom: true, 
-      doubleClickZoom: true, 
-      touchZoom: true,     
-      boxZoom: true,       
-      tap: true           
+      dragging: true,
+      scrollWheelZoom: true,
+      doubleClickZoom: true,
+      touchZoom: true,
+      boxZoom: true,
+      tap: true
     });
+    
+    // 同步全局變數
+    window.gameMap = gameMap;
+    window.busMap = gameMap;
     
     console.log('地圖實例已創建');
     

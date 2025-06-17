@@ -18,6 +18,13 @@ def game_home():
 def catch():
     return render_template('game/catch.html', firebase_config=FIREBASE_CONFIG)
 
+# 全螢幕地圖頁面
+@views_bp.route('/map')
+@login_required
+def fullscreen_map():
+    """全螢幕地圖頁面 - 專為手機用戶優化"""
+    return render_template('game/map.html', firebase_config=FIREBASE_CONFIG)
+
 # 擂台對戰頁面
 @views_bp.route('/battle')
 @login_required

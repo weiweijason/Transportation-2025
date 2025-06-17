@@ -282,11 +282,10 @@ def get_exchange_shop_endpoints():
                 'success': False,
                 'message': '碎片不足！需要7個碎片，目前只有3個'
             }
-        },
-        {
+        },        {
             'endpoint': '/exchange-shop/api/exchange-magic-circles',
             'method': 'POST',
-            'description': '兌換魔法陣（10普通 = 1進階，10進階 = 1高級）',
+            'description': '兌換魔法陣（10普通 = 1進階，10進階 = 1高級）- 支援自選兌換數量',
             'auth_required': True,
             'parameters': [
                 {
@@ -294,22 +293,55 @@ def get_exchange_shop_endpoints():
                     'type': 'string',
                     'required': True,
                     'description': '兌換類型：normal_to_advanced 或 advanced_to_legendary'
+                },
+                {
+                    'name': 'exchange_amount',
+                    'type': 'integer',
+                    'required': False,
+                    'default': 1,
+                    'description': '兌換次數（用戶可自選），必須大於0'
                 }
             ],
             'request_example': {
-                'exchange_type': 'normal_to_advanced'
+                'exchange_type': 'normal_to_advanced',
+                'exchange_amount': 3
             },
             'response_example': {
                 'success': True,
-                'message': '成功兌換2個進階魔法陣！',
-                'exchanged_amount': 2,
-                'remaining_normal': 5,
-                'total_advanced': 5
+                'message': '成功兌換3個進階魔法陣！',
+                'exchanged_amount': 3,
+                'remaining_normal': 15,
+                'total_advanced': 8
             },
-            'error_example': {
-                'success': False,
-                'message': '普通魔法陣不足！需要10個，目前只有8個'
-            }
+            'error_examples': [
+                {
+                    'case': '數量不足',
+                    'response': {
+                        'success': False,
+                        'message': '普通魔法陣不足！需要30個進行3次兌換，目前只有25個'
+                    }
+                },
+                {
+                    'case': '無效數量',
+                    'response': {
+                        'success': False,
+                        'message': '兌換數量必須大於0'
+                    }
+                },
+                {
+                    'case': '參數錯誤',
+                    'response': {
+                        'success': False,
+                        'message': '無效的兌換數量'
+                    }
+                }
+            ],
+            'notes': [
+                '用戶可以選擇兌換次數，不再強制全部兌換',
+                '每次兌換消耗10個低級魔法陣，獲得1個高級魔法陣',
+                '前端提供+/-按鈕和數字輸入框供用戶選擇',
+                '系統會自動計算最大可兌換次數並限制用戶輸入'
+            ]
         }
     ]
     

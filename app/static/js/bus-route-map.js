@@ -24,6 +24,7 @@ import { checkExistingArenaForStop, updateArenaRoutes } from './modules/arena-ma
 
 // 全局暴露必要的函數給 HTML，使其可以通過onclick等直接調用
 window.initMap = initMap;
+window.initApp = initApp;
 window.updateUserLocation = updateUserLocation;
 window.loadAllRoutes = loadAllRoutes;
 window.loadCatRightRoute = loadCatRightRoute;
@@ -60,8 +61,19 @@ window.routeCreatures = routeCreatures;
 // window.SPAWN_CHANCE = SPAWN_CHANCE;
 // window.routeCreatureTypes = routeCreatureTypes;
 
+// 初始化狀態追蹤
+let isInitializing = false;
+let isInitialized = false;
+
 // 初始化應用
-function initApp() {
+function initApp(mapContainerId = 'map') {
+    // 防止重複初始化
+    if (isInitializing || isInitialized) {
+        console.log('地圖已經初始化或正在初始化中，跳過重複初始化');
+        return;
+    }
+    
+    isInitializing = true;
     console.log('初始化精靈公車應用');
     
     try {
@@ -69,11 +81,12 @@ function initApp() {
         showLoading();
         
         // 檢查地圖容器是否存在
-        const mapContainer = document.getElementById('map');
+        const mapContainer = document.getElementById(mapContainerId);
         if (!mapContainer) {
-            console.error('找不到地圖容器元素 #map');
+            console.error('找不到地圖容器元素 #' + mapContainerId);
             showErrorMessage('地圖初始化失敗，請檢查網絡連接並刷新頁面重試。', true);
             hideLoading();
+            isInitializing = false;
             return;
         }
         
@@ -84,7 +97,7 @@ function initApp() {
         setTimeout(() => {
             try {
                 // 初始化地圖
-                const map = initMap('map');
+                const map = initMap(mapContainerId);
                 
                 // 設定一個計時器來等待地圖初始化完成
                 let checkCount = 0;
@@ -129,45 +142,55 @@ function initApp() {
                         if (!window.creaturesLayer) {
                             window.creaturesLayer = L.layerGroup().addTo(window.busMap);
                         }
-                        
-                        // 設置路線恢復機制
+                          // 設置路線恢復機制
                         setupRouteRecovery();
                                                 
                         // 隱藏加載中提示
                         hideLoading();
-                    } else if (checkCount >= maxChecks) {
-                        // 超過最大檢查次數，視為初始化失敗
+                        
+                        // 標記初始化完成
+                        isInitializing = false;
+                        isInitialized = true;
+                        console.log('地圖初始化完全完成');
+                    } else if (checkCount >= maxChecks) {                        // 超過最大檢查次數，視為初始化失敗
                         clearInterval(checkMapInit);
                         console.error('地圖初始化超時');
                         
                         // 嘗試直接創建最基本的地圖（緊急備用方案）
-                        tryCreateEmergencyMap();
-                        
-                        showErrorMessage('地圖初始化花費時間過長，已切換至基本地圖模式。部分功能可能受限。', true);
+                        tryCreateEmergencyMap(mapContainerId);
+                          showErrorMessage('地圖初始化花費時間過長，已切換至基本地圖模式。部分功能可能受限。', true);
                         hideLoading();
+                        
+                        // 標記初始化完成（緊急模式）
+                        isInitializing = false;
+                        isInitialized = true;
                     }
                 }, 500); // 每0.5秒檢查一次
-            } catch (error) {
-                console.error('初始化地圖時發生錯誤:', error);
+            } catch (error) {                console.error('初始化地圖時發生錯誤:', error);
                 showErrorMessage(`應用初始化失敗: ${error.message}，請檢查網絡連接並刷新頁面重試。`, true);
                 hideLoading();
                 
                 // 嘗試直接創建最基本的地圖
-                tryCreateEmergencyMap();
+                tryCreateEmergencyMap(mapContainerId);
+                
+                // 重置初始化狀態
+                isInitializing = false;
             }
         }, 500); // 延遲0.5秒啟動，確保DOM已完全準備好
-        
-    } catch (error) {
+          } catch (error) {
         console.error('初始化應用時發生錯誤:', error);
         showErrorMessage(`應用初始化失敗: ${error.message}，請檢查網絡連接並刷新頁面重試。`, true);
         hideLoading();
+        
+        // 重置初始化狀態
+        isInitializing = false;
     }
 }
 
 // 嘗試創建最基本的地圖 (緊急備用方案)
-function tryCreateEmergencyMap() {
+function tryCreateEmergencyMap(mapContainerId = 'map') {
     console.log('嘗試創建緊急備用地圖');
-    const mapElement = document.getElementById('map');
+    const mapElement = document.getElementById(mapContainerId);
     
     if (!mapElement || typeof L === 'undefined') {
         console.error('無法創建緊急備用地圖：缺少必要條件');
@@ -185,7 +208,7 @@ function tryCreateEmergencyMap() {
         }
         
         // 創建基本地圖
-        window.busMap = L.map('map', {
+        window.busMap = L.map(mapContainerId, {
             center: [25.0165, 121.5375],
             zoom: 14,
             zoomControl: true,
@@ -337,7 +360,21 @@ window.checkAndRecoverRoutes = checkAndRecoverRoutes;
 // 設置初始化和事件綁定
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM載入完成，準備初始化地圖');
-    initApp();
+    
+    // 動態檢測地圖容器ID
+    let mapContainerId = 'map'; // 默認值
+    
+    if (document.getElementById('fullscreen-map')) {
+        mapContainerId = 'fullscreen-map';
+        console.log('檢測到全螢幕地圖容器');
+    } else if (document.getElementById('map')) {
+        mapContainerId = 'map';
+        console.log('檢測到普通地圖容器');
+    } else {
+        console.warn('未找到任何地圖容器，使用默認值');
+    }
+    
+    initApp(mapContainerId);
 });
 
 // 導出主要功能供外部使用

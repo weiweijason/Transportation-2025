@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全螢幕地圖測試</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        #fullscreen-map {
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .debug-info {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 1000;
+            max-width: 300px;
+        }
+        
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 123, 255, 0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    <!-- 地圖容器 -->
+    <div id="fullscreen-map"></div>
+    
+    <!-- 調試信息 -->
+    <div class="debug-info" id="debugInfo">
+        <div>初始化中...</div>
+    </div>
+    
+    <!-- 載入中 -->
+    <div class="loading" id="loading">
+        正在初始化地圖...
+    </div>
+    
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        const debugInfo = document.getElementById('debugInfo');
+        const loading = document.getElementById('loading');
+        
+        function log(message) {
+            console.log(message);
+            const time = new Date().toLocaleTimeString();
+            debugInfo.innerHTML += `<div>${time}: ${message}</div>`;
+        }
+        
+        function hideLoading() {
+            if (loading) {
+                loading.style.display = 'none';
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            log('DOM 載入完成');
+            
+            // 檢查容器
+            const mapContainer = document.getElementById('fullscreen-map');
+            if (!mapContainer) {
+                log('錯誤: 找不到地圖容器 #fullscreen-map');
+                return;
+            }
+            log('✓ 地圖容器找到');
+            
+            // 檢查 Leaflet
+            if (typeof L === 'undefined') {
+                log('錯誤: Leaflet 庫未載入');
+                return;
+            }
+            log('✓ Leaflet 庫已載入');
+            
+            try {
+                // 創建地圖
+                log('開始創建地圖實例...');
+                const map = L.map('fullscreen-map', {
+                    center: [25.0165, 121.5375], // 台北101附近
+                    zoom: 15,
+                    maxZoom: 19,
+                    minZoom: 10
+                });
+                
+                log('✓ 地圖實例創建成功');
+                
+                // 添加圖層
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors',
+                    maxZoom: 19
+                }).addTo(map);
+                
+                log('✓ 地圖圖層添加成功');
+                
+                // 添加測試標記
+                L.marker([25.0165, 121.5375])
+                    .addTo(map)
+                    .bindPopup('測試標記')
+                    .openPopup();
+                
+                log('✓ 測試標記添加成功');
+                
+                // 設置全局變量
+                window.gameMap = map;
+                window.busMap = map;
+                
+                log('✓ 地圖初始化完成！');
+                
+                hideLoading();
+                
+            } catch (error) {
+                log('錯誤: ' + error.message);
+                console.error('地圖初始化失敗:', error);
+            }
+        });
+    </script>
+</body>
+</html>
