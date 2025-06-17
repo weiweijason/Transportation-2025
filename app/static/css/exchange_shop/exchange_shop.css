@@ -520,120 +520,199 @@
     font-style: italic;
 }
 
-/* 模態框樣式 */
-.success-modal, .error-modal {
+/* 數量選擇器樣式 */
+.quantity-selector {
+    margin-bottom: 15px;
+    padding: 15px;
     background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(15px);
+    border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 20px;
+}
+
+.quantity-label {
+    display: block;
+    color: var(--exchange-text-primary);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
     text-align: center;
-    color: white;
 }
 
-.success-animation, .error-animation {
-    margin-bottom: 20px;
-    position: relative;
-}
-
-.success-icon, .error-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
+.quantity-controls {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2em;
-    margin: 0 auto 20px;
-    animation: popIn 0.5s ease-out;
+    gap: 10px;
+    margin-bottom: 8px;
 }
 
-.success-icon {
-    background: linear-gradient(135deg, #4facfe, #00f2fe);
-}
-
-.error-icon {
-    background: linear-gradient(135deg, #ff6b9d, #ff8fab);
-}
-
-@keyframes popIn {
-    0% { transform: scale(0); }
-    80% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-.success-sparkles {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-
-.sparkle {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    background: #fff;
-    border-radius: 50%;
-    animation: sparkle 1.5s ease-in-out infinite;
-}
-
-.sparkle:nth-child(1) {
-    top: 20%;
-    left: 20%;
-    animation-delay: 0s;
-}
-
-.sparkle:nth-child(2) {
-    top: 30%;
-    right: 25%;
-    animation-delay: 0.3s;
-}
-
-.sparkle:nth-child(3) {
-    bottom: 25%;
-    left: 30%;
-    animation-delay: 0.6s;
-}
-
-@keyframes sparkle {
-    0%, 100% { transform: scale(0); opacity: 0; }
-    50% { transform: scale(1); opacity: 1; }
-}
-
-.success-message, .error-message {
-    font-size: 1.3em;
-    font-weight: 600;
-    margin-bottom: 25px;
-    color: var(--exchange-text-primary);
-}
-
-.success-btn, .error-btn {
-    padding: 12px 25px;
+.quantity-btn {
+    width: 36px;
+    height: 36px;
     border: none;
-    border-radius: 12px;
-    font-weight: 600;
+    border-radius: 8px;
+    background: linear-gradient(45deg, var(--exchange-accent-primary), var(--exchange-accent-secondary));
+    color: white;
     cursor: pointer;
     transition: all 0.3s ease;
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 8px;
-    box-shadow: 0 5px 15px var(--exchange-shadow);
+    justify-content: center;
+    font-size: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.success-btn {
-    background: linear-gradient(135deg, #4facfe, #00f2fe);
-    color: white;
-}
-
-.error-btn {
-    background: linear-gradient(135deg, var(--exchange-accent-primary), var(--exchange-accent-secondary));
-    color: white;
-}
-
-.success-btn:hover, .error-btn:hover {
+.quantity-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px var(--exchange-shadow-hover);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.quantity-btn:active {
+    transform: translateY(0);
+}
+
+.quantity-input {
+    width: 80px;
+    height: 36px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--exchange-text-primary);
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.quantity-input:focus {
+    border-color: var(--exchange-accent-primary);
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.quantity-input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.quantity-info {
+    text-align: center;
+    font-size: 12px;
+    color: var(--exchange-text-secondary);
+    font-weight: 500;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+    .exchange-container {
+        padding: 15px 0;
+    }
+    
+    .main-title {
+        font-size: 2em;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .resource-display {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .exchange-arrow {
+        transform: rotate(90deg);
+    }
+    
+    .resource-item {
+        padding: 15px;
+    }
+    
+    .exchange-btn {
+        padding: 12px 20px;
+        font-size: 1em;
+    }
+    
+    .exchange-section {
+        padding: 20px;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .quantity-selector {
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+    
+    .quantity-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+    
+    .quantity-input {
+        width: 70px;
+        height: 32px;
+        font-size: 14px;
+    }
+    
+    .quantity-label {
+        font-size: 13px;
+        margin-bottom: 8px;
+    }
+    
+    .quantity-info {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    .top-navigation-area {
+        padding: 12px 15px;
+    }
+    
+    .back-btn-inner {
+        padding: 6px 12px;
+    }
+    
+    .main-title {
+        font-size: 1.8em;
+    }
+    
+    .resource-item {
+        padding: 12px;
+    }
+    
+    .resource-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1em;
+    }
+    
+    .exchange-btn {
+        padding: 10px 15px;
+        font-size: 0.9em;
+    }
+}
+
+/* 動畫效果 */
+.quantity-selector {
+    animation: slideInUp 0.5s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* 主題切換平滑過渡效果 */
@@ -727,6 +806,32 @@
         flex-direction: column;
         text-align: center;
         gap: 15px;
+    }
+    
+    .quantity-selector {
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+    
+    .quantity-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+    
+    .quantity-input {
+        width: 70px;
+        height: 32px;
+        font-size: 14px;
+    }
+    
+    .quantity-label {
+        font-size: 13px;
+        margin-bottom: 8px;
+    }
+    
+    .quantity-info {
+        font-size: 11px;
     }
 }
 

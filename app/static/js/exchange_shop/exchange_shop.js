@@ -41,19 +41,27 @@ document.addEventListener('DOMContentLoaded', function() {
             exchangeLegendaryBtn.addEventListener('click', () => exchangeMagicCircles('advanced_to_legendary'));
         }
     }
-    
-    function loadExchangeData() {
+      function loadExchangeData() {
+        console.log('開始載入兌換數據...');
+        
         fetch('/exchange-shop/api/get-exchange-data', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('API回應狀態:', response.status);
+            return response.json();
+        })
         .then(data => {
+            console.log('收到的兌換數據:', data);
+            
             if (data.success) {
                 updateUI(data.exchange_data);
+                console.log('UI更新完成');
             } else {
+                console.error('API錯誤:', data.message);
                 showError(data.message || '載入數據失敗');
             }
         })
@@ -111,17 +119,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 potionExchangeHint.style.color = 'rgba(255, 255, 255, 0.6)';
             }
         }
-        
-        // 進階魔法陣兌換按鈕
+          // 進階魔法陣兌換按鈕
         const exchangeAdvancedBtn = document.getElementById('exchangeAdvancedBtn');
         const advancedExchangeHint = document.getElementById('advancedExchangeHint');
         const normalMagic = exchangeData.magic_circle_normal || 0;
+        const maxAdvancedExchange = Math.floor(normalMagic / 10);
+        
+        // 更新數量選擇器
+        updateQuantitySelector('advanced', maxAdvancedExchange, normalMagic);
         
         if (exchangeAdvancedBtn && advancedExchangeHint) {
             if (normalMagic >= 10) {
                 exchangeAdvancedBtn.disabled = false;
-                const canExchange = Math.floor(normalMagic / 10);
-                advancedExchangeHint.textContent = `可兌換 ${canExchange} 個進階魔法陣`;
+                advancedExchangeHint.textContent = `最多可兌換 ${maxAdvancedExchange} 次`;
                 advancedExchangeHint.style.color = '#4facfe';
             } else {
                 exchangeAdvancedBtn.disabled = true;
@@ -134,12 +144,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const exchangeLegendaryBtn = document.getElementById('exchangeLegendaryBtn');
         const legendaryExchangeHint = document.getElementById('legendaryExchangeHint');
         const advancedMagic = exchangeData.magic_circle_advanced || 0;
+        const maxLegendaryExchange = Math.floor(advancedMagic / 10);
+        
+        // 更新數量選擇器
+        updateQuantitySelector('legendary', maxLegendaryExchange, advancedMagic);
         
         if (exchangeLegendaryBtn && legendaryExchangeHint) {
             if (advancedMagic >= 10) {
                 exchangeLegendaryBtn.disabled = false;
-                const canExchange = Math.floor(advancedMagic / 10);
-                legendaryExchangeHint.textContent = `可兌換 ${canExchange} 個高級魔法陣`;
+                legendaryExchangeHint.textContent = `最多可兌換 ${maxLegendaryExchange} 次`;
                 legendaryExchangeHint.style.color = '#4facfe';
             } else {
                 exchangeLegendaryBtn.disabled = true;
@@ -148,10 +161,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-    
-    function exchangePotionFragments() {
+      function exchangePotionFragments() {
         const button = document.getElementById('exchangePotionBtn');
         if (button.disabled) return;
+        
+        console.log('開始兌換藥水碎片...');
         
         // 禁用按鈕防止重複點擊
         button.disabled = true;
@@ -163,15 +177,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Content-Type': 'application/json',
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('藥水兌換API回應狀態:', response.status);
+            return response.json();
+        })
         .then(data => {
+            console.log('藥水兌換結果:', data);
+            
             if (data.success) {
                 showSuccess(data.message);
+                console.log('兌換成功，準備重新載入數據...');
                 // 重新載入數據
                 setTimeout(() => {
                     loadExchangeData();
                 }, 1500);
             } else {
+                console.error('兌換失敗:', data.message);
                 showError(data.message || '兌換失敗');
             }
         })
@@ -187,11 +208,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 1000);
         });
     }
-    
-    function exchangeMagicCircles(exchangeType) {
+      function exchangeMagicCircles(exchangeType) {
         const buttonId = exchangeType === 'normal_to_advanced' ? 'exchangeAdvancedBtn' : 'exchangeLegendaryBtn';
         const button = document.getElementById(buttonId);
         if (button.disabled) return;
+        
+        // 獲取用戶選擇的兌換數量
+        const quantityInputId = exchangeType === 'normal_to_advanced' ? 'advancedQuantity' : 'legendaryQuantity';
+        const quantityInput = document.getElementById(quantityInputId);
+        const exchangeAmount = parseInt(quantityInput.value) || 1;
         
         // 禁用按鈕防止重複點擊
         button.disabled = true;
@@ -204,7 +229,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                exchange_type: exchangeType
+                exchange_type: exchangeType,
+                exchange_amount: exchangeAmount
             })
         })
         .then(response => response.json())
@@ -231,8 +257,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 1000);
         });
     }
-    
-    function showSuccess(message) {
+      function showSuccess(message) {
         const modal = document.getElementById('successModal');
         const messageElement = document.getElementById('successMessage');
         
@@ -242,11 +267,14 @@ document.addEventListener('DOMContentLoaded', function() {
             bootstrapModal.show();
             
             // 添加成功音效 (如果需要)
-            playSuccessSound();
+            try {
+                playSuccessSound();
+            } catch (e) {
+                console.log('音效播放失敗，忽略錯誤');
+            }
         }
     }
-    
-    function showError(message) {
+      function showError(message) {
         const modal = document.getElementById('errorModal');
         const messageElement = document.getElementById('errorMessage');
         
@@ -256,7 +284,11 @@ document.addEventListener('DOMContentLoaded', function() {
             bootstrapModal.show();
             
             // 添加錯誤音效 (如果需要)
-            playErrorSound();
+            try {
+                playErrorSound();
+            } catch (e) {
+                console.log('音效播放失敗，忽略錯誤');
+            }
         }
     }
     
@@ -305,4 +337,61 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 創建粒子效果
     createParticles();
+    
+    // 數量選擇器相關函數
+    function updateQuantitySelector(type, maxQuantity, currentItems) {
+        const quantityInput = document.getElementById(`${type}Quantity`);
+        const requiredItemsSpan = document.getElementById(`${type}RequiredItems`);
+        
+        if (quantityInput) {
+            quantityInput.max = maxQuantity;
+            quantityInput.value = Math.min(parseInt(quantityInput.value) || 1, maxQuantity);
+            
+            if (maxQuantity === 0) {
+                quantityInput.value = 1;
+                quantityInput.disabled = true;
+            } else {
+                quantityInput.disabled = false;
+            }
+            
+            // 綁定input事件監聽器
+            quantityInput.addEventListener('input', function() {
+                updateRequiredItems(type);
+            });
+        }
+        
+        updateRequiredItems(type);
+    }
+    
+    function updateRequiredItems(type) {
+        const quantityInput = document.getElementById(`${type}Quantity`);
+        const requiredItemsSpan = document.getElementById(`${type}RequiredItems`);
+        
+        if (quantityInput && requiredItemsSpan) {
+            const quantity = parseInt(quantityInput.value) || 1;
+            const requiredItems = quantity * 10;
+            
+            if (type === 'advanced') {
+                requiredItemsSpan.textContent = `需要: ${requiredItems}個普通魔法陣`;
+            } else if (type === 'legendary') {
+                requiredItemsSpan.textContent = `需要: ${requiredItems}個進階魔法陣`;
+            }
+        }
+    }
+    
+    // 數量調節函數 (全域函數，供HTML onclick調用)
+    window.adjustQuantity = function(type, delta) {
+        const quantityInput = document.getElementById(`${type}Quantity`);
+        if (quantityInput) {
+            const currentValue = parseInt(quantityInput.value) || 1;
+            const maxValue = parseInt(quantityInput.max) || 1;
+            const minValue = parseInt(quantityInput.min) || 1;
+            
+            let newValue = currentValue + delta;
+            newValue = Math.max(minValue, Math.min(newValue, maxValue));
+            
+            quantityInput.value = newValue;
+            updateRequiredItems(type);
+        }
+    };
 });

@@ -2,7 +2,6 @@ from flask import Blueprint, render_template, jsonify, request
 from flask_login import login_required, current_user
 from app.services.firebase_service import FirebaseService
 from app.config.firebase_config import FIREBASE_CONFIG
-from google.cloud import firestore
 import logging
 
 # 設置日誌
@@ -84,7 +83,6 @@ def exchange_potion_fragments():
         potions_doc_ref = backpack_ref.document('normal_potion')
         
         # 使用事務確保數據一致性
-        @firestore.transactional
         def update_potion_exchange(transaction):
             # 獲取當前碎片數量
             fragments_doc = fragments_doc_ref.get(transaction=transaction)
@@ -121,9 +119,8 @@ def exchange_potion_fragments():
         
         # 執行事務
         try:
-            potions_exchanged, remaining_fragments, total_potions = update_potion_exchange(
-                firebase_service.firestore_db.transaction()
-            )
+            transaction = firebase_service.firestore_db.transaction()
+            potions_exchanged, remaining_fragments, total_potions = transaction.run(update_potion_exchange)
         except ValueError as ve:
             return jsonify({'success': False, 'message': str(ve)}), 400
         
@@ -148,18 +145,9 @@ def exchange_magic_circles():
     try:
         data = request.get_json()
         exchange_type = data.get('exchange_type')  # 'normal_to_advanced' 或 'advanced_to_legendary'
-        exchange_amount = data.get('exchange_amount', 1)  # 用戶指定的兌換次數，默認為1
         
         if exchange_type not in ['normal_to_advanced', 'advanced_to_legendary']:
             return jsonify({'success': False, 'message': '無效的兌換類型'}), 400
-        
-        # 驗證兌換數量
-        try:
-            exchange_amount = int(exchange_amount)
-            if exchange_amount <= 0:
-                return jsonify({'success': False, 'message': '兌換數量必須大於0'}), 400
-        except (ValueError, TypeError):
-            return jsonify({'success': False, 'message': '無效的兌換數量'}), 400
         
         firebase_service = FirebaseService()
         user_id = current_user.id
@@ -172,7 +160,6 @@ def exchange_magic_circles():
             normal_doc_ref = backpack_ref.document('normal')
             advanced_doc_ref = backpack_ref.document('advanced')
             
-            @firestore.transactional
             def update_normal_to_advanced(transaction):
                 # 獲取當前普通魔法陣數量
                 normal_doc = normal_doc_ref.get(transaction=transaction)
@@ -180,13 +167,12 @@ def exchange_magic_circles():
                 if normal_doc.exists:
                     current_normal = int(normal_doc.to_dict().get('count', 0))
                 
-                # 檢查是否有足夠的普通魔法陣進行指定次數的兌換
-                required_normal = exchange_amount * 10
-                if current_normal < required_normal:
-                    raise ValueError(f'普通魔法陣不足！需要{required_normal}個進行{exchange_amount}次兌換，目前只有{current_normal}個')
+                if current_normal < 10:
+                    raise ValueError(f'普通魔法陣不足！需要10個，目前只有{current_normal}個')
                 
-                # 計算兌換後的數量
-                normal_remaining = current_normal - required_normal
+                # 計算兌換數量
+                advanced_to_add = current_normal // 10
+                normal_remaining = current_normal % 10
                 
                 # 獲取當前進階魔法陣數量
                 advanced_doc = advanced_doc_ref.get(transaction=transaction)
@@ -194,7 +180,7 @@ def exchange_magic_circles():
                 if advanced_doc.exists:
                     current_advanced = int(advanced_doc.to_dict().get('count', 0))
                 
-                new_advanced = current_advanced + exchange_amount
+                new_advanced = current_advanced + advanced_to_add
                 
                 # 更新普通魔法陣數量
                 if normal_remaining > 0:
@@ -206,12 +192,11 @@ def exchange_magic_circles():
                 # 更新進階魔法陣數量
                 transaction.set(advanced_doc_ref, {'count': new_advanced})
                 
-                return exchange_amount, normal_remaining, new_advanced
+                return advanced_to_add, normal_remaining, new_advanced
             
             try:
-                exchanged_amount, remaining_normal, total_advanced = update_normal_to_advanced(
-                    firebase_service.firestore_db.transaction()
-                )
+                transaction = firebase_service.firestore_db.transaction()
+                exchanged_amount, remaining_normal, total_advanced = transaction.run(update_normal_to_advanced)
             except ValueError as ve:
                 return jsonify({'success': False, 'message': str(ve)}), 400
             
@@ -230,7 +215,6 @@ def exchange_magic_circles():
             advanced_doc_ref = backpack_ref.document('advanced')
             premium_doc_ref = backpack_ref.document('premium')
             
-            @firestore.transactional
             def update_advanced_to_legendary(transaction):
                 # 獲取當前進階魔法陣數量
                 advanced_doc = advanced_doc_ref.get(transaction=transaction)
@@ -238,13 +222,12 @@ def exchange_magic_circles():
                 if advanced_doc.exists:
                     current_advanced = int(advanced_doc.to_dict().get('count', 0))
                 
-                # 檢查是否有足夠的進階魔法陣進行指定次數的兌換
-                required_advanced = exchange_amount * 10
-                if current_advanced < required_advanced:
-                    raise ValueError(f'進階魔法陣不足！需要{required_advanced}個進行{exchange_amount}次兌換，目前只有{current_advanced}個')
+                if current_advanced < 10:
+                    raise ValueError(f'進階魔法陣不足！需要10個，目前只有{current_advanced}個')
                 
-                # 計算兌換後的數量
-                advanced_remaining = current_advanced - required_advanced
+                # 計算兌換數量
+                legendary_to_add = current_advanced // 10
+                advanced_remaining = current_advanced % 10
                 
                 # 獲取當前高級魔法陣數量
                 premium_doc = premium_doc_ref.get(transaction=transaction)
@@ -252,7 +235,7 @@ def exchange_magic_circles():
                 if premium_doc.exists:
                     current_legendary = int(premium_doc.to_dict().get('count', 0))
                 
-                new_legendary = current_legendary + exchange_amount
+                new_legendary = current_legendary + legendary_to_add
                 
                 # 更新進階魔法陣數量
                 if advanced_remaining > 0:
@@ -264,12 +247,11 @@ def exchange_magic_circles():
                 # 更新高級魔法陣數量
                 transaction.set(premium_doc_ref, {'count': new_legendary})
                 
-                return exchange_amount, advanced_remaining, new_legendary
+                return legendary_to_add, advanced_remaining, new_legendary
             
             try:
-                exchanged_amount, remaining_advanced, total_legendary = update_advanced_to_legendary(
-                    firebase_service.firestore_db.transaction()
-                )
+                transaction = firebase_service.firestore_db.transaction()
+                exchanged_amount, remaining_advanced, total_legendary = transaction.run(update_advanced_to_legendary)
             except ValueError as ve:
                 return jsonify({'success': False, 'message': str(ve)}), 400
             
