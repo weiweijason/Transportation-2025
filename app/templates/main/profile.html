@@ -14,71 +14,64 @@
 <div class="row">
     <!-- 玩家資料卡 -->
     <div class="col-md-4 mb-4">
-        <div class="card profile-card shadow-lg">
-            <div class="profile-banner" style="background-image: url('https://img.freepik.com/free-vector/gradient-mountain-landscape_23-2149162007.jpg?w=740&t=st=1711400000~exp=1711400600~hmac=0d7b12bc87e46f2ce2b8c5b2400c5fb8d0f9dab991a753e4a3cb3324354a7c47');">                <div class="profile-avatar-wrapper">
-                    <img src="{{ url_for('static', filename='img/avatar-default.png') }}" alt="玩家頭像" class="profile-avatar" id="user-avatar">
-                    <div class="level-badge">
-                        <span id="user-level">1</span>
-                    </div>
+    <div class="card profile-card shadow-lg">
+        <div class="profile-banner" style="background-image: url('https://img.freepik.com/free-vector/gradient-mountain-landscape_23-2149162007.jpg?w=740&t=st=1711400000~exp=1711400600~hmac=0d7b12bc87e46f2ce2b8c5b2400c5fb8d0f9dab991a753e4a3cb3324354a7c47');">
+            <div class="profile-avatar-wrapper">
+                <img src="{{ url_for('static', filename='img/avatar-default.png') }}" alt="玩家頭像" class="profile-avatar" id="user-avatar">
+                <div class="level-badge">
+                    <span id="user-level">1</span>
                 </div>
             </div>
-            <div class="card-body text-center">
-                <h4 class="trainer-name">{{ session['user']['username'] }}</h4>
-                <div class="trainer-stats mb-3">
-                    <div class="row">
-                        <div class="col-4">
-                            <div class="stat-item">
-                                <span class="stat-value" id="captured-count">0</span>
-                                <span class="stat-label">已捕獲</span>
-                            </div>
-                        </div>                        <div class="col-4">
-                            <div class="stat-item">
-                                <span class="stat-value" id="arena-count">0</span>
-                                <span class="stat-label">道館</span>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="stat-item">
-                                <span class="stat-value" id="battle-count">0</span>
-                                <span class="stat-label">戰鬥</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="exp-container mb-3">
-                    <div class="d-flex justify-content-between mb-1">
-                        <span class="small">經驗值</span>
-                        <span class="small" id="exp-text">0/100</span>
-                    </div>
-                    <div class="progress" style="height: 8px;">
-                        <div class="progress-bar bg-success" id="exp-progress" role="progressbar" style="width: 0%"></div>
-                    </div>
-                </div>
-                
-                <button class="btn btn-outline-primary btn-rounded w-100">
-                    <i class="fas fa-pencil-alt me-2"></i>編輯資料
-                </button>
-            </div>
-            <div class="card-footer bg-light">
-                <div class="row text-center">
-                    <div class="col-6">
-                        <div class="achievement">
-                            <i class="fas fa-medal text-warning"></i>
-                            <span>成就: 3/20</span>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="achievement">
-                            <i class="fas fa-trophy text-danger"></i>
-                            <span>排名: #42</span>
-                        </div>
-                    </div>
-                </div>            </div>        </div>
+        </div> <!-- <- 加上這個關閉 profile-banner -->
 
-    </div><!-- 功能選單卡片 -->
+        <div class="card-body text-center">
+            <h4 class="trainer-name">{{ session['user']['username'] }}</h4>
+
+            <div class="trainer-stats mb-3">
+                <div class="row">
+                    <div class="col-4">
+                        <div class="stat-item">
+                            <span class="stat-value" id="captured-count">0</span>
+                            <span class="stat-label">已捕獲</span>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat-item">
+                            <span class="stat-value" id="arena-count">0</span>
+                            <span class="stat-label">道館</span>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat-item">
+                            <span class="stat-value" id="battle-count">0</span>
+                            <span class="stat-label">戰鬥</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="exp-container mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="small">經驗值</span>
+                    <span class="small" id="exp-text">0/100</span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-success" id="exp-progress" role="progressbar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <button class="btn btn-outline-primary btn-rounded w-100">
+                <i class="fas fa-pencil-alt me-2"></i>編輯資料
+            </button>
+        </div>
+    </div>
+</div>
+
+
+    <!-- 功能選單卡片 -->
     <div class="col-md-8">
-        <div class="function-menu-container">            {% set menu_items = [
+        <div class="function-menu-container">
+            {% set menu_items = [
                 {"label": "精靈", "icon": url_for('static', filename='img/profile/elf.png'), "url": url_for('bylin.myelf')},
                 {"label": "背包", "icon": url_for('static', filename='img/profile/bag.png'), "url": url_for('bylin.backpack')},
                 {"label": "我的道館", "icon": url_for('static', filename='img/profile/arena.png'), "url": url_for('bylin.myarena')},

@@ -110,16 +110,34 @@ function checkMapInitialized(callback) {
 // 開始精靈更新倒計時
 function startUpdateCountdown() {
   updateTimer = 30;
-  document.getElementById('updateCountdown').textContent = updateTimer;
-  document.getElementById('updateIndicator').style.display = 'block';
+  
+  // 安全檢查 DOM 元素是否存在
+  const updateCountdownEl = document.getElementById('updateCountdown');
+  const updateIndicatorEl = document.getElementById('updateIndicator');
+  
+  if (updateCountdownEl) {
+    updateCountdownEl.textContent = updateTimer;
+  } else {
+    console.warn('updateCountdown 元素不存在，跳過倒計時顯示');
+  }
+  
+  if (updateIndicatorEl) {
+    updateIndicatorEl.style.display = 'block';
+  } else {
+    console.warn('updateIndicator 元素不存在，跳過指示器顯示');
+  }
   
   if (updateInterval) {
     clearInterval(updateInterval);
   }
-  
-  updateInterval = setInterval(function() {
+    updateInterval = setInterval(function() {
     updateTimer--;
-    document.getElementById('updateCountdown').textContent = updateTimer;
+    
+    // 安全更新倒計時顯示
+    const updateCountdownEl = document.getElementById('updateCountdown');
+    if (updateCountdownEl) {
+      updateCountdownEl.textContent = updateTimer;
+    }
     
     if (updateTimer <= 0) {
       // 時間到，更新精靈
@@ -177,7 +195,12 @@ checkMapInitialized(fetchCreatures);
 // 獲取路線上的精靈
 function fetchRouteCreatures() {
   console.log('獲取路線上的精靈...');
-  document.getElementById('updateIndicator').style.display = 'none';
+  
+  // 安全隱藏更新指示器
+  const updateIndicatorEl = document.getElementById('updateIndicator');
+  if (updateIndicatorEl) {
+    updateIndicatorEl.style.display = 'none';
+  }
   
   // 調用API獲取所有路線上的精靈
   fetch('/game/api/route-creatures/get-all')
@@ -471,7 +494,25 @@ function hideLoading() {
 
 // 當發生錯誤時，在控制台輸出錯誤信息
 window.onerror = function(message, source, lineno, colno, error) {
+  // 過濾掉 "Script error." 這種無用的錯誤
+  if (message === 'Script error.' && !source && !lineno && !colno) {
+    console.debug('跨域腳本錯誤，忽略');
+    return true; // 阻止默認錯誤處理
+  }
+  
   console.error('全局錯誤:', message, 'at', source, lineno, colno);
+  
+  // 如果有詳細錯誤對象，記錄堆棧
+  if (error) {
+    console.error('錯誤堆棧:', error.stack);
+  }
+  
   hideLoading();
   return false;
 };
+
+// 添加未處理的 Promise 拒絕處理
+window.addEventListener('unhandledrejection', function(event) {
+  console.error('未處理的 Promise 拒絕:', event.reason);
+  hideLoading();
+});

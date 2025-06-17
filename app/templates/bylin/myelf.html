@@ -1,5 +1,11 @@
 {% extends "base.html" %}
+
 {% block title %}個人資料 - 我的精靈{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile/myelf.css') }}">
+{% endblock %}
+
 {% block content %}
 
 <!-- 精靈收藏 -->
@@ -271,9 +277,7 @@
 
 {% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/profile/myelf.css') }}">
-{% endblock %}
+
 
 {% block extra_js %}
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>

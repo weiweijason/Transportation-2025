@@ -1,6 +1,7 @@
 /* 我的精靈頁面樣式 */
 
 /* ============ 統計面板樣式 ============ */
+
 .stats-panel .card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     border-radius: 12px;

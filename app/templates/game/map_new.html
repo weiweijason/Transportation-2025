@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+
+{% block title %}全螢幕地圖{% endblock %}
+
+{% block extra_css %}
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  #fullscreen-map {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+  }
+  
+  .control-panel {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  
+  .control-panel h6 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-weight: 600;
+  }
+  
+  .control-panel .btn {
+    margin: 2px;
+    font-size: 12px;
+  }
+  
+  .bottom-info {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, rgba(74, 144, 226, 0.95), rgba(80, 200, 120, 0.95));
+    color: white;
+    padding: 15px 20px;
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255,255,255,0.2);
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    z-index: 10001;
+  }
+  
+  .bottom-info.show {
+    transform: translateY(0);
+  }
+  
+  .info-toggle {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10002;
+    background: rgba(74, 144, 226, 0.9);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  
+  .info-toggle:hover {
+    background: rgba(74, 144, 226, 1);
+    transform: translateX(-50%) translateY(-2px);
+  }
+  
+  .location-indicator {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 10003;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: monospace;
+  }
+  
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 20000;
+    color: white;
+  }
+  
+  .loading-overlay .spinner-border {
+    width: 3rem;
+    height: 3rem;
+  }
+  
+  /* 移動設備視窗高度 */
+  :root {
+    --vh: 1vh;
+  }
+  
+  @media (max-width: 768px) {
+    #fullscreen-map {
+      height: calc(var(--vh, 1vh) * 100);
+    }
+  }
+  
+  /* 為手機優化的控制面板 */
+  @media (max-width: 576px) {
+    .control-panel {
+      top: 10px;
+      right: 10px;
+      left: 10px;
+      padding: 10px;
+    }
+    
+    .control-panel .btn {
+      font-size: 11px;
+      padding: 4px 8px;
+    }
+    
+    .bottom-info {
+      padding: 10px 15px;
+    }
+    
+    .info-toggle {
+      bottom: 15px;
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 載入指示器 -->
+<div id="loadingOverlay" class="loading-overlay">
+  <div class="text-center">
+    <div class="spinner-border text-light" role="status">
+      <span class="visually-hidden">載入中...</span>
+    </div>
+    <div class="mt-3">正在載入地圖...</div>
+  </div>
+</div>
+
+<!-- 全螢幕地圖容器 -->
+<div id="fullscreen-map"></div>
+
+<!-- 控制面板 -->
+<div class="control-panel">
+  <h6><i class="fas fa-cog"></i> 地圖控制</h6>
+  
+  <div class="btn-group-vertical w-100" role="group">
+    <button type="button" class="btn btn-primary btn-sm" id="goToCurrentLocationBtn">
+      <i class="fas fa-crosshairs"></i> 目前位置
+    </button>
+    <button type="button" class="btn btn-info btn-sm" id="refreshLocationBtn">
+      <i class="fas fa-sync-alt"></i> 重新定位
+    </button>
+    <button type="button" class="btn btn-warning btn-sm" id="initMapBtn">
+      <i class="fas fa-redo"></i> 重整地圖
+    </button>
+  </div>
+</div>
+
+<!-- 位置指示器 -->
+<div id="locationIndicator" class="location-indicator d-none">
+  <i class="fas fa-map-marker-alt"></i>
+  <span id="currentLocationText">位置獲取中...</span>
+</div>
+
+<!-- 底部信息面板 -->
+<div id="bottomInfo" class="bottom-info">
+  <div class="row">
+    <div class="col-md-4">
+      <h6><i class="fas fa-info-circle"></i> 使用說明</h6>
+      <p class="mb-2">• 拖拽地圖進行移動</p>
+      <p class="mb-2">• 滾輪縮放或使用縮放按鈕</p>
+      <p class="mb-0">• 點擊「目前位置」按鈕回到您的位置</p>
+    </div>
+    <div class="col-md-4">
+      <h6><i class="fas fa-gamepad"></i> 遊戲功能</h6>
+      <p class="mb-2">• 尋找並捕捉地圖上的精靈</p>
+      <p class="mb-2">• 查看公車路線和站點</p>
+      <p class="mb-0">• 參與競技場對戰</p>
+    </div>
+    <div class="col-md-4">
+      <h6><i class="fas fa-keyboard"></i> 快捷鍵</h6>
+      <p class="mb-2">• ESC: 關閉此面板</p>
+      <p class="mb-2">• F: 全螢幕模式</p>
+      <p class="mb-0">• R: 重新整理地圖</p>
+    </div>
+  </div>
+</div>
+
+<!-- 信息面板切換按鈕 -->
+<button type="button" class="btn info-toggle" id="infoToggleBtn">
+  <i class="fas fa-info"></i> 使用說明
+</button>
+{% endblock %}
+
+{% block extra_js %}
+<!-- 載入Leaflet庫 -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- 全螢幕地圖特殊配置 -->
+<script src="{{ url_for('static', filename='js/game/fullscreen-map-config.js') }}"></script>
+
+<!-- 引入公車路線地圖相關JS -->
+<script type="module" src="{{ url_for('static', filename='js/bus-route-map.js') }}"></script>
+
+<!-- 緊急修復腳本 - 修復地圖拖動問題 -->
+<script src="{{ url_for('static', filename='js/map-emergency-fix.js') }}"></script>
+
+<!-- 引入遊戲模組 -->
+<script src="{{ url_for('static', filename='js/game/ui-effects.js') }}"></script>
+<script src="{{ url_for('static', filename='js/game/map-functions.js') }}"></script>
+<script src="{{ url_for('static', filename='js/game/creature-functions.js') }}"></script>
+<script src="{{ url_for('static', filename='js/game/arena-functions.js') }}"></script>
+
+<!-- 全螢幕地圖主要邏輯 -->
+<script src="{{ url_for('static', filename='js/game/fullscreen-map-main.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/game/catch-game.js') }}"></script>
+{% endblock %}

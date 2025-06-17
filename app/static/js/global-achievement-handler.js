@@ -45,28 +45,39 @@
             
             // 創建輕量級通知容器（如果成就頁面的通知管理器不存在）
             this.createLightweightNotificationSystem();
-        }
-
-        /**
+        }        /**
          * 攔截fetch請求
          */
         interceptFetchRequests() {
             const originalFetch = window.fetch;
             
             window.fetch = async function(...args) {
-                const response = await originalFetch.apply(this, args);
-                
-                // 複製response以便多次讀取
-                const clonedResponse = response.clone();
-                
                 try {
-                    const data = await clonedResponse.json();
-                    window.globalAchievementHandler.checkForAchievements(data);
-                } catch (e) {
-                    // 非JSON回應，忽略
+                    const response = await originalFetch.apply(this, args);
+                    
+                    // 只處理成功的請求
+                    if (response.ok) {
+                        // 複製response以便多次讀取
+                        const clonedResponse = response.clone();
+                        
+                        try {
+                            const data = await clonedResponse.json();
+                            if (window.globalAchievementHandler) {
+                                window.globalAchievementHandler.checkForAchievements(data);
+                            }
+                        } catch (e) {
+                            // 非JSON回應或解析失敗，忽略
+                            console.debug('無法解析回應為JSON，跳過成就檢查');
+                        }
+                    } else {
+                        console.warn(`API 請求失敗: ${response.status} ${response.statusText}`);
+                    }
+                    
+                    return response;
+                } catch (error) {
+                    console.error('Fetch 請求錯誤:', error);
+                    throw error;
                 }
-                
-                return response;
             };
         }
 

@@ -442,17 +442,31 @@ def update_arena_routes():
     """更新道館路線"""
     try:
         data = request.json
+        if not data:
+            return jsonify({'success': False, 'message': '請求數據為空'}), 400
+            
         arena_id = data.get('arenaId')
         route_name = data.get('routeName')
         
         if not arena_id or not route_name:
             return jsonify({'success': False, 'message': '缺少必要參數'}), 400
         
-        firebase_service = FirebaseService()
+        # 記錄請求信息
+        current_app.logger.info(f"用戶 {current_user.username} 嘗試更新道館 {arena_id} 的路線 {route_name}")
         
-        # 獲取道館文檔
-        arena_ref = firebase_service.firestore_db.collection('arenas').document(arena_id)
-        arena_doc = arena_ref.get()
+        # 初始化 Firebase 服務
+        try:
+            firebase_service = FirebaseService()
+        except Exception as e:
+            current_app.logger.error(f"Firebase 服務初始化失敗: {e}")
+            return jsonify({'success': False, 'message': 'Firebase 服務不可用'}), 500
+          # 獲取道館文檔
+        try:
+            arena_ref = firebase_service.firestore_db.collection('arenas').document(arena_id)
+            arena_doc = arena_ref.get()
+        except Exception as e:
+            current_app.logger.error(f"獲取道館文檔失敗: {e}")
+            return jsonify({'success': False, 'message': '無法訪問道館數據'}), 500
         
         if not arena_doc.exists:
             return jsonify({'success': False, 'message': '找不到指定道館'}), 404
@@ -468,20 +482,26 @@ def update_arena_routes():
             level = len(routes)
             
             # 更新 Firestore
-            arena_ref.update({
-                'routes': routes,
-                'level': level,
-                'updatedAt': firebase_service.get_server_timestamp()
-            })
-            
-            arena_data['routes'] = routes
-            arena_data['level'] = level
-            
-            return jsonify({
-                'success': True,
-                'message': '道館路線更新成功',
-                'arena': arena_data
-            })
+            try:
+                arena_ref.update({
+                    'routes': routes,
+                    'level': level,
+                    'updatedAt': firebase_service.get_server_timestamp()
+                })
+                
+                arena_data['routes'] = routes
+                arena_data['level'] = level
+                
+                current_app.logger.info(f"道館 {arena_id} 路線更新成功")
+                
+                return jsonify({
+                    'success': True,
+                    'message': '道館路線更新成功',
+                    'arena': arena_data
+                })
+            except Exception as e:
+                current_app.logger.error(f"更新 Firestore 文檔失敗: {e}")
+                return jsonify({'success': False, 'message': '數據更新失敗'}), 500
         else:
             return jsonify({
                 'success': True,
@@ -491,4 +511,5 @@ def update_arena_routes():
             
     except Exception as e:
         current_app.logger.error(f"更新道館路線時出錯: {e}")
-        return jsonify({'success': False, 'message': str(e)}), 500
+        current_app.logger.error(f"錯誤詳情: {traceback.format_exc()}")
+        return jsonify({'success': False, 'message': '內部服務器錯誤'}), 500

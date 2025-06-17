@@ -309,35 +309,50 @@ function finishMapInitialization() {
 
 // 添加默認位置標記
 function addDefaultLocationMarker() {
-  if (!gameMap) return;
+  const targetMap = window.gameMap || window.busMap;
+  if (!targetMap) {
+    console.warn('沒有可用的地圖實例，無法添加默認位置標記');
+    return;
+  }
   
   const defaultPos = [25.0330, 121.5654]; // 台北市中心
-  window.userLocation = defaultPos;
+  window.userLocation = { lat: defaultPos[0], lng: defaultPos[1] };
+  
+  console.log('使用預設位置:', defaultPos);
   
   // 創建用戶位置標記
-  window.userMarker = L.marker(defaultPos, {
-    icon: L.divIcon({
-      className: 'user-marker',
-      html: '<div style="background-color:#FFA500;width:20px;height:20px;border-radius:50%;border:3px solid white;"></div>',
-      iconSize: [20, 20],
-      iconAnchor: [10, 10]
-    })
-  }).addTo(gameMap);
+  if (window.userMarker) {
+    window.userMarker.setLatLng(defaultPos);
+  } else {
+    window.userMarker = L.marker(defaultPos, {
+      icon: L.divIcon({
+        className: 'user-marker',
+        html: '<div style="background-color:#FFA500;width:20px;height:20px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);"></div>',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+      })
+    }).addTo(targetMap);
+  }
   
   // 創建用戶範圍圓圈
-  window.userCircle = L.circle(defaultPos, {
-    radius: 300,
-    color: '#FFA500',
-    fillColor: '#FFA500',
-    fillOpacity: 0.1,
-    weight: 1
-  }).addTo(gameMap);
-    // 更新地圖視角
+  if (window.userCircle) {
+    window.userCircle.setLatLng(defaultPos);
+  } else {
+    window.userCircle = L.circle(defaultPos, {
+      radius: 300,
+      color: '#FFA500',
+      fillColor: '#FFA500',
+      fillOpacity: 0.1,
+      weight: 2
+    }).addTo(targetMap);
+  }
+  
+  // 更新地圖視角
   if (window.safeSetMapView) {
-    window.safeSetMapView(gameMap, defaultPos, 14);
+    window.safeSetMapView(targetMap, defaultPos, 14);
   } else {
     try {
-      gameMap.setView(defaultPos, 14);
+      targetMap.setView(defaultPos, 14);
     } catch (error) {
       console.error('設置預設位置視圖時發生錯誤:', error);
     }
@@ -353,21 +368,78 @@ function addDefaultLocationMarker() {
 // 更新用戶位置
 function updateUserLocation() {
   return new Promise((resolve, reject) => {
-    if (!gameMap) {
-      reject('地圖尚未初始化');
+    console.log('開始獲取用戶位置...');
+    
+    // 檢查地圖實例
+    const targetMap = window.gameMap || window.busMap;
+    if (!targetMap) {
+      const error = '地圖尚未初始化';
+      console.error(error);
+      reject(error);
       return;
     }
     
+    // 檢查地理位置API是否可用
     if (!navigator.geolocation) {
-      reject('您的瀏覽器不支持地理位置功能');
+      const error = '您的瀏覽器不支持地理位置功能';
+      console.error(error);
+      reject(error);
       return;
     }
     
-    navigator.geolocation.getCurrentPosition(
-      // 成功回調
-      (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
+    // 首先檢查位置權限
+    if (navigator.permissions) {
+      navigator.permissions.query({name: 'geolocation'}).then((permissionStatus) => {
+        console.log('位置權限狀態:', permissionStatus.state);
+        
+        if (permissionStatus.state === 'denied') {
+          const error = '位置權限被拒絕，請在瀏覽器設置中允許位置訪問';
+          console.error(error);
+          showGameAlert('位置權限被拒絕，請允許位置訪問後重試', 'warning');
+          reject(error);
+          return;
+        }
+        
+        // 執行位置獲取
+        performLocationRequest(targetMap, resolve, reject);
+      }).catch(() => {
+        // 如果權限查詢失敗，直接嘗試獲取位置
+        console.warn('無法查詢位置權限，直接嘗試獲取位置');
+        performLocationRequest(targetMap, resolve, reject);
+      });
+    } else {
+      // 舊版瀏覽器沒有 permissions API
+      console.log('瀏覽器不支持權限API，直接嘗試獲取位置');
+      performLocationRequest(targetMap, resolve, reject);
+    }
+  });
+}
+
+// 執行實際的位置請求
+function performLocationRequest(targetMap, resolve, reject) {
+  const positionOptions = {
+    enableHighAccuracy: true,    // 高精度定位
+    timeout: 15000,             // 15秒超時（增加超時時間）
+    maximumAge: 30000           // 30秒內的缓存位置有效
+  };
+  
+  console.log('開始地理位置請求，選項:', positionOptions);
+  
+  navigator.geolocation.getCurrentPosition(
+    // 成功回調
+    (position) => {
+      console.log('位置獲取成功:', position);
+      
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      const accuracy = position.coords.accuracy;
+      
+      console.log(`位置: ${lat}, ${lng}, 精度: ${accuracy}米`);
+      
+      // 檢查位置是否合理（台灣範圍）
+      if (lat < 21.5 || lat > 25.5 || lng < 119.5 || lng > 122.5) {
+        console.warn('位置似乎不在台灣範圍內，但仍繼續使用');
+      }
         
         // 更新用戶位置標記
         if (window.userMarker) {
@@ -376,11 +448,11 @@ function updateUserLocation() {
           window.userMarker = L.marker([lat, lng], {
             icon: L.divIcon({
               className: 'user-marker',
-              html: '<div style="background-color:#FFA500;width:20px;height:20px;border-radius:50%;border:3px solid white;"></div>',
+              html: '<div style="background-color:#4285F4;width:20px;height:20px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);"></div>',
               iconSize: [20, 20],
               iconAnchor: [10, 10]
             })
-          }).addTo(gameMap);
+          }).addTo(targetMap);
         }
         
         // 更新用戶範圍圓圈
@@ -389,18 +461,27 @@ function updateUserLocation() {
         } else {
           window.userCircle = L.circle([lat, lng], {
             radius: 300,
-            color: '#FFA500',
-            fillColor: '#FFA500',
+            color: '#4285F4',
+            fillColor: '#4285F4',
             fillOpacity: 0.1,
-            weight: 1
-          }).addTo(gameMap);
+            weight: 2
+          }).addTo(targetMap);
         }
-          // 更新地圖視角
+        
+        // 使用安全的地圖視角更新
         if (window.safeSetMapView) {
-          window.safeSetMapView(gameMap, [lat, lng], 16);
+          const success = window.safeSetMapView(targetMap, [lat, lng], 16);
+          if (!success) {
+            console.warn('安全地圖視角設置失敗，使用備用方法');
+            try {
+              targetMap.setView([lat, lng], 16);
+            } catch (setViewError) {
+              console.error('地圖視角設置失敗:', setViewError);
+            }
+          }
         } else {
           try {
-            gameMap.setView([lat, lng], 16);
+            targetMap.setView([lat, lng], 16);
           } catch (error) {
             console.error('設置用戶位置視圖時發生錯誤:', error);
           }
@@ -413,24 +494,48 @@ function updateUserLocation() {
         }
         
         // 保存位置到全局變量
-        window.userLocation = [lat, lng];
+        window.userLocation = { lat: lat, lng: lng };
         
+        console.log('用戶位置更新完成');
+        showGameAlert('位置更新成功！', 'success');
         resolve([lat, lng]);
-      },
-      // 錯誤回調
-      (error) => {
-        console.error('無法獲取位置:', error.message);
-        addDefaultLocationMarker(); // 失敗時使用默認標記
-        reject(error);
-      },
-      // 選項
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
+    },
+    // 錯誤回調
+    (error) => {
+      console.error('地理位置獲取失敗:', error);
+      
+      let errorMessage = '無法獲取您的位置';
+      
+      switch(error.code) {
+        case error.PERMISSION_DENIED:
+          errorMessage = '位置權限被拒絕，請在瀏覽器設置中允許位置訪問';
+          showGameAlert('請允許瀏覽器訪問您的位置', 'warning');
+          break;
+        case error.POSITION_UNAVAILABLE:
+          errorMessage = '位置信息不可用，請檢查GPS或網絡連接';
+          showGameAlert('無法獲取位置信息，請檢查GPS設置', 'warning');
+          break;
+        case error.TIMEOUT:
+          errorMessage = '位置獲取超時，請重試';
+          showGameAlert('定位超時，請重試', 'warning');
+          break;
+        default:
+          errorMessage = '位置獲取發生未知錯誤';
+          showGameAlert('定位失敗，請重試', 'error');
+          break;
       }
-    );
-  });
+      
+      console.error('使用預設位置:', errorMessage);
+      
+      // 失敗時使用默認標記
+      addDefaultLocationMarker();
+      showGameAlert('使用預設位置（台北市中心）', 'info');
+      
+      reject(new Error(errorMessage));
+    },
+    // 選項
+    positionOptions
+  );
 }
 
 // 根據路線名稱獲取顏色
@@ -572,3 +677,9 @@ function isMapInstanceValid(map) {
 window.safeSetMapView = safeSetMapView;
 window.safeSetMapZoom = safeSetMapZoom;
 window.isMapInstanceValid = isMapInstanceValid;
+
+// 全局導出地圖功能函數
+window.initializeMap = initializeMap;
+window.createDirectMap = createDirectMap;
+window.updateUserLocation = updateUserLocation;
+window.addDefaultLocationMarker = addDefaultLocationMarker;

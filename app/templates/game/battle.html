@@ -393,6 +393,18 @@
     position: relative;
   }
   
+  .back-button {
+    position: fixed;
+    top: 80px;       /* 原本是 20px，改為 80px 避開導覽列 */
+    left: 16px;      /* 原本是 20px，改為 16px 更貼近邊緣但不會太擠 */
+    z-index: 1050;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .creature-image img {
     max-height: 120px;
     max-width: 100%;
@@ -1144,7 +1156,11 @@
         </div>
       </div>
     </div>
+    <a href="{{ url_for('game.catch') }}" class="btn btn-secondary rounded-circle shadow back-button" title="返回">
+      <i class="fas fa-arrow-left"></i>
+    </a>
   </div>
+  
 </div>
 <!-- 加載中遮罩 -->
 <div id="loadingOverlay" class="loading-overlay">

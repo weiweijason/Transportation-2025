@@ -132,7 +132,7 @@ def load_route_geometry(route_id):
     return None
 
 def generate_creatures_for_all_routes():
-    """為所有路線生成精靈"""
+    """為所有路線生成精靈（依照Rate權重）"""
     print(f"=== 執行精靈生成任務 ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')}) ===")
     
     # 載入精靈CSV數據
@@ -148,63 +148,94 @@ def generate_creatures_for_all_routes():
     routes = BusRoute.query.all()
     print(f"共找到 {len(routes)} 條路線")
     
-    # 先清理過期的精靈
+    # 清除過期精靈
     removed_count = firebase_service.remove_expired_creatures()
     if removed_count > 0:
         print(f"已清理 {removed_count} 隻過期的精靈")
     
-    # 更新本地緩存
+    # 更新快取
     firebase_service.cache_creatures_to_csv()
     print("已更新精靈緩存")
     
-    # 為每條路線生成精靈
+    # 各Rate的機率
+    rate_weights = {
+        'SSR': 0.10,
+        'SR': 0.20,
+        'R': 0.30,
+        'N': 0.40,
+    }
+    
     for route in routes:
         # 80% 的機率生成精靈
         if random.random() < 0.8:
-            # 將路線ID映射到CSV路線名稱
             csv_route_name = map_route_id_to_csv_route(route.route_id)
             if not csv_route_name:
                 print(f"路線 {route.name} ({route.route_id}) 在CSV中找不到對應的精靈，跳過")
                 continue
-            
-            # 嘗試從數據庫獲取路線形狀
+
+            # 嘗試取得幾何路線資料
             route_shape = BusRouteShape.query.filter_by(route_id=route.id).first()
             geometry = None
             
-            # 如果數據庫中有路線形狀數據
             if route_shape and route_shape.geometry:
                 try:
                     geometry = json.loads(route_shape.geometry)
                 except:
                     print(f"無法解析路線 {route.name} 的幾何數據")
             
-            # 如果從數據庫無法獲取，嘗試從本地文件加載
             if not geometry:
                 geometry = load_route_geometry(route.route_id)
-            
-            # 生成精靈
-            count = random.randint(1, 2)  # 每次生成1-2隻精靈
+
+            # 根據 Rate 分群
+            rate_groups = {
+                'SSR': creatures_df[(creatures_df['Rate'] == 'SSR') & (creatures_df['Route'] == csv_route_name)],
+                'SR': creatures_df[(creatures_df['Rate'] == 'SR') & (creatures_df['Route'] == csv_route_name)],
+                'R': creatures_df[(creatures_df['Rate'] == 'R') & (creatures_df['Route'] == csv_route_name)],
+                'N': creatures_df[(creatures_df['Rate'] == 'N') & (creatures_df['Route'] == csv_route_name)],
+            }
+
+            count = random.randint(1, 2)
+            selected_creatures_df = pd.DataFrame()
+
+            for _ in range(count):
+                # 按機率抽取Rate
+                rate_choice = random.choices(
+                    population=['SSR', 'SR', 'R', 'N'],
+                    weights=[rate_weights[r] for r in ['SSR', 'SR', 'R', 'N']],
+                    k=1
+                )[0]
+
+                candidates = rate_groups.get(rate_choice)
+                if candidates is not None and not candidates.empty:
+                    selected_creatures_df = pd.concat([
+                        selected_creatures_df,
+                        candidates.sample(1)
+                    ], ignore_index=True)
+                else:
+                    print(f"[警告] Rate {rate_choice}（路線: {route.name}）中沒有可選精靈，跳過")
+
+            # 傳入挑選後精靈進行生成
             creatures = firebase_service.generate_route_creatures(
                 route_id=route.id,
                 route_name=route.name,
                 element_type=route.element_type,
                 route_geometry=geometry,
-                count=count,
-                creatures_data=creatures_df,  # 傳入CSV數據
-                csv_route_name=csv_route_name  # 傳入CSV路線名稱
+                count=len(selected_creatures_df),
+                creatures_data=selected_creatures_df,
+                csv_route_name=csv_route_name
             )
-            
+
             if creatures:
-                print(f"在路線 {route.name} 上生成了 {len(creatures)} 隻精靈")
+                print(f"在路線 {route.name} 上生成了 {len(creatures)} 隻精靈（Rate 分布）")
             else:
                 print(f"在路線 {route.name} 上生成精靈失敗")
         else:
             print(f"路線 {route.name} 本次未生成精靈 (20% 機率)")
-    
-    # 再次更新本地緩存，確保添加了新生成的精靈
+
+    # 更新快取
     firebase_service.cache_creatures_to_csv()
-    
     print(f"=== 精靈生成任務完成 ===\n")
+
 
 def run_schedule():
     """執行定時任務"""
