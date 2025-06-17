@@ -435,9 +435,8 @@ class CaptureInteractive {
         countdownElement.textContent = countdown;
       }
       if (countdown <= 0) {
-        clearInterval(countdownInterval);
-        // 修改重定向邏輯：優先返回到用戶精靈頁面，展示新捕捉的精靈
-        window.location.href = "/game/user/creatures";
+        clearInterval(countdownInterval);        // 修改重定向邏輯：優先返回到用戶精靈頁面，展示新捕捉的精靈
+        window.location.href = "/bylin/myelf";
       }
     }, 1000);
   }
