@@ -1,13 +1,85 @@
-/* 兌換商店樣式 */
+/* 兌換商店樣式 - 支援深淺色主題 */
+
+/* CSS 變數定義 */
+:root[data-theme="light"] {
+    /* 淺色主題變數 */
+    --exchange-bg-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    --exchange-particles-primary: rgba(168, 237, 234, 0.3);
+    --exchange-particles-secondary: rgba(254, 214, 227, 0.3);
+    --exchange-particles-tertiary: rgba(102, 126, 234, 0.3);
+    --exchange-overlay-bg: rgba(255, 255, 255, 0.9);
+    --exchange-loading-bg: rgba(0, 0, 0, 0.6);
+    --exchange-loading-text: #2d3748;
+    --exchange-loading-spinner: #667eea;
+    --exchange-card-bg: rgba(255, 255, 255, 0.9);
+    --exchange-card-hover-bg: rgba(255, 255, 255, 0.95);
+    --exchange-card-border: rgba(0, 0, 0, 0.1);
+    --exchange-text-primary: #2d3748;
+    --exchange-text-secondary: rgba(45, 55, 72, 0.8);
+    --exchange-text-muted: rgba(45, 55, 72, 0.6);
+    --exchange-accent-primary: #667eea;
+    --exchange-accent-secondary: #764ba2;
+    --exchange-accent-tertiary: #ff6b9d;
+    --exchange-shadow: rgba(0, 0, 0, 0.1);
+    --exchange-shadow-hover: rgba(0, 0, 0, 0.15);
+}
+
+:root[data-theme="dark"] {
+    /* 深色主題變數 */
+    --exchange-bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --exchange-particles-primary: rgba(120, 119, 198, 0.3);
+    --exchange-particles-secondary: rgba(255, 119, 198, 0.3);
+    --exchange-particles-tertiary: rgba(120, 219, 255, 0.3);
+    --exchange-overlay-bg: rgba(255, 255, 255, 0.1);
+    --exchange-loading-bg: rgba(0, 0, 0, 0.8);
+    --exchange-loading-text: white;
+    --exchange-loading-spinner: #ff6b9d;
+    --exchange-card-bg: rgba(255, 255, 255, 0.1);
+    --exchange-card-hover-bg: rgba(255, 255, 255, 0.15);
+    --exchange-card-border: rgba(255, 255, 255, 0.2);
+    --exchange-text-primary: white;
+    --exchange-text-secondary: rgba(255, 255, 255, 0.9);
+    --exchange-text-muted: rgba(255, 255, 255, 0.7);
+    --exchange-accent-primary: #ff6b9d;
+    --exchange-accent-secondary: #ff8fab;
+    --exchange-accent-tertiary: #667eea;
+    --exchange-shadow: rgba(0, 0, 0, 0.3);
+    --exchange-shadow-hover: rgba(0, 0, 0, 0.4);
+}
+
+/* 默認為深色主題（向後兼容） */
+:root {
+    --exchange-bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --exchange-particles-primary: rgba(120, 119, 198, 0.3);
+    --exchange-particles-secondary: rgba(255, 119, 198, 0.3);
+    --exchange-particles-tertiary: rgba(120, 219, 255, 0.3);
+    --exchange-overlay-bg: rgba(255, 255, 255, 0.1);
+    --exchange-loading-bg: rgba(0, 0, 0, 0.8);
+    --exchange-loading-text: white;
+    --exchange-loading-spinner: #ff6b9d;
+    --exchange-card-bg: rgba(255, 255, 255, 0.1);
+    --exchange-card-hover-bg: rgba(255, 255, 255, 0.15);
+    --exchange-card-border: rgba(255, 255, 255, 0.2);
+    --exchange-text-primary: white;
+    --exchange-text-secondary: rgba(255, 255, 255, 0.9);
+    --exchange-text-muted: rgba(255, 255, 255, 0.7);
+    --exchange-accent-primary: #ff6b9d;
+    --exchange-accent-secondary: #ff8fab;
+    --exchange-accent-tertiary: #667eea;
+    --exchange-shadow: rgba(0, 0, 0, 0.3);
+    --exchange-shadow-hover: rgba(0, 0, 0, 0.4);
+}
+
 .exchange-particles {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--exchange-bg-gradient);
     z-index: -2;
     overflow: hidden;
+    transition: background 0.3s ease;
 }
 
 .exchange-particles::before {
@@ -16,9 +88,9 @@
     width: 200%;
     height: 200%;
     background-image: 
-        radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 40% 80%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+        radial-gradient(circle at 20% 50%, var(--exchange-particles-primary) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, var(--exchange-particles-secondary) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, var(--exchange-particles-tertiary) 0%, transparent 50%);
     animation: float 20s ease-in-out infinite;
 }
 
@@ -34,7 +106,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
+    background: var(--exchange-loading-bg);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -44,28 +116,35 @@
 
 .loading-content {
     text-align: center;
-    color: white;
+    color: var(--exchange-loading-text);
 }
 
 .loading-spinner {
     width: 60px;
     height: 60px;
     border: 4px solid rgba(255, 255, 255, 0.1);
-    border-top: 4px solid #ff6b9d;
+    border-top: 4px solid var(--exchange-loading-spinner);
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 0 auto 20px;
+}
+
+[data-theme="light"] .loading-spinner {
+    border: 4px solid rgba(45, 55, 72, 0.1);
+    border-top: 4px solid var(--exchange-loading-spinner);
 }
 
 .loading-text {
     font-size: 1.2em;
     font-weight: 600;
     margin-bottom: 8px;
+    color: var(--exchange-loading-text);
 }
 
 .loading-subtitle {
     font-size: 0.9em;
     opacity: 0.8;
+    color: var(--exchange-loading-text);
 }
 
 @keyframes spin {
@@ -87,23 +166,24 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--exchange-overlay-bg);
     backdrop-filter: blur(10px);
     border-radius: 20px;
     padding: 15px 25px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--exchange-card-border);
+    transition: all 0.3s ease;
 }
 
 .back-btn {
     display: flex;
     align-items: center;
     text-decoration: none;
-    color: white;
+    color: var(--exchange-text-primary);
     transition: all 0.3s ease;
 }
 
 .back-btn:hover {
-    color: #ff6b9d;
+    color: var(--exchange-accent-primary);
     transform: translateX(-5px);
 }
 
@@ -112,13 +192,15 @@
     align-items: center;
     gap: 8px;
     padding: 8px 16px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--exchange-overlay-bg);
     border-radius: 12px;
     transition: all 0.3s ease;
+    border: 1px solid var(--exchange-card-border);
 }
 
 .back-btn:hover .back-btn-inner {
-    background: rgba(255, 107, 157, 0.2);
+    background: var(--exchange-card-hover-bg);
+    border-color: var(--exchange-accent-primary);
 }
 
 .status-indicator .status-pill {
@@ -126,10 +208,11 @@
     align-items: center;
     gap: 8px;
     padding: 8px 16px;
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--exchange-overlay-bg);
     border-radius: 12px;
-    color: white;
+    color: var(--exchange-text-primary);
     font-size: 0.9em;
+    border: 1px solid var(--exchange-card-border);
 }
 
 /* 頁面標題 */
@@ -149,14 +232,15 @@
     gap: 15px;
     font-size: 2.5em;
     font-weight: 800;
-    color: white;
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    color: var(--exchange-text-primary);
+    text-shadow: 0 0 20px var(--exchange-shadow);
     margin-bottom: 10px;
+    transition: color 0.3s ease;
 }
 
 .magic-icon {
     font-size: 0.8em;
-    color: #ff6b9d;
+    color: var(--exchange-accent-primary);
     animation: rotate 3s ease-in-out infinite;
 }
 
@@ -172,9 +256,14 @@
     transform: translate(-50%, -50%);
     width: 120%;
     height: 120%;
-    background: radial-gradient(ellipse, rgba(255, 107, 157, 0.3) 0%, transparent 70%);
+    background: radial-gradient(ellipse, var(--exchange-accent-primary) 0%, transparent 70%);
     border-radius: 50%;
     animation: pulse 2s ease-in-out infinite;
+    opacity: 0.3;
+}
+
+[data-theme="light"] .title-glow {
+    background: radial-gradient(ellipse, rgba(102, 126, 234, 0.3) 0%, transparent 70%);
 }
 
 @keyframes pulse {
@@ -184,7 +273,7 @@
 
 .subtitle {
     font-size: 1.1em;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--exchange-text-secondary);
     font-weight: 400;
 }
 
@@ -196,17 +285,19 @@
 }
 
 .exchange-section {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--exchange-card-bg);
     backdrop-filter: blur(15px);
     border-radius: 25px;
     padding: 30px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--exchange-card-border);
     transition: all 0.3s ease;
+    box-shadow: 0 10px 30px var(--exchange-shadow);
 }
 
 .exchange-section:hover {
     transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 40px var(--exchange-shadow-hover);
+    background: var(--exchange-card-hover-bg);
 }
 
 .section-header {
@@ -215,13 +306,13 @@
     gap: 20px;
     margin-bottom: 25px;
     padding-bottom: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid var(--exchange-card-border);
 }
 
 .section-icon {
     width: 60px;
     height: 60px;
-    background: linear-gradient(135deg, #ff6b9d, #ff8fab);
+    background: linear-gradient(135deg, var(--exchange-accent-primary), var(--exchange-accent-secondary));
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -231,15 +322,19 @@
     box-shadow: 0 10px 20px rgba(255, 107, 157, 0.3);
 }
 
+[data-theme="light"] .section-icon {
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
 .section-title h3 {
-    color: white;
+    color: var(--exchange-text-primary);
     font-size: 1.5em;
     font-weight: 700;
     margin-bottom: 5px;
 }
 
 .section-title p {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--exchange-text-muted);
     margin: 0;
     font-size: 0.9em;
 }
@@ -253,7 +348,7 @@
 
 .magic-exchange-row {
     padding: 20px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--exchange-card-border);
 }
 
 .magic-exchange-row:last-child {
@@ -278,14 +373,15 @@
     align-items: center;
     gap: 15px;
     padding: 20px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--exchange-overlay-bg);
     border-radius: 15px;
     flex: 1;
     transition: all 0.3s ease;
+    border: 1px solid var(--exchange-card-border);
 }
 
 .resource-item:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--exchange-card-hover-bg);
     transform: scale(1.02);
 }
 
@@ -301,7 +397,7 @@
 }
 
 .potion-section .resource-icon {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, var(--exchange-accent-tertiary), var(--exchange-accent-secondary));
 }
 
 .normal-magic .resource-icon {
@@ -323,13 +419,13 @@
 }
 
 .resource-name {
-    color: white;
+    color: var(--exchange-text-primary);
     font-weight: 600;
     font-size: 1em;
 }
 
 .resource-count {
-    color: #ff6b9d;
+    color: var(--exchange-accent-primary);
     font-weight: 700;
     font-size: 1.2em;
 }
@@ -339,14 +435,14 @@
     flex-direction: column;
     align-items: center;
     gap: 5px;
-    color: white;
+    color: var(--exchange-text-primary);
     font-size: 1.5em;
     animation: bounce 2s ease-in-out infinite;
 }
 
 .exchange-ratio {
     font-size: 0.8em;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--exchange-text-muted);
     font-weight: 600;
 }
 
@@ -375,6 +471,7 @@
     align-items: center;
     gap: 10px;
     margin-bottom: 10px;
+    box-shadow: 0 5px 15px var(--exchange-shadow);
 }
 
 .exchange-btn:disabled {
@@ -383,6 +480,10 @@
 }
 
 .potion-btn {
+    background: linear-gradient(135deg, var(--exchange-accent-tertiary), var(--exchange-accent-secondary));
+}
+
+[data-theme="light"] .potion-btn {
     background: linear-gradient(135deg, #667eea, #764ba2);
 }
 
@@ -396,7 +497,7 @@
 
 .exchange-btn:not(:disabled):hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 20px var(--exchange-shadow-hover);
 }
 
 .btn-glow {
@@ -504,6 +605,7 @@
     font-size: 1.3em;
     font-weight: 600;
     margin-bottom: 25px;
+    color: var(--exchange-text-primary);
 }
 
 .success-btn, .error-btn {
@@ -516,6 +618,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    box-shadow: 0 5px 15px var(--exchange-shadow);
 }
 
 .success-btn {
@@ -524,13 +627,66 @@
 }
 
 .error-btn {
-    background: linear-gradient(135deg, #ff6b9d, #ff8fab);
+    background: linear-gradient(135deg, var(--exchange-accent-primary), var(--exchange-accent-secondary));
     color: white;
 }
 
 .success-btn:hover, .error-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 16px var(--exchange-shadow-hover);
+}
+
+/* 主題切換平滑過渡效果 */
+.exchange-particles,
+.exchange-container,
+.top-navigation-area,
+.exchange-section,
+.resource-item,
+.exchange-btn,
+.back-btn,
+.back-btn-inner,
+.status-pill,
+.main-title,
+.subtitle,
+.section-title h3,
+.section-title p,
+.resource-name,
+.resource-count,
+.exchange-arrow,
+.exchange-ratio,
+.success-message,
+.error-message {
+    transition: 
+        background 0.3s ease,
+        color 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease,
+        text-shadow 0.3s ease;
+}
+
+/* 淺色主題的特殊調整 */
+[data-theme="light"] .main-title {
+    text-shadow: 0 2px 10px rgba(45, 55, 72, 0.2);
+}
+
+[data-theme="light"] .magic-icon {
+    text-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+}
+
+[data-theme="light"] .exchange-btn {
+    box-shadow: 0 5px 15px rgba(45, 55, 72, 0.2);
+}
+
+[data-theme="light"] .exchange-btn:not(:disabled):hover {
+    box-shadow: 0 10px 20px rgba(45, 55, 72, 0.3);
+}
+
+[data-theme="light"] .exchange-section {
+    box-shadow: 0 10px 30px rgba(45, 55, 72, 0.1);
+}
+
+[data-theme="light"] .exchange-section:hover {
+    box-shadow: 0 20px 40px rgba(45, 55, 72, 0.15);
 }
 
 /* 響應式設計 */
