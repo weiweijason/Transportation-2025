@@ -323,8 +323,8 @@
 <script src="{{ url_for('static', filename='js/game/creature-functions.js') }}"></script>
 <script src="{{ url_for('static', filename='js/game/arena-functions.js') }}"></script>
 
-<!-- 全螢幕地圖主要邏輯 -->
-<script src="{{ url_for('static', filename='js/game/fullscreen-map-main.js') }}"></script>
+<!-- 全螢幕地圖主要邏輯 - 修正版 -->
+<script src="{{ url_for('static', filename='js/game/fullscreen-map-main-fixed.js') }}"></script>
 
 <script src="{{ url_for('static', filename='js/game/catch-game.js') }}"></script>
 
@@ -363,8 +363,7 @@
     }
       // 確保定位功能正常運作
     console.log('全螢幕地圖模式初始化...');
-    
-    // 創建安全的地圖視圖設置函數
+      // 創建安全的地圖視圖設置函數
     function safeSetMapView(map, location, zoom) {
       if (!map || typeof map.setView !== 'function') {
         console.warn('地圖實例無效');
@@ -372,27 +371,75 @@
       }
       
       try {
-        // 檢查地圖是否已完全初始化
-        if (map._loaded && map._container && map._size && map._size.x > 0 && map._size.y > 0) {
+        // 更嚴格的地圖就緒檢查
+        const isMapReady = map._loaded && 
+                          map._container && 
+                          map._container._leaflet_pos !== undefined &&
+                          map._size && 
+                          map._size.x > 0 && 
+                          map._size.y > 0 &&
+                          map._panes &&
+                          map._panes.mapPane;
+        
+        if (isMapReady) {
+          console.log('地圖已完全就緒，設置視圖');
           map.setView(location, zoom);
           return true;
         } else {
-          console.warn('地圖未完全載入，延遲設置視圖');
+          console.warn('地圖未完全就緒，排程延遲設置');
+          console.log('地圖狀態:', {
+            loaded: map._loaded,
+            container: !!map._container,
+            leaflet_pos: map._container ? map._container._leaflet_pos : 'no container',
+            size: map._size,
+            panes: !!map._panes
+          });
+          
+          // 使用更長的延遲，並進行重複嘗試
           setTimeout(function() {
-            try {
-              if (map._loaded && map._container) {
-                map.setView(location, zoom);
-                console.log('延遲設置地圖視圖成功');
-              }
-            } catch (delayedError) {
-              console.error('延遲設置地圖視圖失敗:', delayedError);
-            }
-          }, 500);
+            safeSetMapViewRetry(map, location, zoom, 1);
+          }, 1000);
           return false;
         }
       } catch (error) {
         console.error('設置地圖視圖失敗:', error);
         return false;
+      }
+    }
+    
+    // 延遲重試函數
+    function safeSetMapViewRetry(map, location, zoom, attempt) {
+      const maxAttempts = 5;
+      
+      if (attempt > maxAttempts) {
+        console.error('地圖視圖設置重試次數已達上限');
+        return;
+      }
+      
+      try {
+        const isMapReady = map._loaded && 
+                          map._container && 
+                          map._container._leaflet_pos !== undefined &&
+                          map._size && 
+                          map._size.x > 0 && 
+                          map._size.y > 0;
+        
+        if (isMapReady) {
+          map.setView(location, zoom);
+          console.log(`地圖視圖設置成功 (嘗試 ${attempt})`);
+        } else {
+          console.log(`地圖仍未就緒，進行第 ${attempt + 1} 次重試`);
+          setTimeout(function() {
+            safeSetMapViewRetry(map, location, zoom, attempt + 1);
+          }, 1000 * attempt); // 漸進式延遲
+        }
+      } catch (retryError) {
+        console.error(`地圖視圖設置重試失敗 (嘗試 ${attempt}):`, retryError);
+        if (attempt < maxAttempts) {
+          setTimeout(function() {
+            safeSetMapViewRetry(map, location, zoom, attempt + 1);
+          }, 1000 * attempt);
+        }
       }
     }
     
@@ -428,8 +475,7 @@
         console.error('updateUserLocation 函數不存在');
         return Promise.reject('定位函數不可用');
       }
-    }
-      // 當地圖初始化完成後的處理
+    }    // 當地圖初始化完成後的處理
     function onMapReady() {
       console.log('地圖已就緒，開始設置縮放和定位...');
       
@@ -438,6 +484,30 @@
         console.error('地圖實例不存在');
         return;
       }
+      
+      // 等待地圖的 'load' 事件
+      if (map._loaded) {
+        // 地圖已經載入完成
+        setupMapFeatures(map);
+      } else {
+        // 等待地圖載入完成
+        map.once('load', function() {
+          console.log('地圖 load 事件觸發');
+          setupMapFeatures(map);
+        });
+        
+        // 備用：如果 load 事件沒有觸發，使用定時器
+        setTimeout(function() {
+          if (map._loaded) {
+            setupMapFeatures(map);
+          }
+        }, 2000);
+      }
+    }
+    
+    // 設置地圖功能
+    function setupMapFeatures(map) {
+      console.log('開始設置地圖功能...');
       
       // 設置最大縮放級別
       setTimeout(function() {
@@ -449,47 +519,44 @@
             console.warn('設置縮放失敗:', zoomError);
           }
         }
-      }, 1000);
-      
-      // 嘗試定位（延遲執行以確保地圖完全載入）
-      setTimeout(function() {retryLocationUpdate().catch(function(error) {
+      }, 500);
+        // 嘗試定位（延遲執行以確保地圖完全載入）
+      setTimeout(function() {
+        retryLocationUpdate().catch(function(error) {
           console.warn('初始定位失敗，使用預設位置:', error);
           // 如果定位失敗，安全地設置預設位置
-          const map = window.gameMap || window.busMap;
-          if (map && typeof map.setView === 'function') {
-            const defaultLocation = [25.014, 121.5654]; // 台北市中心
-            try {              // 檢查地圖是否已完全初始化
-              const success = safeSetMapView(map, defaultLocation, 16);
-              if (success) {
-                console.log('已設置預設位置');
-              } else {
-                console.log('預設位置設置已排程延遲執行');
-              }
-              
-              // 顯示預設位置信息
-              const errorContainer = document.getElementById('locationErrorContainer');
-              const errorText = document.getElementById('currentLocation');
-              if (errorContainer && errorText) {
-                errorContainer.classList.remove('d-none');
-                errorText.textContent = '使用預設位置（台北市中心）';
-              }
-            } catch (mapError) {
-              console.error('設置預設位置失敗:', mapError);
-              // 顯示錯誤信息但不崩潰
-              const errorContainer = document.getElementById('locationErrorContainer');
-              const errorText = document.getElementById('currentLocation');
-              if (errorContainer && errorText) {
-                errorContainer.classList.remove('d-none');
-                errorText.textContent = '定位功能暫時不可用';
-              }
+          const defaultLocation = [25.014, 121.5654]; // 台北市中心
+          
+          try {
+            // 檢查地圖是否已完全初始化
+            const success = safeSetMapView(map, defaultLocation, 16);
+            if (success) {
+              console.log('已設置預設位置');
+            } else {
+              console.log('預設位置設置已排程延遲執行');
             }
-          } else {
-            console.warn('地圖實例不存在或無效，無法設置預設位置');
+            
+            // 顯示預設位置信息
+            const errorContainer = document.getElementById('locationErrorContainer');
+            const errorText = document.getElementById('currentLocation');
+            if (errorContainer && errorText) {
+              errorContainer.classList.remove('d-none');
+              errorText.textContent = '使用預設位置（台北市中心）';
+            }
+          } catch (mapError) {
+            console.error('設置預設位置失敗:', mapError);
+            // 顯示錯誤信息但不崩潰
+            const errorContainer = document.getElementById('locationErrorContainer');
+            const errorText = document.getElementById('currentLocation');
+            if (errorContainer && errorText) {
+              errorContainer.classList.remove('d-none');
+              errorText.textContent = '定位功能暫時不可用';            }
           }
         });
       }, 2000);
     }
-      // 監聽地圖載入完成事件 - 改進版
+    
+    // 監聽地圖載入完成事件 - 改進版
     let mapCheckAttempts = 0;
     const maxMapCheckAttempts = 20; // 最多檢查10秒
     

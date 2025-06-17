@@ -29,8 +29,7 @@ window.initializeMapForFullscreen = function() {
     }
     if (window.busMap && typeof window.busMap.remove === 'function') {
       window.busMap.remove();
-    }
-      // 創建新地圖
+    }    // 創建新地圖
     const map = L.map('map', {
       center: [25.0165, 121.5375],
       zoom: 16,
@@ -46,17 +45,36 @@ window.initializeMapForFullscreen = function() {
       maxZoom: 19
     }).addTo(map);
     
-    // 設置全局變量
-    window.gameMap = map;
-    window.busMap = map;
+    // 等待地圖完全載入後再設置全局變量
+    map.whenReady(function() {
+      console.log('地圖 whenReady 事件觸發');
+      
+      // 設置全局變量
+      window.gameMap = map;
+      window.busMap = map;
+      
+      console.log('全螢幕地圖創建成功，已完全就緒');
+      
+      // 隱藏載入指示器
+      const loading = document.getElementById('loadingOverlay');
+      if (loading) {
+        loading.style.display = 'none';
+      }
+    });
     
-    console.log('全螢幕地圖創建成功');
-    
-    // 隱藏載入指示器
-    const loading = document.getElementById('loadingOverlay');
-    if (loading) {
-      loading.style.display = 'none';
-    }
+    // 備用方案：如果 whenReady 沒有觸發
+    setTimeout(function() {
+      if (!window.gameMap && !window.busMap) {
+        console.log('地圖 whenReady 超時，使用備用設置');
+        window.gameMap = map;
+        window.busMap = map;
+        
+        const loading = document.getElementById('loadingOverlay');
+        if (loading) {
+          loading.style.display = 'none';
+        }
+      }
+    }, 3000);
     
     return map;
     

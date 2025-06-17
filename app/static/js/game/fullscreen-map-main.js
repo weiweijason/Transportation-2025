@@ -122,68 +122,102 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
     
-    try {
-      // 安全地移除現有地圖實例
+    try {      // 安全地移除現有地圖實例
       if (window.gameMap && typeof window.gameMap.remove === 'function') {
         try {
+          window.gameMap.off(); // 移除所有事件監聽器
           window.gameMap.remove();
+          window.gameMap = null;
         } catch (e) {
           console.warn('移除舊地圖實例時出錯:', e);
         }
       }
       if (window.busMap && typeof window.busMap.remove === 'function') {
         try {
-          window.busMap.remove();        } catch (e) {
+          window.busMap.off(); // 移除所有事件監聽器
+          window.busMap.remove();
+          window.busMap = null;
+        } catch (e) {
           console.warn('移除舊地圖實例時出錯:', e);
         }
       }
       
-      // 創建新的地圖實例
-      const map = L.map('map', {
-        center: [25.0165, 121.5375],
-        zoom: 16,
-        maxZoom: 19,
-        minZoom: 10,
-        zoomControl: true,
-        attributionControl: false
-      });
-      
-      // 添加地圖圖層
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19
-      }).addTo(map);
-      
-      // 設置全局地圖變量
-      window.gameMap = map;
-      window.busMap = map;
-      
-      console.log('全螢幕地圖創建成功');
-      
-      // 初始化用戶位置
-      if (typeof window.updateUserLocation === 'function') {
-        window.updateUserLocation().then(() => {
-          console.log('用戶位置初始化完成');
-          updateLocationIndicator();
-        }).catch((error) => {
-          console.warn('初始定位失敗:', error);
-        });
+      // 徹底清理地圖容器
+      const mapContainer = document.getElementById('map');
+      if (mapContainer) {
+        // 移除 Leaflet 相關屬性
+        delete mapContainer._leaflet_id;
+        delete mapContainer._leaflet;
+        
+        // 移除所有 Leaflet 類名
+        mapContainer.classList.remove('leaflet-container', 'leaflet-touch', 'leaflet-fade-anim', 'leaflet-grab', 'leaflet-touch-drag', 'leaflet-touch-zoom');
+        
+        // 清空容器內容
+        mapContainer.innerHTML = '';
+        
+        // 重置樣式
+        mapContainer.style.cssText = '';
+        mapContainer.style.width = '100%';
+        mapContainer.style.height = '100vh';
+        mapContainer.style.position = 'relative';
+        
+        console.log('地圖容器已徹底清理');
       }
-      
-      // 載入其他地圖功能（公車路線、精靈等）
-      if (typeof window.loadBusRoutes === 'function') {
-        setTimeout(() => {
-          window.loadBusRoutes();
-        }, 1000);
-      }
-      
-      if (typeof window.loadCreatures === 'function') {
-        setTimeout(() => {
-          window.loadCreatures();
-        }, 1500);
-      }
-      
-      hideLoading();
+        // 等待一小段時間確保清理完成
+      setTimeout(() => {
+        try {
+          // 創建新的地圖實例
+          const map = L.map('map', {
+            center: [25.0165, 121.5375],
+            zoom: 16,
+            maxZoom: 19,
+            minZoom: 10,
+            zoomControl: true,
+            attributionControl: false
+          });
+          
+          // 添加地圖圖層          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+          }).addTo(map);
+          
+          // 設置全局地圖變量
+          window.gameMap = map;
+          window.busMap = map;
+          
+          console.log('全螢幕地圖創建成功');
+          
+          // 初始化用戶位置
+          if (typeof window.updateUserLocation === 'function') {
+            window.updateUserLocation().then(() => {
+              console.log('用戶位置初始化完成');
+              updateLocationIndicator();
+            }).catch((error) => {
+              console.warn('初始定位失敗:', error);
+            });
+          }
+          
+          // 載入其他地圖功能（公車路線、精靈等）
+          if (typeof window.loadBusRoutes === 'function') {
+            setTimeout(() => {
+              window.loadBusRoutes();
+            }, 1000);
+          }
+          
+          if (typeof window.loadCreatures === 'function') {
+            setTimeout(() => {
+              window.loadCreatures();
+            }, 1500);
+          }
+          
+          hideLoading();
+          
+        } catch (innerError) {
+          console.error('創建地圖時發生錯誤:', innerError);
+          hideLoading();
+          showGameAlert('地圖創建失敗，請刷新頁面重試', 'error');
+        }
+      }, 100); // 短暫延遲確保容器清理完成
       
     } catch (error) {
       console.error('創建全螢幕地圖失敗:', error);
