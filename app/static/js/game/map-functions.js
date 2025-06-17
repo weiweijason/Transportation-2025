@@ -425,14 +425,27 @@ function performLocationRequest(targetMap, resolve, reject) {
   
   console.log('開始地理位置請求，選項:', positionOptions);
   
-  navigator.geolocation.getCurrentPosition(
-    // 成功回調
+  navigator.geolocation.getCurrentPosition(    // 成功回調
     (position) => {
       console.log('位置獲取成功:', position);
+      
+      // 檢查 position 和 coords 是否存在
+      if (!position || !position.coords) {
+        console.error('位置數據格式錯誤:', position);
+        reject('位置數據格式錯誤');
+        return;
+      }
       
       const lat = position.coords.latitude;
       const lng = position.coords.longitude;
       const accuracy = position.coords.accuracy;
+      
+      // 檢查座標值是否有效
+      if (typeof lat !== 'number' || typeof lng !== 'number' || isNaN(lat) || isNaN(lng)) {
+        console.error('無效的座標值:', { lat, lng });
+        reject('獲取到無效的座標值');
+        return;
+      }
       
       console.log(`位置: ${lat}, ${lng}, 精度: ${accuracy}米`);
       
@@ -486,11 +499,12 @@ function performLocationRequest(targetMap, resolve, reject) {
             console.error('設置用戶位置視圖時發生錯誤:', error);
           }
         }
-        
-        // 更新位置顯示
+          // 更新位置顯示
         const locationElement = document.getElementById('currentLocation');
-        if (locationElement) {
+        if (locationElement && typeof lat === 'number' && typeof lng === 'number') {
           locationElement.textContent = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        } else if (locationElement) {
+          locationElement.textContent = '位置格式錯誤';
         }
         
         // 保存位置到全局變量

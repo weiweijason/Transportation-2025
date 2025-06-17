@@ -104,15 +104,14 @@ document.addEventListener('DOMContentLoaded', function() {
         showGameAlert('地圖初始化失敗，請檢查網絡連接並刷新頁面重試。', 'danger');
       }
     };
-  }
-    // 創建全螢幕地圖的函數
+  }  // 創建全螢幕地圖的函數
   function createFullscreenMap() {
     console.log('創建全螢幕地圖實例');
     
-    // 確保容器存在且可見
-    const mapContainer = document.getElementById('fullscreen-map');
+    // 確保容器存在且可見 - 修正為正確的容器ID
+    const mapContainer = document.getElementById('map');
     if (!mapContainer) {
-      console.error('地圖容器不存在');
+      console.error('地圖容器不存在 - 查找容器ID: map');
       return;
     }
     
@@ -140,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       // 創建新的地圖實例
-      const map = L.map('fullscreen-map', {
+      const map = L.map('map', {
         center: [25.0165, 121.5375],
         zoom: 16,
         maxZoom: 19,
@@ -195,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showGameAlert('地圖容器衝突，正在強制重建...', 'warning');
         setTimeout(() => {
           if (typeof window.createDirectMap === 'function') {
-            window.createDirectMap('fullscreen-map');
+            window.createDirectMap('map');
           } else {
             showGameAlert('地圖重建失敗，請刷新頁面', 'error');
           }
@@ -209,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // 修改busMap初始化以支持自定義容器
   if (typeof window.initApp === 'function') {
     const originalInitApp = window.initApp;
-    window.initApp = function(containerId = 'fullscreen-map') {
+    window.initApp = function(containerId = 'map') {
       // 對於全螢幕模式，直接初始化地圖
       if (typeof window.initializeMap === 'function') {
         window.initializeMap(containerId);
@@ -240,11 +239,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       } else {
         // 如果還沒有地圖，嘗試初始化
-        console.log('沒有有效的地圖實例，開始初始化...');
-        if (typeof window.initializeMap === 'function') {
-          window.initializeMap('fullscreen-map');
+        console.log('沒有有效的地圖實例，開始初始化...');        if (typeof window.initializeMap === 'function') {
+          window.initializeMap('map');
         } else if (typeof window.initApp === 'function') {
-          window.initApp('fullscreen-map');
+          window.initApp('map');
         } else {
           console.error('找不到地圖初始化函數');
           showGameAlert('地圖初始化函數不存在，請刷新頁面', 'error');
@@ -256,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // 延遲重試
       setTimeout(function() {
         if (typeof window.initializeMap === 'function') {
-          window.initializeMap('fullscreen-map');
+          window.initializeMap('map');
         }
       }, 1000);
     }
@@ -288,23 +286,22 @@ document.addEventListener('DOMContentLoaded', function() {
             updateLocationIndicator();
           } else {
             console.warn('安全 setView 失敗，嘗試重新初始化地圖');
-            showGameAlert('定位失敗，正在重新初始化地圖...', 'warning');
-            if (typeof window.initializeMap === 'function') {
-              window.initializeMap('fullscreen-map');
+            showGameAlert('定位失敗，正在重新初始化地圖...', 'warning');            if (typeof window.initializeMap === 'function') {
+              window.initializeMap('map');
             }
           }
         } else {
           console.warn('沒有有效的地圖實例或安全函數，嘗試重新初始化');
           showGameAlert('地圖實例無效，正在重新初始化...', 'warning');
           if (typeof window.initializeMap === 'function') {
-            window.initializeMap('fullscreen-map');
+            window.initializeMap('map');
           }
         }
       } catch (error) {
         console.error('設置地圖視圖時發生錯誤:', error);
         showGameAlert('定位失敗，請嘗試重新初始化地圖', 'error');
         if (typeof window.initializeMap === 'function') {
-          window.initializeMap('fullscreen-map');
+          window.initializeMap('map');
         }
       }
     } else {
@@ -344,13 +341,12 @@ document.addEventListener('DOMContentLoaded', function() {
   // 重整地圖按鈕
   document.getElementById('initMapBtn').addEventListener('click', function() {
     showGameAlert('重新初始化地圖...', 'info');
-    
-    // 使用更強力的重新初始化
+      // 使用更強力的重新初始化
     try {
       if (typeof window.createDirectMap === 'function') {
-        window.createDirectMap('fullscreen-map');
+        window.createDirectMap('map');
       } else if (typeof window.initializeMap === 'function') {
-        window.initializeMap('fullscreen-map');
+        window.initializeMap('map');
       } else {
         console.warn('找不到地圖初始化函數，重新整理頁面');
         location.reload();

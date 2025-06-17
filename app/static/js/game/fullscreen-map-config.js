@@ -4,14 +4,14 @@
  */
 
 // 為全螢幕地圖設置特殊的地圖容器ID
-window.MAP_CONTAINER_ID = 'fullscreen-map';
+window.MAP_CONTAINER_ID = 'map';
 window.isFullscreenMode = true;
 
 // 重寫地圖初始化函數
 window.initializeMapForFullscreen = function() {
   console.log('全螢幕模式地圖初始化...');
   
-  const mapContainer = document.getElementById('fullscreen-map');
+  const mapContainer = document.getElementById('map');
   if (!mapContainer) {
     console.error('找不到全螢幕地圖容器');
     return;
@@ -30,9 +30,8 @@ window.initializeMapForFullscreen = function() {
     if (window.busMap && typeof window.busMap.remove === 'function') {
       window.busMap.remove();
     }
-    
-    // 創建新地圖
-    const map = L.map('fullscreen-map', {
+      // 創建新地圖
+    const map = L.map('map', {
       center: [25.0165, 121.5375],
       zoom: 16,
       maxZoom: 19,

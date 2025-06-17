@@ -328,29 +328,100 @@
 
 <script src="{{ url_for('static', filename='js/game/catch-game.js') }}"></script>
 
-<script type="text/javascript">
-  // 全螢幕地圖專用初始化邏輯
+<script type="text/javascript">  // 全螢幕地圖專用初始化邏輯
   document.addEventListener('DOMContentLoaded', function() {
     // 設置全螢幕地圖模式標記
     window.isFullscreenMap = true;
     
-    // 確保定位功能正常運作
+    // 確保 showGameAlert 函數存在
+    if (typeof window.showGameAlert !== 'function') {
+      window.showGameAlert = function(message, type = 'info') {
+        console.log(`[${type.toUpperCase()}] ${message}`);
+        
+        const alertClass = type === 'success' ? 'alert-success' : 
+                          type === 'error' ? 'alert-danger' : 
+                          type === 'warning' ? 'alert-warning' : 'alert-info';
+        
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert ${alertClass} position-fixed`;
+        alertDiv.style.cssText = 'top: 70px; right: 20px; z-index: 9999; min-width: 250px;';
+        alertDiv.innerHTML = `
+          <div class="d-flex align-items-center">
+            <span>${message}</span>
+            <button type="button" class="btn-close ms-auto" onclick="this.parentElement.parentElement.remove()"></button>
+          </div>
+        `;
+        
+        document.body.appendChild(alertDiv);
+        
+        setTimeout(() => {
+          if (alertDiv && alertDiv.parentNode) {
+            alertDiv.remove();
+          }
+        }, 5000);
+      };
+    }
+      // 確保定位功能正常運作
     console.log('全螢幕地圖模式初始化...');
     
-    // 添加額外的定位重試機制
+    // 創建安全的地圖視圖設置函數
+    function safeSetMapView(map, location, zoom) {
+      if (!map || typeof map.setView !== 'function') {
+        console.warn('地圖實例無效');
+        return false;
+      }
+      
+      try {
+        // 檢查地圖是否已完全初始化
+        if (map._loaded && map._container && map._size && map._size.x > 0 && map._size.y > 0) {
+          map.setView(location, zoom);
+          return true;
+        } else {
+          console.warn('地圖未完全載入，延遲設置視圖');
+          setTimeout(function() {
+            try {
+              if (map._loaded && map._container) {
+                map.setView(location, zoom);
+                console.log('延遲設置地圖視圖成功');
+              }
+            } catch (delayedError) {
+              console.error('延遲設置地圖視圖失敗:', delayedError);
+            }
+          }, 500);
+          return false;
+        }
+      } catch (error) {
+        console.error('設置地圖視圖失敗:', error);
+        return false;
+      }
+    }
+    
+    // 將安全函數暴露給全局
+    window.safeSetMapView = safeSetMapView;
+      // 添加額外的定位重試機制
     function retryLocationUpdate() {
       if (typeof window.updateUserLocation === 'function') {
         console.log('嘗試獲取用戶位置...');
         return window.updateUserLocation().then(function(result) {
           console.log('位置獲取成功:', result);
           // 定位成功，隱藏錯誤提示
-          document.getElementById('locationErrorContainer').classList.add('d-none');
+          const errorContainer = document.getElementById('locationErrorContainer');
+          if (errorContainer) {
+            errorContainer.classList.add('d-none');
+          }
           return result;
         }).catch(function(error) {
           console.warn('位置獲取失敗:', error);
           // 定位失敗，顯示錯誤提示
-          document.getElementById('locationErrorContainer').classList.remove('d-none');
-          document.getElementById('currentLocation').textContent = '定位失敗 - ' + error;
+          const errorContainer = document.getElementById('locationErrorContainer');
+          const errorText = document.getElementById('currentLocation');
+          if (errorContainer && errorText) {
+            errorContainer.classList.remove('d-none');
+            // 安全地處理錯誤信息
+            const errorMessage = error && error.message ? error.message : 
+                                 (typeof error === 'string' ? error : '定位失敗');
+            errorText.textContent = errorMessage;
+          }
           throw error;
         });
       } else {
@@ -358,42 +429,94 @@
         return Promise.reject('定位函數不可用');
       }
     }
-    
-    // 當地圖初始化完成後的處理
+      // 當地圖初始化完成後的處理
     function onMapReady() {
       console.log('地圖已就緒，開始設置縮放和定位...');
       
+      const map = window.gameMap || window.busMap;
+      if (!map) {
+        console.error('地圖實例不存在');
+        return;
+      }
+      
       // 設置最大縮放級別
       setTimeout(function() {
-        if (window.gameMap) {
-          window.gameMap.setZoom(19);
-          console.log('地圖縮放設置完成');
-        } else if (window.busMap) {
-          window.busMap.setZoom(19);
-          console.log('公車地圖縮放設置完成');
+        if (map && map._loaded) {
+          try {
+            map.setZoom(19);
+            console.log('地圖縮放設置完成');
+          } catch (zoomError) {
+            console.warn('設置縮放失敗:', zoomError);
+          }
         }
       }, 1000);
       
       // 嘗試定位（延遲執行以確保地圖完全載入）
-      setTimeout(function() {
-        retryLocationUpdate().catch(function(error) {
+      setTimeout(function() {retryLocationUpdate().catch(function(error) {
           console.warn('初始定位失敗，使用預設位置:', error);
-          // 如果定位失敗，設置預設位置
-          if (window.gameMap || window.busMap) {
+          // 如果定位失敗，安全地設置預設位置
+          const map = window.gameMap || window.busMap;
+          if (map && typeof map.setView === 'function') {
             const defaultLocation = [25.014, 121.5654]; // 台北市中心
-            const map = window.gameMap || window.busMap;
-            map.setView(defaultLocation, 16);
-            console.log('已設置預設位置');
+            try {              // 檢查地圖是否已完全初始化
+              const success = safeSetMapView(map, defaultLocation, 16);
+              if (success) {
+                console.log('已設置預設位置');
+              } else {
+                console.log('預設位置設置已排程延遲執行');
+              }
+              
+              // 顯示預設位置信息
+              const errorContainer = document.getElementById('locationErrorContainer');
+              const errorText = document.getElementById('currentLocation');
+              if (errorContainer && errorText) {
+                errorContainer.classList.remove('d-none');
+                errorText.textContent = '使用預設位置（台北市中心）';
+              }
+            } catch (mapError) {
+              console.error('設置預設位置失敗:', mapError);
+              // 顯示錯誤信息但不崩潰
+              const errorContainer = document.getElementById('locationErrorContainer');
+              const errorText = document.getElementById('currentLocation');
+              if (errorContainer && errorText) {
+                errorContainer.classList.remove('d-none');
+                errorText.textContent = '定位功能暫時不可用';
+              }
+            }
+          } else {
+            console.warn('地圖實例不存在或無效，無法設置預設位置');
           }
         });
       }, 2000);
     }
+      // 監聽地圖載入完成事件 - 改進版
+    let mapCheckAttempts = 0;
+    const maxMapCheckAttempts = 20; // 最多檢查10秒
     
-    // 監聽地圖載入完成事件
     const checkMapReady = setInterval(function() {
-      if (window.gameMap || window.busMap) {
+      mapCheckAttempts++;
+      const map = window.gameMap || window.busMap;
+      
+      if (map && map._loaded && map._container && map._size) {
+        console.log(`地圖就緒檢查成功，嘗試次數: ${mapCheckAttempts}`);
         clearInterval(checkMapReady);
         onMapReady();
+      } else if (mapCheckAttempts >= maxMapCheckAttempts) {
+        console.warn(`地圖就緒檢查超時，已嘗試 ${mapCheckAttempts} 次`);
+        clearInterval(checkMapReady);
+        // 即使地圖可能未完全就緒，也嘗試使用現有實例
+        if (window.gameMap || window.busMap) {
+          console.log('使用可能未完全就緒的地圖實例');
+          onMapReady();
+        } else {
+          console.error('地圖載入失敗');
+          const errorContainer = document.getElementById('locationErrorContainer');
+          const errorText = document.getElementById('currentLocation');
+          if (errorContainer && errorText) {
+            errorContainer.classList.remove('d-none');
+            errorText.textContent = '地圖載入失敗';
+          }
+        }
       }
     }, 500);
     
@@ -406,31 +529,56 @@
         document.getElementById('currentLocation').textContent = '地圖載入失敗';
       }
     }, 10000);
-    
-    // 為目前位置按鈕添加事件處理（與 catch.html 同步）
+      // 為目前位置按鈕添加事件處理（與 catch.html 同步）
     document.getElementById('goToCurrentLocationBtn').addEventListener('click', function() {
       console.log('用戶點擊目前位置按鈕');
       if (window.userLocation) {
-        const map = window.gameMap || window.busMap;
-        if (map) {
-          map.setView(window.userLocation, 19);
-          console.log('已跳轉到用戶位置');
+        const map = window.gameMap || window.busMap;        if (map && typeof map.setView === 'function') {
+          try {
+            // 使用安全的地圖視圖設置函數
+            const success = safeSetMapView(map, window.userLocation, 19);
+            if (success) {
+              console.log('已跳轉到用戶位置');
+            } else {
+              console.log('跳轉到用戶位置已排程延遲執行');
+              window.showGameAlert('正在跳轉到您的位置...', 'info');
+            }
+          } catch (error) {
+            console.error('跳轉到用戶位置失敗:', error);
+            window.showGameAlert('跳轉失敗，請重試', 'warning');
+          }
+        } else {
+          console.warn('地圖實例無效');
+          window.showGameAlert('地圖未就緒，請稍後再試', 'warning');
         }
       } else {
         console.log('用戶位置未知，嘗試重新定位');
         retryLocationUpdate().catch(function(error) {
-          showGameAlert('無法獲取當前位置，請檢查位置權限設置', 'warning');
+          window.showGameAlert('無法獲取當前位置，請檢查位置權限設置', 'warning');
         });
       }
     });
-    
-    // 為重新定位按鈕添加事件處理
+      // 為重新定位按鈕添加事件處理
     document.getElementById('refreshLocationBtn').addEventListener('click', function() {
       console.log('用戶點擊重新定位按鈕');
+      
+      // 顯示載入指示
+      this.disabled = true;
+      this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 定位中...';
+      
       retryLocationUpdate().then(function() {
-        showGameAlert('位置更新成功！', 'success');
+        window.showGameAlert('位置更新成功！', 'success');
       }).catch(function(error) {
-        showGameAlert('重新定位失敗: ' + error, 'warning');
+        const errorMessage = error && error.message ? error.message : 
+                           (typeof error === 'string' ? error : '重新定位失敗');
+        window.showGameAlert('重新定位失敗: ' + errorMessage, 'warning');
+      }).finally(() => {
+        // 恢復按鈕狀態
+        const btn = document.getElementById('refreshLocationBtn');
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-crosshairs"></i> 重新定位';
+        }
       });
     });
   });
