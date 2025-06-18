@@ -215,5 +215,8 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- 全局成就處理器 -->
+<script src="{{ url_for('static', filename='js/global-achievement-handler.js') }}"></script>
+<!-- 每日簽到功能 -->
 <script src="{{ url_for('static', filename='js/daily_migration.js') }}"></script>
 {% endblock %}

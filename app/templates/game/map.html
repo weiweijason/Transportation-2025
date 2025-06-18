@@ -335,6 +335,12 @@
 <script src="{{ url_for('static', filename='js/game/creature-functions.js') }}"></script>
 <script src="{{ url_for('static', filename='js/game/arena-functions.js') }}"></script>
 
+<!-- 引入公車位置管理模組 -->
+<script type="module" src="{{ url_for('static', filename='js/modules/bus-position-manager.js') }}"></script>
+
+<!-- 引入虛假公車清理腳本 -->
+<script src="{{ url_for('static', filename='js/utils/clear-fake-buses.js') }}"></script>
+
 <!-- 全螢幕地圖主要邏輯 - 使用修正版 -->
 <script src="{{ url_for('static', filename='js/game/fullscreen-map-main-fixed.js') }}"></script>
 

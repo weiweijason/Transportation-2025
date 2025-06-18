@@ -14,6 +14,9 @@ let creaturesLayer = L.layerGroup();
 // 道館圖層
 let arenaLayer = L.layerGroup();
 
+// 公車位置圖層
+let busPositionLayer = L.layerGroup();
+
 // 追蹤已創建的站點/道館，避免重複創建
 let uniqueStops = {};
 
@@ -77,6 +80,7 @@ export {
     userCircle,
     creaturesLayer,
     arenaLayer,
+    busPositionLayer,
     uniqueStops,
     routeColors,
     routeCoordinates,

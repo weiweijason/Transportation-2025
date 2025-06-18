@@ -131,12 +131,18 @@ def perform_migration():
             'experience': new_exp,
             'last_migration_date': today
         })
-        
-        # 添加道具到背包
-        if rewards['items']:
-            add_items_to_backpack(user_id, rewards['items'], firebase_service)
-          # 檢查並觸發成就
+          # 添加道具到背包
+        try:
+            if rewards['items']:
+                logger.info(f"開始添加道具到用戶 {user_id} 的背包: {rewards['items']}")
+                add_items_to_backpack(user_id, rewards['items'], firebase_service)
+                logger.info(f"成功添加道具到用戶 {user_id} 的背包")
+        except Exception as e:
+            logger.error(f"添加道具到背包失敗，但繼續執行成就檢查: {str(e)}")
+            # 不要因為背包錯誤而阻止成就檢查# 檢查並觸發成就
+        logger.info(f"開始檢查用戶 {user_id} 的簽到成就...")
         triggered_achievements = check_migration_achievements(user_id, firebase_service)
+        logger.info(f"用戶 {user_id} 觸發的成就: {triggered_achievements}")
         
         return jsonify({
             'success': True,
@@ -295,13 +301,25 @@ def add_items_to_backpack(user_id, items, firebase_service):
 def check_migration_achievements(user_id, firebase_service):
     """檢查並觸發遷移相關成就"""
     try:
+        logger.info(f"開始檢查用戶 {user_id} 的遷移成就...")
+        
         # 獲取遷移統計
         migration_ref = firebase_service.firestore_db.collection('users').document(user_id).collection('daily_migrations')
         all_migrations = migration_ref.get()
         total_migrations = len(all_migrations)
         consecutive_days = calculate_consecutive_days(all_migrations)
         
+        logger.info(f"用戶 {user_id} 統計: 總簽到天數={total_migrations}, 連續天數={consecutive_days}")
+        
         triggered_achievements = []
+        
+        # 導入成就模型
+        try:
+            from app.models.achievement import ACHIEVEMENTS
+            logger.info("成功導入成就模型")
+        except ImportError as e:
+            logger.error(f"導入成就模型失敗: {e}")
+            return []
         
         # 檢查登入天數成就
         achievement_triggers = [
@@ -313,12 +331,16 @@ def check_migration_achievements(user_id, firebase_service):
         ]
         
         for trigger in achievement_triggers:
+            logger.info(f"檢查成就 {trigger['id']}: 需要{trigger['threshold']}天, 目前{total_migrations}天")
+            
             if total_migrations >= trigger['threshold']:
                 # 檢查成就是否已達成
                 achievement_ref = firebase_service.firestore_db.collection('users').document(user_id).collection('user_achievements').document(trigger['id'])
                 achievement_doc = achievement_ref.get()
                 
                 if not achievement_doc.exists:
+                    logger.info(f"觸發新成就: {trigger['id']} - {trigger['name']}")
+                    
                     # 觸發成就
                     achievement_data = {
                         'achievement_id': trigger['id'],
@@ -329,13 +351,45 @@ def check_migration_achievements(user_id, firebase_service):
                         'created_at': datetime.now().isoformat()
                     }
                     achievement_ref.set(achievement_data)
-                    triggered_achievements.append({
-                        'id': trigger['id'],
-                        'name': trigger['name']
-                    })
+                    logger.info(f"成就 {trigger['id']} 已保存到 Firebase")
+                    
+                    # 從成就模型獲取完整的成就信息
+                    achievement_model = ACHIEVEMENTS.get(trigger['id'])
+                    if achievement_model:
+                        achievement_info = {
+                            'id': trigger['id'],
+                            'name': achievement_model.name,
+                            'description': achievement_model.description,
+                            'icon': achievement_model.icon,
+                            'reward_points': achievement_model.reward_points,
+                            'category': achievement_model.category.value,
+                            'completed_at': datetime.now().isoformat()
+                        }
+                        triggered_achievements.append(achievement_info)
+                        logger.info(f"添加成就信息到返回列表: {achievement_info}")
+                    else:
+                        # 如果找不到成就模型，使用基本信息
+                        achievement_info = {
+                            'id': trigger['id'],
+                            'name': trigger['name'],
+                            'description': f'累計登入 {trigger["threshold"]} 天',
+                            'icon': 'fas fa-calendar-day',
+                            'reward_points': 10,
+                            'category': 'login',
+                            'completed_at': datetime.now().isoformat()
+                        }
+                        triggered_achievements.append(achievement_info)
+                        logger.warning(f"找不到成就模型 {trigger['id']}, 使用基本信息: {achievement_info}")
+                else:
+                    logger.info(f"成就 {trigger['id']} 已經達成過了")
+            else:
+                logger.info(f"成就 {trigger['id']} 條件未滿足")
         
+        logger.info(f"最終觸發的成就列表: {triggered_achievements}")
         return triggered_achievements
         
     except Exception as e:
         logger.error(f"檢查成就失敗: {str(e)}")
+        import traceback
+        logger.error(f"錯誤詳情: {traceback.format_exc()}")
         return []

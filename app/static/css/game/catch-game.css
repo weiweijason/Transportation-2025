@@ -53,6 +53,41 @@
   100% { transform: rotate(360deg); }
 }
 
+/* 公車標記彈出窗口樣式 */
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.bus-popup {
+  min-width: 200px;
+  max-width: 280px;
+}
+
+.bus-popup h6 {
+  border-bottom: 2px solid #dee2e6;
+  padding-bottom: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bus-popup .fas {
+  color: inherit;
+}
+
+/* 公車標記動畫效果 */
+.leaflet-marker-icon.bus-marker {
+  animation: busMarkerPulse 2s infinite;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+@keyframes busMarkerPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
 /* 路線相關樣式 */
 .route-line {
   display: inline-block;

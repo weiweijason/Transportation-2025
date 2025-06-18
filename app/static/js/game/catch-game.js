@@ -129,8 +129,7 @@ function startUpdateCountdown() {
   
   if (updateInterval) {
     clearInterval(updateInterval);
-  }
-    updateInterval = setInterval(function() {
+  }    updateInterval = setInterval(function() {
     updateTimer--;
     
     // 安全更新倒計時顯示
@@ -140,8 +139,8 @@ function startUpdateCountdown() {
     }
     
     if (updateTimer <= 0) {
-      // 時間到，更新精靈
-      fetchCreatures();
+      // 時間到，使用新的綜合更新函數
+      updateAllGameData();
       // 重置計時器
       updateTimer = 30;
     }
@@ -189,8 +188,105 @@ function fetchCreatures() {
     });
 }
 
-// 初始化時調用fetchCreatures
-checkMapInitialized(fetchCreatures);
+// 新增：綜合更新函數 - 同時更新精靈、公車位置和用戶位置
+function updateAllGameData() {
+  console.log('開始綜合更新：精靈、公車位置和用戶位置...');
+  
+  // 顯示載入提示
+  showLoading();
+  
+  // 1. 更新精靈數據
+  fetch('/game/api/route-creatures/get-from-csv')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('從CSV獲取精靈失敗');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('精靈數據更新完成');
+      
+      if (data.success) {
+        // 清除現有精靊標記
+        clearExistingCreatureMarkers();
+        
+        // 更新精靈列表
+        currentCreatures = data.creatures || [];
+        
+        // 在地圖上顯示精靈
+        displayCreaturesDirectly(currentCreatures);
+      }
+      
+      // 2. 更新公車位置（如果公車位置功能可用）
+      if (typeof window.updateBusPositions === 'function') {
+        console.log('更新公車位置...');
+        return window.updateBusPositions();
+      } else {
+        console.warn('公車位置更新功能不可用');
+        return Promise.resolve();
+      }
+    })
+    .then(() => {
+      // 3. 更新用戶位置（如果定位功能可用）
+      console.log('更新用戶位置...');
+      if (typeof window.updateUserLocation === 'function') {
+        return window.updateUserLocation();
+      } else {
+        console.warn('用戶位置更新功能不可用');
+        return Promise.resolve();
+      }
+    })
+    .then(() => {
+      hideLoading();
+      console.log('所有數據更新完成');
+      
+      // 統計更新結果
+      const creatureCount = currentCreatures ? currentCreatures.length : 0;
+      showGameAlert(`數據已更新！精靈: ${creatureCount} 隻，公車和位置已同步`, 'success', 3000);
+    })
+    .catch(error => {
+      hideLoading();
+      console.error('綜合更新失敗:', error);
+      
+      // 如果是精靈更新失敗，仍然嘗試更新公車位置和用戶位置
+      if (typeof window.updateBusPositions === 'function') {
+        window.updateBusPositions().catch(busError => {
+          console.error('公車位置更新也失敗:', busError);
+        });
+      }
+      
+      if (typeof window.updateUserLocation === 'function') {
+        window.updateUserLocation().catch(locationError => {
+          console.error('用戶位置更新也失敗:', locationError);
+        });
+      }
+      
+      showGameAlert('部分數據更新失敗，請稍後再試', 'warning');
+    });
+}
+
+// 初始化時調用綜合更新函數，包含公車位置
+checkMapInitialized(function() {
+  console.log('地圖已就緒，執行初始化更新...');
+  
+  // 等待一段時間確保所有模組已載入
+  setTimeout(() => {
+    // 初始化公車位置圖層（如果尚未初始化）
+    if (typeof window.initBusPositionLayer === 'function' && !window.busPositionLayer) {
+      const map = window.gameMap || window.busMap;
+      if (map) {
+        console.log('初始化公車位置圖層...');
+        window.initBusPositionLayer(map);
+      }
+    }
+    
+    // 執行綜合初始化更新
+    updateAllGameData();
+    
+    // 開始定期更新倒計時
+    startUpdateCountdown();
+  }, 1000);
+});
 
 // 獲取路線上的精靈
 function fetchRouteCreatures() {

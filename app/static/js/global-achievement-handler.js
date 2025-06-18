@@ -47,8 +47,7 @@
             this.createLightweightNotificationSystem();
         }        /**
          * 攔截fetch請求
-         */
-        interceptFetchRequests() {
+         */        interceptFetchRequests() {
             const originalFetch = window.fetch;
             
             window.fetch = async function(...args) {
@@ -75,7 +74,10 @@
                     
                     return response;
                 } catch (error) {
-                    console.error('Fetch 請求錯誤:', error);
+                    // 網路錯誤或其他fetch相關錯誤，記錄但不重新拋出錯誤影響原始請求
+                    console.warn('Fetch 請求遇到網路錯誤，跳過成就檢查:', error.message);
+                    
+                    // 重新拋出原始錯誤，讓呼叫者能正確處理
                     throw error;
                 }
             };

@@ -56,7 +56,15 @@ class DailyMigration {
             }
         } catch (error) {
             console.error('載入簽到狀態失敗:', error);
-            this.showError('載入失敗，請重新整理頁面');
+            let errorMessage = '載入失敗，請重新整理頁面';
+            
+            if (error.message.includes('Failed to fetch')) {
+                errorMessage = '網路連接失敗，請檢查網路連接或重新整理頁面';
+            } else if (error.message.includes('HTTP')) {
+                errorMessage = '伺服器回應錯誤，請重新整理頁面';
+            }
+            
+            this.showError(errorMessage);
         }
     }
 
@@ -248,21 +256,35 @@ class DailyMigration {
                 credentials: 'same-origin'
             });
 
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
             const data = await response.json();
-            
-            if (data.success) {
+              if (data.success) {
                 // 顯示成功動畫
                 this.showMigrationSuccess(data);
                 
-                // 檢查成就觸發
-                if (data.triggered_achievements && data.triggered_achievements.length > 0) {
+                // 檢查成就觸發 - 確保成就數據存在
+                console.log('簽到成功響應數據:', data);
+                console.log('觸發的成就數據:', data.triggered_achievements);
+                
+                if (data.triggered_achievements && Array.isArray(data.triggered_achievements) && data.triggered_achievements.length > 0) {
+                    console.log('檢測到觸發的成就，數量:', data.triggered_achievements.length);
                     setTimeout(() => {
                         data.triggered_achievements.forEach((achievement, index) => {
+                            console.log(`顯示第 ${index + 1} 個成就:`, achievement);
                             setTimeout(() => {
                                 this.showAchievementModal(achievement);
+                                // 同時觸發全局成就事件
+                                window.dispatchEvent(new CustomEvent('achievementTriggered', {
+                                    detail: achievement
+                                }));
                             }, index * 2000);
                         });
                     }, 2000);
+                } else {
+                    console.log('沒有觸發新成就或成就數據格式不正確');
                 }
                 
                 // 重新載入狀態
@@ -271,10 +293,20 @@ class DailyMigration {
                 }, 3000);
                 
             } else {
-                throw new Error(data.message || '遷移失敗');
-            }        } catch (error) {
+                throw new Error(data.message || '簽到失敗');
+            }} catch (error) {
             console.error('簽到失敗:', error);
-            this.showError(error.message || '簽到過程中發生錯誤');
+            let errorMessage = '簽到過程中發生錯誤';
+            
+            if (error.message.includes('Failed to fetch')) {
+                errorMessage = '網路連接失敗，請檢查網路連接或稍後再試';
+            } else if (error.message.includes('HTTP')) {
+                errorMessage = '伺服器回應錯誤，請稍後再試';
+            } else {
+                errorMessage = error.message || '簽到過程中發生錯誤';
+            }
+            
+            this.showError(errorMessage);
             this.elements.migrationBtn.disabled = false;
             this.elements.migrationBtn.innerHTML = '<i class="fas fa-rocket me-2"></i><span>開始簽到</span>';
         }
@@ -312,12 +344,19 @@ class DailyMigration {
         // 顯示成功彈窗
         const modal = new bootstrap.Modal(document.getElementById('migrationSuccessModal'));
         modal.show();
-    }
-
-    showAchievementModal(achievement) {
-        document.getElementById('achievement-name').textContent = achievement.name;
-        document.getElementById('achievement-description').textContent = `恭喜獲得「${achievement.name}」成就！`;
+    }    showAchievementModal(achievement) {
+        // 設置成就名稱和描述
+        document.getElementById('achievement-name').textContent = achievement.name || '未知成就';
+        document.getElementById('achievement-description').textContent = 
+            achievement.description || `恭喜獲得「${achievement.name || '未知成就'}」成就！`;
         
+        // 如果有圖標信息，更新圖標
+        const achievementIcon = document.querySelector('#achievementModal .achievement-icon');
+        if (achievementIcon && achievement.icon) {
+            achievementIcon.className = `${achievement.icon} achievement-icon`;
+        }
+        
+        // 顯示成就彈窗
         const modal = new bootstrap.Modal(document.getElementById('achievementModal'));
         modal.show();
 
@@ -325,6 +364,9 @@ class DailyMigration {
         if (window.globalAchievementHandler) {
             window.globalAchievementHandler.handleNewAchievements([achievement]);
         }
+        
+        // 記錄成就觸發事件
+        console.log('觸發成就:', achievement);
     }
 
     showLoading() {

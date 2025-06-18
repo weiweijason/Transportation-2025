@@ -12,12 +12,22 @@ import {
     routeLayer,
     stopsLayer,
     busesLayer,
+    busPositionLayer,
     creaturesLayer,
     arenaLayer,
     routeColors,
     routeCoordinates,
     routeCreatures
 } from './modules/config.js';
+
+// 導入公車位置管理模組
+import { 
+    initBusPositionLayer, 
+    loadAllBusPositions, 
+    updateBusPositions, 
+    clearBusMarkers, 
+    toggleBusLayer 
+} from './modules/bus-position-manager.js';
 
 // 從 arena-manager.js 導入新增的函數
 import { checkExistingArenaForStop, updateArenaRoutes } from './modules/arena-manager.js';
@@ -40,6 +50,13 @@ window.showErrorMessage = showErrorMessage;
 window.showSuccessMessage = showSuccessMessage;
 window.renderAllArenas = renderAllArenas; // 暴露新函數
 
+// 暴露公車位置相關函數
+window.initBusPositionLayer = initBusPositionLayer;
+window.loadAllBusPositions = loadAllBusPositions;
+window.updateBusPositions = updateBusPositions;
+window.clearBusMarkers = clearBusMarkers;
+window.toggleBusLayer = toggleBusLayer;
+
 // 暴露道館等級相關的新函數
 window.checkExistingArenaForStop = checkExistingArenaForStop;
 window.updateArenaRoutes = updateArenaRoutes;
@@ -48,6 +65,7 @@ window.updateArenaRoutes = updateArenaRoutes;
 window.routeLayer = routeLayer;
 window.stopsLayer = stopsLayer;
 window.busesLayer = busesLayer;
+window.busPositionLayer = busPositionLayer;
 window.creaturesLayer = creaturesLayer;  // 保留 creaturesLayer，但不生成精靈
 window.arenaLayer = arenaLayer;
 window.routeColors = routeColors;
@@ -132,7 +150,14 @@ function initApp(mapContainerId = 'map') {
                         // 1. 首先只載入所有站點，但不創建道館
                         loadAllBusStops();
                         
-                        // 2. 等待站點載入完成後，從緩存中載入並繪製所有道館
+                        // 2. 初始化並載入公車位置
+                        setTimeout(() => {
+                            console.log('初始化公車位置圖層...');
+                            initBusPositionLayer(window.busMap);
+                            loadAllBusPositions();
+                        }, 1500); // 在站點載入後初始化公車位置
+                        
+                        // 3. 等待站點載入完成後，從緩存中載入並繪製所有道館
                         setTimeout(() => {
                             console.log('站點載入完成，開始從緩存中載入並繪製道館...');
                             renderAllArenas();

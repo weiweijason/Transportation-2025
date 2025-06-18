@@ -227,6 +227,24 @@ function initializeMapFeatures() {
     }, 1500);
   }
   
+  // 載入公車位置（新增）
+  if (typeof window.loadAllBusPositions === 'function') {
+    setTimeout(() => {
+      console.log('全螢幕地圖載入公車位置...');
+      
+      // 確保公車位置圖層已初始化
+      if (typeof window.initBusPositionLayer === 'function') {
+        const targetMap = window.gameMap || window.busMap;
+        if (targetMap) {
+          window.initBusPositionLayer(targetMap);
+        }
+      }
+      
+      // 載入公車位置
+      window.loadAllBusPositions();
+    }, 1800);
+  }
+  
   // 載入精靈
   if (typeof window.loadCreatures === 'function') {
     setTimeout(() => {

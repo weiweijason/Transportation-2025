@@ -153,6 +153,13 @@
 <script src="{{ url_for('static', filename='js/game/map-functions.js') }}"></script>
 <script src="{{ url_for('static', filename='js/game/creature-functions.js') }}"></script>
 <script src="{{ url_for('static', filename='js/game/arena-functions.js') }}"></script>
+
+<!-- 引入公車位置管理模組 -->
+<script type="module" src="{{ url_for('static', filename='js/modules/bus-position-manager.js') }}"></script>
+
+<!-- 引入虛假公車清理腳本 -->
+<script src="{{ url_for('static', filename='js/utils/clear-fake-buses.js') }}"></script>
+
 <script type="text/javascript">
   // 初始化時設置最大縮放級別
   document.addEventListener('DOMContentLoaded', function() {
@@ -161,7 +168,7 @@
       if (window.gameMap) {
         window.gameMap.setZoom(19); // 設置為最大缩放级别
       } else if (window.busMap) {
-        window.busMap.setZoom(19); // 設置為最大缩放级别
+        window.busMap.setZoom(19); // 設置為最大縮放级別
       }
     }, 1000);
     
