@@ -319,8 +319,7 @@ class FirebaseService:
         try:
             # 更新 Firestore 中的用戶資料
             self.firestore_db.collection('users').document(user_id).update(data)
-            
-            # 同時更新 Realtime Database 中的用戶資料 (保持兼容性)
+              # 同時更新 Realtime Database 中的用戶資料 (保持兼容性)
             self.db.child("users").child(user_id).update(data)
             
             return {
@@ -335,7 +334,7 @@ class FirebaseService:
             }
     
     def _initialize_user_backpack(self, user_id):
-        """初始化用戶背包子集合並設置魔法陣個數
+        """初始化用戶背包子集合並設置魔法陣和藥水數量
         
         Args:
             user_id: 使用者ID
@@ -375,11 +374,46 @@ class FirebaseService:
                     'created_at': time.time()
                 }
             ]
+            
+            # 初始化藥水類型和數量
+            potions = [
+                {
+                    'item_type': 'potion',
+                    'item_name': 'normal_potion',
+                    'display_name': '普通藥水',
+                    'count': 1,  # 初始給予1個普通藥水
+                    'description': '普通的捕捉藥水，輕微提升捕捉能力',
+                    'effect': '捕捉率 1.13 倍',
+                    'created_at': time.time()
+                },
+                {
+                    'item_type': 'potion',
+                    'item_name': 'advanced_potion',
+                    'display_name': '進階藥水',
+                    'count': 1,  # 初始給予1個進階藥水
+                    'description': '進階捕捉藥水，顯著提升捕捉能力',
+                    'effect': '捕捉率 1.25 倍',
+                    'created_at': time.time()
+                },
+                {
+                    'item_type': 'potion',
+                    'item_name': 'premium_potion',
+                    'display_name': '高級藥水',
+                    'count': 1,  # 初始給予1個高級藥水
+                    'description': '傳說中的捕捉藥水，大幅提升捕捉能力',
+                    'effect': '捕捉率 1.50 倍',
+                    'created_at': time.time()
+                }
+            ]
               # 將每個魔法陣類型添加到背包子集合中
             for circle in magic_circles:
                 backpack_ref.document(circle['item_name']).set(circle)
             
-            print(f"已為用戶 {user_id} 初始化背包，包含 {len(magic_circles)} 種魔法陣")
+            # 將每個藥水類型添加到背包子集合中
+            for potion in potions:
+                backpack_ref.document(potion['item_name']).set(potion)
+            
+            print(f"已為用戶 {user_id} 初始化背包，包含 {len(magic_circles)} 種魔法陣和 {len(potions)} 種藥水")
             
         except Exception as e:
             print(f"初始化用戶背包失敗: {e}")
