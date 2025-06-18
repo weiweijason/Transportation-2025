@@ -14,11 +14,17 @@
                         <span class="achievement-count">載入中...</span>
                     </h1>
                     <p class="achievement-subtitle">收集成就，見證你的冒險歷程</p>
-                </div>
-                <div class="col-md-4 text-end">
+                </div>                <div class="col-md-4 text-end">
                     <div class="achievement-search-container">
                         <!-- 搜尋框將由JavaScript動態生成 -->
                     </div>
+                    {% if is_demo %}
+                    <div class="developer-controls mt-2">
+                        <a href="{{ url_for('achievement.demo_logout') }}" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-sign-out-alt"></i> 開發者登出
+                        </a>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

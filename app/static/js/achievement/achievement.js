@@ -195,9 +195,7 @@ class AchievementManager {
                     <div class="stat-label">最近完成</div>
                 </div>
             `;
-        }
-
-        // 更新頁面標題
+        }        // 更新頁面標題
         const titleElement = document.querySelector('.achievement-title');
         if (titleElement) {
             titleElement.innerHTML = `
