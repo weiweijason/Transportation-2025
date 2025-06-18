@@ -104,7 +104,7 @@
           <img id="resultImage" src="{{ creature.image_url }}" alt="{{ creature.name }}" class="mb-3" style="max-width: 200px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); background: transparent !important;">
           <h4 id="resultText" style="font-weight: 700; text-shadow: 0 1px 1px rgba(0,0,0,0.1);">捕捉成功！</h4>
           <p id="resultDescription" style="font-size: 1.1rem; color: #bdc3c7;">恭喜您捕捉到了{{ creature.name }}！</p>
-            <!-- 經驗值獲得顯示 -->
+          <!-- 經驗值獲得顯示 -->
           <div class="experience-gain-info" style="background: linear-gradient(135deg, #f39c12, #e67e22); color: white; padding: 10px; border-radius: 8px; margin: 15px 0; display: none;">            
             <div style="font-size: 1.2rem; font-weight: bold;">
               <i class="fas fa-star me-2"></i>經驗值獲得！
@@ -176,13 +176,21 @@
   };
   
   // 調試信息 - 動態獲取最新的用戶等級  console.log('初始用戶數據:', window.userData);
-  
-  // 輔助函數：更新經驗值提示框的等級顯示
+    // 輔助函數：更新經驗值提示框的等級顯示
   window.updateExperienceDisplay = function(level = 1, experienceGained = 20) {
     const experienceDetails = document.getElementById('experienceDetails');
     if (experienceDetails) {
       experienceDetails.textContent = `獲得 ${experienceGained} 經驗值！當前等級：${level} 級`;
       console.log(`更新經驗值顯示: ${experienceGained} 經驗值, 等級: ${level}`);
+      
+      // 同時確保經驗值提示框是可見的
+      const experienceInfo = document.querySelector('.experience-gain-info');
+      if (experienceInfo && experienceInfo.style.display === 'none') {
+        console.log('updateExperienceDisplay: 顯示經驗值提示框');
+        experienceInfo.style.display = 'block';
+      }
+    } else {
+      console.error('updateExperienceDisplay: 找不到 experienceDetails 元素');
     }
   };
   
@@ -206,7 +214,7 @@
     .catch(error => {
       console.error('獲取用戶數據失敗:', error);
     });
-    // 頁面加載完成後初始化等級顯示
+  // 頁面加載完成後初始化等級顯示
   document.addEventListener('DOMContentLoaded', function() {
     console.log('頁面載入完成，初始化等級顯示');
     
@@ -218,6 +226,21 @@
         window.updateExperienceDisplay(currentLevel, 20);
         console.log('初始化經驗值顯示完成，等級:', currentLevel);
       }
+      
+      // 調試功能：添加全局測試函數
+      window.testExperienceDisplay = function() {
+        console.log('測試經驗值提示框顯示');
+        const experienceInfo = document.querySelector('.experience-gain-info');
+        if (experienceInfo) {
+          experienceInfo.style.display = 'block';
+          window.updateExperienceDisplay(5, 40);
+          console.log('測試：經驗值提示框已強制顯示');
+        } else {
+          console.error('測試：找不到經驗值提示框');
+        }
+      };
+      
+      console.log('調試功能已載入，可在控制台使用 window.testExperienceDisplay() 測試');
     }, 100);
   });
 </script>

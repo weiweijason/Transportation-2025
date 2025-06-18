@@ -548,55 +548,69 @@ class CaptureInteractive {  constructor() {
       const experienceInfo = document.querySelector('.experience-gain-info');
       if (experienceInfo) {
         experienceInfo.style.display = 'none';
-      }
-    } else {
+      }    } else {
       // 設置成功模態框樣式
       document.getElementById('resultModalHeader').className = 'modal-header bg-success text-white';
       document.getElementById('resultModalTitle').textContent = '捕捉成功';
-        // 顯示經驗值信息（如果有捕捉結果數據）
-      if (window.lastCaptureResult && window.lastCaptureResult.creature) {
-        const creature = window.lastCaptureResult.creature;
-        const experienceInfo = document.querySelector('.experience-gain-info');
-        const experienceDetails = document.getElementById('experienceDetails');
         
-        if (experienceInfo && experienceDetails) {
-          experienceInfo.style.display = 'block';
-          // 使用捕捉結果中的等級，或者使用窗口中的用戶數據，或者默認為1
-          const userLevel = creature.level || (window.userData ? window.userData.level : 1);
-          experienceDetails.textContent = `獲得 20 經驗值！當前等級：${userLevel} 級`;
-        }
-      } else if (window.userData) {
-        // 如果沒有捕捉結果，但有用戶數據，也顯示經驗值信息        const experienceInfo = document.querySelector('.experience-gain-info');
+      // 總是顯示經驗值信息（捕捉成功時）
+      const experienceInfo = document.querySelector('.experience-gain-info');
+      
+      if (experienceInfo) {
+        experienceInfo.style.display = 'block';
         
-        if (experienceInfo) {
-          experienceInfo.style.display = 'block';
-          // 使用最新的用戶等級，優先從捕捉結果中獲取
-          let userLevel = 1;
-          let experienceGained = 20;
-          
-          if (window.lastCaptureResult && window.lastCaptureResult.user_level_info) {
-            userLevel = window.lastCaptureResult.user_level_info.new_level;
-            experienceGained = window.lastCaptureResult.user_level_info.experience_gained || 20;
-          } else if (window.userData && window.userData.level) {
-            userLevel = window.userData.level;
-          }
-          
-          // 使用全局的更新函數（如果存在）
-          if (typeof window.updateExperienceDisplay === 'function') {
-            window.updateExperienceDisplay(userLevel, experienceGained);
-          } else {
-            // 備用方法：直接更新
-            const experienceDetails = document.getElementById('experienceDetails');
-            if (experienceDetails) {
-              experienceDetails.textContent = `獲得 ${experienceGained} 經驗值！當前等級：${userLevel} 級`;
-            }
-          }
-          console.log(`經驗值提示更新: ${experienceGained} 經驗值, 當前等級: ${userLevel}`);
+        // 使用最新的用戶等級，優先從捕捉結果中獲取
+        let userLevel = 1;
+        let experienceGained = 20;
+        
+        if (window.lastCaptureResult && window.lastCaptureResult.user_level_info) {
+          userLevel = window.lastCaptureResult.user_level_info.new_level;
+          experienceGained = window.lastCaptureResult.user_level_info.experience_gained || 20;
+          console.log('使用捕捉結果中的等級信息:', window.lastCaptureResult.user_level_info);
+        } else if (window.userData && window.userData.level) {
+          userLevel = window.userData.level;
+          console.log('使用窗口中的用戶等級:', userLevel);
+        } else {
+          console.log('使用默認等級: 1');
         }
-      }
-    }
+        
+        // 使用全局的更新函數（如果存在）
+        if (typeof window.updateExperienceDisplay === 'function') {
+          window.updateExperienceDisplay(userLevel, experienceGained);
+        } else {
+          // 備用方法：直接更新
+          const experienceDetails = document.getElementById('experienceDetails');
+          if (experienceDetails) {
+            experienceDetails.textContent = `獲得 ${experienceGained} 經驗值！當前等級：${userLevel} 級`;
+          }
+        }
+        console.log(`經驗值提示框顯示: ${experienceGained} 經驗值, 當前等級: ${userLevel}`);
+      } else {
+        console.error('找不到經驗值提示框元素');
+      }    }
     
     modal.show();
+    
+    // 模態框顯示後，再次確保經驗值提示框被正確顯示（僅在成功時）
+    if (isSuccess) {
+      setTimeout(() => {
+        const experienceInfo = document.querySelector('.experience-gain-info');
+        if (experienceInfo && experienceInfo.style.display === 'none') {
+          console.log('模態框顯示後檢查：經驗值提示框被隱藏，重新顯示');
+          experienceInfo.style.display = 'block';
+          
+          // 重新設置內容
+          if (typeof window.updateExperienceDisplay === 'function') {
+            const level = window.userData ? window.userData.level : 1;
+            window.updateExperienceDisplay(level, 20);
+          }
+        } else if (experienceInfo) {
+          console.log('模態框顯示後檢查：經驗值提示框已正確顯示');
+        } else {
+          console.error('模態框顯示後檢查：找不到經驗值提示框元素');
+        }
+      }, 100);
+    }
     
     // 5秒後自動跳轉並顯示倒數計時
     this.startCountdown();
