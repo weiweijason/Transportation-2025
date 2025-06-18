@@ -1458,11 +1458,11 @@ class FirebaseService:
                         'max_experience': exp_result.get('max_experience', 100)
                     })
                 else:
-                    print(f">>> DEBUG: 添加捕捉經驗值失敗: {exp_result.get('message', '未知錯誤')}")
-                  # 為用戶添加經驗值
+                    print(f">>> DEBUG: 添加捕捉經驗值失敗: {exp_result.get('message', '未知錯誤')}")                  # 為用戶添加經驗值
                 user_exp_result = self.add_experience_to_user(user_id, experience_amount)
                 if user_exp_result.get('success'):
                     print(f">>> DEBUG: 已為用戶 {user_id} 添加 {experience_amount} 經驗值")
+                    print(f">>> DEBUG: 用戶等級更新 - 舊等級: {user_exp_result.get('old_level')}, 新等級: {user_exp_result.get('new_level')}")
                 else:
                     print(f">>> DEBUG: 為用戶添加經驗值失敗: {user_exp_result.get('message', '未知錯誤')}")
                     
@@ -1477,6 +1477,21 @@ class FirebaseService:
                 'message': f"已成功捕捉 {creature_data.get('name', '未知精靈')}!",
                 'creature': user_creature_data
             }
+            
+            # 添加用戶等級更新信息（如果有的話）
+            try:
+                if user_exp_result and user_exp_result.get('success'):
+                    response_data['user_level_info'] = {
+                        'old_level': user_exp_result.get('old_level'),
+                        'new_level': user_exp_result.get('new_level'),
+                        'level_up': user_exp_result.get('level_up', False),
+                        'current_experience': user_exp_result.get('current_experience'),
+                        'experience_gained': user_exp_result.get('experience_gained')
+                    }
+                    print(f">>> DEBUG: 已添加用戶等級信息到回應: {response_data['user_level_info']}")
+            except:
+                print(f">>> DEBUG: 添加用戶等級信息時發生錯誤，但不影響捕捉結果")
+                pass
             
             # 添加經驗值獲得信息（如果有的話）
             try:

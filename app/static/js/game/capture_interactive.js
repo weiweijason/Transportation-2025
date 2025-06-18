@@ -553,8 +553,7 @@ class CaptureInteractive {  constructor() {
       // 設置成功模態框樣式
       document.getElementById('resultModalHeader').className = 'modal-header bg-success text-white';
       document.getElementById('resultModalTitle').textContent = '捕捉成功';
-      
-      // 顯示經驗值信息（如果有捕捉結果數據）
+        // 顯示經驗值信息（如果有捕捉結果數據）
       if (window.lastCaptureResult && window.lastCaptureResult.creature) {
         const creature = window.lastCaptureResult.creature;
         const experienceInfo = document.querySelector('.experience-gain-info');
@@ -562,7 +561,37 @@ class CaptureInteractive {  constructor() {
         
         if (experienceInfo && experienceDetails) {
           experienceInfo.style.display = 'block';
-          experienceDetails.textContent = `獲得 20 經驗值！當前等級：${creature.level || 1} 級`;
+          // 使用捕捉結果中的等級，或者使用窗口中的用戶數據，或者默認為1
+          const userLevel = creature.level || (window.userData ? window.userData.level : 1);
+          experienceDetails.textContent = `獲得 20 經驗值！當前等級：${userLevel} 級`;
+        }
+      } else if (window.userData) {
+        // 如果沒有捕捉結果，但有用戶數據，也顯示經驗值信息        const experienceInfo = document.querySelector('.experience-gain-info');
+        
+        if (experienceInfo) {
+          experienceInfo.style.display = 'block';
+          // 使用最新的用戶等級，優先從捕捉結果中獲取
+          let userLevel = 1;
+          let experienceGained = 20;
+          
+          if (window.lastCaptureResult && window.lastCaptureResult.user_level_info) {
+            userLevel = window.lastCaptureResult.user_level_info.new_level;
+            experienceGained = window.lastCaptureResult.user_level_info.experience_gained || 20;
+          } else if (window.userData && window.userData.level) {
+            userLevel = window.userData.level;
+          }
+          
+          // 使用全局的更新函數（如果存在）
+          if (typeof window.updateExperienceDisplay === 'function') {
+            window.updateExperienceDisplay(userLevel, experienceGained);
+          } else {
+            // 備用方法：直接更新
+            const experienceDetails = document.getElementById('experienceDetails');
+            if (experienceDetails) {
+              experienceDetails.textContent = `獲得 ${experienceGained} 經驗值！當前等級：${userLevel} 級`;
+            }
+          }
+          console.log(`經驗值提示更新: ${experienceGained} 經驗值, 當前等級: ${userLevel}`);
         }
       }
     }
@@ -580,10 +609,10 @@ class CaptureInteractive {  constructor() {
       countdown--;
       if (countdownElement) {
         countdownElement.textContent = countdown;
-      }
-      if (countdown <= 0) {
-        clearInterval(countdownInterval);        // 修改重定向邏輯：優先返回到用戶精靈頁面，展示新捕捉的精靈
-        window.location.href = "/bylin/myelf";
+      }      if (countdown <= 0) {
+        clearInterval(countdownInterval);
+        // 修改重定向邏輯：返回到遊戲地圖頁面
+        window.location.href = "/game/catch";
       }
     }, 1000);
   }
@@ -686,16 +715,42 @@ class CaptureInteractive {  constructor() {
         try {
           const creatureId = document.querySelector('[data-creature-id]')?.dataset.creatureId || 
                             window.creatureData?.id;
-          
-          if (creatureId) {
+            if (creatureId) {
             const result = await CaptureHandler.captureCreature(creatureId);
             console.log('捕捉處理結果:', result);
-            
-            // 如果捕捉成功，更新成功消息以包含經驗值信息
+              // 如果捕捉成功，更新成功消息以包含經驗值信息
             if (result.success && result.creature) {
-              const experienceInfo = result.creature.experience !== undefined ? 
-                ` 獲得 20 經驗值！當前等級：${result.creature.level || 1}` : '';
+              // 優先使用後端返回的用戶等級信息
+              let userLevel = 1; // 默認等級
+              let experienceGained = 20; // 默認經驗值
+                // 檢查是否有用戶等級更新信息
+              if (result.user_level_info && result.user_level_info.new_level) {
+                userLevel = result.user_level_info.new_level;
+                experienceGained = result.user_level_info.experience_gained || 20;
+                console.log('使用後端返回的用戶等級信息:', result.user_level_info);
+                
+                // 更新全局用戶數據
+                if (window.userData) {
+                  window.userData.level = userLevel;
+                  window.userData.experience = result.user_level_info.current_experience || 0;
+                }
+                
+                // 立即更新經驗值顯示（如果函數存在）
+                if (typeof window.updateExperienceDisplay === 'function') {
+                  window.updateExperienceDisplay(userLevel, experienceGained);
+                }
+              } else if (result.creature.level) {
+                // 備選：使用精靈數據中的等級（如果有的話）
+                userLevel = result.creature.level;
+              } else if (window.userData && window.userData.level) {
+                // 最後備選：使用窗口中的用戶數據
+                userLevel = window.userData.level;
+              }
+              
+              const experienceInfo = ` 獲得 ${experienceGained} 經驗值！當前等級：${userLevel} 級`;
               this.elements.resultMessage.textContent = `捕捉成功！${experienceInfo}`;
+              
+              console.log(`更新等級顯示: ${userLevel} 級, 獲得經驗值: ${experienceGained}`);
               
               // 保存捕捉結果供後續使用
               window.lastCaptureResult = result;

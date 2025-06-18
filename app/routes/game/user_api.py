@@ -12,11 +12,40 @@ user_bp = Blueprint('game_user', __name__, url_prefix='/game/api/user')
 @login_required
 def get_current_user():
     """獲取當前登入的用戶資訊"""
-    return jsonify({
-        'id': current_user.id,
-        'username': current_user.username,
-        'email': current_user.email
-    })
+    try:
+        from app.services.firebase_service import FirebaseService
+        firebase_service = FirebaseService()
+        user_data = firebase_service.get_user_info(current_user.id)
+        
+        # 詳細調試用戶數據
+        current_app.logger.info(f"API獲取用戶數據 - 用戶ID: {current_user.id}")
+        current_app.logger.info(f"API獲取用戶數據 - 原始數據: {user_data}")
+        
+        if user_data:
+            level = user_data.get('level', 1)
+            experience = user_data.get('experience', 0)
+            current_app.logger.info(f"API解析等級: {level}, 經驗值: {experience}")
+        else:
+            level = 1
+            experience = 0
+            current_app.logger.warning("API無法獲取用戶數據，使用預設值")
+        
+        return jsonify({
+            'success': True,
+            'id': current_user.id,
+            'username': current_user.username,
+            'email': current_user.email,
+            'user_data': {
+                'level': level,
+                'experience': experience
+            }
+        })
+    except Exception as e:
+        current_app.logger.error(f"獲取用戶資訊失敗: {e}")
+        return jsonify({
+            'success': False,
+            'message': '獲取用戶資訊失敗'
+        }), 500
 
 @user_bp.route('/creatures')
 @login_required

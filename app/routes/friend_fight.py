@@ -119,7 +119,8 @@ def create_room():
         room_data = {
             'room_id': room_id,
             'host_player_id': current_player_id,
-            'host_username': user_data.get('username', '未知用戶'),            'host_creature': {
+            'host_username': user_data.get('username', '未知用戶'),            
+            'host_creature': {
                 'id': selected_creature_id,
                 'name': creature_data.get('name'),
                 'element': creature_data.get('type', creature_data.get('element', 'Normal')),

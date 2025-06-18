@@ -20,6 +20,18 @@
     left: 0;
     z-index: 1000;
   }
+
+  .back-button {
+    position: fixed;
+    top: 20px;       /* 原本是 20px，改為 80px 避開導覽列 */
+    left: 20px;      /* 原本是 20px，改為 16px 更貼近邊緣但不會太擠 */
+    z-index: 1050;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   
   .control-panel {
     position: fixed;
@@ -154,6 +166,9 @@
 {% endblock %}
 
 {% block content %}
+<a href="{{ url_for('game.catch') }}" class="btn btn-secondary rounded-circle shadow back-button" title="返回">
+      <i class="fas fa-arrow-left"></i>
+</a>
 <!-- 載入指示器 -->
 <div id="loadingOverlay" class="loading-overlay">
   <div class="text-center">
@@ -168,7 +183,7 @@
 <div id="map"></div>
 
 <!-- 控制面板 -->
-<div class="control-panel">
+<!-- <div class="control-panel">
   <h6><i class="fas fa-cog"></i> 地圖控制</h6>
     <div class="btn-group-vertical w-100" role="group">
     <button type="button" class="btn btn-primary btn-sm" id="refreshLocationBtn">
@@ -183,8 +198,7 @@
     <a href="{{ url_for('game.catch') }}" class="btn btn-success btn-sm" title="返回遊戲">
       <i class="fas fa-compress"></i> 返回遊戲
     </a>  </div>
-  
-  <!-- 公車路線圖例 -->
+
   <div class="bus-routes-legend mt-3">
     <h6 class="mb-2" style="font-size: 11px;"><i class="fas fa-route me-1"></i>路線圖例</h6>
     <div class="d-flex flex-column">
@@ -206,14 +220,12 @@
       </div>
     </div>
   </div>
-  
-    <!-- 精靈更新倒計時 -->
   <div id="updateIndicator" class="mt-2 text-center">
     <small class="text-muted">
       <i class="fas fa-sync-alt"></i> <span id="updateCountdown">30</span>秒後更新精靊
     </small>
   </div>
-</div>
+</div> -->
 
 <!-- 位置指示器 -->
 <div id="locationIndicator" class="location-indicator d-none">
@@ -227,7 +239,7 @@
 </div>
 
 <!-- 底部信息面板 -->
-<div id="bottomInfo" class="bottom-info">
+<!-- <div id="bottomInfo" class="bottom-info">
   <div class="row">
     <div class="col-md-4">
       <h6><i class="fas fa-info-circle"></i> 使用說明</h6>
@@ -248,12 +260,12 @@
       <p class="mb-0">• R: 重新整理地圖</p>
     </div>
   </div>
-</div>
+</div> -->
 
 <!-- 信息面板切換按鈕 -->
-<button type="button" class="btn info-toggle" id="infoToggleBtn">
+<!-- <button type="button" class="btn info-toggle" id="infoToggleBtn">
   <i class="fas fa-info"></i> 使用說明
-</button>
+</button> -->
 
 <!-- 捕捉成功模態框 -->
 <div class="modal fade catch-modal" id="catchSuccessModal" tabindex="-1" aria-hidden="true">

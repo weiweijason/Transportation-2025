@@ -86,14 +86,21 @@ def capture_interactive(creature_id):
         return redirect(url_for('game.catch'))
     
     creature = creature_doc.to_dict()
-    
-    # 檢查該玩家是否已經捕捉過這隻精靈
-    current_player_id = None
+      # 檢查該玩家是否已經捕捉過這隻精靈並獲取用戶資料    current_player_id = None
+    user_data = None
     if current_user.is_authenticated:
         # 獲取用戶數據
         user_data = firebase_service.get_user_info(current_user.id)
-        if user_data and 'player_id' in user_data:
-            current_player_id = user_data['player_id']
+        current_app.logger.info(f"捕捉頁面獲取用戶數據 - 用戶ID: {current_user.id}")
+        current_app.logger.info(f"捕捉頁面獲取用戶數據 - 原始數據: {user_data}")
+        
+        if user_data:
+            current_app.logger.info(f"用戶等級: {user_data.get('level', '未設定')}")
+            current_app.logger.info(f"用戶經驗值: {user_data.get('experience', '未設定')}")
+            if 'player_id' in user_data:
+                current_player_id = user_data['player_id']
+        else:
+            current_app.logger.warning("無法獲取用戶數據")
     
     # 檢查是否已被捕捉 (使用子集合)
     if current_player_id:
@@ -124,8 +131,7 @@ def capture_interactive(creature_id):
         3: '風',
         4: '電',
         5: '普'
-    }
-      # 稀有度對應中文名稱
+    }    # 稀有度對應中文名稱
     rarity_types = {
         'SSR': '傳說',
         'SR': '史詩',
@@ -138,5 +144,6 @@ def capture_interactive(creature_id):
         creature=creature,
         element_types=element_types,
         rarity_types=rarity_types,
+        user_data=user_data,
         firebase_config=FIREBASE_CONFIG
     )
