@@ -8,14 +8,16 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid p-0">  <div class="capture-container" data-creature-id="{{ creature.id }}" data-creature-name="{{ creature.name }}">
+<div class="container-fluid p-0">  <div class="capture-container" data-creature-id="{{ creature.id }}" data-creature-name="{{ creature.name }}" data-creature-rarity="{{ creature.rate if creature.rate else 'N' }}">
 
     <!-- 魔法陣等級選擇 -->
     <div class="circle-selection-container mb-3">
-      <h5 class="text-center mb-2" style="color: #16a085; font-weight: 700; text-shadow: 0 1px 1px rgba(0,0,0,0.1);">選擇魔法陣等級</h5>
-      <div class="circle-type-info text-center mb-2">
-        <small style="color: #7f8c8d;">不同等級的魔法陣有不同的捕捉成功率</small>
-      </div>      <div class="circle-types">
+      <h5 class="text-center mb-2" style="color: #16a085; font-weight: 700; text-shadow: 0 1px 1px rgba(0,0,0,0.1);">選擇魔法陣等級</h5>      <div class="circle-type-info text-center mb-2">
+        <small style="color: #7f8c8d;">不同等級的魔法陣對不同稀有度精靈有不同的捕捉成功率</small>
+        <div id="rarityInfo" style="margin-top: 5px; font-weight: bold; color: #2c3e50;">
+          當前精靈稀有度：<span class="badge rarity-badge rarity-{{ creature.rate.lower() if creature.rate else 'n' }}">{{ creature.rate if creature.rate else 'N' }}</span>
+        </div>
+      </div><div class="circle-types">
         <div class="circle-type-item" data-type="normal">
           <div class="circle-icon normal-circle">
             <img src="{{ url_for('static', filename='img/circles/normal/magic-circle-inner.png') }}" alt="普通魔法陣">
@@ -162,7 +164,8 @@
   window.creatureData = {
     id: '{{ creature.id }}',
     name: '{{ creature.name }}',
-    imageUrl: '{{ creature.image_url }}'
+    imageUrl: '{{ creature.image_url }}',
+    rarity: '{{ creature.rate if creature.rate else "N" }}'
   };
 </script>
 {% endblock %}

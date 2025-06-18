@@ -1218,25 +1218,30 @@ class FirebaseService:
                     continue
             
             if count > 0:
-                print(f"已刪除 {count} 隻過期精靈（包括其 captured_players 子集合）")
-            
+                print(f"已刪除 {count} 隻過期精靈（包括其 captured_players 子集合）")            
             return count
         except Exception as e:
             print(f"刪除過期精靈失敗: {e}")
             return 0
     
-    def catch_route_creature(self, creature_id, user_id):
+    def catch_route_creature(self, creature_id, user_id, circle_type=None, capture_rate=None):
         """捕捉路線上的精靈
         
         Args:
             creature_id (str): 精靈ID
             user_id (str): 使用者ID
+            circle_type (str, optional): 魔法陣類型 (normal/advanced/premium)
+            capture_rate (float, optional): 實際使用的捕捉率
         
         Returns:
             dict: 捕捉結果
         """
         try:
             print(f">>> DEBUG: 開始嘗試捕捉精靈 ID: {creature_id}, 用戶 ID: {user_id}")
+            if circle_type:
+                print(f">>> DEBUG: 使用魔法陣類型: {circle_type}")
+            if capture_rate is not None:
+                print(f">>> DEBUG: 前端計算的捕捉率: {capture_rate}")
             
             # 步驟 1: 檢查精靈是否存在
             try:
@@ -1251,7 +1256,7 @@ class FirebaseService:
                     }
                 
                 creature_data = creature_doc.to_dict()
-                print(f">>> DEBUG: 找到精靈: {creature_data.get('name')}, 數據: {creature_data}")
+                print(f">>> DEBUG: 找到精靈: {creature_data.get('name')}, 稀有度: {creature_data.get('rate', 'N')}")
             except Exception as e:
                 print(f">>> DEBUG: 獲取精靈數據失敗: {e}")
                 import traceback

@@ -6,6 +6,56 @@ from app.routes.game.auth import jwt_or_session_required
 # 修改藍圖前綴為 /game/api 以符合前端預期
 creature_bp = Blueprint('game_creature', __name__, url_prefix='/game/api')
 
+# 獲取玩家精靈加成狀態 API
+@creature_bp.route('/user/addition', methods=['GET'])
+@login_required
+def get_user_addition():
+    """獲取玩家精靈加成狀態"""
+    try:
+        # 獲取 Firebase 服務
+        from app.services.firebase_service import FirebaseService
+        firebase_service = FirebaseService()
+        
+        # 獲取用戶資料
+        user_data = firebase_service.get_user_info(current_user.id)
+        
+        if user_data and 'addition' in user_data:
+            addition_value = user_data.get('addition')
+            # 確保 addition_value 是有效的數字
+            try:
+                addition_float = float(addition_value)
+                if 0.5 <= addition_float <= 3.0:  # 合理的加成範圍
+                    return jsonify({
+                        'success': True,
+                        'addition': addition_float
+                    })
+                else:
+                    # 加成值超出合理範圍，重置為無加成
+                    current_app.logger.warning(f"用戶 {current_user.id} 的精靈加成值超出範圍: {addition_value}")
+                    return jsonify({
+                        'success': True,
+                        'addition': 1.0
+                    })
+            except (ValueError, TypeError):
+                current_app.logger.warning(f"用戶 {current_user.id} 的精靈加成值格式無效: {addition_value}")
+                return jsonify({
+                    'success': True,
+                    'addition': 1.0
+                })
+        else:
+            # 用戶沒有精靈加成狀態
+            return jsonify({
+                'success': True,
+                'addition': 1.0
+            })
+            
+    except Exception as e:
+        current_app.logger.error(f"獲取用戶精靈加成狀態失敗: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'獲取精靈加成狀態失敗: {str(e)}'
+        }), 500
+
 # 精靈捕捉 API
 @creature_bp.route('/catch-creature', methods=['POST'])
 @login_required

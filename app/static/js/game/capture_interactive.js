@@ -3,26 +3,64 @@
  * 處理魔法陣選擇、背包數據載入、捕捉動畫等功能
  */
 
-class CaptureInteractive {
-  constructor() {
+class CaptureInteractive {  constructor() {
     this.circleCounts = {
       normal: 0,
       advanced: 0,
       premium: 0
     };
     
-    this.circleRates = {
-      normal: 0.6,
-      advanced: 0.8,
-      premium: 0.95
+    // 新的機率計算系統：基於精靈稀有度和魔法陣類型
+    this.circleRatesByRarity = {
+      premium: { // 高級魔法陣
+        'SSR': 0.5,
+        'SR': 0.8, 
+        'R': 1.0,
+        'N': 1.0
+      },
+      advanced: { // 進階魔法陣
+        'SSR': 0.25,
+        'SR': 0.5,
+        'R': 0.8,
+        'N': 1.0
+      },
+      normal: { // 普通魔法陣
+        'SSR': 0.0,
+        'SR': 0.25,
+        'R': 0.5,
+        'N': 0.8
+      }
     };
     
     this.selectedCircleType = 'premium';
     this.captureInProgress = false;
-    
-    this.initializeElements();
+    this.playerAddition = 1.0; // 玩家精靈加成，默認無加成
+    this.creatureRarity = 'N'; // 當前精靈稀有度，默認為N
+      this.initializeElements();
     this.bindEvents();
-    this.loadUserBackpack();
+    this.extractCreatureRarity(); // 先提取精靈稀有度
+    
+    // 異步加載數據
+    this.initializeData();
+  }
+  
+  // 初始化所有數據
+  async initializeData() {
+    try {
+      // 並行加載背包數據和玩家加成
+      await Promise.all([
+        this.loadUserBackpack(),
+        this.loadPlayerAddition()
+      ]);
+      
+      // 所有數據載入完成後，更新界面
+      this.updateCircleItems();
+      this.setDefaultSelectedCircle();
+      
+    } catch (error) {
+      console.error('初始化數據失敗:', error);
+      this.setDefaultValues();
+    }
   }
   
   // 初始化DOM元素
@@ -52,10 +90,94 @@ class CaptureInteractive {
       item.addEventListener('click', () => this.selectCircleType(item));
     });
   }
-  
-  // 獲取CSRF Token
+    // 獲取CSRF Token
   getCsrfToken() {
     return document.querySelector('meta[name=csrf-token]')?.getAttribute('content') || '';
+  }
+    // 從頁面提取精靈稀有度信息
+  extractCreatureRarity() {
+    try {
+      // 優先從 window.creatureData 獲取
+      if (window.creatureData && window.creatureData.rarity) {
+        this.creatureRarity = window.creatureData.rarity;
+        console.log('從 window.creatureData 提取到精靈稀有度:', this.creatureRarity);
+        return;
+      }
+      
+      // 從容器的 data 屬性獲取
+      const creatureContainer = document.querySelector('[data-creature-id]');
+      if (creatureContainer && creatureContainer.dataset.creatureRarity) {
+        this.creatureRarity = creatureContainer.dataset.creatureRarity;
+        console.log('從容器提取到精靈稀有度:', this.creatureRarity);
+        return;
+      }
+      
+      // 從頁面上的稀有度標籤獲取
+      const rarityElement = document.querySelector('.rarity-badge');
+      if (rarityElement) {
+        this.creatureRarity = rarityElement.textContent.trim() || 'N';
+        console.log('從稀有度標籤提取到精靈稀有度:', this.creatureRarity);
+        return;
+      }
+      
+      // 默認稀有度
+      this.creatureRarity = 'N';
+      console.log('使用默認精靈稀有度: N');
+      
+    } catch (error) {
+      console.error('提取精靈稀有度失敗:', error);
+      this.creatureRarity = 'N';
+    }
+  }
+  
+  // 從Firebase讀取玩家精靈加成狀態
+  async loadPlayerAddition() {
+    try {
+      console.log('開始載入玩家精靈加成狀態...');
+      
+      const response = await fetch('/game/api/user/addition', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': this.getCsrfToken()
+        },
+        credentials: 'same-origin'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.addition) {
+          this.playerAddition = parseFloat(data.addition) || 1.0;
+          console.log('成功載入玩家精靈加成:', this.playerAddition);
+          this.showNotification(`精靈加成已啟用：${((this.playerAddition - 1) * 100).toFixed(0)}%`, 'success');
+        } else {
+          this.playerAddition = 1.0;
+          console.log('玩家無精靈加成狀態');
+        }
+      } else {
+        console.warn('無法獲取玩家精靈加成狀態，使用默認值');
+        this.playerAddition = 1.0;
+      }
+    } catch (error) {
+      console.error('載入玩家精靈加成狀態失敗:', error);
+      this.playerAddition = 1.0;
+    }
+  }
+  
+  // 計算當前選擇魔法陣對特定稀有度精靈的捕捉成功率
+  calculateCaptureRate(circleType = null, rarity = null) {
+    const selectedCircle = circleType || this.selectedCircleType;
+    const targetRarity = rarity || this.creatureRarity;
+    
+    // 基礎捕捉率（基於魔法陣類型和精靈稀有度）
+    const baseRate = this.circleRatesByRarity[selectedCircle]?.[targetRarity] || 0;
+    
+    // 應用玩家精靈加成
+    const finalRate = Math.min(baseRate * this.playerAddition, 1.0); // 最大成功率為100%
+    
+    console.log(`捕捉率計算: ${selectedCircle}魔法陣 + ${targetRarity}稀有度 = ${baseRate} * ${this.playerAddition}加成 = ${finalRate}`);
+    
+    return finalRate;
   }
   
   // 從Firebase獲取用戶背包數據
@@ -80,19 +202,12 @@ class CaptureInteractive {
         
         if (data.success && data.backpack) {
           console.log('背包數據結構:', data.backpack);
-          
-          // 更新魔法陣數量
+            // 更新魔法陣數量
           this.circleCounts.normal = data.backpack.normal?.count || 0;
           this.circleCounts.advanced = data.backpack.advanced?.count || 0;
           this.circleCounts.premium = data.backpack.premium?.count || 0;
           
           console.log('更新後的魔法陣數量:', this.circleCounts);
-          
-          // 更新UI顯示
-          this.updateCircleItems();
-          
-          // 設置默認選中的魔法陣
-          this.setDefaultSelectedCircle();
           
           console.log('已載入背包數據:', this.circleCounts);
         } else {
@@ -114,8 +229,7 @@ class CaptureInteractive {
       this.setDefaultValues();
     }
   }
-  
-  // 設置默認值
+    // 設置默認值
   setDefaultValues() {
     console.log('設置默認魔法陣數量');
     this.circleCounts = {
@@ -123,6 +237,8 @@ class CaptureInteractive {
       advanced: 5,
       premium: 3
     };
+    this.playerAddition = 1.0;
+    
     this.updateCircleItems();
     this.setDefaultSelectedCircle();
     
@@ -160,16 +276,29 @@ class CaptureInteractive {
       notification.remove();
     }, 3000);
   }
-  
-  // 設置默認選中的魔法陣
+    // 設置默認選中的魔法陣
   setDefaultSelectedCircle() {
     const priority = ['premium', 'advanced', 'normal'];
     let defaultType = 'normal';
     
+    // 選擇有庫存且能夠捕捉當前精靈的魔法陣
     for (const type of priority) {
-      if (this.circleCounts[type] > 0) {
+      const hasStock = this.circleCounts[type] > 0;
+      const canCapture = this.calculateCaptureRate(type, this.creatureRarity) > 0;
+      
+      if (hasStock && canCapture) {
         defaultType = type;
         break;
+      }
+    }
+    
+    // 如果沒有合適的魔法陣，仍然選擇最高級的可用魔法陣
+    if (defaultType === 'normal') {
+      for (const type of priority) {
+        if (this.circleCounts[type] > 0) {
+          defaultType = type;
+          break;
+        }
       }
     }
     
@@ -185,19 +314,37 @@ class CaptureInteractive {
     
     // 更新魔法陣圖片
     this.initializeMagicCircleImages();
+    
+    console.log(`默認選中魔法陣: ${defaultType}, 成功率: ${(this.calculateCaptureRate() * 100).toFixed(1)}%`);
   }
-  
-  // 更新魔法陣選擇項顯示
+    // 更新魔法陣選擇項顯示
   updateCircleItems() {
     this.elements.circleTypeItems.forEach(item => {
       const type = item.dataset.type;
       const countElement = item.querySelector('span');
+      const rateElement = item.querySelector('.circle-rate');
       
       // 更新數量顯示
       countElement.textContent = this.circleCounts[type];
       
-      // 禁用沒有剩餘的魔法陣
-      if (this.circleCounts[type] === 0) {
+      // 更新成功率顯示（基於當前精靈稀有度）
+      if (rateElement) {
+        const captureRate = this.calculateCaptureRate(type, this.creatureRarity);
+        const percentage = Math.round(captureRate * 100);
+        rateElement.textContent = `成功率：${percentage}%`;
+        
+        // 如果成功率為0，顯示特殊樣式
+        if (captureRate === 0) {
+          rateElement.style.color = '#e74c3c';
+          rateElement.textContent = `成功率：0%（無法捕捉${this.creatureRarity}級精靈）`;
+        } else {
+          rateElement.style.color = '';
+        }
+      }
+      
+      // 禁用沒有剩餘的魔法陣或無法捕捉的魔法陣
+      const captureRate = this.calculateCaptureRate(type, this.creatureRarity);
+      if (this.circleCounts[type] === 0 || captureRate === 0) {
         item.classList.add('disabled');
       } else {
         item.classList.remove('disabled');
@@ -440,8 +587,7 @@ class CaptureInteractive {
       }
     }, 1000);
   }
-  
-  // 處理捕捉邏輯
+    // 處理捕捉邏輯
   async handleCapture() {
     if (this.captureInProgress) return;
     
@@ -451,11 +597,19 @@ class CaptureInteractive {
       return;
     }
     
+    // 檢查當前魔法陣是否能捕捉該稀有度的精靈
+    const captureRate = this.calculateCaptureRate();
+    if (captureRate === 0) {
+      alert(`${this.getCircleTypeName(this.selectedCircleType)}無法捕捉${this.creatureRarity}級精靈！請使用更高級的魔法陣。`);
+      return;
+    }
+    
     this.captureInProgress = true;
     this.elements.captureBtn.disabled = true;
     this.elements.cancelBtn.disabled = true;
     
     console.log(`開始捕捉，當前${this.selectedCircleType}魔法陣數量：${this.circleCounts[this.selectedCircleType]}`);
+    console.log(`精靈稀有度：${this.creatureRarity}，計算成功率：${(captureRate * 100).toFixed(1)}%`);
     
     try {
       // 消耗魔法陣並更新Firebase
@@ -478,9 +632,9 @@ class CaptureInteractive {
       // 執行捕捉動畫
       await this.performCaptureAnimation();
       
-      // 模擬捕捉成功率
-      const successRate = this.circleRates[this.selectedCircleType];
-      const isSuccess = Math.random() < successRate;
+      // 使用新的機率計算系統進行捕捉判定
+      const isSuccess = Math.random() < captureRate;
+      console.log(`捕捉判定：隨機數 < ${captureRate} = ${isSuccess ? '成功' : '失敗'}`);
       
       // 處理捕捉結果
       await this.handleCaptureResult(isSuccess);
@@ -598,13 +752,13 @@ document.addEventListener('DOMContentLoaded', function() {
   const magicCircleInner = document.getElementById('magicCircleInner');
   if (magicCircle) magicCircle.style.display = 'none';
   if (magicCircleInner) magicCircleInner.style.display = 'none';
-  
-  // 從頁面獲取精靈數據
+    // 從頁面獲取精靈數據
   const creatureElement = document.querySelector('[data-creature-id]');
   if (creatureElement) {
     window.creatureData = {
       id: creatureElement.dataset.creatureId,
-      name: creatureElement.dataset.creatureName || '未知精靈'
+      name: creatureElement.dataset.creatureName || '未知精靈',
+      rarity: creatureElement.dataset.creatureRarity || 'N'
     };
   }
   
