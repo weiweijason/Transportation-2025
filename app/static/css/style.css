@@ -795,6 +795,57 @@ body {
 
 /* 移動設備優化 - 更好的響應式設計 */
 @media (max-width: 767.98px) {
+    /* 確保導航欄樣式具有最高優先級 */
+    body .game-navbar {
+        padding: 0.25rem 0 !important;
+        min-height: auto !important;
+    }
+    
+    body .game-navbar .navbar-brand {
+        font-size: 1.2rem !important;
+        padding: 0.25rem 0 !important;
+        line-height: 1.2 !important;
+    }
+    
+    body .game-navbar .navbar-toggler {
+        padding: 0.2rem 0.4rem !important;
+        font-size: 0.9rem !important;
+        border: none !important;
+    }
+    
+    body .game-navbar .navbar-collapse {
+        margin-top: 0.3rem !important;
+    }
+    
+    body .game-navbar .navbar-nav {
+        margin-bottom: 0 !important;
+    }
+    
+    body .game-navbar .nav-item {
+        margin-bottom: 0.05rem !important;
+    }
+    
+    body .game-navbar .nav-link,
+    body .game-navbar .game-nav-link {
+        padding: 0.3rem 0.6rem !important;
+        margin: 0.05rem !important;
+        font-size: 0.9rem !important;
+        line-height: 1.2 !important;
+    }
+    
+    body .game-navbar .game-username {
+        padding: 0.3rem 0.6rem !important;
+        font-size: 0.9rem !important;
+        line-height: 1.2 !important;
+    }
+    
+    body .game-navbar .mode-toggle {
+        padding: 0.3rem 0.6rem !important;
+        font-size: 0.9rem !important;
+        line-height: 1.2 !important;
+    }
+    
+    /* 原有的樣式... */
     .game-container {
         padding: 15px 12px;
         margin-bottom: 80px;
@@ -835,94 +886,70 @@ body {
     /* 底部邊距調整 */
     body {
         padding-bottom: 80px;
+    }    /* 移動優化 - 導航欄 */
+    .game-navbar {
+        padding: 0.25rem 0 !important;
+        min-height: auto !important;
     }
     
-    /* 移動優化 - 導航欄 */
-    .game-navbar {
-        padding: 0.3rem 0;
+    .navbar-brand {
+        font-size: 1.2rem !important;
+        padding: 0.25rem 0 !important;
+        line-height: 1.2 !important;
+    }
+    
+    .navbar-toggler {
+        padding: 0.2rem 0.4rem !important;
+        font-size: 0.9rem !important;
+        border: none !important;
+    }
+    
+    .navbar-collapse {
+        margin-top: 0.3rem !important;
     }
     
     .game-nav-link {
-        padding: 0.4rem 0.8rem !important;
-        margin: 0.1rem;
+        padding: 0.3rem 0.6rem !important;
+        margin: 0.05rem !important;
+        font-size: 0.9rem !important;
+        line-height: 1.2 !important;
     }
     
-    /* 浮動按鈕優化 */
-    .btn-fab {
-        width: 56px;
-        height: 56px;
+    /* 確保導航欄收合時不會過高 */
+    .navbar-nav .nav-item {
+        margin-bottom: 0.05rem !important;
     }
     
-    .btn-fab-sub {
-        width: 46px;
-        height: 46px;
+    .navbar-nav .nav-link {
+        line-height: 1.2 !important;
+    }
+}
+
+/* 超小屏幕的導航欄優化 */
+@media (max-width: 576px) {
+    .game-navbar {
+        padding: 0.2rem 0 !important;
     }
     
-    /* 卡片間距縮小 */
-    .row .col-md-4 {
-        padding-left: 8px;
-        padding-right: 8px;
+    .navbar-brand {
+        font-size: 1.1rem !important;
+        padding: 0.2rem 0 !important;
     }
     
-    /* 表單元素優化 */
-    .form-control {
-        padding: 0.5rem;
-        font-size: 0.9rem;
+    .navbar-collapse {
+        margin-top: 0.25rem !important;
     }
     
-    /* 標籤調整 */
-    .badge {
-        padding: 0.3rem 0.6rem;
-        font-size: 0.8rem;
+    .game-nav-link,
+    .game-username,
+    .mode-toggle {
+        padding: 0.25rem 0.5rem !important;
+        font-size: 0.85rem !important;
+        line-height: 1.1 !important;
     }
     
-    /* 精靈卡片優化 */
-    .creature-image {
-        height: 120px;
-    }
-    
-    .creature-image img {
-        max-height: 100px;
-    }
-    
-    /* 精靈詳情頁面優化 */
-    .creature-detail-card {
-        flex-direction: column;
-    }
-    
-    .creature-detail-image {
-        width: 100%;
-        height: auto;
-    }
-    
-    /* 擂台頁面優化 */
-    .arena-header {
-        height: 100px;
-    }
-    
-    .arena-badge {
-        width: 40px;
-        height: 40px;
-        font-size: 1rem;
-    }
-    
-    /* 捕捉頁面優化 */
-    .game-tabs .nav-link {
-        padding: 0.4rem 0.7rem;
-        font-size: 0.9rem;
-    }
-    
-    .game-tabs .nav-link i {
-        margin-right: 5px;
-    }
-    
-    /* 捕捉模態框優化 */
-    .catch-modal .modal-body {
-        padding: 15px;
-    }
-    
-    .catch-success-image {
-        max-height: 120px;
+    .navbar-nav .nav-item {
+        margin-bottom: 0.03rem !important;
     }
 }
 

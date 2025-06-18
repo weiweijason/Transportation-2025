@@ -323,7 +323,7 @@
 <script src="{{ url_for('static', filename='js/game/creature-functions.js') }}"></script>
 <script src="{{ url_for('static', filename='js/game/arena-functions.js') }}"></script>
 
-<!-- 全螢幕地圖主要邏輯 - 修正版 -->
+<!-- 全螢幕地圖主要邏輯 - 使用修正版 -->
 <script src="{{ url_for('static', filename='js/game/fullscreen-map-main-fixed.js') }}"></script>
 
 <script src="{{ url_for('static', filename='js/game/catch-game.js') }}"></script>
@@ -359,11 +359,12 @@
             alertDiv.remove();
           }
         }, 5000);
-      };
-    }
-      // 確保定位功能正常運作
+      };    }
+    
+    // 確保定位功能正常運作
     console.log('全螢幕地圖模式初始化...');
-      // 創建安全的地圖視圖設置函數
+    
+    // 創建安全的地圖視圖設置函數 - 改進版
     function safeSetMapView(map, location, zoom) {
       if (!map || typeof map.setView !== 'function') {
         console.warn('地圖實例無效');
@@ -382,11 +383,11 @@
                           map._panes.mapPane;
         
         if (isMapReady) {
-          console.log('地圖已完全就緒，設置視圖');
+          console.log('地圖已完全就緒，直接設置視圖');
           map.setView(location, zoom);
           return true;
         } else {
-          console.warn('地圖未完全就緒，排程延遲設置');
+          console.warn('地圖未完全就緒，檢查具體問題');
           console.log('地圖狀態:', {
             loaded: map._loaded,
             container: !!map._container,
@@ -395,57 +396,129 @@
             panes: !!map._panes
           });
           
-          // 使用更長的延遲，並進行重複嘗試
+          // 特別檢查 _leaflet_pos 問題
+          if (map._loaded && map._container && !map._container._leaflet_pos) {
+            console.warn('檢測到 _leaflet_pos 未初始化，延遲處理');
+            if (typeof window.showGameAlert === 'function') {
+              window.showGameAlert('地圖容器正在初始化，請稍候...', 'info');
+            }
+            return false; // 直接返回，不啟動重試
+          }
+          
+          // 其他情況使用重試機制
           setTimeout(function() {
             safeSetMapViewRetry(map, location, zoom, 1);
-          }, 1000);
+          }, 500);
           return false;
         }
       } catch (error) {
         console.error('設置地圖視圖失敗:', error);
+        
+        // 檢查是否是 _leaflet_pos 相關錯誤
+        if (error.message && error.message.includes('_leaflet_pos')) {
+          console.warn('檢測到 _leaflet_pos 錯誤，停止處理');
+          if (typeof window.showGameAlert === 'function') {
+            window.showGameAlert('地圖容器尚未準備就緒，請稍後再試', 'warning');
+          }
+          return false;
+        }
+        
+        // 其他錯誤的緊急備用方案
         return false;
-      }
-    }
-    
-    // 延遲重試函數
+      }      }
+      
+    // 延遲重試函數 - 改進版
     function safeSetMapViewRetry(map, location, zoom, attempt) {
       const maxAttempts = 5;
       
       if (attempt > maxAttempts) {
-        console.error('地圖視圖設置重試次數已達上限');
-        return;
+        console.warn('地圖視圖設置重試次數已達上限，嘗試使用備用方案');
+        
+        // 備用方案：直接嘗試設置，忽略安全檢查
+        try {
+          if (map && typeof map.setView === 'function') {
+            map.setView(location, zoom);
+            console.log('備用方案設置地圖視圖成功');
+            return true;
+          }
+        } catch (backupError) {
+          console.error('備用方案也失敗:', backupError);
+        }
+        
+        // 最後的備用方案：強制重新初始化地圖
+        console.warn('所有方案失敗，建議用戶重新整理頁面');
+        if (typeof window.showGameAlert === 'function') {
+          window.showGameAlert('地圖初始化遇到問題，請重新整理頁面', 'warning');
+        }
+        return false;
       }
       
       try {
-        const isMapReady = map._loaded && 
-                          map._container && 
-                          map._container._leaflet_pos !== undefined &&
-                          map._size && 
-                          map._size.x > 0 && 
-                          map._size.y > 0;
+        // 更寬鬆的地圖就緒檢查
+        const basicCheck = map && map._loaded && map._container;
+        const advancedCheck = basicCheck && 
+                             map._container._leaflet_pos !== undefined &&
+                             map._size && 
+                             map._size.x > 0 && 
+                             map._size.y > 0;
+          console.log(`重試 ${attempt}: 基本檢查=${basicCheck}, 進階檢查=${advancedCheck}`);
         
-        if (isMapReady) {
+        if (advancedCheck) {
+          // 完全就緒，使用正常設置
           map.setView(location, zoom);
           console.log(`地圖視圖設置成功 (嘗試 ${attempt})`);
+          return true;
+        } else if (basicCheck && attempt >= 3) {
+          // 基本就緒但進階檢查失敗，檢查是否是 _leaflet_pos 問題
+          if (!map._container._leaflet_pos) {
+            console.warn(`第 ${attempt} 次重試: _leaflet_pos 仍未初始化，跳過強制設置`);
+            const delay = Math.min(1000 * attempt, 3000);
+            setTimeout(function() {
+              safeSetMapViewRetry(map, location, zoom, attempt + 1);
+            }, delay);
+            return false;
+          } else {
+            // _leaflet_pos 存在，嘗試強制設置
+            console.log(`嘗試強制設置地圖視圖 (嘗試 ${attempt})`);
+            map.setView(location, zoom);
+            console.log(`強制設置地圖視圖成功 (嘗試 ${attempt})`);
+            return true;
+          }
         } else {
           console.log(`地圖仍未就緒，進行第 ${attempt + 1} 次重試`);
+          const delay = Math.min(1000 * attempt, 3000); // 最大延遲3秒
           setTimeout(function() {
             safeSetMapViewRetry(map, location, zoom, attempt + 1);
-          }, 1000 * attempt); // 漸進式延遲
+          }, delay);
         }
       } catch (retryError) {
         console.error(`地圖視圖設置重試失敗 (嘗試 ${attempt}):`, retryError);
+        
+        // 檢查是否是 _leaflet_pos 相關錯誤
+        if (retryError.message && retryError.message.includes('_leaflet_pos')) {
+          console.warn(`檢測到 _leaflet_pos 錯誤，停止重試並等待地圖完全初始化`);
+          if (typeof window.showGameAlert === 'function') {
+            window.showGameAlert('地圖正在初始化中，請稍後再試', 'info');
+          }
+          return false;
+        }
+        
         if (attempt < maxAttempts) {
+          const delay = Math.min(1000 * attempt, 3000);
           setTimeout(function() {
-            safeSetMapViewRetry(map, location, zoom, attempt + 1);
-          }, 1000 * attempt);
+            safeSetMapViewRetry(map, location, zoom, attempt + 1);          }, delay);
+        } else {
+          // 達到最大重試次數，使用備用方案
+          safeSetMapViewRetry(map, location, zoom, maxAttempts + 1);
         }
       }
+      return false;
     }
     
     // 將安全函數暴露給全局
     window.safeSetMapView = safeSetMapView;
-      // 添加額外的定位重試機制
+    
+    // 添加額外的定位重試機制
     function retryLocationUpdate() {
       if (typeof window.updateUserLocation === 'function') {
         console.log('嘗試獲取用戶位置...');
@@ -468,14 +541,15 @@
             const errorMessage = error && error.message ? error.message : 
                                  (typeof error === 'string' ? error : '定位失敗');
             errorText.textContent = errorMessage;
-          }
-          throw error;
-        });
-      } else {
-        console.error('updateUserLocation 函數不存在');
-        return Promise.reject('定位函數不可用');
-      }
-    }    // 當地圖初始化完成後的處理
+          }        throw error;
+      });
+    } else {
+      console.error('updateUserLocation 函數不存在');
+      return Promise.reject('定位函數不可用');
+    }
+  }
+  
+  // 當地圖初始化完成後的處理
     function onMapReady() {
       console.log('地圖已就緒，開始設置縮放和定位...');
       
@@ -518,9 +592,9 @@
           } catch (zoomError) {
             console.warn('設置縮放失敗:', zoomError);
           }
-        }
-      }, 500);
-        // 嘗試定位（延遲執行以確保地圖完全載入）
+        }      }, 500);
+      
+      // 嘗試定位（延遲執行以確保地圖完全載入）
       setTimeout(function() {
         retryLocationUpdate().catch(function(error) {
           console.warn('初始定位失敗，使用預設位置:', error);
@@ -547,10 +621,10 @@
             console.error('設置預設位置失敗:', mapError);
             // 顯示錯誤信息但不崩潰
             const errorContainer = document.getElementById('locationErrorContainer');
-            const errorText = document.getElementById('currentLocation');
-            if (errorContainer && errorText) {
+            const errorText = document.getElementById('currentLocation');            if (errorContainer && errorText) {
               errorContainer.classList.remove('d-none');
-              errorText.textContent = '定位功能暫時不可用';            }
+              errorText.textContent = '定位功能暫時不可用';
+            }
           }
         });
       }, 2000);
@@ -594,13 +668,22 @@
         console.error('地圖載入超時');
         document.getElementById('locationErrorContainer').classList.remove('d-none');
         document.getElementById('currentLocation').textContent = '地圖載入失敗';
-      }
-    }, 10000);
-      // 為目前位置按鈕添加事件處理（與 catch.html 同步）
+      }    }, 10000);
+    
+    // 為目前位置按鈕添加事件處理（與 catch.html 同步）
     document.getElementById('goToCurrentLocationBtn').addEventListener('click', function() {
       console.log('用戶點擊目前位置按鈕');
       if (window.userLocation) {
-        const map = window.gameMap || window.busMap;        if (map && typeof map.setView === 'function') {
+        // 先檢查地圖容器健康狀態
+        const healthCheck = checkMapContainerHealth();
+        if (!healthCheck.healthy) {
+          console.warn('地圖容器不健康:', healthCheck.reason);
+          window.showGameAlert(healthCheck.reason + '，請稍候再試', 'warning');
+          return;
+        }
+        
+        const map = window.gameMap || window.busMap;
+        if (map && typeof map.setView === 'function') {
           try {
             // 使用安全的地圖視圖設置函數
             const success = safeSetMapView(map, window.userLocation, 19);
@@ -612,20 +695,24 @@
             }
           } catch (error) {
             console.error('跳轉到用戶位置失敗:', error);
-            window.showGameAlert('跳轉失敗，請重試', 'warning');
+            if (error.message && error.message.includes('_leaflet_pos')) {
+              window.showGameAlert('地圖容器初始化未完成，請稍後再試', 'warning');
+            } else {
+              window.showGameAlert('跳轉失敗，請重試', 'warning');
+            }
           }
         } else {
           console.warn('地圖實例無效');
           window.showGameAlert('地圖未就緒，請稍後再試', 'warning');
         }
       } else {
-        console.log('用戶位置未知，嘗試重新定位');
-        retryLocationUpdate().catch(function(error) {
+        console.log('用戶位置未知，嘗試重新定位');        retryLocationUpdate().catch(function(error) {
           window.showGameAlert('無法獲取當前位置，請檢查位置權限設置', 'warning');
         });
       }
     });
-      // 為重新定位按鈕添加事件處理
+    
+    // 為重新定位按鈕添加事件處理
     document.getElementById('refreshLocationBtn').addEventListener('click', function() {
       console.log('用戶點擊重新定位按鈕');
       
@@ -645,9 +732,38 @@
         if (btn) {
           btn.disabled = false;
           btn.innerHTML = '<i class="fas fa-crosshairs"></i> 重新定位';
-        }
-      });
+        }      });
     });
+    
+    // 添加地圖容器狀態檢查函數
+    function checkMapContainerHealth() {
+      const map = window.gameMap || window.busMap;
+      if (!map) {
+        console.log('地圖實例不存在');
+        return { healthy: false, reason: '地圖實例不存在' };
+      }
+      
+      if (!map._container) {
+        console.log('地圖容器不存在');
+        return { healthy: false, reason: '地圖容器不存在' };
+      }
+      
+      if (!map._container._leaflet_pos) {
+        console.log('地圖容器 _leaflet_pos 未初始化');
+        return { healthy: false, reason: '地圖容器正在初始化中' };
+      }
+      
+      if (!map._loaded) {
+        console.log('地圖尚未載入完成');
+        return { healthy: false, reason: '地圖正在載入中' };
+      }
+      
+      console.log('地圖容器狀態健康');
+      return { healthy: true, reason: '地圖已就緒' };
+    }
+    
+    // 暴露到全局
+    window.checkMapContainerHealth = checkMapContainerHealth;
   });
 </script>
 {% endblock %}

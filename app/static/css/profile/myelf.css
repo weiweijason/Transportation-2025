@@ -349,73 +349,171 @@
 
 /* ============ 響應式設計 ============ */
 @media (max-width: 768px) {
-    .stats-panel .card h5 {
-        font-size: 1.4rem; /* 手機版進一步減少字體 */
+    /* 統計面板行動裝置優化 */
+    .myelf-container {
+        padding: 0 0.5rem;
+    }
+    
+    .stats-panel .card {
+        margin-bottom: 0.25rem;
     }
     
     .stats-panel .card-body {
-        padding: 0.6rem 0.8rem; /* 手機版更緊湊的內邊距 */
+        padding: 0.4rem 0.2rem;
     }
     
-    .creature-image {
-        height: 140px;
+    .stats-panel .card h6,
+    .stats-panel .card span {
+        font-size: 0.9rem;
+        margin-bottom: 0.1rem;
     }
     
-    .creature-stats {
-        gap: 0.5rem;
-    }
-    
-    .stat-item {
+    .stats-panel .card p {
         font-size: 0.7rem;
+        margin-bottom: 0;
+    }
+    
+    /* 主卡片優化 */
+    .myelf-main-card {
+        margin-bottom: 1rem;
+    }
+    
+    .myelf-header {
+        padding: 0.75rem 1rem;
+    }
+    
+    .myelf-header h4 {
+        font-size: 1.1rem;
+    }
+    
+    .myelf-header .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    /* 搜尋工具區域優化 */
+    .myelf-search-tools {
+        padding: 0.5rem 1rem;
+    }
+    
+    /* 標籤導航優化 */
+    .myelf-tabs .nav-tabs {
+        border-bottom: 1px solid #dee2e6;
+        margin-bottom: 0;
+        padding: 0 0.5rem;
+    }
+    
+    .myelf-tabs .nav-link {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.8rem;
+        border: none;
+        border-bottom: 2px solid transparent;
+        background: none;
+        white-space: nowrap;
+    }
+    
+    .myelf-tabs .nav-link.active {
+        border-bottom-color: var(--bs-primary);
+        background: rgba(var(--bs-primary-rgb), 0.1);
+    }
+    
+    .myelf-tabs .badge {
+        font-size: 0.65rem;
         padding: 0.2rem 0.4rem;
     }
     
-    .search-sort-tools {
-        padding: 0.75rem; /* 手機版減少 padding */
+    /* 內容區域優化 */
+    .myelf-tab-content {
+        padding: 1rem 0.5rem;
     }
     
+    /* 精靈卡片優化 */
+    .creature-image {
+        height: 100px;
+    }
+    
+    .creature-stats {
+        gap: 0.25rem;
+    }
+    
+    .stat-item {
+        font-size: 0.65rem;
+        padding: 0.15rem 0.3rem;
+    }
+    
+    /* 模態框優化 */
     .modal-body {
-        padding: 1.5rem;
+        padding: 1rem;
     }
     
-    /* 手機版適中的底部間距 */
+    /* 減少底部間距 */
     .container {
-        margin-bottom: 150px !important;
+        margin-bottom: 100px !important;
     }
     
     .game-container {
-        margin-bottom: 150px !important;
-        padding-bottom: 80px !important;
+        margin-bottom: 100px !important;
+        padding-bottom: 60px !important;
     }
 }
 
 @media (max-width: 576px) {
+    /* 超小屏幕優化 */
+    .myelf-container {
+        padding: 0 0.25rem;
+    }
+    
+    .stats-panel .row {
+        margin: 0 -0.25rem;
+    }
+    
+    .stats-panel .row > div {
+        padding: 0 0.25rem;
+    }
+    
+    .stats-panel .card-body {
+        padding: 0.3rem 0.1rem;
+    }
+    
+    .myelf-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+    
+    .myelf-search-tools .row > div {
+        margin-bottom: 0.5rem;
+    }
+    
+    .myelf-tabs {
+        margin: 0 -0.5rem;
+    }
+    
+    .myelf-tabs .nav-tabs {
+        padding: 0 0.25rem;
+    }
+    
     .creature-card {
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
     }
     
     .creature-image {
-        height: 120px;
+        height: 80px;
     }
     
     .creature-level-badge {
-        font-size: 0.6rem;
-        padding: 0.2rem 0.4rem;
+        font-size: 0.55rem;
+        padding: 0.15rem 0.3rem;
     }
     
-    .search-sort-tools .d-flex {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    
-    /* 小屏幕設備適中的底部間距 */
+    /* 極小屏幕的底部間距 */
     .container {
-        margin-bottom: 180px !important;
+        margin-bottom: 120px !important;
     }
     
     .game-container {
-        margin-bottom: 180px !important;
-        padding-bottom: 100px !important;
+        margin-bottom: 120px !important;
+        padding-bottom: 80px !important;
     }
 }
 
@@ -928,28 +1026,28 @@
 }
 
 /* 標籤頁暗色主題 */
-[data-theme="dark"] .nav-tabs {
+[data-theme="dark"] .creature-tabs .nav-tabs {
     border-bottom: 2px solid var(--border-color);
     background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
 }
 
-[data-theme="dark"] .nav-link {
+[data-theme="dark"] .creature-tabs .nav-link {
     color: var(--text-secondary);
     border-color: transparent;
 }
 
-[data-theme="dark"] .nav-link:hover {
+[data-theme="dark"] .creature-tabs .nav-link:hover {
     background: rgba(74, 158, 255, 0.1);
     color: #4a9eff;
 }
 
-[data-theme="dark"] .nav-link.active {
+[data-theme="dark"] .creature-tabs .nav-link.active {
     background: #0d47a1;
     color: white;
     border-color: #0d47a1;
 }
 
-[data-theme="dark"] .nav-link .badge {
+[data-theme="dark"] .creature-tabs .nav-link .badge {
     background-color: rgba(255, 255, 255, 0.2) !important;
     color: white !important;
 }
@@ -1146,3 +1244,113 @@
         box-shadow: 0 2px 10px rgba(0,0,0,0.3);
     }
 }
+
+/* ============ 行動裝置導航標籤優化 ============ */
+
+/* 橫向滾動導航標籤 */
+.creature-tabs .nav-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+.creature-tabs .nav-tabs::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+}
+
+.creature-tabs .nav-item {
+    flex: 0 0 auto;
+}
+
+/* 確保標籤在行動裝置上適當大小 */
+@media (max-width: 768px) {
+    .creature-tabs .nav-tabs {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    
+    .creature-tabs .nav-link {
+        min-width: fit-content;
+        padding: 0.5rem 0.75rem;
+        margin-right: 0.25rem;
+        border-radius: 0.375rem 0.375rem 0 0;
+    }
+    
+    .creature-tabs .nav-link:last-child {
+        margin-right: 0.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .creature-tabs .nav-link {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.75rem;
+    }
+    
+    .creature-tabs .badge {
+        font-size: 0.6rem;
+        padding: 0.15rem 0.3rem;
+        margin-left: 0.25rem;
+    }
+}
+
+/* ============ 統計面板行動裝置優化 ============ */
+
+/* ============ 額外的行動裝置優化 ============ */
+
+/* 確保容器不會造成水平滾動 */
+@media (max-width: 768px) {
+    .myelf-container {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    
+    /* 確保卡片不會超出螢幕寬度 */
+    .myelf-main-card {
+        max-width: 100%;
+        overflow: hidden;
+    }
+      /* 防止內容被導航欄遮擋 */
+    .myelf-container {
+        margin-top: 0.5rem;
+    }
+    
+    /* 優化載入狀態 */
+    .myelf-loading {
+        padding: 2rem 1rem;
+    }
+    
+    .myelf-error {
+        margin: 1rem;
+        padding: 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* 超小屏幕的額外優化 */
+@media (max-width: 480px) {
+    .myelf-container {
+        padding: 0 0.125rem;
+    }
+    
+    .stats-panel .row {
+        margin: 0 -0.125rem;
+    }
+    
+    .stats-panel .row > div {
+        padding: 0 0.125rem;
+    }
+    
+    .myelf-search-tools {
+        padding: 0.375rem 0.75rem;
+    }
+    
+    .myelf-tab-content {
+        padding: 0.75rem 0.375rem;
+    }
+}
+
+/* ============ 改善觸控體驗 ============ */

@@ -4,6 +4,195 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/profile/myelf.css') }}">
+<style>
+/* 終極強制修正導航欄 - 覆蓋所有可能的衝突 */
+
+/* 重置所有可能影響導航欄的樣式 */
+.game-navbar,
+.game-navbar *,
+nav.navbar,
+nav.navbar * {
+    box-sizing: border-box !important;
+}
+
+/* 行動裝置導航欄強制重設 */
+@media screen and (max-width: 768px) {
+    /* 最高優先級選擇器 */
+    html body .navbar.game-navbar,
+    html body nav.game-navbar.navbar,
+    body .navbar.game-navbar,
+    .navbar.game-navbar {
+        padding: 0.25rem 0 !important;
+        min-height: auto !important;
+        height: auto !important;
+        margin-bottom: 1rem !important;
+        background-color: var(--navbar-bg-color) !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 1000 !important;
+    }
+    
+    /* 容器重設 */
+    html body .navbar.game-navbar .container,
+    html body nav.game-navbar.navbar .container,
+    body .navbar.game-navbar .container,
+    .navbar.game-navbar .container {
+        padding: 0 15px !important;
+        margin: 0 auto !important;
+        max-width: none !important;
+    }
+    
+    /* Brand 重設 */
+    html body .navbar.game-navbar .navbar-brand,
+    html body nav.game-navbar.navbar .navbar-brand,
+    body .navbar.game-navbar .navbar-brand,
+    .navbar.game-navbar .navbar-brand {
+        font-size: 1.2rem !important;
+        padding: 0.25rem 0 !important;
+        line-height: 1.2 !important;
+        margin: 0 !important;
+        height: auto !important;
+        display: inline-block !important;
+    }
+    
+    /* Toggler 重設 */
+    html body .navbar.game-navbar .navbar-toggler,
+    html body nav.game-navbar.navbar .navbar-toggler,
+    body .navbar.game-navbar .navbar-toggler,
+    .navbar.game-navbar .navbar-toggler {
+        padding: 0.2rem 0.4rem !important;
+        font-size: 0.9rem !important;
+        border: none !important;
+        margin: 0 !important;
+        height: auto !important;
+        line-height: 1.2 !important;
+    }
+    
+    /* Collapse 重設 */
+    html body .navbar.game-navbar .navbar-collapse,
+    html body nav.game-navbar.navbar .navbar-collapse,
+    body .navbar.game-navbar .navbar-collapse,
+    .navbar.game-navbar .navbar-collapse {
+        margin-top: 0.3rem !important;
+        margin-bottom: 0 !important;
+        padding: 0 !important;
+        height: auto !important;
+    }
+    
+    /* Nav 列表重設 */
+    html body .navbar.game-navbar .navbar-nav,
+    html body nav.game-navbar.navbar .navbar-nav,
+    body .navbar.game-navbar .navbar-nav,
+    .navbar.game-navbar .navbar-nav {
+        margin: 0 !important;
+        padding: 0 !important;
+        height: auto !important;
+        flex-direction: column !important;
+    }
+    
+    /* Nav 項目重設 */
+    html body .navbar.game-navbar .nav-item,
+    html body nav.game-navbar.navbar .nav-item,
+    body .navbar.game-navbar .nav-item,
+    .navbar.game-navbar .nav-item {
+        margin: 0.05rem 0 !important;
+        padding: 0 !important;
+        height: auto !important;
+        width: auto !important;
+    }
+    
+    /* Nav 連結重設 */
+    html body .navbar.game-navbar .nav-link,
+    html body .navbar.game-navbar .game-nav-link,
+    html body .navbar.game-navbar .game-username,
+    html body .navbar.game-navbar .mode-toggle,
+    html body nav.game-navbar.navbar .nav-link,
+    html body nav.game-navbar.navbar .game-nav-link,
+    html body nav.game-navbar.navbar .game-username,
+    html body nav.game-navbar.navbar .mode-toggle,
+    body .navbar.game-navbar .nav-link,
+    body .navbar.game-navbar .game-nav-link,
+    body .navbar.game-navbar .game-username,
+    body .navbar.game-navbar .mode-toggle,
+    .navbar.game-navbar .nav-link,
+    .navbar.game-navbar .game-nav-link,
+    .navbar.game-navbar .game-username,
+    .navbar.game-navbar .mode-toggle {
+        padding: 0.3rem 0.6rem !important;
+        margin: 0.05rem !important;
+        font-size: 0.9rem !important;
+        line-height: 1.2 !important;
+        height: auto !important;
+        display: block !important;
+    }
+}
+
+/* 超小屏幕 */
+@media screen and (max-width: 576px) {
+    html body .navbar.game-navbar,
+    html body nav.game-navbar.navbar,
+    body .navbar.game-navbar,
+    .navbar.game-navbar {
+        padding: 0.2rem 0 !important;
+    }
+    
+    html body .navbar.game-navbar .navbar-brand,
+    html body nav.game-navbar.navbar .navbar-brand,
+    body .navbar.game-navbar .navbar-brand,
+    .navbar.game-navbar .navbar-brand {
+        font-size: 1.1rem !important;
+        padding: 0.2rem 0 !important;
+    }
+    
+    html body .navbar.game-navbar .navbar-collapse,
+    html body nav.game-navbar.navbar .navbar-collapse,
+    body .navbar.game-navbar .navbar-collapse,
+    .navbar.game-navbar .navbar-collapse {
+        margin-top: 0.25rem !important;
+    }
+    
+    html body .navbar.game-navbar .nav-link,
+    html body .navbar.game-navbar .game-nav-link,
+    html body .navbar.game-navbar .game-username,
+    html body .navbar.game-navbar .mode-toggle,
+    html body nav.game-navbar.navbar .nav-link,
+    html body nav.game-navbar.navbar .game-nav-link,
+    html body nav.game-navbar.navbar .game-username,
+    html body nav.game-navbar.navbar .mode-toggle,
+    body .navbar.game-navbar .nav-link,
+    body .navbar.game-navbar .game-nav-link,
+    body .navbar.game-navbar .game-username,
+    body .navbar.game-navbar .mode-toggle,
+    .navbar.game-navbar .nav-link,
+    .navbar.game-navbar .game-nav-link,
+    .navbar.game-navbar .game-username,
+    .navbar.game-navbar .mode-toggle {
+        padding: 0.25rem 0.5rem !important;
+        font-size: 0.85rem !important;
+        line-height: 1.1 !important;
+    }
+    
+    html body .navbar.game-navbar .nav-item,
+    html body nav.game-navbar.navbar .nav-item,
+    body .navbar.game-navbar .nav-item,
+    .navbar.game-navbar .nav-item {
+        margin: 0.03rem 0 !important;
+    }
+}
+
+/* 防止其他樣式干擾 */
+@media screen and (max-width: 768px) {
+    .navbar-expand-lg .navbar-nav {
+        flex-direction: column !important;
+    }
+    
+    .navbar-expand-lg .navbar-nav .nav-link {
+        padding-left: 0.6rem !important;
+        padding-right: 0.6rem !important;
+    }
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -14,34 +203,37 @@
         <!-- 統計面板 -->
         <div class="col-12 mb-2">
             <div class="stats-panel myelf-stats">
-                <div class="row">
-                    <div class="col-md-4 mb-2">
+                <div class="row g-2">
+                    <div class="col-4 col-md-4">
                         <div class="card text-center border-0 shadow-sm">
-                            <div class="card-body py-2">
-                                <h5 class="text-primary mb-1" id="total-count">0</h5>
-                                <p class="text-muted mb-0 small">總計精靈</p>
+                            <div class="card-body py-2 px-1">
+                                <h6 class="text-primary mb-1 d-none d-md-block" id="total-count">0</h6>
+                                <span class="text-primary fw-bold d-md-none" id="total-count-mobile">0</span>
+                                <p class="text-muted mb-0 small">總計</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4 mb-2">
+                    <div class="col-4 col-md-4">
                         <div class="card text-center border-0 shadow-sm">
-                            <div class="card-body py-2">
-                                <h5 class="text-warning mb-1" id="total-power">0</h5>
-                                <p class="text-muted mb-0 small">總戰力</p>
+                            <div class="card-body py-2 px-1">
+                                <h6 class="text-warning mb-1 d-none d-md-block" id="total-power">0</h6>
+                                <span class="text-warning fw-bold d-md-none" id="total-power-mobile">0</span>
+                                <p class="text-muted mb-0 small">戰力</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4 mb-2">
+                    <div class="col-4 col-md-4">
                         <div class="card text-center border-0 shadow-sm">
-                            <div class="card-body py-2">
-                                <h5 class="text-info mb-1" id="average-power">0</h5>
-                                <p class="text-muted mb-0 small">平均戰力</p>
+                            <div class="card-body py-2 px-1">
+                                <h6 class="text-info mb-1 d-none d-md-block" id="average-power">0</h6>
+                                <span class="text-info fw-bold d-md-none" id="average-power-mobile">0</span>
+                                <p class="text-muted mb-0 small">平均</p>
                             </div>
                         </div>
                     </div>    
                 </div>
             </div>
-        </div>        <!-- 主要內容 -->
+        </div><!-- 主要內容 -->
         <div class="col-12">
             <div class="card shadow-lg myelf-main-card">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center myelf-header">
@@ -51,11 +243,10 @@
                             <i class="fas fa-plus me-1"></i>捕捉精靈
                         </a>
                     </div>
-                </div>
-                  <!-- 搜尋和排序工具 -->
+                </div>                <!-- 搜尋和排序工具 -->
                 <div class="card-body border-bottom py-2 myelf-search-tools">
-                    <div class="row align-items-center">
-                        <div class="col-md-6 mb-1 mb-md-0">
+                    <div class="row align-items-center g-2">
+                        <div class="col-12 col-md-6 mb-1 mb-md-0">
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text">
                                     <i class="fas fa-search"></i>
@@ -63,21 +254,21 @@
                                 <input type="text" class="form-control" id="creature-search" placeholder="搜尋精靈名稱...">
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-12 col-md-6">
                             <div class="d-flex gap-2">
-                                <select class="form-select form-select-sm" id="creature-sort">
+                                <select class="form-select form-select-sm flex-grow-1" id="creature-sort">
                                     <option value="name">名稱排序</option>
                                     <option value="power">戰力排序</option>
-                                    <option value="level">等級排序</option>
+                                    <option value="level">稀有度排序</option>
                                     <option value="captured_at">捕獲時間</option>
                                 </select>
-                                <button class="btn btn-outline-secondary btn-sm" id="sort-order-btn" data-order="asc">
+                                <button class="btn btn-outline-secondary btn-sm flex-shrink-0" id="sort-order-btn" data-order="asc">
                                     <i class="fas fa-sort-alpha-down"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
-                </div>                <div class="card-body p-0 myelf-content-area">
+                </div><div class="card-body p-0 myelf-content-area">
                     <!-- 載入狀態 -->
                     <div id="loading-spinner" class="text-center py-5 myelf-loading">
                         <div class="spinner-border text-primary" role="status">
@@ -91,52 +282,53 @@
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         <span id="error-text"></span>
                     </div>
-                    
-                    <div class="creature-tabs myelf-tabs">
+                      <div class="creature-tabs myelf-tabs">
                         <!-- 分類標籤 -->
-                        <ul class="nav nav-tabs nav-fill" id="creatureTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
+                        <ul class="nav nav-tabs nav-fill flex-nowrap" id="creatureTabs" role="tablist" style="overflow-x: auto; white-space: nowrap;">
+                            <li class="nav-item flex-shrink-0" role="presentation">
                                 <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-creatures" type="button" role="tab">
-                                    <i class="fas fa-th me-1"></i>全部 <span class="badge bg-light text-dark ms-1" id="all-count">0</span>
+                                    <i class="fas fa-th me-1 d-none d-md-inline"></i><span class="d-none d-md-inline">全部</span><span class="d-md-none">全</span> <span class="badge bg-light text-dark ms-1" id="all-count">0</span>
                                 </button>
                             </li>
-                            <li class="nav-item" role="presentation">
+                            <li class="nav-item flex-shrink-0" role="presentation">
                                 <button class="nav-link" id="water-tab" data-bs-toggle="tab" data-bs-target="#water-creatures" type="button" role="tab">
-                                    <i class="fas fa-water me-1 text-primary"></i>水系 <span class="badge bg-primary ms-1" id="water-count">0</span>
+                                    <i class="fas fa-water me-1 text-primary d-none d-md-inline"></i><span class="d-none d-md-inline">水系</span><span class="d-md-none">水</span> <span class="badge bg-primary ms-1" id="water-count">0</span>
                                 </button>
                             </li>
-                            <li class="nav-item" role="presentation">
+                            <li class="nav-item flex-shrink-0" role="presentation">
                                 <button class="nav-link" id="fire-tab" data-bs-toggle="tab" data-bs-target="#fire-creatures" type="button" role="tab">
-                                    <i class="fas fa-fire me-1 text-danger"></i>火系 <span class="badge bg-danger ms-1" id="fire-count">0</span>
+                                    <i class="fas fa-fire me-1 text-danger d-none d-md-inline"></i><span class="d-none d-md-inline">火系</span><span class="d-md-none">火</span> <span class="badge bg-danger ms-1" id="fire-count">0</span>
                                 </button>
                             </li>
-                            <li class="nav-item" role="presentation">
+                            <li class="nav-item flex-shrink-0" role="presentation">
                                 <button class="nav-link" id="wood-tab" data-bs-toggle="tab" data-bs-target="#wood-creatures" type="button" role="tab">
-                                    <i class="fas fa-leaf me-1 text-success"></i>草系 <span class="badge bg-success ms-1" id="wood-count">0</span>
+                                    <i class="fas fa-leaf me-1 text-success d-none d-md-inline"></i><span class="d-none d-md-inline">草系</span><span class="d-md-none">草</span> <span class="badge bg-success ms-1" id="wood-count">0</span>
                                 </button>
                             </li>
-                            <li class="nav-item" role="presentation">
+                            <li class="nav-item flex-shrink-0" role="presentation">
                                 <button class="nav-link" id="light-tab" data-bs-toggle="tab" data-bs-target="#light-creatures" type="button" role="tab">
-                                    <i class="fas fa-sun me-1 text-warning"></i>光系 <span class="badge bg-warning ms-1" id="light-count">0</span>
+                                    <i class="fas fa-sun me-1 text-warning d-none d-md-inline"></i><span class="d-none d-md-inline">光系</span><span class="d-md-none">光</span> <span class="badge bg-warning ms-1" id="light-count">0</span>
                                 </button>
                             </li>
-                            <li class="nav-item" role="presentation">
+                            <li class="nav-item flex-shrink-0" role="presentation">
                                 <button class="nav-link" id="dark-tab" data-bs-toggle="tab" data-bs-target="#dark-creatures" type="button" role="tab">
-                                    <i class="fas fa-moon me-1 text-dark"></i>暗系 <span class="badge bg-dark ms-1" id="dark-count">0</span>
-                                </button>
-                            </li>                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="normal-tab" data-bs-toggle="tab" data-bs-target="#normal-creatures" type="button" role="tab">
-                                    <i class="fas fa-star me-1 text-secondary"></i>一般 <span class="badge bg-secondary ms-1" id="normal-count">0</span>
+                                    <i class="fas fa-moon me-1 text-dark d-none d-md-inline"></i><span class="d-none d-md-inline">暗系</span><span class="d-md-none">暗</span> <span class="badge bg-dark ms-1" id="dark-count">0</span>
                                 </button>
                             </li>
-                            <li class="nav-item" role="presentation">
+                            <li class="nav-item flex-shrink-0" role="presentation">
+                                <button class="nav-link" id="normal-tab" data-bs-toggle="tab" data-bs-target="#normal-creatures" type="button" role="tab">
+                                    <i class="fas fa-star me-1 text-secondary d-none d-md-inline"></i><span class="d-none d-md-inline">一般</span><span class="d-md-none">般</span> <span class="badge bg-secondary ms-1" id="normal-count">0</span>
+                                </button>
+                            </li>
+                            <li class="nav-item flex-shrink-0" role="presentation">
                                 <button class="nav-link" id="favorite-tab" data-bs-toggle="tab" data-bs-target="#favorite-creatures" type="button" role="tab">
-                                    <i class="fas fa-heart me-1 text-danger"></i>我的最愛 <span class="badge bg-danger ms-1" id="favorite-count">0</span>
+                                    <i class="fas fa-heart me-1 text-danger d-none d-md-inline"></i><span class="d-none d-md-inline">最愛</span><span class="d-md-none">愛</span> <span class="badge bg-danger ms-1" id="favorite-count">0</span>
                                 </button>
                             </li>
                         </ul>
-                    </div>                    
-                </div>                    <!-- 分類內容 -->
+                    </div>
+                </div>                    
+                <!-- 分類內容 -->
                 <div class="tab-content p-3 myelf-tab-content" id="creatureTabContent">
                     <!-- 全部精靈 -->
                     <div class="tab-pane fade show active" id="all-creatures" role="tabpanel">
@@ -240,7 +432,7 @@
                         <hr>
                         
                         <div class="mb-2">
-                            <strong>種類：</strong>
+                            <strong>稀有度：</strong>
                             <span id="modal-creature-species" class="badge bg-secondary ms-1"></span>
                         </div>
                         <div class="mb-2">
@@ -273,6 +465,82 @@
         messagingSenderId: "{{ firebase_config.messagingSenderId }}",
         appId: "{{ firebase_config.appId }}"
     };
+    
+    // 同步更新統計數據到行動裝置版本
+    function updateStats(totalCount, totalPower, averagePower) {
+        // 桌面版
+        document.getElementById('total-count').textContent = totalCount;
+        document.getElementById('total-power').textContent = totalPower;
+        document.getElementById('average-power').textContent = averagePower;
+        
+        // 行動裝置版
+        const mobileTotal = document.getElementById('total-count-mobile');
+        const mobilePower = document.getElementById('total-power-mobile');
+        const mobileAverage = document.getElementById('average-power-mobile');
+        
+        if (mobileTotal) mobileTotal.textContent = totalCount;
+        if (mobilePower) mobilePower.textContent = totalPower;
+        if (mobileAverage) mobileAverage.textContent = averagePower;
+    }
+    
+    // 強制修正導航欄高度問題
+    document.addEventListener('DOMContentLoaded', function() {
+        function fixNavbarHeight() {
+            const navbar = document.querySelector('.game-navbar');
+            if (navbar && window.innerWidth <= 768) {
+                // 強制設置內聯樣式
+                navbar.style.padding = '0.25rem 0';
+                navbar.style.minHeight = 'auto';
+                navbar.style.height = 'auto';
+                
+                const brand = navbar.querySelector('.navbar-brand');
+                if (brand) {
+                    brand.style.fontSize = '1.2rem';
+                    brand.style.padding = '0.25rem 0';
+                    brand.style.lineHeight = '1.2';
+                }
+                
+                const toggler = navbar.querySelector('.navbar-toggler');
+                if (toggler) {
+                    toggler.style.padding = '0.2rem 0.4rem';
+                    toggler.style.fontSize = '0.9rem';
+                }
+                
+                const collapse = navbar.querySelector('.navbar-collapse');
+                if (collapse) {
+                    collapse.style.marginTop = '0.3rem';
+                    collapse.style.marginBottom = '0';
+                }
+                
+                const navLinks = navbar.querySelectorAll('.nav-link, .game-nav-link, .game-username, .mode-toggle');
+                navLinks.forEach(link => {
+                    link.style.padding = '0.3rem 0.6rem';
+                    link.style.fontSize = '0.9rem';
+                    link.style.lineHeight = '1.2';
+                    link.style.margin = '0.05rem';
+                });
+                
+                const navItems = navbar.querySelectorAll('.nav-item');
+                navItems.forEach(item => {
+                    item.style.marginBottom = '0.05rem';
+                });
+            }
+        }
+        
+        // 初始修正
+        fixNavbarHeight();
+        
+        // 監聽視窗大小變化
+        window.addEventListener('resize', fixNavbarHeight);
+        
+        // 監聽導航欄展開/收合事件
+        const navbarToggler = document.querySelector('.navbar-toggler');
+        if (navbarToggler) {
+            navbarToggler.addEventListener('click', function() {
+                setTimeout(fixNavbarHeight, 100);
+            });
+        }
+    });
 </script>
 
 {% endblock %}

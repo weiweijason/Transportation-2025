@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>導航欄修正最終測試</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 模擬 style.css 中的導航欄樣式 */
+        .game-navbar {
+            background-color: #1976d2;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1rem;
+            padding: 0.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: background-color 0.3s ease;
+        }
+        
+        .game-brand {
+            font-family: 'Baloo 2', cursive;
+            font-weight: 800;
+            font-size: 1.6rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .game-nav-link {
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            margin: 0 0.2rem;
+            border-radius: 20px;
+            transition: all 0.3s;
+            color: rgba(255, 255, 255, 0.85) !important;
+        }
+        
+        .game-username {
+            color: white !important;
+            font-weight: 600;
+        }
+        
+        /* 移動設備優化 - 包含最新修正 */
+        @media (max-width: 767.98px) {
+            /* 確保導航欄樣式具有最高優先級 */
+            body .game-navbar {
+                padding: 0.25rem 0 !important;
+                min-height: auto !important;
+            }
+            
+            body .game-navbar .navbar-brand {
+                font-size: 1.2rem !important;
+                padding: 0.25rem 0 !important;
+                line-height: 1.2 !important;
+            }
+            
+            body .game-navbar .navbar-toggler {
+                padding: 0.2rem 0.4rem !important;
+                font-size: 0.9rem !important;
+                border: none !important;
+            }
+            
+            body .game-navbar .navbar-collapse {
+                margin-top: 0.3rem !important;
+            }
+            
+            body .game-navbar .navbar-nav {
+                margin-bottom: 0 !important;
+            }
+            
+            body .game-navbar .nav-item {
+                margin-bottom: 0.05rem !important;
+            }
+            
+            body .game-navbar .nav-link,
+            body .game-navbar .game-nav-link {
+                padding: 0.3rem 0.6rem !important;
+                margin: 0.05rem !important;
+                font-size: 0.9rem !important;
+                line-height: 1.2 !important;
+            }
+            
+            body .game-navbar .game-username {
+                padding: 0.3rem 0.6rem !important;
+                font-size: 0.9rem !important;
+                line-height: 1.2 !important;
+            }
+            
+            body .game-navbar .mode-toggle {
+                padding: 0.3rem 0.6rem !important;
+                font-size: 0.9rem !important;
+                line-height: 1.2 !important;
+            }
+        }
+
+        @media (max-width: 576px) {
+            body .game-navbar {
+                padding: 0.2rem 0 !important;
+            }
+            
+            body .game-navbar .navbar-brand {
+                font-size: 1.1rem !important;
+                padding: 0.2rem 0 !important;
+            }
+            
+            body .game-navbar .navbar-collapse {
+                margin-top: 0.25rem !important;
+            }
+            
+            body .game-navbar .game-nav-link,
+            body .game-navbar .game-username,
+            body .game-navbar .mode-toggle {
+                padding: 0.25rem 0.5rem !important;
+                font-size: 0.85rem !important;
+                line-height: 1.1 !important;
+            }
+            
+            body .game-navbar .nav-item {
+                margin-bottom: 0.03rem !important;
+            }
+        }
+    </style>
+</head>
+<body class="game-background">
+    <!-- 修正後的導航欄 -->
+    <nav class="navbar navbar-expand-lg navbar-dark game-navbar sticky-top">
+        <div class="container">
+            <a class="navbar-brand game-brand" href="#">
+                <i class="fas fa-bus-alt me-2"></i>精靈公車
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link game-nav-link" href="#">
+                            <i class="fas fa-home me-1"></i> 主頁
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link game-nav-link" href="#">
+                            <i class="fas fa-user me-1"></i> 個人資料
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link game-nav-link" href="#">
+                            <i class="fas fa-search me-1"></i> 探索捕捉
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link game-nav-link" href="#">
+                            <i class="fas fa-calendar-check me-1"></i> 每日簽到
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link game-nav-link" href="#">
+                            <i class="fas fa-trophy me-1"></i> 成就
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <button class="nav-link game-nav-link mode-toggle">
+                            <i class="fas fa-moon"></i>
+                            <span class="ms-1 d-none d-sm-inline-block">主題</span>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <span class="nav-link game-username">
+                            <i class="fas fa-star me-1 text-warning"></i>測試用戶
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link game-nav-link" href="#">
+                            <i class="fas fa-sign-out-alt me-1"></i>登出
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 頁面內容 -->
+    <div class="container mt-3">
+        <div class="alert alert-success">
+            <h4><i class="fas fa-check-circle me-2"></i>導航欄衝突修正完成</h4>
+            <p class="mb-2">已完成以下修正：</p>
+            <ul class="mb-0">
+                <li>移除了 myelf.css 中的重複導航欄樣式</li>
+                <li>修正了 style.css 中的導航欄樣式，添加 !important 確保優先級</li>
+                <li>修正了暗色主題樣式的選擇器，避免影響主導航欄</li>
+                <li>增加了更高特異性的選擇器 (body .game-navbar)</li>
+                <li>優化了行動裝置上的間距和字體大小</li>
+            </ul>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-bug me-2"></i>問題分析</h5>
+            </div>
+            <div class="card-body">
+                <h6>原問題：</h6>
+                <p>myelf.css 中的全局 .nav-link 樣式影響了主導航欄</p>
+                
+                <h6>修正方案：</h6>
+                <ol>
+                    <li>移除 myelf.css 中重複的導航欄樣式</li>
+                    <li>在 style.css 中統一處理導航欄樣式</li>
+                    <li>使用 !important 確保樣式優先級</li>
+                    <li>增加選擇器特異性 (body .game-navbar)</li>
+                    <li>修正暗色主題樣式的作用範圍</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div class="mt-3">
+            <h5>測試說明：</h5>
+            <p>請在不同屏幕尺寸下測試導航欄的表現：</p>
+            <ul>
+                <li><strong>桌面版 (>768px)</strong>：正常大小的導航欄</li>
+                <li><strong>平板版 (768px以下)</strong>：緊湊的導航欄，減少padding</li>
+                <li><strong>手機版 (576px以下)</strong>：最小的導航欄，進一步優化間距</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

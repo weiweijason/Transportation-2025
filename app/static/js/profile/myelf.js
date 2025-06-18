@@ -127,13 +127,13 @@ async function loadUserCreatures() {
                     original: { 
                         type: originalType, 
                         element_type: originalElementType,
-                        species: creature.species 
+                        species: creature.rate 
                     },
                     processed: {
                         unified_type: unifiedType,
                         display_text: typeText,
                         color_class: typeColor,
-                        species_display: creature.species || '一般種'
+                        species_display: creature.rate || '一般種'
                     }
                 });
             });
@@ -167,11 +167,23 @@ async function loadUserCreatures() {
  */
 function updateStatistics() {
     const totalCount = userCreatures.length;
+    const totalPower = getTotalPower();
+    const averagePower = getAveragePower();
     
-    // 更新統計面板
+    // 更新桌面版統計面板
     updateElement('total-count', totalCount);
-    updateElement('total-power', getTotalPower());
-    updateElement('average-power', getAveragePower());
+    updateElement('total-power', totalPower);
+    updateElement('average-power', averagePower);
+    
+    // 更新行動裝置版統計面板
+    updateElement('total-count-mobile', totalCount);
+    updateElement('total-power-mobile', totalPower);
+    updateElement('average-power-mobile', averagePower);
+    
+    // 如果有全局的統計更新函數，也調用它
+    if (window.updateStats) {
+        window.updateStats(totalCount, totalPower, averagePower);
+    }
 }
 
 /**
@@ -315,7 +327,7 @@ function createCreatureCard(creature) {
     // 使用統一的屬性獲取方法
     const elementType = getCreatureElementType(creature);
     // 直接使用 species 欄位，不做轉換（保持原始 Firebase 資料）
-    const creatureSpecies = creature.species || '一般種';
+    const creatureSpecies = creature.rate || '一般種';
     
     cardElement.innerHTML = `
         <div class="card creature-card h-100 ${creature.favorite === true ? 'favorite-creature' : ''}" data-creature-id="${creature.id}">
@@ -365,7 +377,7 @@ function showCreatureDetail(creature) {
     updateElement('modal-creature-hp', creature.hp || 100);
     updateElement('modal-creature-exp', creature.experience || 0);
     // 直接使用 species 欄位，不做轉換（保持原始 Firebase 資料）
-    updateElement('modal-creature-species', creature.species || '一般種');
+    updateElement('modal-creature-species', creature.rate || '一般種');
     
     // 設置圖片
     const imageElement = document.getElementById('modal-creature-image');
@@ -532,7 +544,7 @@ function applyFiltersAndSort() {
     filteredCreatures = userCreatures.filter(creature => {
         if (!currentSearchTerm) return true;
           const name = (creature.name || '').toLowerCase();
-        const species = (creature.species || creature.type || creature.creature_type || '').toLowerCase();
+        const species = (creature.rate || creature.type || creature.creature_type || '').toLowerCase();
         const elementType = getTypeText(creature.element_type || 'normal').toLowerCase();
           return name.includes(currentSearchTerm) || 
                species.includes(currentSearchTerm) || 
@@ -568,8 +580,8 @@ function sortCreatures(sortBy, shouldRender = true) {
                 valueB = b.attack || b.power || 0;
                 break;
             case 'level':
-                valueA = a.level || 1;
-                valueB = b.level || 1;
+                valueA = a.rate || 1;
+                valueB = b.rate || 1;
                 break;
             case 'captured_at':
                 valueA = a.captured_at || 0;
