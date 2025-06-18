@@ -241,29 +241,33 @@ def add_items_to_backpack(user_id, items, firebase_service):
             item_id = item['item_id']
             quantity = item['quantity']
             
-            # 特殊處理普通藥水碎片
+            # 特殊處理普通藥水碎片 - 存儲到 user_backpack 子集合
             if item_id == 'normal_potion_fragment':
-                # 更新用戶的 normal_potion_fragments 欄位
-                user_ref = firebase_service.firestore_db.collection('users').document(user_id)
-                user_doc = user_ref.get()
+                backpack_ref = firebase_service.firestore_db.collection('users').document(user_id).collection('user_backpack')
+                fragments_doc_ref = backpack_ref.document('normal_potion_fragments')
                 
-                if user_doc.exists:
-                    user_data = user_doc.to_dict()
-                    current_fragments = user_data.get('normal_potion_fragments', 0)
-                    new_fragments = current_fragments + quantity
-                    
-                    # 檢查是否可以兌換藥水
-                    potions_to_add = new_fragments // 7
-                    remaining_fragments = new_fragments % 7
-                    
-                    update_data = {'normal_potion_fragments': remaining_fragments}
-                    
-                    # 如果有足夠碎片兌換藥水，同時更新藥水數量
-                    if potions_to_add > 0:
-                        current_potions = user_data.get('normal_potions', 0)
-                        update_data['normal_potions'] = current_potions + potions_to_add
-                    
-                    user_ref.update(update_data)
+                # 獲取當前碎片文檔
+                fragments_doc = fragments_doc_ref.get()
+                
+                if fragments_doc.exists:
+                    # 如果文檔存在，更新 count
+                    current_count = fragments_doc.to_dict().get('count', 0)
+                    new_count = current_count + quantity
+                    fragments_doc_ref.update({
+                        'count': new_count,
+                        'updated_at': datetime.now().isoformat()
+                    })
+                    logger.info(f"更新普通藥水碎片: 用戶 {user_id}, 從 {current_count} 增加到 {new_count}")
+                else:
+                    # 如果文檔不存在，創建新文檔
+                    fragments_doc_ref.set({
+                        'count': quantity,
+                        'item_type': 'potion_fragment',
+                        'created_at': datetime.now().isoformat(),
+                        'updated_at': datetime.now().isoformat(),
+                        'source': 'daily_checkin'
+                    })
+                    logger.info(f"創建普通藥水碎片文檔: 用戶 {user_id}, 設置 count 為 {quantity}")
             else:
                 # 其他道具的處理邏輯保持原樣
                 backpack_ref = firebase_service.firestore_db.collection('users').document(user_id).collection('user_backpack')
@@ -286,6 +290,7 @@ def add_items_to_backpack(user_id, items, firebase_service):
                     
     except Exception as e:
         logger.error(f"添加道具到背包失敗: {str(e)}")
+        raise e  # 重新拋出異常，讓上層處理
 
 def check_migration_achievements(user_id, firebase_service):
     """檢查並觸發遷移相關成就"""
