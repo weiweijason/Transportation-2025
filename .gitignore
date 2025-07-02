@@ -187,6 +187,8 @@ app/__pycache__/
 app/*/__pycache__/
 app/*/*/__pycache__/
 
+
+old_ver_backup/
 # 本地資料文件
 # 允許追蹤本地資料目錄結構，但不追蹤具體資料檔案
 # app/data/*/*.json

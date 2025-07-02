@@ -7,6 +7,32 @@
 document.addEventListener('DOMContentLoaded', function() {
   console.log('全螢幕地圖 DOM 載入完成');
   
+  // 移動設備專用：確保地圖容器高度正確
+  function ensureMobileMapContainer() {
+    const mapContainer = document.getElementById('map');
+    if (mapContainer) {
+      // 強制設置容器樣式
+      mapContainer.style.width = '100vw';
+      mapContainer.style.height = '100vh';
+      mapContainer.style.height = 'calc(var(--vh, 1vh) * 100)';
+      mapContainer.style.position = 'fixed';
+      mapContainer.style.top = '0';
+      mapContainer.style.left = '0';
+      mapContainer.style.zIndex = '1000';
+      
+      console.log('移動設備地圖容器樣式已設置');
+    }
+  }
+  
+  // 立即執行移動設備容器修正
+  ensureMobileMapContainer();
+  
+  // 在視窗大小改變時重新調整
+  window.addEventListener('resize', ensureMobileMapContainer);
+  window.addEventListener('orientationchange', () => {
+    setTimeout(ensureMobileMapContainer, 100);
+  });
+  
   // 隱藏導航欄和頁腳
   const navbar = document.querySelector('.navbar');
   const footer = document.querySelector('footer');
@@ -125,12 +151,35 @@ function createNewMap() {
       throw new Error('地圖容器不存在');
     }
     
+    // 移動設備專用：強制容器尺寸修正
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+      console.log('檢測到移動設備，強制設置容器尺寸');
+      mapContainer.style.width = '100vw';
+      mapContainer.style.height = '100vh';
+      mapContainer.style.height = 'calc(var(--vh, 1vh) * 100)';
+      
+      // 強制重新計算容器尺寸
+      mapContainer.offsetHeight; // 觸發重排
+    }
+    
     // 確保容器有有效尺寸
     if (mapContainer.offsetWidth === 0 || mapContainer.offsetHeight === 0) {
       console.warn('容器尺寸異常，延遲重試');
+      console.log('容器尺寸:', {
+        offsetWidth: mapContainer.offsetWidth,
+        offsetHeight: mapContainer.offsetHeight,
+        clientWidth: mapContainer.clientWidth,
+        clientHeight: mapContainer.clientHeight
+      });
       setTimeout(createNewMap, 500);
       return;
     }
+    
+    console.log('地圖容器尺寸正常:', {
+      width: mapContainer.offsetWidth,
+      height: mapContainer.offsetHeight
+    });
     
     // 創建地圖
     const map = L.map('map', {
@@ -139,7 +188,13 @@ function createNewMap() {
       maxZoom: 19,
       minZoom: 10,
       zoomControl: true,
-      attributionControl: false
+      attributionControl: false,
+      // 移動設備優化選項
+      tap: isMobile,
+      touchZoom: isMobile,
+      dragging: true,
+      scrollWheelZoom: !isMobile, // 移動設備禁用滾輪縮放
+      doubleClickZoom: true
     });
     
     // 添加圖層
@@ -148,6 +203,14 @@ function createNewMap() {
       maxZoom: 19
     }).addTo(map);
     
+    // 移動設備專用：地圖創建後強制調整大小
+    if (isMobile) {
+      setTimeout(() => {
+        map.invalidateSize();
+        console.log('移動設備地圖尺寸已調整');
+      }, 100);
+    }
+
   // 等待地圖完全載入
   map.whenReady(() => {
     console.log('地圖已完全載入');
